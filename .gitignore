@@ -24,3 +24,11 @@ unity/PsychSim/*.sln
 unity/PsychSim/*.slnx
 demo/raw/
 unity/PsychSim/Captures/
+# downloaded AI weights
+models/*
+!models/README.md
+# arXiv non-exclusive licence: link only, never commit
+references/2501.01594.pdf
+references/2405.19660.pdf
+references/2407.00870.pdf
+references/2508.13943v1.pdf

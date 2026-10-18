@@ -1,11 +1,16 @@
 # PsychSim: Design Document
 
 **Working title:** PsychSim, a clinical encounter simulator for psychiatry and addiction medicine
-**Version:** 0.2 (owner's answers folded in; see section 12)
+**Version:** 0.3 (`PLAN_insights.md` Part 4 applied; local voice loop)
 **Date:** 2026-10-18
 **Target platforms:** macOS (Apple Silicon) first, then **Meta Quest 3S** (standalone) through OpenXR
 **Practice setting:** India. English-language patients.
 **Audience for this document:** the project owner, clinical faculty, and three implementation agents (3D artist, developer, tester). Each agent also gets its own brief in `briefs/`.
+
+### Changelog
+- **v0.3 (2026-10-18):** Applied the approved `PLAN_insights.md` Part 4. Realism rules, per-turn style reminder and next-line framing (§3.3); exam actions (§4.4); case schema gains `behavior`, `style`, `banned_words`, `principles`, `rubric`, `variants` (§6.1); risk-first, quote-grounded, side-by-side, formative scoring (§8); RCT pilot design (§9.5); roadmap tags (§10); new §13 Positioning and evidence. Also: **voice moves into Stage 1**; the patient LLM is now **local and open source** (llama.cpp, chosen by bake-off), Grok is an optional cloud fallback; speech-to-text is **Parakeet** (parakeet-mlx); **patient sex is selectable** per case; new lighting spec for the consult room. Owner answers: OSCE station 15 min; lived-experience reviewer optional; pilot control arm is reading material.
+- **v0.2:** Owner's answers to v0.1 open questions (§12).
+- **v0.1:** First draft.
 
 ---
 
@@ -59,7 +64,11 @@ Every case follows the same flow, so learners build a habit and scoring stays co
 | **Plan** | Chooses a primary diagnosis (plus differentials), writes a prescription, picks non-drug steps (therapy referral, admission, safety plan, follow-up) | Diagnosis match, prescription safety and appropriateness, disposition |
 | **Debrief** | Sees a score breakdown, a timeline with missed moments flagged, and teaching points written by the case author | Stored per session for faculty review |
 
-**Time limit:** optional, set per case (default 15 minutes, which matches a typical OSCE station).
+**Time limit:** set per case; **default 15 minutes**, which matches the college's psychiatry OSCE station (owner confirmed, plan D4). A visible station timer runs in both modes.
+
+**Prebrief (before Brief, plan C6):** a short screen with the learning objectives, a content note where relevant, how the station is scored (formative), and "you can pause or leave at any time".
+
+**Start screen:** choose the case, then the patient's sex (every case has a female and a male variant, §6.1 `variants`), then Practice or Assessment mode.
 
 ---
 
@@ -82,11 +91,20 @@ Four values from 0 to 100:
 
 Starting values and how fast each one moves are set in the case file. For example, a paranoid patient starts with low trust and trust moves slowly.
 
+Substance-use cases add four internal states (control, self-efficacy, awareness, craving) in Stage 2 (plan A8).
+
 ### 3.3 Dialogue brain (LLM, constrained)
-- An LLM plays the patient. It gets a system prompt built from the case file, the current emotional state and a list of facts it is **allowed** to reveal right now.
+- An LLM plays the patient. It gets a system prompt built from the case file, the current emotional state and a list of facts it is **allowed** to reveal right now. **Facts the patient has not unlocked are never sent to the model**, so the voice can start before the full reply has been checked.
+- **Behaviour in MSE terms (plan A1):** the prompt describes the patient through the case's `behavior` block (affect, speech, thought form and content, perception, insight, cooperation), never "act like a patient with X". The same block drives the cue engine and the MSE answer key.
+- **Realism rules (plan A2):** describe symptoms vaguely and in everyday words, tie them to daily life, let mood shift, don't be too polite or too cooperative, don't volunteer what wasn't asked. Each case has `banned_words` (for example, an MDD patient never says "depressed" or "anhedonia"; real patients say "down" or "not myself"). The service rejects or rewrites replies containing them.
+- **Per-turn style reminder (plan A3):** one short line built from `behavior` and `style` is appended to the latest learner turn on every call and never stored in history.
+- **Next-line framing (plan A4):** the prompt asks the model to "write the patient's next line in this dialogue", not "you are the patient".
+- **Conversation styles (plan A5, Stage 2):** `style` is a case setting independent of the diagnosis: plain, upset, verbose, reserved, tangent, pleasing.
+- **Hard-to-portray features (plan A6):** irritability and threat in mania, flight of ideas, circumstantiality and intellectual vs emotional insight must be scripted as explicit behaviours with example lines. The tester runs a per-disorder portrayal checklist.
+- **Faculty `principles` (plan A7, Stage 3):** rules faculty write while tuning a patient are stored in the case file and checked offline.
 - It must answer in a fixed JSON format (section 7.2). That output drives the voice, the face, the cues and the score.
 - **Hard rules in the prompt:** stay in character; never name your own diagnosis; never give medical advice; never invent symptoms or history that are not in the case file. If asked about something not covered, answer vaguely in a way that fits the character ("I don't really remember").
-- **Guard check:** before the reply is spoken, the game checks that every revealed fact id actually exists and passes its trust threshold. If the reply fails the check, the game asks the LLM again, then falls back to a scripted line from the case file.
+- **Guard check:** when the reply completes, the game checks that every revealed fact id actually exists and passes its trust threshold. If the reply fails the check, the game asks the LLM again, then falls back to a scripted line from the case file.
 
 ---
 
@@ -140,6 +158,18 @@ To score the interview without grading free speech word by word, every learner l
 
 The full list lives in `data/intents.json` and is owned by faculty.
 
+### 4.4 Exam actions (plan B1)
+The doctor can ask the patient, in words, to do something the 3D model then performs. Whether the patient complies depends on trust (each action has a `trust_min` in the case; below it the patient hesitates or refuses in character). Two commands in one sentence should both run.
+
+| Action | Shows | Stage |
+|---|---|---|
+| `hold_out_hands` | Tremor (fine or coarse), nails, hands | 1 |
+| `roll_up_sleeves` | Forearms: `track_marks`, `self_harm_scars` decals | 1 |
+| `look_at_light` | Pupils (`pupils_dilated`, `pupils_pinpoint`) | 1 |
+| `stand_up`, `walk_to_door` | Gait, balance, restlessness | 2 |
+
+The action is returned as a reply field (`exam_action`), validated by GuardCheck like any cue, and logged as an exam the learner performed.
+
 ---
 
 ## 5. Clinical tools (in-game UI)
@@ -176,6 +206,15 @@ data/
 
 ### 6.1 Case file schema (abridged example)
 
+New in v0.3 (plan Part 4):
+- `behavior`: the presentation in MSE terms (`appearance`, `behaviour`, `speech` {rate, volume, latency}, `mood`, `affect`, `thought_form`, `thought_content`, `perception`, `cognition`, `insight`, `judgment`, `cooperation`), each with optional `example_lines`. Drives the prompt, the cues and the MSE answer key.
+- `style`: one of plain, upset, verbose, reserved, tangent, pleasing (Stage 2 uses more than plain).
+- `banned_words`: words the patient must never say.
+- `principles`: faculty-written behaviour rules (Stage 3 tuning mode).
+- `rubric`: which validated rubric scores the communication domain (MIRS default; MITI for substance cases; SSHADESS/HEADSS for adolescents; C-SSRS items for risk).
+- `variants`: `female` and `male`, each with `name`, `pronouns` (`they`, `them`, `their`), `model_id` and `voice_id`. Clinical facts are identical for both. Text uses templates (`{name}`, `{they}`, `{them}`, `{their}`), never duplicated text. Sex-specific facts and questions (for example pregnancy) carry `"variant": "female"` and only load for that variant.
+- `exam_actions`: per action, `trust_min` and an optional refusal line.
+
 ```json
 {
   "id": "aws_01",
@@ -189,12 +228,26 @@ data/
   "referral_note": "52M, presented with anxiety and 'shakes'. Says he has not slept for 2 nights.",
 
   "patient": {
-    "name": "Rakesh Sharma", "age": 52, "sex": "male",
-    "model_id": "male_50s_a", "variant": "work_clothes_sweaty",
-    "voice_id": "Bruno",            // KittenTTS voice name (section 7)
-    "voice_speed": 1.0,             // base speed; cues like slowed / pressured_speech adjust it
+    "age": 52, "clothing": "work_clothes_sweaty",
     "personality": "Friendly but minimises. Jokes to deflect. Ashamed of drinking."
   },
+  "variants": {
+    "male":   { "name": "Rakesh Sharma", "pronouns": { "they": "he", "them": "him", "their": "his" }, "model_id": "male_50s_a", "voice_id": "Bruno" },
+    "female": { "name": "Rekha Sharma",  "pronouns": { "they": "she", "them": "her", "their": "her" }, "model_id": "female_50s_a", "voice_id": "Rosie" }
+  },
+  "voice": {
+    // voice_id comes from the chosen variant (KittenTTS voice name, section 7)
+    "voice_speed": 1.0              // base speed; cues like slowed / pressured_speech adjust it
+  },
+  "behavior": {
+    "speech": { "rate": "normal", "volume": "normal", "latency": "normal" },
+    "affect": "anxious, reactive", "insight": "partial: admits 'a few drinks', not dependence",
+    "cooperation": "friendly, deflects with jokes"
+  },
+  "style": "plain",
+  "banned_words": ["alcoholic", "withdrawal", "delirium tremens"],
+  "rubric": "MITI",
+  "exam_actions": { "hold_out_hands": { "trust_min": 20 }, "roll_up_sleeves": { "trust_min": 40 } },
 
   "state_start": { "trust": 35, "distress": 55, "agitation": 40, "engagement": 60 },
   "state_drift_per_min": { "agitation": 1.5 },
@@ -275,10 +328,10 @@ Each prescription is checked in this order, and each result shows up in the debr
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Engine           | **Unity 6 LTS**, Universal Render Pipeline (URP)                                                                                                                                                                                                                                                                                                                                                                | Runs well on Apple Silicon, the most mature path to Quest via OpenXR, and good humanoid animation tools. A Unity MCP and a Blender MCP are already connected in this environment, so agents can drive both. |
 | VR readiness     | XR Interaction Toolkit + OpenXR installed **from day one**, with an input layer that hides whether the player uses mouse or VR controllers                                                                                                                                                                                                                                                                      | Makes the VR port a few weeks of work rather than a rewrite                                                                                                                                                 |
-| Patient service  | One small **Python service** (`server/patient-service`) that does speech-to-text, the Grok call and text-to-speech. On Mac it runs on `localhost`. For Quest 3S it runs on a laptop on the same Wi-Fi, or on a college server.                                                                                                                                                                                  | Keeps the API key and the heavy models off the headset. The Mac and VR builds share one backend.                                                                                                            |
-| Patient dialogue | **xAI Grok**, called from the patient service through xAI's OpenAI-compatible API (`https://api.x.ai/v1`, key in `XAI_API_KEY`, JSON-schema structured output). Default `grok-4.20-0309-non-reasoning` for fast in-character replies and intent tagging; compare against `grok-4.7` with reasoning effort `low` for harder cases (psychosis, personality). Model names checked against docs.x.ai on 2026-10-18. | Fast replies matter for a natural conversation. A non-reasoning model avoids thinking delay.                                                                                                                |
-| Speech to text   | whisper.cpp (or faster-whisper) inside the patient service, using an English-only model                                                                                                                                                                                                                                                                                                                         | English only. Runs on the Mac's GPU, and on the headset it saves battery and CPU.                                                                                                                           |
-| Text to speech   | **KittenTTS, model `KittenML/kitten-tts-mini-0.8`** (ONNX, 80 MB, CPU), Python package `kittenml` 0.9.4. 8 voices: Bella, Luna, Rosie, Kiki (female); Jasper, Bruno, Hugo, Leo (male). A `speed` setting drives the `slowed` and `pressured_speech` cues.                                                                                                                                                       | **Measured on this Mac:** 0.4–0.5 s to make 5–7 s of speech (about 12× faster than real time). See 7.3.                                                                                                     |
+| Patient service  | One small **Python FastAPI service** (`server/patient-service`) that does speech-to-text, the patient LLM and text-to-speech. A **WebSocket** at `ws://127.0.0.1:8765/session` takes 16 kHz mono microphone PCM in and streams 24 kHz patient audio plus event JSON back. REST `/reply` stays for typed input and tests. On Mac it runs on `localhost`; for Quest 3S on a laptop or college server on the same Wi-Fi. | Keeps the heavy models off the headset. The Mac and VR builds share one backend. |
+| Patient dialogue | **A local, open-source LLM** served by `llama-server` (llama.cpp, Metal, OpenAI-compatible, JSON-schema grammar-constrained output, 2 parallel slots, prompt-cache reuse). The model is the **smallest that passes the bake-off** in `docs/model-bakeoff.md` (candidates: Gemma 4 E2B / E4B, Qwen3.5 4B / 9B, Q4_K_M GGUFs). **xAI Grok** (`grok-4.20-0309-non-reasoning`) remains an optional cloud fallback, used only when `PATIENT_LLM=grok` and `XAI_API_KEY` are both set. | Nothing leaves the Mac by default, no per-call cost, and no API key to manage. Grammar-constrained decoding makes the JSON contract reliable. |
+| Speech to text   | **Silero VAD** end-pointing (450 ms of silence, tunable) then **Parakeet** (`parakeet-mlx`, `mlx-community/parakeet-tdt-0.6b-v2`, English) on Apple Silicon, benchmarked against `whisper-large-v3-turbo` (mlx-whisper) on Indian-accented English. | Fastest English STT on Apple Silicon in public benchmarks; the accent test decides (tester brief §2.3b). |
+| Text to speech   | **KittenTTS, model `KittenML/kitten-tts-mini-0.8`** (ONNX, 80 MB, CPU), Python package `kittenml` 0.9.4. 8 voices: Bella, Luna, Rosie, Kiki (female); Jasper, Bruno, Hugo, Leo (male). A `speed` setting drives the `slowed` and `pressured_speech` cues. Speaks **sentence by sentence while the LLM is still generating**.                                                                                                                                                       | **Measured on this Mac:** 0.4–0.5 s to make 5–7 s of speech (about 12× faster than real time). See 7.3.                                                                                                     |
 | Lip sync         | uLipSync (open source, works on Mac and Quest) driving the Character Creator viseme blendshapes (`V_Open`, `V_Tight_O`, …)                                                                                                                                                                                                                                                                                      | No vendor lock-in; the provided rigs already have visemes (`RIG_REPORT.md`)                                                                                                                                 |
 | Case data        | JSON files in `StreamingAssets/data/`, checked by a JSON Schema validator                                                                                                                                                                                                                                                                                                                                       | Faculty can edit them without Unity                                                                                                                                                                         |
 | Session logs     | Local JSON per session, exported for faculty                                                                                                                                                                                                                                                                                                                                                                    | No server needed in early stages; no personal data                                                                                                                                                          |
@@ -287,31 +340,34 @@ Each prescription is checked in this order, and each result shows up in the debr
 
 ```
         UNITY CLIENT (Mac or Quest 3S)                          PATIENT SERVICE (Python, localhost or LAN)
- Mic audio ──────────────────────────────────────────────────▶ /stt   whisper (English)
+ Mic PCM 16 kHz ═══ WebSocket /session ═════════════════════▶ Silero VAD ─▶ Parakeet STT
  Keyboard text ─┐                                                 │
                 ▼                                                 ▼
-          EncounterManager ─▶ PatientBrain ─────────────────▶ /reply Grok   ─▶ PatientReply JSON
+          EncounterManager ─▶ PatientBrain ─────────────────▶ local LLM (llama-server; Grok optional) ─▶ PatientReply JSON
                 │                 ▲  (guard check, retry,                        │
                 │                 └── fallback lines) ◀──────────────────────────┘
                 │                 │
                 ▼                 ▼
           ScoringEngine     CueDriver ─▶ Animator layers / procedural / blendshapes / shaders
-                │           Voice  ◀──────────────────────────── /tts   KittenTTS mini (speed per cue)
+                │           Voice  ◀═══ 24 kHz audio, streamed per sentence ═══ KittenTTS mini (speed per cue)
                 ▼             └─▶ AudioSource ─▶ uLipSync ─▶ face visemes
           Debrief + SessionLog
  Clinical tools UI (MSE, exam, scales, Dx, Rx) ─▶ EncounterManager
 ```
 
+**Voice loop rules:** the reply schema is ordered `emotion, utterance, …` so the service parses the stream and sends each finished sentence to TTS at once. Intent tagging is a separate parallel request on the second slot and never delays the voice. **Barge-in:** if the doctor starts speaking while the patient talks, the patient stops within 150 ms, except under `pressured_speech`, where the patient talks over the doctor for 1–2 s. The `slowed` cue adds a deliberate pause, logged separately from lag. **Latency target** (end of doctor speech to first patient audio, excluding the `slowed` pause): **p50 ≤ 1.2 s, p90 ≤ 1.8 s** on the M5 Pro; every stage is logged in ms to the SessionLog (`docs/latency.md`).
+
 ### 7.2 Patient reply contract
 
 ```json
 {
+  "emotion": "ashamed",                         // drives facial base expression; first so it streams first
   "utterance": "Look, I like a drink like anyone else... maybe more than I should.",
-  "emotion": "ashamed",                         // drives facial base expression
   "state_delta": { "trust": 5, "distress": 8 },
   "event_cues": [ { "id": "gaze_avoid", "intensity": 0.8, "duration_s": 3 } ],
   "revealed_fact_ids": ["f_drinks"],
-  "doctor_intents": ["ask_substance_alcohol", "open_question"]
+  "exam_action": null,                          // or "hold_out_hands" etc. (section 4.4)
+  "doctor_intents": ["ask_substance_alcohol", "open_question"]   // from the parallel tagging request
 }
 ```
 
@@ -331,20 +387,22 @@ Script: `tools/tts/tts_check.py`. Samples: `tools/tts/samples/`.
 
 ## 8. Scoring and debrief
 
-OSCE-style, out of 100, with weights set per case (defaults below).
+OSCE-style, out of 100, with weights set per case. **Scores are formative** (plan C7): automated scoring agrees with human raters well enough for practice and triage, not for formal assessment; any summative use needs a faculty review step.
+
+**Risk-first weighting (plan C1, after R3's risk 5 : MSE 2 : history 1):**
 
 | Domain | Default weight | Measured from |
 |---|---|---|
-| Communication and rapport | 20 | Intents (open questions, empathy, summarising), negative intents, final trust |
-| History taking | 20 | `required_intents` covered |
-| Observation (MSE) | 15 | `required_cues_noted` vs MSE entries |
-| Risk assessment | 15 | Suicide and violence intents covered, risk level assigned correctly |
-| Diagnosis | 15 | Primary match, sensible differentials |
-| Management | 15 | Prescription checks (6.3), disposition |
+| Risk assessment | 30 | Suicide and violence intents covered, risk level assigned correctly. **A learner cannot pass without the required risk items.** |
+| Observation (MSE / behaviour) | 20 | Scored element by element against the case `behavior` block and `required_cues_noted` |
+| History taking | 12 | `required_intents` covered |
+| Communication and rapport | 12 | Intents (open questions, empathy, summarising), negative intents, final trust; the case `rubric` (MIRS default) |
+| Diagnosis | 13 | Primary match, sensible differentials |
+| Management | 13 | Prescription checks (6.3), disposition |
 
 **Critical errors** (for example, a dangerous prescription, or discharging an actively suicidal patient without a safety plan) mark the station **"Not passed"** whatever the score, and are listed first in the debrief.
 
-**Debrief screen:** score per domain; a timeline of the conversation with markers for revealed facts, missed questions and moments where trust dropped; cues present vs cues recorded; the case author's teaching points; and an "ask the patient afterwards" mode where the learner can ask the patient out of character how the interview felt.
+**Debrief screen:** **side by side (plan C5):** the learner's MSE, risk level, diagnosis and plan next to the case truth, with mismatches highlighted. **Quote-grounded (plan C2):** every feedback item cites the learner's own line and its timestamp ("At 04:12 you asked '…', a closed question; try …"). Then: score per domain; a timeline of the conversation with markers for revealed facts, missed questions and moments where trust dropped; cues present vs cues recorded; the case author's teaching points; and an "ask the patient afterwards" mode where the learner can ask the patient out of character how the interview felt. Stage 3 adds 3–4 reflective prompts (plan C6), validated per-case rubrics (C4) and an optional "Ask tutor" hint button in Practice mode only (C3).
 
 ---
 
@@ -366,14 +424,21 @@ OSCE-style, out of 100, with weights set per case (defaults below).
 
 ### 9.4 Data and privacy
 - No real patient data, ever.
-- Voice audio is processed in memory by the patient service (on the same Mac, or on a machine the college controls) and never written to disk. Transcripts are stored in the local session log only. The transcript text is sent to xAI (Grok) to generate replies, and learners are told this on the first screen.
+- Voice audio is processed in memory by the patient service (on the same Mac, or on a machine the college controls) and never written to disk. Transcripts are stored in the local session log only. **By default every model runs locally and nothing leaves the machine.** Only if `PATIENT_LLM=grok` is set explicitly is transcript text sent to xAI, and then learners are told so on the first screen.
 - If sessions are later uploaded for faculty, that needs learner consent and the college's data policy.
 
 ### 9.5 Path to the dean's approval
 Prepare a validation pack for the dean:
 1. The case library, each case signed off by a named faculty psychiatrist or addiction specialist.
 2. A mapping of cases and scoring domains to the college's curriculum and OSCE criteria.
-3. Pilot results: at least 20 learners and 3 faculty raters. Report agreement between the sim score and faculty scoring of the same sessions, a usability score (System Usability Scale), and learner feedback.
+3. **Pilot results from a randomised controlled trial** (plan Part 3, modelled on R8 and R11):
+   - *Design:* two arms, stratified by year of study. **PsychSim** (3 spaced sessions inside the psychiatry rotation, different cases) vs **control: a reading module plus case vignettes** covering the same content, same total time.
+   - *Primary outcome:* change in score on a human standardised-patient OSCE station (pre and post), rated by blinded faculty from recordings with the college checklist plus MIRS; report inter-rater ICC.
+   - *Secondary:* risk-assessment completeness, MSE accuracy, attitudes and stigma (validated scale chosen by faculty), self-confidence, retention at about 3 months.
+   - *AI-score validity:* agreement of the automated score with faculty scores: exact, ±1 and pass/fail split (as in R7).
+   - *Size:* about 50 learners (25 per arm) for d ≈ 0.8; confirm with a statistician. Plus a System Usability Scale score.
+   - *Ethics:* institutional ethics approval, consent, content notes for suicide and self-harm cases. A lived-experience reviewer of cases and debrief wording is **optional** (owner's answer).
+   - *Positioning (B2):* PsychSim is rehearsal **before** human SPs and real patients, not a replacement; do not claim parity with human SPs.
 4. The safety and ethics section above, plus an ethics committee opinion if the pilot counts as research.
 5. Known limits.
 
@@ -386,11 +451,11 @@ Each stage ends with a test gate run by the tester agent. Do not start the next 
 | Stage | Goal | Scope | Gate (exit criteria) |
 |---|---|---|---|
 | **0. Pre-production** (1–2 weeks) | Lock the foundations | Rig check done and Matt rebuilt at base resolution (`RIG_REPORT.md`, `art/Matt/`); import both into Unity through CC Unity Tools; Unity project setup with URP + OpenXR packages; JSON schemas for case, cue, intent, diagnosis, disposition and formulary; 1 case written to `draft` (MDD) | Both models import as Humanoid and are under 90k triangles; schemas validate the sample case |
-| **1. Vertical slice** (4–6 weeks) | One patient, one room, end to end | Outpatient consult room; 1 patient model; 8 cues (`gaze_avoid`, `slumped`, `slowed`, `flat_affect`, `tearful`, `fidget`, `tremor_fine`, `restless`); **typed** input; LLM patient with guard check; MSE panel; diagnosis picker; prescription pad; basic score screen | A learner can finish the MDD case on Mac in under 20 minutes; no invented facts in 50 scripted test conversations; 60 fps on an M1 Mac |
-| **2. Voice and content** (6–8 weeks) | Feel like a real conversation | Patient service with voice input (whisper) and KittenTTS; lip sync; 4 more patient models (Character Creator, mostly South Asian, ages teen to 60s); full cue catalog; emergency bay and detox ward rooms; 6 cases total (see 10.1); screening scales | Voice turn (end of speech to start of reply) under 2.5 s at the 90th percentile; every cue in the catalog plays and is readable at a 1.5 m seated distance |
-| **3. Feedback and authoring** (4–6 weeks) | Make it teach | Full scoring and debrief with timeline; critical errors; content `status` enforcement; case validator CLI so faculty can check their JSON; 10 cases | Scoring matches a hand-scored reference for 10 recorded sessions; faculty can add a new case with no developer help |
-| **4. Pilot and validation** (6–8 weeks) | Earn the dean's approval | Hub lobby; session export for faculty; pilot with learners and faculty; fixes; validation pack (9.5) | Pilot targets met; all content `approved`; validation pack done |
-| **5. VR port** (6–8 weeks) | Run on Quest 3S | XR rig, seated and standing modes, tablet in hand, hand-reach exam, comfort settings; performance work for standalone; headset talks to the patient service over Wi-Fi | 72 fps (90 preferred) on Quest 3S in every room; every cue still readable at the 3S's lower display resolution; no comfort issues in a 10-person test |
+| **1. Vertical slice** (4–6 weeks) | One case, one room, end to end, **by voice** | Outpatient consult room with the v0.3 lighting spec; **both patient models (female/male variant chosen at start)**; 8 cues (`gaze_avoid`, `slumped`, `slowed`, `flat_affect`, `tearful`, `fidget`, `tremor_fine`, `restless`); **local voice loop** (VAD, Parakeet, local LLM, streamed KittenTTS, barge-in) plus typed fallback; lip sync; exam actions `hold_out_hands`, `roll_up_sleeves`, `look_at_light`; LLM patient with guard check, realism rules and banned words (A1–A4); MSE panel; diagnosis picker; prescription pad; risk-first, quote-grounded side-by-side debrief (C1, C2, C5); prebrief (C6); 15-minute timer (D4) | A learner can finish the MDD case on Mac in under 20 minutes; no invented facts in 50 scripted test conversations; jailbreak set (E1) and MDD portrayal checklist (A6) pass; voice latency p50 ≤ 1.2 s, p90 ≤ 1.8 s; STT accent test passes; both sex variants play end to end; patient face luminance 0.45–0.60; 60 fps on an M1 Mac |
+| **2. Content** (6–8 weeks) | Breadth | Conversation styles (A5), addiction internal states (A8), Foundation/Advanced tiers (D6), exam actions `stand_up`/`walk_to_door`, ≥2 variants per disorder (D2); 4 more patient models (Character Creator, mostly South Asian, ages teen to 60s); full cue catalog; emergency bay and detox ward rooms; 6 cases total (see 10.1); screening scales | Voice latency targets still met on all 6 cases; every cue in the catalog plays and is readable at a 1.5 m seated distance |
+| **3. Feedback and authoring** (4–6 weeks) | Make it teach | Full scoring and debrief with timeline; reflective prompts (C6), per-case rubrics (C4), Practice-mode "Ask tutor" (C3), faculty tuning mode and `principles` (A7), follow-up visits (D3), per-element psychiatrist conformity rating (E3); critical errors; content `status` enforcement; case validator CLI so faculty can check their JSON; 10 cases | Scoring matches a hand-scored reference for 10 recorded sessions; faculty can add a new case with no developer help |
+| **4. Pilot and validation** (6–8 weeks) | Earn the dean's approval | Hub lobby; session export for faculty; the RCT pilot in §9.5 (scheduled inside the rotation, D5; repeated spaced sessions, D1; formative labels, C7); fixes; validation pack (9.5) | Pilot targets met; all content `approved`; validation pack done |
+| **5. VR port** (6–8 weeks, **parked**) | Run on Quest 3S | XR rig, seated and standing modes, tablet in hand, hand-reach exam, comfort settings; performance work for standalone; headset talks to the patient service over Wi-Fi | 72 fps (90 preferred) on Quest 3S in every room; every cue still readable at the 3S's lower display resolution; no comfort issues in a 10-person test |
 | **6. Publish** | Release | Signed macOS build (and Quest store or enterprise distribution); onboarding tutorial; faculty guide | Release checklist done |
 
 ### 10.1 Starting case library (to be written and approved by faculty)
@@ -457,6 +522,10 @@ Related laws used in specific cases: **NDPS Act 1985** (opioid substitution ther
 | VR headset | Meta Quest 3S (same chip as Quest 3, lower display resolution). Same performance budgets as Quest 3, but test cue readability on the 3S itself. |
 | Language | English only, for both learner and patient |
 | Text to speech | KittenTTS mini 0.8 (section 7.3) |
+| Patient LLM | Local open-source model via llama.cpp, chosen by bake-off; Grok optional (section 7) |
+| Speech to text | Parakeet (parakeet-mlx), unless the accent benchmark favours whisper-large-v3-turbo |
+| OSCE station | 15 minutes |
+| Patient sex | Selectable for every case (`variants`) |
 | Screening scale licences | Held by the project owner. File copies in `licences/` for the dean's pack. |
 | Patient models | Two Character Creator 3+ models provided. They pass the rig check, with fixes listed in `RIG_REPORT.md`. |
 
@@ -464,3 +533,23 @@ Related laws used in specific cases: **NDPS Act 1985** (opioid substitution ther
 1. **Patient variety.** Only two models, both Western-looking adults in their 20s. We need about 4 more (teen, 40s–60s, mostly South Asian) for the case library. Recommended: make them in Character Creator from the same base, so all animations and cues work on them.
 2. **Matt's source file.** Is the Character Creator project available, so he can be re-exported without subdivision? If not, the artist uses the fallback in `RIG_REPORT.md`.
 3. **Accent.** KittenTTS has no Indian English voice. This is acceptable for the pilot. Revisit if learners find it breaks realism.
+
+---
+
+## 13. Positioning and evidence
+
+From `PLAN_insights.md` Part 1. Full citations and licences in `references/README.md`.
+
+| Gap the literature names | Who says so | What PsychSim does |
+|---|---|---|
+| LLM patients are text only, with no non-verbal signs to observe | R2, R10, R11 | The cue system on a 3D body; noticing cues is graded through the MSE |
+| Out-of-the-box LLM patients are too forthcoming, polite and formal | R3, R4, R9 | Trust-gated hidden facts, MSE-based behaviour, realism rules, banned words, style reminders |
+| Psychiatric simulation is underused; actors struggle with psychosis and mania, and acting suicidality can harm actors | R1 | A virtual patient portrays hard conditions consistently, with no actor harm |
+| LLM simulators stop at history taking and diagnosis | R2, R7, R11 | Management is graded: deterministic prescription checks and MHCA-based dispositions |
+| Addiction and withdrawal need physical signs | R6 | Withdrawal shown on the body (CIWA/COWS signs) and graded |
+| Low trainer-to-learner ratios | R1 | On-demand practice with automated formative feedback |
+| Few randomised trials | R1, R10 | The pilot is a randomised trial (§9.5) |
+
+**Positioning:** *PsychSim is an embodied psychiatry and addiction OSCE simulator in which observing non-verbal signs and making safe management decisions are graded, not only history taking. It is built on a case-locked LLM patient with a deterministic safety layer, and evaluated in an Indian medical college.*
+
+PsychSim is positioned as rehearsal before human standardised patients and real patients (R1, R10), not as a replacement.

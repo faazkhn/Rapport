@@ -22,7 +22,15 @@ Build four small, believable clinical rooms and a hub. Prepare the provided rigg
 **Shared rules:**
 - Real-world scale, 1 unit = 1 m. Doors 0.9 × 2.1 m. Seat height 0.45 m.
 - Each room has a **DoctorAnchor** empty (where the doctor stands or sits) and a **PatientAnchor** empty (the patient's seat). Patient head is about 1.5 m from the doctor's head when seated. That is the distance cues must read at.
-- Bake the lighting. Use at most 1 real-time light per room (a key light on the patient's face, so tears and sweat show).
+- **Lighting (DESIGN v0.3; the earlier look was too dull).** Bright, warm, clinical but humane:
+  - **Key:** soft daylight through the window, about 5,000 K, lighting the patient's face three-quarters from the doctor's side.
+  - **Fill:** a warm practical desk or ceiling lamp, about 3,200 K.
+  - **Rim:** a subtle light separating the patient from the wall.
+  - **GI and reflections:** baked GI, light probes around the patient chair, and one reflection probe so eyes and tears catch highlights.
+  - **Post-processing volume:** Neutral or ACES tonemapping, post-exposure raised, contrast +10, saturation +5, mild bloom, SSAO, very light vignette.
+  - **Surfaces:** off-white walls with one warm accent wall. No grey-on-grey.
+  - **Acceptance:** in a 1080p frame from the DoctorAnchor, the patient's face has a **mean luminance of 0.45–0.60**, with no large area crushed black or blown white. Measure with a script on stills before and after, and put both stills in `docs/lighting.md`.
+  - Real-time lights stay few (Quest budget): key and rim may be real-time; fill and room bounce are baked.
 - Add 2–3 small sound-source empties (door, corridor, monitor). The developer uses the door one for the `startle` cue.
 
 **Budgets per room (Quest 3S safe):**
@@ -53,7 +61,7 @@ Re-run this checklist for every new model and add a row to `RIG_REPORT.md`:
 
 ## 4. Patient models: what to deliver
 
-For the vertical slice, use Mégane (`female_20s_a`, fewer fixes needed) or Matt (`male_20s_a`) once he is under budget. By Stage 2, at least 6 models covering a range of ages (teen, 20s, 30s–40s, 50s–60s) and both sexes, matching the case table in `DESIGN.md` 10.1. The sim is set in India, so **most new patients should be South Asian**, with everyday Indian clothing as well as the variants below. Make new patients in Character Creator from the same CC3+ base, so the skeleton, blendshapes and every animation carry over.
+For the vertical slice, use **both** Mégane (`female_20s_a`) and Matt (`male_20s_a`): every case has a female and a male variant chosen at the start (DESIGN §6.1 `variants`), so every clip and cue must look right on both. By Stage 2, at least 6 models covering a range of ages (teen, 20s, 30s–40s, 50s–60s) and both sexes, matching the case table in `DESIGN.md` 10.1. The sim is set in India, so **most new patients should be South Asian**, with everyday Indian clothing as well as the variants below. Make new patients in Character Creator from the same CC3+ base, so the skeleton, blendshapes and every animation carry over.
 
 For each model:
 - **Clothing variants:** `neat`, `casual`, `disheveled` (wrinkled and stained clothes, messy hair), `hospital_gown`. Sleeves must be able to roll up or be removed for the arm exam.
@@ -94,6 +102,15 @@ Masks: **UpperBody**, **Arms**, **Hands**, **Legs**, **Head**. Name the mask in 
 | `gesture_talk_small` / `gesture_talk_animated` (3 each) | Arms | normal talking, and `pressured_speech` |
 | `gesture_shrug`, `gesture_head_shake`, `gesture_nod` (one-shot) | UpperBody / Head | used by dialogue |
 | `gesture_cover_face` (one-shot) | Arms + Head | distress |
+
+### 5.2b Exam actions (one-shot, Stage 1; DESIGN §4.4)
+| Clip | Mask | Action id |
+|---|---|---|
+| `action_hold_out_hands` | Arms + Hands (hold the pose ~4 s, palms down, so tremor can be seen) | `hold_out_hands` |
+| `action_roll_up_sleeves` | Arms (ends with forearms exposed and turned up) | `roll_up_sleeves` |
+| `action_look_at_light` | Head (chin level, eyes forward toward the doctor's penlight, hold ~3 s) | `look_at_light` |
+
+Stage 2 adds `action_stand_up` and `action_walk_to_door`.
 
 **Do not animate** gaze, tremors or slowed movement. The developer does those in code (look-at IK, noise on bones, animation speed). Your job is to make sure the rig supports them (section 3).
 
