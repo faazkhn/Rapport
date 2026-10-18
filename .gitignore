@@ -1,0 +1,23 @@
+# secrets
+.env
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# source material (too big)
+art_source/
+*.rar
+# Unity
+unity/PsychSim/[Ll]ibrary/
+unity/PsychSim/[Tt]emp/
+unity/PsychSim/[Ll]ogs/
+unity/PsychSim/[Uu]ser[Ss]ettings/
+unity/PsychSim/[Oo]bj/
+unity/PsychSim/[Bb]uild/
+unity/PsychSim/[Bb]uilds/
+unity/PsychSim/[Rr]ecordings/
+unity/PsychSim/*.csproj
+unity/PsychSim/*.sln
+.DS_Store
+*.blend1
