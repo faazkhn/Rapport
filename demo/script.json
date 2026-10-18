@@ -1,0 +1,139 @@
+{
+  "case_id": "mdd_01",
+  "note": "Staged demo take. The service's mock mode (PSYCHSIM_DEMO_SCRIPT) returns these patient lines when the doctor line matches exactly; brain.guard still drops any fact whose trust level is not met.",
+  "turns": [
+    {
+      "doctor": "Hello, I'm Dr Rao, one of the doctors here. What brings you in today?",
+      "shot": "pov",
+      "patient": {
+        "utterance": "Hello, doctor. I've been tired all the time, for about two months now. I just don't feel like myself.",
+        "emotion": "sad",
+        "facts": [
+          "f_pc"
+        ],
+        "delta": {
+          "trust": 3
+        },
+        "cues": []
+      }
+    },
+    {
+      "doctor": "How have you been sleeping, and how is your appetite?",
+      "shot": "pov",
+      "patient": {
+        "utterance": "I fall asleep, but I wake up around four and just lie there. And I skip dinner most days. My clothes feel loose now.",
+        "emotion": "sad",
+        "facts": [
+          "f_sleep",
+          "f_appetite"
+        ],
+        "delta": {
+          "trust": 2
+        },
+        "cues": []
+      }
+    },
+    {
+      "doctor": "Whatever you tell me stays between us, unless I'm worried about your safety. How has your mood been lately?",
+      "shot": "pov",
+      "patient": {
+        "utterance": "Low. Empty, most of the day. The mornings are the worst. Sometimes I cry in the washroom at work.",
+        "emotion": "sad",
+        "facts": [
+          "f_mood"
+        ],
+        "delta": {
+          "trust": 6,
+          "distress": 3
+        },
+        "cues": [
+          {
+            "id": "tearful",
+            "intensity": 0.7,
+            "duration_s": 6
+          }
+        ]
+      }
+    },
+    {
+      "doctor": "With so much on your shoulders, it makes sense that you feel this way. Struggling like this doesn't make you weak.",
+      "shot": "pov",
+      "patient": {
+        "utterance": "But I feel so weak. Like a burden. My parents gave up so much for my studies, and I'm failing them.",
+        "emotion": "ashamed",
+        "facts": [
+          "f_guilt"
+        ],
+        "delta": {
+          "trust": 8
+        },
+        "cues": [
+          {
+            "id": "gaze_avoid",
+            "intensity": 0.9,
+            "duration_s": 5
+          }
+        ]
+      }
+    },
+    {
+      "doctor": "Sometimes when people feel this low, they have thoughts of not wanting to live. Have you had any thoughts like that?",
+      "shot": "close",
+      "patient": {
+        "utterance": "Yes. For about three weeks. Some nights I wish I just wouldn't wake up in the morning. It comes, and then it passes.",
+        "emotion": "sad",
+        "facts": [
+          "f_passive_si"
+        ],
+        "delta": {
+          "trust": 3,
+          "distress": 5
+        },
+        "cues": [
+          {
+            "id": "tearful",
+            "intensity": 0.9,
+            "duration_s": 7
+          }
+        ]
+      }
+    },
+    {
+      "doctor": "Thank you for telling me, that took courage. Have you made any plans to end your life, or kept any tablets at home?",
+      "shot": "close",
+      "patient": {
+        "utterance": "No. No plans. I've never thought about how. And there are no tablets at home.",
+        "emotion": "sad",
+        "facts": [
+          "f_no_plan_no_attempt",
+          "f_no_means"
+        ],
+        "delta": {
+          "trust": 3
+        },
+        "cues": []
+      }
+    }
+  ],
+  "tools": {
+    "mse": [
+      "slumped",
+      "gaze_avoid",
+      "slowed",
+      "flat_affect",
+      "tearful"
+    ],
+    "primary_dx": "mdd_single_episode",
+    "rx": {
+      "drug": "sertraline",
+      "route": "PO",
+      "frequency": "OD",
+      "duration": "4 weeks, then review",
+      "reason": "Moderate depressive episode"
+    },
+    "dispositions": [
+      "outpatient_referral",
+      "safety_plan"
+    ]
+  }
+}

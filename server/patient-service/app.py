@@ -14,6 +14,7 @@ from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 import brain
+import mock
 
 log = logging.getLogger("patient-service")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -22,6 +23,7 @@ TTS_MODEL = "KittenML/kitten-tts-mini-0.8"
 VOICES = ["Bella", "Luna", "Rosie", "Kiki", "Jasper", "Bruno", "Hugo", "Leo"]
 SAMPLE_RATE = 24000
 tts = {"model": None}
+MOCK = os.environ.get("PSYCHSIM_LLM") == "mock"  # dev/play-mode tests only, never the LLM eval
 
 
 @asynccontextmanager
@@ -70,7 +72,7 @@ class TtsReq(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"ok": True, "model": brain.DEFAULT_MODEL, "tts_loaded": tts["model"] is not None}
+    return {"ok": True, "model": "mock" if MOCK else brain.DEFAULT_MODEL, "mock": MOCK, "tts_loaded": tts["model"] is not None}
 
 
 @app.post("/reply")
@@ -79,7 +81,7 @@ async def reply(req: ReplyReq):
         brain.load_case(req.case_id)
     except FileNotFoundError:
         raise HTTPException(404, f"unknown case_id {req.case_id!r}")
-    out = await run_in_threadpool(brain.generate_reply, req.model_dump())
+    out = await run_in_threadpool(mock.mock_reply if MOCK else brain.generate_reply, req.model_dump())
     m = out["meta"]
     log.info("reply case=%s model=%s latency_ms=%s fallback=%s dropped=%d",
              req.case_id, m["model"], m["latency_ms"], m["fallback"], len(m["guard_dropped"]))

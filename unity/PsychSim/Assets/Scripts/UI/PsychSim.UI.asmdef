@@ -1,0 +1,14 @@
+{
+    "name": "PsychSim.UI",
+    "rootNamespace": "PsychSim.UI",
+    "references": ["PsychSim.Data","PsychSim.Patient","PsychSim.Scoring","PsychSim.Tools","PsychSim.Core"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

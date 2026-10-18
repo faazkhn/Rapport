@@ -1,0 +1,14 @@
+{
+    "name": "PsychSim.Editor",
+    "rootNamespace": "PsychSim.Editor",
+    "references": ["PsychSim.Data","Unity.Animation.Rigging","PsychSim.Core","PsychSim.UI","PsychSim.Speech","PsychSim.Platform","Unity.InputSystem","UnityEngine.UI","uLipSync.Runtime","Unity.Recorder","Unity.Recorder.Base","Unity.Recorder.Editor"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

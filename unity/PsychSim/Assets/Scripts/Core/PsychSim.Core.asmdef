@@ -1,0 +1,14 @@
+{
+    "name": "PsychSim.Core",
+    "rootNamespace": "PsychSim.Core",
+    "references": ["PsychSim.Data","PsychSim.Patient","PsychSim.Scoring","PsychSim.Logging","PsychSim.Tools","PsychSim.Speech","PsychSim.Cues","uLipSync.Runtime","PsychSim.Platform"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
