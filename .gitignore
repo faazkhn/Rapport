@@ -21,3 +21,4 @@ unity/PsychSim/*.csproj
 unity/PsychSim/*.sln
 .DS_Store
 *.blend1
+unity/PsychSim/*.slnx
