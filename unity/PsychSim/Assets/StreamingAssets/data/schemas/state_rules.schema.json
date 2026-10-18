@@ -1,0 +1,7 @@
+{ "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "State rules", "type": "object", "required": ["version", "status", "clamp_per_turn", "range", "intent_nudges"],
+  "$defs": { "delta": { "type": "object", "additionalProperties": false, "minProperties": 1,
+      "properties": { "trust": { "type": "number", "minimum": -100, "maximum": 100 }, "distress": { "type": "number", "minimum": -100, "maximum": 100 }, "agitation": { "type": "number", "minimum": -100, "maximum": 100 }, "engagement": { "type": "number", "minimum": -100, "maximum": 100 } } } },
+  "properties": { "version": { "type": "string" }, "status": { "enum": ["draft", "faculty_review", "approved"] }, "note": { "type": "string" },
+    "clamp_per_turn": { "type": "number", "exclusiveMinimum": 0 },
+    "range": { "type": "object", "required": ["min", "max"], "properties": { "min": { "type": "number" }, "max": { "type": "number" } } },
+    "intent_nudges": { "type": "object", "additionalProperties": { "$ref": "#/$defs/delta" } } } }

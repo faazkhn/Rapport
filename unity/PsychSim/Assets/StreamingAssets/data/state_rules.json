@@ -1,0 +1,19 @@
+{
+  "version": "0.1",
+  "status": "draft",
+  "note": "AI draft numbers for faculty to tune. Nudges are added to the LLM's state_delta; the combined change is clamped to +/- clamp_per_turn per value, then each value to [min, max].",
+  "clamp_per_turn": 10,
+  "range": { "min": 0, "max": 100 },
+  "intent_nudges": {
+    "greet_introduce": { "trust": 2, "engagement": 2 },
+    "explain_confidentiality": { "trust": 5 },
+    "open_question": { "trust": 2, "engagement": 2 },
+    "empathy_statement": { "trust": 4, "distress": -3, "engagement": 2 },
+    "summarise": { "trust": 3, "engagement": 2 },
+    "check_understanding": { "trust": 2 },
+    "ask_suicidal_ideation": { "distress": 3 },
+    "ask_trauma": { "distress": 4 },
+    "judgmental_language": { "trust": -8, "distress": 5, "agitation": 5, "engagement": -5 },
+    "interrupt": { "trust": -4, "agitation": 3, "engagement": -3 }
+  }
+}

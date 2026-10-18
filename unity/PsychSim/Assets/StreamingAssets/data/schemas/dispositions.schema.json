@@ -1,0 +1,5 @@
+{ "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "Dispositions", "type": "object", "required": ["version", "status", "dispositions"],
+  "properties": { "version": { "type": "string" }, "status": { "enum": ["draft", "faculty_review", "approved"] }, "note": { "type": "string" },
+    "dispositions": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false,
+      "required": ["id", "name", "description", "mhca_basis", "verified_by"],
+      "properties": { "id": { "type": "string", "pattern": "^[a-z0-9_]+$" }, "name": { "type": "string" }, "description": { "type": "string" }, "mhca_basis": { "type": "string" }, "verified_by": { "type": ["string", "null"] } } } } } }

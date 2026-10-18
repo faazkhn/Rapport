@@ -1,0 +1,8 @@
+{ "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "Cue catalog", "type": "object", "required": ["version", "status", "mse_sections", "cues"],
+  "properties": { "version": { "type": "string" }, "status": { "enum": ["draft", "faculty_review", "approved"] }, "verified_by": { "type": ["string", "null"] },
+    "mse_sections": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "cues": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false,
+      "required": ["id", "name", "meaning", "method", "in_slice", "mse_section"],
+      "properties": { "id": { "type": "string", "pattern": "^[a-z0-9_]+$" }, "name": { "type": "string" }, "meaning": { "type": "string" },
+        "method": { "type": "array", "minItems": 1, "items": { "enum": ["A", "P", "B", "S", "V", "D"] } },
+        "in_slice": { "type": "boolean" }, "mse_section": { "type": "string" } } } } } }

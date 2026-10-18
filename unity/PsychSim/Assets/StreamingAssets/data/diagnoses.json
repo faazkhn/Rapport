@@ -1,0 +1,20 @@
+{
+  "version": "0.1",
+  "status": "draft",
+  "note": "AI draft. Codes are unverified placeholders; faculty must check every ICD-11 and ICD-10 code.",
+  "diagnoses": [
+    { "id": "mdd_single_episode", "dsm5tr_name": "Major depressive disorder, single episode", "icd11": "6A70", "icd10": "F32", "verified_by": null },
+    { "id": "mdd_recurrent", "dsm5tr_name": "Major depressive disorder, recurrent episode", "icd11": "6A71", "icd10": "F33", "verified_by": null },
+    { "id": "persistent_depressive_disorder", "dsm5tr_name": "Persistent depressive disorder", "icd11": "6A72", "icd10": "F34.1", "verified_by": null },
+    { "id": "adjustment_disorder_depressed", "dsm5tr_name": "Adjustment disorder with depressed mood", "icd11": "6B43", "icd10": "F43.2", "verified_by": null },
+    { "id": "depressive_disorder_due_to_medical_condition", "dsm5tr_name": "Depressive disorder due to another medical condition", "icd11": "6E62", "icd10": "F06.3", "verified_by": null },
+    { "id": "generalized_anxiety_disorder", "dsm5tr_name": "Generalized anxiety disorder", "icd11": "6B00", "icd10": "F41.1", "verified_by": null },
+    { "id": "panic_disorder", "dsm5tr_name": "Panic disorder", "icd11": "6B01", "icd10": "F41.0", "verified_by": null },
+    { "id": "bipolar_i", "dsm5tr_name": "Bipolar I disorder", "icd11": "6A60", "icd10": "F31", "verified_by": null },
+    { "id": "bipolar_ii", "dsm5tr_name": "Bipolar II disorder", "icd11": "6A61", "icd10": "F31.8", "verified_by": null },
+    { "id": "alcohol_use_disorder", "dsm5tr_name": "Alcohol use disorder", "icd11": "6C40.2", "icd10": "F10.2", "verified_by": null },
+    { "id": "alcohol_withdrawal", "dsm5tr_name": "Alcohol withdrawal", "icd11": "6C40.4", "icd10": "F10.3", "verified_by": null },
+    { "id": "ptsd", "dsm5tr_name": "Posttraumatic stress disorder", "icd11": "6B40", "icd10": "F43.1", "verified_by": null },
+    { "id": "schizophrenia", "dsm5tr_name": "Schizophrenia", "icd11": "6A20", "icd10": "F20", "verified_by": null }
+  ]
+}

@@ -1,0 +1,12 @@
+{ "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "Patient reply (DESIGN 7.2). The service builds a stricter per-request copy with enums.",
+  "type": "object", "additionalProperties": false,
+  "required": ["utterance", "emotion", "state_delta", "event_cues", "revealed_fact_ids", "doctor_intents"],
+  "properties": {
+    "utterance": { "type": "string" },
+    "emotion": { "enum": ["neutral", "sad", "anxious", "angry", "ashamed", "happy", "flat", "suspicious", "confused"] },
+    "state_delta": { "type": "object", "additionalProperties": false, "required": ["trust", "distress", "agitation", "engagement"],
+      "properties": { "trust": { "type": "integer" }, "distress": { "type": "integer" }, "agitation": { "type": "integer" }, "engagement": { "type": "integer" } } },
+    "event_cues": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "intensity", "duration_s"],
+      "properties": { "id": { "type": "string" }, "intensity": { "type": "number" }, "duration_s": { "type": "number" } } } },
+    "revealed_fact_ids": { "type": "array", "items": { "type": "string" } },
+    "doctor_intents": { "type": "array", "items": { "type": "string" } } } }

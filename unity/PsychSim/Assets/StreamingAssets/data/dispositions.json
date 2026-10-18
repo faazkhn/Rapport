@@ -1,0 +1,16 @@
+{
+  "version": "0.1",
+  "status": "draft",
+  "note": "AI draft. Mental Healthcare Act 2017 section numbers and wording must be checked by faculty against the current text.",
+  "dispositions": [
+    { "id": "discharge_with_follow_up", "name": "Discharge with follow-up", "description": "Home with a booked review appointment.", "mhca_basis": "Voluntary outpatient care; the patient's right to access mental healthcare (s.18).", "verified_by": null },
+    { "id": "outpatient_referral", "name": "Outpatient referral", "description": "Refer to psychiatry OPD, psychotherapy or counselling services.", "mhca_basis": "Right to access mental healthcare, including outpatient and community services (s.18).", "verified_by": null },
+    { "id": "independent_admission", "name": "Independent admission", "description": "A patient with capacity chooses to be admitted.", "mhca_basis": "Independent admission (s.85-86).", "verified_by": null },
+    { "id": "supported_admission", "name": "Supported admission", "description": "Admission with high support needs where the patient lacks capacity, with the nominated representative involved.", "mhca_basis": "Supported admission up to 30 days (s.89), beyond 30 days (s.90), with Mental Health Review Board oversight; nominated representative (s.14).", "verified_by": null },
+    { "id": "minor_admission", "name": "Admission of a minor", "description": "Admission of a person under 18 at the request of the nominated representative.", "mhca_basis": "Admission of minors (s.87).", "verified_by": null },
+    { "id": "emergency_treatment", "name": "Emergency treatment (up to 72 h)", "description": "Emergency treatment to prevent death or serious harm.", "mhca_basis": "Emergency treatment, up to 72 hours (s.94).", "verified_by": null },
+    { "id": "supervised_detox", "name": "Medically supervised detox", "description": "Admission or day care for supervised withdrawal management.", "mhca_basis": "Independent or supported admission as applicable (s.85-90).", "verified_by": null },
+    { "id": "ost_referral", "name": "Referral to an OST centre", "description": "Refer to an authorised opioid substitution therapy centre.", "mhca_basis": "Not MHCA; NDPS Act 1985 and rules (OST only at authorised centres).", "verified_by": null },
+    { "id": "safety_plan", "name": "Safety plan", "description": "Short written plan: warning signs, coping steps, people to contact, removing means, and the Tele-MANAS helpline 14416.", "mhca_basis": "Duty of care; attempted suicide presumed to be severe stress needing care (s.115).", "verified_by": null }
+  ]
+}

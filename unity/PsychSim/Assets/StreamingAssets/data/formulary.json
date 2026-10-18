@@ -1,0 +1,28 @@
+{
+  "version": "0.1",
+  "status": "draft",
+  "note": "AI draft skeleton. All doses are null for faculty to fill from NFI 2021 / Indian prescribing information. NLEM 2022 flags are unverified.",
+  "rules": [
+    { "id": "with_maoi", "kind": "interaction", "severity": "critical", "description": "Serotonergic antidepressant combined with an MAOI." },
+    { "id": "bipolar_monotherapy_warning", "kind": "contraindication", "severity": "critical", "description": "Antidepressant without a mood stabiliser or antipsychotic in a case whose diagnosis is bipolar disorder." },
+    { "id": "serotonin_syndrome_with_tramadol", "kind": "interaction", "severity": "critical", "description": "Serotonergic antidepressant with tramadol: serotonin syndrome risk." },
+    { "id": "tca_overdose_risk_with_suicidality", "kind": "contraindication", "severity": "critical", "description": "Tricyclic antidepressant prescribed to a patient with suicidal ideation: high toxicity in overdose." },
+    { "id": "benzo_with_opioids", "kind": "interaction", "severity": "critical", "description": "Benzodiazepine in a patient using opioids: respiratory depression risk." },
+    { "id": "benzo_monotherapy_for_depression", "kind": "contraindication", "severity": "critical", "description": "Benzodiazepine as the only treatment for a depressive disorder." },
+    { "id": "lithium_with_nsaid", "kind": "interaction", "severity": "critical", "description": "Lithium with an NSAID: raised lithium levels." }
+  ],
+  "drugs": [
+    { "id": "sertraline", "name": "Sertraline", "class": "SSRI", "routes": ["PO"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": ["with_maoi", "bipolar_monotherapy_warning"], "interaction_rules": ["serotonin_syndrome_with_tramadol"], "nlem_2022": true, "source": null, "verified_by": null },
+    { "id": "escitalopram", "name": "Escitalopram", "class": "SSRI", "routes": ["PO"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": ["with_maoi", "bipolar_monotherapy_warning"], "interaction_rules": ["serotonin_syndrome_with_tramadol"], "nlem_2022": true, "source": null, "verified_by": null },
+    { "id": "fluoxetine", "name": "Fluoxetine", "class": "SSRI", "routes": ["PO"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": ["with_maoi", "bipolar_monotherapy_warning"], "interaction_rules": ["serotonin_syndrome_with_tramadol"], "nlem_2022": true, "source": null, "verified_by": null },
+    { "id": "mirtazapine", "name": "Mirtazapine", "class": "NaSSA", "routes": ["PO"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": ["with_maoi", "bipolar_monotherapy_warning"], "interaction_rules": [], "nlem_2022": null, "source": null, "verified_by": null },
+    { "id": "amitriptyline", "name": "Amitriptyline", "class": "TCA", "routes": ["PO"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": ["with_maoi", "bipolar_monotherapy_warning", "tca_overdose_risk_with_suicidality"], "interaction_rules": ["serotonin_syndrome_with_tramadol"], "nlem_2022": true, "source": null, "verified_by": null },
+    { "id": "clonazepam", "name": "Clonazepam", "class": "benzodiazepine", "routes": ["PO"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": ["benzo_monotherapy_for_depression"], "interaction_rules": ["benzo_with_opioids"], "nlem_2022": true, "source": null, "verified_by": null },
+    { "id": "lorazepam", "name": "Lorazepam", "class": "benzodiazepine", "routes": ["PO", "IV", "IM"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": ["benzo_monotherapy_for_depression"], "interaction_rules": ["benzo_with_opioids"], "nlem_2022": true, "source": null, "verified_by": null },
+    { "id": "diazepam", "name": "Diazepam", "class": "benzodiazepine", "routes": ["PO", "IV"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": ["benzo_monotherapy_for_depression"], "interaction_rules": ["benzo_with_opioids"], "nlem_2022": true, "source": null, "verified_by": null },
+    { "id": "chlordiazepoxide", "name": "Chlordiazepoxide", "class": "benzodiazepine", "routes": ["PO"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": ["benzo_monotherapy_for_depression"], "interaction_rules": ["benzo_with_opioids"], "nlem_2022": null, "source": null, "verified_by": null },
+    { "id": "lithium", "name": "Lithium carbonate", "class": "mood_stabiliser", "routes": ["PO"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": [], "interaction_rules": ["lithium_with_nsaid"], "nlem_2022": true, "source": null, "verified_by": null },
+    { "id": "olanzapine", "name": "Olanzapine", "class": "atypical_antipsychotic", "routes": ["PO", "IM"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": [], "interaction_rules": [], "nlem_2022": true, "source": null, "verified_by": null },
+    { "id": "thiamine", "name": "Thiamine", "class": "vitamin", "routes": ["PO", "IV", "IM"], "dose_range_mg": { "min": null, "max": null }, "usual_start_mg": null, "contraindication_rules": [], "interaction_rules": [], "nlem_2022": true, "source": null, "verified_by": null }
+  ]
+}

@@ -1,0 +1,5 @@
+{ "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "Intent list", "type": "object", "required": ["version", "status", "intents"],
+  "properties": { "version": { "type": "string" }, "status": { "enum": ["draft", "faculty_review", "approved"] }, "verified_by": { "type": ["string", "null"] },
+    "intents": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false,
+      "required": ["id", "description", "is_risk", "negative"],
+      "properties": { "id": { "type": "string", "pattern": "^[a-z0-9_]+$" }, "description": { "type": "string" }, "is_risk": { "type": "boolean" }, "negative": { "type": "boolean" } } } } } }
