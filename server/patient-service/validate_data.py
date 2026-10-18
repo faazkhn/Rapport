@@ -3,10 +3,12 @@
 Usage: .venv/bin/python validate_data.py   (exit code 1 on any error)
 """
 import json
+import re
 import sys
 
 import jsonschema
 
+import brain
 from brain import DATA_DIR
 
 CATALOGS = {"cues.json": "cues", "intents.json": "intents", "diagnoses.json": "diagnoses",
@@ -37,6 +39,14 @@ def _refs(errors, ids, known, label):
     for i in ids:
         if i not in known:
             errors.append(f"{label}: unknown id {i!r}")
+
+
+def _strings(node):
+    if isinstance(node, str):
+        yield node
+    elif isinstance(node, (list, dict)):
+        for x in (node.values() if isinstance(node, dict) else node):
+            yield from _strings(x)
 
 
 def validate_all() -> list[str]:
@@ -90,6 +100,17 @@ def validate_all() -> list[str]:
         for c in case["cues"]:
             _refs(errors, [c["id"]], cue_ids, f"{label} cues")
             _refs(errors, c.get("on_facts", []), fact_ids, f"{label} cue {c['id']} on_facts")
+        # templates: only known placeholders, none left after resolving either variant; no banned word in facts or example lines
+        strings = [x for x in _strings({k: v for k, v in case.items() if k != "variants"})]
+        for ph in {p for t in strings for p in re.findall(r"\{[^{}]*\}", t)}:
+            if not brain._TPL.fullmatch(ph):
+                errors.append(f"{label}: unknown template {ph}")
+        for variant in case["variants"]:
+            r = brain.load_case(case["id"], variant)
+            texts = [f["text"] for f in r["facts"]] + [x for b in r["behavior"].values() for x in b.get("example_lines", [])]
+            for t in texts:
+                if hits := brain.banned_hits(t, r["banned_words"]):
+                    errors.append(f"{label} [{variant}]: banned word {hits} in {t[:40]!r}")
         ak = case["answer_key"]
         _refs(errors, ak["primary_dx"] + ak["acceptable_differentials"], dx_ids, f"{label} answer_key dx")
         _refs(errors, ak["required_intents"], intent_ids, f"{label} answer_key required_intents")

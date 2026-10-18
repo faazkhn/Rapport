@@ -1,53 +1,756 @@
-{ "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "Case file (DESIGN 6.1)", "type": "object", "additionalProperties": false,
-  "required": ["id", "title", "version", "status", "authors", "reviewed_by", "setting", "referral_note", "patient", "state_start", "facts", "cues", "fallback_lines", "answer_key"],
-  "$defs": {
-    "pct": { "type": "number", "minimum": 0, "maximum": 100 },
-    "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
-    "ids": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
-    "gain": { "type": "number", "minimum": -1, "maximum": 1 },
-    "mse_entry": { "type": "object", "additionalProperties": false, "properties": { "cues": { "$ref": "#/$defs/ids" }, "note": { "type": "string" } } }
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Case file (DESIGN 6.1)",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "id",
+  "title",
+  "version",
+  "status",
+  "authors",
+  "reviewed_by",
+  "setting",
+  "referral_note",
+  "variants",
+  "patient",
+  "behavior",
+  "style",
+  "banned_words",
+  "rubric",
+  "exam_actions",
+  "state_start",
+  "facts",
+  "cues",
+  "fallback_lines",
+  "answer_key"
+ ],
+ "$defs": {
+  "pct": {
+   "type": "number",
+   "minimum": 0,
+   "maximum": 100
   },
-  "properties": {
-    "id": { "$ref": "#/$defs/id" }, "title": { "type": "string" }, "version": { "type": "string" }, "status": { "enum": ["draft", "faculty_review", "approved"] },
-    "authors": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
-    "reviewed_by": { "type": "array", "items": { "type": "string" } }, "verified_by": { "type": ["string", "null"] },
-    "setting": { "enum": ["outpatient_consult", "emergency_bay", "detox_ward", "community_clinic"] },
-    "time_limit_min": { "type": "number", "exclusiveMinimum": 0 },
-    "content_note": { "type": "string" },
-    "referral_note": { "type": "string", "minLength": 1 },
-    "patient": { "type": "object", "additionalProperties": false,
-      "required": ["name", "age", "sex", "model_id", "voice_id", "voice_speed", "personality"],
-      "properties": { "name": { "type": "string" }, "age": { "type": "integer", "minimum": 0, "maximum": 120 }, "sex": { "enum": ["female", "male", "other"] },
-        "model_id": { "type": "string" }, "variant": { "type": "string" },
-        "voice_id": { "enum": ["Bella", "Luna", "Rosie", "Kiki", "Jasper", "Bruno", "Hugo", "Leo"] },
-        "voice_speed": { "type": "number", "minimum": 0.5, "maximum": 2 },
-        "background": { "type": "string" }, "personality": { "type": "string" }, "speech_style": { "type": "string" } } },
-    "state_start": { "type": "object", "additionalProperties": false, "required": ["trust", "distress", "agitation", "engagement"], "properties": { "trust": { "$ref": "#/$defs/pct" }, "distress": { "$ref": "#/$defs/pct" }, "agitation": { "$ref": "#/$defs/pct" }, "engagement": { "$ref": "#/$defs/pct" } } },
-    "state_drift_per_min": { "type": "object", "additionalProperties": false, "properties": { "trust": { "type": "number" }, "distress": { "type": "number" }, "agitation": { "type": "number" }, "engagement": { "type": "number" } } },
-    "facts": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false,
-      "required": ["id", "text", "trust_min"],
-      "properties": { "id": { "type": "string", "pattern": "^f_[a-z0-9_]+$" }, "text": { "type": "string", "minLength": 1 }, "trust_min": { "$ref": "#/$defs/pct" },
-        "volunteered": { "type": "boolean" }, "unlock_intents": { "$ref": "#/$defs/ids" },
-        "must_be_asked": { "type": "boolean", "description": "Only revealed on a turn tagged with one of unlock_intents; never volunteered." } } } },
-    "cues": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "base"],
-      "properties": { "id": { "$ref": "#/$defs/id" }, "base": { "type": "number", "minimum": 0, "maximum": 1 },
-        "trust_gain": { "$ref": "#/$defs/gain" }, "distress_gain": { "$ref": "#/$defs/gain" }, "agitation_gain": { "$ref": "#/$defs/gain" }, "engagement_gain": { "$ref": "#/$defs/gain" },
-        "time_gain_per_min": { "type": "number" }, "on_facts": { "type": "array", "items": { "type": "string" } },
-        "event_boost": { "type": "number", "minimum": 0, "maximum": 1 }, "event_duration_s": { "type": "number", "minimum": 0 } } } },
-    "exam": { "type": "object" },
-    "scales": { "type": "object", "additionalProperties": { "type": "object", "required": ["item_scores"],
-      "properties": { "item_scores": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } } } } },
-    "fallback_lines": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
-    "answer_key": { "type": "object", "additionalProperties": false,
-      "required": ["primary_dx", "acceptable_differentials", "required_intents", "required_cues_noted", "acceptable_rx", "unsafe_rx", "acceptable_disposition", "teaching_points"],
+  "id": {
+   "type": "string",
+   "pattern": "^[a-z0-9_]+$"
+  },
+  "ids": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/id"
+   },
+   "uniqueItems": true
+  },
+  "gain": {
+   "type": "number",
+   "minimum": -1,
+   "maximum": 1
+  },
+  "mse_entry": {
+   "type": "object",
+   "additionalProperties": false,
+   "properties": {
+    "cues": {
+     "$ref": "#/$defs/ids"
+    },
+    "note": {
+     "type": "string"
+    }
+   }
+  },
+  "voice": {
+   "enum": [
+    "Bella",
+    "Luna",
+    "Rosie",
+    "Kiki",
+    "Jasper",
+    "Bruno",
+    "Hugo",
+    "Leo"
+   ]
+  },
+  "lines": {
+   "type": "array",
+   "items": {
+    "type": "string",
+    "minLength": 1
+   }
+  },
+  "mse_item": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "description"
+   ],
+   "properties": {
+    "description": {
+     "type": "string"
+    },
+    "example_lines": {
+     "$ref": "#/$defs/lines"
+    }
+   }
+  },
+  "variant": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "name",
+    "sex",
+    "pronouns",
+    "model_id",
+    "voice_id"
+   ],
+   "properties": {
+    "name": {
+     "type": "string",
+     "minLength": 1
+    },
+    "sex": {
+     "enum": [
+      "female",
+      "male"
+     ]
+    },
+    "pronouns": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "they",
+      "them",
+      "their"
+     ],
+     "properties": {
+      "they": {
+       "type": "string"
+      },
+      "them": {
+       "type": "string"
+      },
+      "their": {
+       "type": "string"
+      }
+     }
+    },
+    "model_id": {
+     "type": "string"
+    },
+    "voice_id": {
+     "$ref": "#/$defs/voice"
+    }
+   }
+  }
+ },
+ "properties": {
+  "id": {
+   "$ref": "#/$defs/id"
+  },
+  "title": {
+   "type": "string"
+  },
+  "version": {
+   "type": "string"
+  },
+  "status": {
+   "enum": [
+    "draft",
+    "faculty_review",
+    "approved"
+   ]
+  },
+  "authors": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   },
+   "minItems": 1
+  },
+  "reviewed_by": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "verified_by": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "setting": {
+   "enum": [
+    "outpatient_consult",
+    "emergency_bay",
+    "detox_ward",
+    "community_clinic"
+   ]
+  },
+  "time_limit_min": {
+   "type": "number",
+   "exclusiveMinimum": 0
+  },
+  "content_note": {
+   "type": "string"
+  },
+  "referral_note": {
+   "type": "string",
+   "minLength": 1
+  },
+  "patient": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "age",
+    "voice_speed",
+    "personality"
+   ],
+   "properties": {
+    "name": {
+     "type": "string"
+    },
+    "age": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 120
+    },
+    "sex": {
+     "enum": [
+      "female",
+      "male",
+      "other"
+     ]
+    },
+    "model_id": {
+     "type": "string"
+    },
+    "variant": {
+     "type": "string"
+    },
+    "voice_id": {
+     "$ref": "#/$defs/voice"
+    },
+    "voice_speed": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 2
+    },
+    "background": {
+     "type": "string"
+    },
+    "personality": {
+     "type": "string"
+    },
+    "speech_style": {
+     "type": "string"
+    }
+   },
+   "description": "Variant-independent persona. Text may use {name} {they} {them} {their} (capitalised {They} etc. at sentence start). name/sex/model_id/voice_id are legacy: they now come from the chosen variant."
+  },
+  "state_start": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "trust",
+    "distress",
+    "agitation",
+    "engagement"
+   ],
+   "properties": {
+    "trust": {
+     "$ref": "#/$defs/pct"
+    },
+    "distress": {
+     "$ref": "#/$defs/pct"
+    },
+    "agitation": {
+     "$ref": "#/$defs/pct"
+    },
+    "engagement": {
+     "$ref": "#/$defs/pct"
+    }
+   }
+  },
+  "state_drift_per_min": {
+   "type": "object",
+   "additionalProperties": false,
+   "properties": {
+    "trust": {
+     "type": "number"
+    },
+    "distress": {
+     "type": "number"
+    },
+    "agitation": {
+     "type": "number"
+    },
+    "engagement": {
+     "type": "number"
+    }
+   }
+  },
+  "facts": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "text",
+     "trust_min"
+    ],
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^f_[a-z0-9_]+$"
+     },
+     "text": {
+      "type": "string",
+      "minLength": 1
+     },
+     "trust_min": {
+      "$ref": "#/$defs/pct"
+     },
+     "volunteered": {
+      "type": "boolean"
+     },
+     "unlock_intents": {
+      "$ref": "#/$defs/ids"
+     },
+     "must_be_asked": {
+      "type": "boolean",
+      "description": "Only revealed on a turn tagged with one of unlock_intents; never volunteered."
+     },
+     "variant": {
+      "enum": [
+       "female",
+       "male"
+      ],
+      "description": "Sex-specific fact: only loaded for this variant."
+     }
+    }
+   }
+  },
+  "cues": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "base"
+    ],
+    "properties": {
+     "id": {
+      "$ref": "#/$defs/id"
+     },
+     "base": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "trust_gain": {
+      "$ref": "#/$defs/gain"
+     },
+     "distress_gain": {
+      "$ref": "#/$defs/gain"
+     },
+     "agitation_gain": {
+      "$ref": "#/$defs/gain"
+     },
+     "engagement_gain": {
+      "$ref": "#/$defs/gain"
+     },
+     "time_gain_per_min": {
+      "type": "number"
+     },
+     "on_facts": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "event_boost": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "event_duration_s": {
+      "type": "number",
+      "minimum": 0
+     }
+    }
+   }
+  },
+  "exam": {
+   "type": "object"
+  },
+  "scales": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "object",
+    "required": [
+     "item_scores"
+    ],
+    "properties": {
+     "item_scores": {
+      "type": "object",
+      "additionalProperties": {
+       "type": "integer",
+       "minimum": 0
+      }
+     }
+    }
+   }
+  },
+  "fallback_lines": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "string",
+    "minLength": 1
+   }
+  },
+  "answer_key": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "primary_dx",
+    "acceptable_differentials",
+    "required_intents",
+    "required_cues_noted",
+    "acceptable_rx",
+    "unsafe_rx",
+    "acceptable_disposition",
+    "teaching_points"
+   ],
+   "properties": {
+    "primary_dx": {
+     "$ref": "#/$defs/ids",
+     "minItems": 1
+    },
+    "specifiers_note": {
+     "type": "string"
+    },
+    "acceptable_differentials": {
+     "$ref": "#/$defs/ids"
+    },
+    "required_intents": {
+     "$ref": "#/$defs/ids"
+    },
+    "required_cues_noted": {
+     "$ref": "#/$defs/ids"
+    },
+    "acceptable_rx": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "drug"
+      ],
       "properties": {
-        "primary_dx": { "$ref": "#/$defs/ids", "minItems": 1 }, "specifiers_note": { "type": "string" },
-        "acceptable_differentials": { "$ref": "#/$defs/ids" }, "required_intents": { "$ref": "#/$defs/ids" }, "required_cues_noted": { "$ref": "#/$defs/ids" },
-        "acceptable_rx": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["drug"],
-          "properties": { "drug": { "$ref": "#/$defs/id" }, "required": { "type": "boolean" }, "note": { "type": "string" } } } },
-        "unsafe_rx": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["rule", "why"],
-          "properties": { "drug": { "type": "string" }, "drug_class": { "type": "string" }, "rule": { "$ref": "#/$defs/id" }, "why": { "type": "string" } } } },
-        "acceptable_disposition": { "$ref": "#/$defs/ids", "minItems": 1 }, "required_disposition": { "$ref": "#/$defs/ids" },
-        "teaching_points": { "type": "object", "additionalProperties": false, "required": ["status", "verified_by", "items"],
-          "properties": { "status": { "enum": ["draft", "faculty_review", "approved"] }, "verified_by": { "type": ["string", "null"] }, "items": { "type": "array", "items": { "type": "string" } } } },
-        "mse_expected": { "type": "object", "additionalProperties": { "$ref": "#/$defs/mse_entry" } } } } } }
+       "drug": {
+        "$ref": "#/$defs/id"
+       },
+       "required": {
+        "type": "boolean"
+       },
+       "note": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "unsafe_rx": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "rule",
+       "why"
+      ],
+      "properties": {
+       "drug": {
+        "type": "string"
+       },
+       "drug_class": {
+        "type": "string"
+       },
+       "rule": {
+        "$ref": "#/$defs/id"
+       },
+       "why": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "acceptable_disposition": {
+     "$ref": "#/$defs/ids",
+     "minItems": 1
+    },
+    "required_disposition": {
+     "$ref": "#/$defs/ids"
+    },
+    "teaching_points": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "status",
+      "verified_by",
+      "items"
+     ],
+     "properties": {
+      "status": {
+       "enum": [
+        "draft",
+        "faculty_review",
+        "approved"
+       ]
+      },
+      "verified_by": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "mse_expected": {
+     "type": "object",
+     "additionalProperties": {
+      "$ref": "#/$defs/mse_entry"
+     }
+    }
+   }
+  },
+  "variants": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "female",
+    "male"
+   ],
+   "description": "DESIGN 6.1: identical clinical facts, different name/pronouns/model/voice.",
+   "properties": {
+    "female": {
+     "$ref": "#/$defs/variant"
+    },
+    "male": {
+     "$ref": "#/$defs/variant"
+    }
+   }
+  },
+  "behavior": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "speech",
+    "mood",
+    "affect",
+    "insight",
+    "cooperation"
+   ],
+   "description": "Presentation in MSE terms (plan A1). Drives prompt, cues and MSE answer key.",
+   "properties": {
+    "appearance": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "behaviour": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "mood": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "affect": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "thought_form": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "thought_content": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "perception": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "cognition": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "insight": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "judgment": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "cooperation": {
+     "$ref": "#/$defs/mse_item"
+    },
+    "speech": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "rate",
+      "volume",
+      "latency"
+     ],
+     "properties": {
+      "rate": {
+       "enum": [
+        "slow",
+        "normal",
+        "fast",
+        "pressured"
+       ]
+      },
+      "volume": {
+       "enum": [
+        "soft",
+        "normal",
+        "loud"
+       ]
+      },
+      "latency": {
+       "enum": [
+        "short",
+        "normal",
+        "long"
+       ]
+      },
+      "description": {
+       "type": "string"
+      },
+      "example_lines": {
+       "$ref": "#/$defs/lines"
+      }
+     }
+    }
+   }
+  },
+  "style": {
+   "enum": [
+    "plain",
+    "upset",
+    "verbose",
+    "reserved",
+    "tangent",
+    "pleasing"
+   ]
+  },
+  "banned_words": {
+   "type": "array",
+   "items": {
+    "type": "string",
+    "minLength": 1
+   },
+   "uniqueItems": true
+  },
+  "principles": {
+   "type": "array",
+   "items": {
+    "type": "string",
+    "minLength": 1
+   }
+  },
+  "rubric": {
+   "enum": [
+    "MIRS",
+    "MITI",
+    "SSHADESS",
+    "HEADSS",
+    "C-SSRS"
+   ]
+  },
+  "exam_actions": {
+   "type": "object",
+   "additionalProperties": false,
+   "properties": {
+    "hold_out_hands": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "trust_min"
+     ],
+     "properties": {
+      "trust_min": {
+       "$ref": "#/$defs/pct"
+      },
+      "refusal_line": {
+       "type": "string"
+      }
+     }
+    },
+    "roll_up_sleeves": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "trust_min"
+     ],
+     "properties": {
+      "trust_min": {
+       "$ref": "#/$defs/pct"
+      },
+      "refusal_line": {
+       "type": "string"
+      }
+     }
+    },
+    "look_at_light": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "trust_min"
+     ],
+     "properties": {
+      "trust_min": {
+       "$ref": "#/$defs/pct"
+      },
+      "refusal_line": {
+       "type": "string"
+      }
+     }
+    },
+    "stand_up": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "trust_min"
+     ],
+     "properties": {
+      "trust_min": {
+       "$ref": "#/$defs/pct"
+      },
+      "refusal_line": {
+       "type": "string"
+      }
+     }
+    },
+    "walk_to_door": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "trust_min"
+     ],
+     "properties": {
+      "trust_min": {
+       "$ref": "#/$defs/pct"
+      },
+      "refusal_line": {
+       "type": "string"
+      }
+     }
+    }
+   }
+  }
+ }
+}

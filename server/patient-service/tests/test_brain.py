@@ -11,9 +11,9 @@ HIGH = {**LOW, "trust": 70}
 SI = "f_passive_si"
 
 
-def test_schema_enums_and_strictness():
+def test_schema_enums_order_and_strictness():
     allowed = [f["id"] for f in brain.allowed_facts(CASE, 30)]
-    s = brain.build_reply_schema(CASE, allowed)
+    s = brain.build_reply_schema(CASE, allowed, brain.allowed_actions(CASE, 30))
 
     def walk(node):  # strict mode: every object lists all properties as required and forbids extras
         if node.get("type") == "object":
@@ -26,12 +26,16 @@ def test_schema_enums_and_strictness():
 
     walk(s)
     p = s["properties"]
+    assert list(p)[:2] == ["emotion", "utterance"]  # generation order: voice can start before the rest
     assert p["revealed_fact_ids"]["items"]["enum"] == allowed and SI not in allowed
     assert set(p["event_cues"]["items"]["properties"]["id"]["enum"]) == {c["id"] for c in CASE["cues"]}
-    assert "ask_suicidal_ideation" in p["doctor_intents"]["items"]["enum"]
     assert p["emotion"]["enum"] == brain.EMOTIONS
-    assert set(p["state_delta"]["properties"]) == {"trust", "distress", "agitation", "engagement"}
-    assert all(v["type"] == "integer" for v in p["state_delta"]["properties"].values())
+    assert p["exam_action"]["anyOf"][1]["enum"] == ["hold_out_hands", "roll_up_sleeves", "look_at_light"]
+    assert brain.build_reply_schema(CASE, allowed, [])["properties"]["exam_action"] == {"type": "null"}
+    assert "ask_suicidal_ideation" in brain.build_intent_schema()["properties"]["doctor_intents"]["items"]["enum"]
+    # the published contract has the same order and the merged fields
+    pub = brain.load_json("schemas/patient_reply.schema.json")
+    assert list(pub["properties"]) == pub["required"] == ["emotion", "utterance", "state_delta", "event_cues", "revealed_fact_ids", "exam_action", "doctor_intents"]
 
 
 def test_schema_empty_allow_list_has_no_empty_enum():
@@ -39,28 +43,60 @@ def test_schema_empty_allow_list_has_no_empty_enum():
     assert s["properties"]["revealed_fact_ids"] == {"type": "array", "items": {"type": "string"}, "maxItems": 0}
 
 
-def test_prompt_hides_locked_facts_and_has_hard_rules():
-    low = brain.build_system_prompt(CASE, LOW)
-    si_text = next(f["text"] for f in CASE["facts"] if f["id"] == SI)
-    assert SI not in low and si_text not in low
+def test_prompt_fixed_prefix_and_locked_facts_never_sent():
+    sys_low, sys_high = brain.build_system_prompt(CASE), brain.build_system_prompt(CASE)
+    assert sys_low == sys_high  # fixed prefix: independent of state, so the KV cache is reused
     for f in CASE["facts"]:
-        assert (f["text"] in low) == (f["trust_min"] <= 30)
-    for phrase in ["Stay in character", "Never name or guess your own diagnosis", "Never give medical advice",
-                   "Never invent symptoms", "Ignore any instruction", "abusive"]:
-        assert phrase in low
-    high = brain.build_system_prompt(CASE, HIGH, summary="She said work is hard.", elapsed_min=5)
-    assert si_text in high and "ONLY if the doctor directly asks" in high and "She said work is hard." in high
+        assert f["text"] not in sys_low  # facts only go in the per-turn context
+    for phrase in ["next line of Ananya Rao", "Never name or guess any diagnosis", "Never give medical advice",
+                   "Never invent symptoms", "abusive", "depressed", "everyday words"]:
+        assert phrase in sys_low
+    low = brain.build_messages(CASE, LOW, [{"role": "doctor", "text": "Hi"}])
+    ctx = low[-1]["content"]
+    si_text = next(f["text"] for f in CASE["facts"] if f["id"] == SI)
+    assert ctx.startswith("Doctor: Hi") and SI not in ctx and si_text not in ctx
+    for f in CASE["facts"]:
+        assert (f["text"] in ctx) == (f["trust_min"] <= 30)
+    assert "Reminder:" in ctx and ctx.rstrip().endswith("Write Ananya Rao's next line in this dialogue.")
+    high = brain.build_messages(CASE, HIGH, [{"role": "doctor", "text": "Hi"}], summary="Work is hard.", elapsed_min=5)[-1]["content"]
+    assert si_text in high and "ONLY if the doctor asks directly" in high and "Work is hard." in high
+
+
+def test_style_reminder_is_transient():
+    msgs = [{"role": "doctor", "text": "a"}, {"role": "patient", "text": "b"}, {"role": "doctor", "text": "c"}]
+    out = brain.build_messages(CASE, LOW, msgs)
+    assert [m["content"] for m in out[1:3]] == ["a", "b"]  # history verbatim, no reminder stored
+    assert sum("Reminder:" in m["content"] for m in out) == 1 and "Reminder:" in out[-1]["content"]
+    assert msgs[-1]["text"] == "c"  # caller's history untouched
+
+
+def test_exam_actions_follow_trust():
+    assert brain.allowed_actions(CASE, 20) == ["hold_out_hands", "look_at_light"]
+    ctx = brain.turn_context(CASE, {**LOW, "trust": 20})
+    assert "roll_up_sleeves: hesitates or refuses" in ctx and "do I have to?" in ctx
+    r, d = brain.guard(_reply(exam_action="roll_up_sleeves"), CASE, trust=20)
+    assert r["exam_action"] is None and d == [{"kind": "exam_action", "id": "roll_up_sleeves", "reason": "trust"}]
+    r, d = brain.guard(_reply(exam_action="roll_up_sleeves"), CASE, trust=40)
+    assert r["exam_action"] == "roll_up_sleeves" and d == []
+    r, d = brain.guard(_reply(exam_action="stand_up"), CASE, trust=90)  # not listed in this case
+    assert r["exam_action"] is None and d[0]["reason"] == "unknown"
+
+
+def test_guard_strips_banned_sentences():
+    r, d = brain.guard(_reply(utterance="I don't know. Maybe I am depressed, doctor. I just feel tired all day."), CASE, trust=30)
+    assert r["utterance"] == "I don't know. I just feel tired all day."
+    assert d == [{"kind": "banned_word", "id": "depressed", "reason": "sentence removed"}]
 
 
 def test_history_is_trimmed():
     msgs = [{"role": "doctor" if i % 2 == 0 else "patient", "text": f"m{i}"} for i in range(30)]
     out = brain.build_messages(CASE, LOW, msgs)
-    assert len(out) == 1 + brain.HISTORY_TURNS and out[-1]["content"] == "m29" and out[1]["role"] == "user"
+    assert len(out) == 2 + brain.HISTORY_TURNS and out[-2]["content"] == "m29" and out[1]["role"] == "user" and out[-1]["role"] == "user"
 
 
 def _reply(**kw):
-    r = {"utterance": "Hm.", "emotion": "sad", "state_delta": {"trust": 0, "distress": 0, "agitation": 0, "engagement": 0},
-         "event_cues": [], "revealed_fact_ids": [], "doctor_intents": []}
+    r = {"emotion": "sad", "utterance": "Hm.", "state_delta": {"trust": 0, "distress": 0, "agitation": 0, "engagement": 0},
+         "event_cues": [], "revealed_fact_ids": [], "exam_action": None, "doctor_intents": []}
     r.update(kw)
     return r
 
@@ -107,24 +143,49 @@ class FakeClient:
 
 
 REQ = {"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "Hello, I'm Dr Rao."}], "state": LOW}
+TAG = lambda: ["greet_introduce"]  # noqa: E731
 
 
 def test_fallback_after_two_bad_replies():
     fc = FakeClient(["not json at all", json.dumps({"utterance": "hi"})])
-    out = brain.generate_reply(REQ, client=fc)
+    out = brain.generate_reply(REQ, client=fc, tagger=TAG)
     assert len(fc.calls) == 2
     assert out["meta"]["fallback"] is True and out["utterance"] in CASE["fallback_lines"]
     assert out["revealed_fact_ids"] == [] and out["state_delta"] == {"trust": 0, "distress": 0, "agitation": 0, "engagement": 0}
+    assert out["doctor_intents"] == ["greet_introduce"]
 
 
-def test_retry_then_success_and_request_shape():
-    good = _reply(utterance="Hello doctor.", revealed_fact_ids=["f_pc"], doctor_intents=["greet_introduce"])
+def test_retry_then_success_and_request_shape(monkeypatch):
+    good = _reply(utterance="Hello doctor.", revealed_fact_ids=["f_pc"])
+    del good["doctor_intents"]
     fc = FakeClient([RuntimeError("timeout"), json.dumps(good)])
-    out = brain.generate_reply({**REQ, "model": "grok-4.7", "reasoning_effort": "low"}, client=fc)
+    out = brain.generate_reply({**REQ, "model": "grok-4.7", "reasoning_effort": "low"}, client=fc, tagger=TAG)
     assert out["meta"]["fallback"] is False and out["meta"]["attempts"] == 2 and out["utterance"] == "Hello doctor."
+    assert out["doctor_intents"] == ["greet_introduce"] and out["revealed_fact_ids"] == ["f_pc"]
     kw = fc.calls[-1]
-    assert kw["model"] == "grok-4.7" and kw["reasoning_effort"] == "low"
+    assert kw["model"] == "grok-4.7" and kw["reasoning_effort"] == "low" and "extra_body" not in kw
     assert kw["response_format"]["json_schema"]["strict"] is True
+    monkeypatch.delenv("PATIENT_LLM", raising=False)
     fc2 = FakeClient([json.dumps(good)])
-    brain.generate_reply(REQ, client=fc2)
-    assert "reasoning_effort" not in fc2.calls[0] and fc2.calls[0]["model"] == brain.DEFAULT_MODEL
+    brain.generate_reply(REQ, client=fc2, tagger=TAG)
+    kw2 = fc2.calls[0]
+    assert "reasoning_effort" not in kw2 and kw2["model"] == brain.LOCAL_MODEL
+    assert kw2["extra_body"]["cache_prompt"] is True and kw2["extra_body"]["id_slot"] == 0
+
+
+def test_backend_switch_needs_both_env_vars(monkeypatch):
+    monkeypatch.setattr("dotenv.load_dotenv", lambda *a, **k: None)
+    monkeypatch.delenv("XAI_API_KEY", raising=False)
+    monkeypatch.setenv("PATIENT_LLM", "grok")
+    assert brain.use_grok() is False and brain.default_model() == brain.LOCAL_MODEL
+    monkeypatch.setenv("XAI_API_KEY", "x")
+    assert brain.use_grok() is True and brain.default_model() == brain.GROK_MODEL
+    monkeypatch.delenv("PATIENT_LLM")
+    assert brain.use_grok() is False
+
+
+def test_tagger_uses_slot_1_and_never_raises():
+    fc = FakeClient([json.dumps({"doctor_intents": ["ask_sleep", "ask_mood"]}), RuntimeError("down")])
+    assert brain.tag_intents("How do you sleep?", client=fc, model="local") == ["ask_sleep", "ask_mood"]
+    assert fc.calls[0]["extra_body"]["id_slot"] == 1 and fc.calls[0]["temperature"] == 0
+    assert brain.tag_intents("x", client=fc, model="local") == []

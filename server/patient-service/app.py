@@ -1,5 +1,4 @@
-"""PsychSim patient service: /health, /reply (Grok), /tts (KittenTTS). Run with ./run.sh."""
-import contextlib
+"""PsychSim patient service: WS /session (voice loop), /health, /reply (typed + tests), /tts (KittenTTS). Run with ./run.sh."""
 import io
 import logging
 import os
@@ -7,22 +6,24 @@ import time
 from contextlib import asynccontextmanager
 from typing import Literal
 
+import numpy as np
 import soundfile as sf
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 import brain
 import mock
+import session
+import stt
 
 log = logging.getLogger("patient-service")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
-TTS_MODEL = "KittenML/kitten-tts-mini-0.8"
-VOICES = ["Bella", "Luna", "Rosie", "Kiki", "Jasper", "Bruno", "Hugo", "Leo"]
-SAMPLE_RATE = 24000
-tts = {"model": None}
+VOICES = session.VOICES
+SAMPLE_RATE = session.OUT_SR
+tts = session.TTS
 MOCK = os.environ.get("PSYCHSIM_LLM") == "mock"  # dev/play-mode tests only, never the LLM eval
 
 
@@ -32,10 +33,20 @@ async def lifespan(app):
         try:
             from kittenml import KittenTTS
             t = time.perf_counter()
-            tts["model"] = KittenTTS(TTS_MODEL)
+            tts["model"] = KittenTTS(session.TTS_MODEL)
+            session.synth("Hello, doctor.", "Luna", 1.0)  # first call compiles the ONNX graph
             log.info("TTS loaded in %.1fs", time.perf_counter() - t)
         except Exception as e:  # /reply still works without TTS
             log.error("TTS failed to load: %s", type(e).__name__)
+    if os.environ.get("PSYCHSIM_SKIP_STT") != "1":
+        t = time.perf_counter()
+        stt.vad_model()
+        await run_in_threadpool(lambda: session.STT_POOL.submit(stt.transcribe, np.zeros(stt.SR, np.float32)).result())
+        log.info("VAD + STT (%s) loaded in %.1fs", stt.STT_MODEL, time.perf_counter() - t)
+    if not MOCK and os.environ.get("PSYCHSIM_SKIP_WARMUP") != "1":
+        t = time.perf_counter()
+        n = await run_in_threadpool(brain.tag_intents, "Hello, how are you?")  # warms slot 1 prefix
+        log.info("LLM %s warm in %.1fs (intents ok=%s)", brain.default_model(), time.perf_counter() - t, n is not None)
     yield
 
 
@@ -56,6 +67,7 @@ class State(BaseModel):
 
 class ReplyReq(BaseModel):
     case_id: str
+    variant: Literal["female", "male"] = "female"
     messages: list[Msg] = Field(min_length=1)
     state: State
     elapsed_min: float | None = None
@@ -72,27 +84,21 @@ class TtsReq(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"ok": True, "model": "mock" if MOCK else brain.DEFAULT_MODEL, "mock": MOCK, "tts_loaded": tts["model"] is not None}
+    return {"ok": True, "model": "mock" if MOCK else brain.default_model(), "backend": "grok" if brain.use_grok() else "local",
+            "mock": MOCK, "tts_loaded": tts["model"] is not None, "stt": stt.STT_MODEL}
 
 
 @app.post("/reply")
 async def reply(req: ReplyReq):
     try:
-        brain.load_case(req.case_id)
-    except FileNotFoundError:
+        brain.load_case(req.case_id, req.variant)
+    except (FileNotFoundError, KeyError):
         raise HTTPException(404, f"unknown case_id {req.case_id!r}")
     out = await run_in_threadpool(mock.mock_reply if MOCK else brain.generate_reply, req.model_dump())
     m = out["meta"]
     log.info("reply case=%s model=%s latency_ms=%s fallback=%s dropped=%d",
              req.case_id, m["model"], m["latency_ms"], m["fallback"], len(m["guard_dropped"]))
     return out
-
-
-def _generate(text, voice, speed):
-    # kittenml prints the input text to stdout; keep learner/patient text out of logs.
-    # shortcut: redirect_stdout is process-wide, so concurrent prints are swallowed too; fine for one client.
-    with contextlib.redirect_stdout(io.StringIO()):
-        return tts["model"].generate(text, voice=voice, speed=speed)
 
 
 @app.post("/tts")
@@ -102,9 +108,14 @@ async def speak(req: TtsReq):
     if req.voice not in VOICES:
         raise HTTPException(422, f"voice must be one of {VOICES}")
     t = time.perf_counter()
-    audio = await run_in_threadpool(_generate, req.text, req.voice, req.speed)
+    audio = await run_in_threadpool(lambda: session.TTS_POOL.submit(session.synth, req.text, req.voice, req.speed).result())
     buf = io.BytesIO()  # audio stays in memory, never on disk
     sf.write(buf, audio, SAMPLE_RATE, format="WAV", subtype="PCM_16")
     ms = round((time.perf_counter() - t) * 1000)
     log.info("tts voice=%s chars=%d gen_ms=%d", req.voice, len(req.text), ms)
     return Response(buf.getvalue(), media_type="audio/wav", headers={"X-Gen-Ms": str(ms)})
+
+
+@app.websocket("/session")
+async def ws_session(ws: WebSocket):
+    await session.serve(ws)

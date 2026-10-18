@@ -13,10 +13,11 @@ HIGH = {**LOW, "trust": 60}
 def ask(line, state=LOW):
     out = mock.mock_reply({"case_id": "mdd_01", "messages": [{"role": "doctor", "text": line}], "state": state})
     meta = out.pop("meta")
+    intents = out.pop("doctor_intents")
     schema = brain.build_reply_schema(CASE, meta["allowed_fact_ids"])
     jsonschema.validate(out, schema)  # same strict schema the real model must meet
     assert meta["mock"] is True
-    return out
+    return {**out, "doctor_intents": intents}
 
 
 def test_greeting_volunteers_presenting_complaint():

@@ -44,8 +44,8 @@ INTENT_RULES = {
     "judgmental_language": r"\bdrunk\b|\blazy\b|you'?re just|you are just|just (stress|in your head)|snap out|attention",
 }
 KIND = r"please|if it'?s ok|if that'?s ok|sometimes people|i'?d like to ask|can i ask|is it ok|gently|i'?m sorry|must be|sounds"
-FIRST_PERSON = [(r"\bShe has\b", "I have"), (r"\bshe has\b", "I have"), (r"\bShe\b", "I"), (r"\bshe\b", "I"),
-                (r"\bHas\b", "I have"), (r"\bherself\b", "myself"), (r"\bher\b", "my"), (r"\bHer\b", "My"),
+FIRST_PERSON = [(r"\b(She|He) has\b", "I have"), (r"\b(she|he) has\b", "I have"), (r"\b(She|He)\b", "I"), (r"\b(she|he)\b", "I"),
+                (r"\bHas\b", "I have"), (r"\b(herself|himself)\b", "myself"), (r"\bhim\b", "me"), (r"\b(her|his)\b", "my"), (r"\b(Her|His)\b", "My"),
                 (r"\bFeels\b", "I feel"), (r"\bFalls\b", "I fall"), (r"\bDrinks\b", "I drink"),
                 (r"\bExhausted\b", "I'm exhausted"), (r"\bPoor appetite\b", "My appetite is poor"),
                 (r"\bNo medical\b", "I have no medical"), (r"\bCannot\b", "I cannot"), (r"\bcannot\b", "can't")]
@@ -65,7 +65,7 @@ def speak(text: str) -> str:
 
 
 def mock_reply(req: dict) -> dict:
-    case = brain.load_case(req["case_id"])
+    case = brain.load_case(req["case_id"], req.get("variant") or "female")
     state = req["state"]
     line = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
     tagged = tag_intents(line)
