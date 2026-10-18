@@ -41,25 +41,6 @@ namespace PsychSim.Editor
             var officeFbx = AssetDatabase.LoadAssetAtPath<GameObject>(OfficePath);
             var room = officeFbx != null ? OfficeRoom(officeFbx) : BuildRoom();
 
-            var lightGo = new GameObject("Sun");
-            var sun = lightGo.AddComponent<Light>();
-            sun.type = LightType.Directional; sun.intensity = 0.6f; sun.color = new Color(1f, 0.96f, 0.9f);
-            lightGo.transform.rotation = Quaternion.Euler(55f, -30f, 0f);
-            var key = new GameObject("KeyLight_PatientFace").AddComponent<Light>();  // the one real-time light on the patient's face
-            key.type = LightType.Spot; key.intensity = 6f; key.range = 5f; key.spotAngle = 45f; key.color = new Color(1f, 0.95f, 0.88f);
-            key.transform.position = new Vector3(-0.2f, 2.4f, 0.2f);
-            var keyTarget = GameObject.Find("KeyLightTarget");
-            key.transform.LookAt(keyTarget ? keyTarget.transform.position : PatientHips + Vector3.up * 1.15f);
-            if (keyTarget) key.transform.position = keyTarget.transform.position + new Vector3(-1.0f, 1.0f, 0.6f);
-            if (keyTarget) key.transform.LookAt(keyTarget.transform.position);
-            var ceiling = new GameObject("CeilingLight").AddComponent<Light>();
-            ceiling.type = LightType.Point; ceiling.intensity = 2.5f; ceiling.range = 6f; ceiling.shadows = LightShadows.Soft;
-            ceiling.color = new Color(1f, 0.96f, 0.9f);
-            ceiling.transform.position = new Vector3(0f, 2.2f, 0f);
-            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.55f, 0.55f, 0.57f);
-            RenderSettings.reflectionIntensity = 0f;  // the default sky reflects cyan off the CC3 alpha-0 eye/hair layers indoors
-
             var anchor = GameObject.Find("DoctorAnchor").transform;
             var camGo = new GameObject("DoctorCamera", typeof(Camera), typeof(AudioListener), typeof(AudioSource));
             camGo.tag = "MainCamera";
@@ -70,6 +51,8 @@ namespace PsychSim.Editor
             var rig = camGo.AddComponent<DesktopRig>();
             var actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>("Assets/InputSystem_Actions.inputactions");
             Set(rig, "actions", actions);
+            var keyTarget = GameObject.Find("KeyLightTarget");
+            EncounterLighting.Apply(cam, keyTarget ? keyTarget.transform.position : PatientHips + Vector3.up * 1.15f);
 
             var em = new GameObject("EncounterManager").AddComponent<EncounterManager>();
             Set(em, "settings", settings);
@@ -87,6 +70,8 @@ namespace PsychSim.Editor
             new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
 
             EditorSceneManager.SaveScene(scene, ScenePath);
+            Lightmapping.bakeCompleted -= SaveAfterBake; Lightmapping.bakeCompleted += SaveAfterBake;
+            Lightmapping.BakeAsync();
             var list = EditorBuildSettings.scenes.Where(s => s.path != ScenePath).ToList();
             list.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
             EditorBuildSettings.scenes = list.ToArray();
@@ -96,11 +81,45 @@ namespace PsychSim.Editor
 
         const string OfficePath = "Assets/Art/Environments/Office/Room_Office.fbx";
 
+        static void SaveAfterBake()
+        {
+            Lightmapping.bakeCompleted -= SaveAfterBake;
+            EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
+            Debug.Log("PsychSim: lighting baked");
+        }
+
         /// <summary>The office room from tools/blender/make_office.py; it already carries the room-contract empties.</summary>
         static GameObject OfficeRoom(GameObject fbx)
         {
             var go = (GameObject)PrefabUtility.InstantiatePrefab(fbx);
             foreach (var r in go.GetComponentsInChildren<Renderer>()) r.gameObject.isStatic = r.transform.parent == go.transform;
+            // brief §2 items the pack lacks: a window with blinds (motivates the key light) and a box of tissues on the side table
+            var frame = Mat("Office/Materials", "M_WindowFrame", new Color(0.93f, 0.91f, 0.87f));
+            var sky = Mat("Office/Materials", "M_WindowDaylight", new Color(0.95f, 0.93f, 0.9f));
+            sky.EnableKeyword("_EMISSION"); sky.SetColor("_EmissionColor", Mathf.CorrelatedColorTemperatureToRGB(5000f).gamma * 2.5f);
+            sky.globalIlluminationFlags = MaterialGlobalIlluminationFlags.BakedEmissive;
+            EditorUtility.SetDirty(sky);
+            var win = new GameObject("Window").transform;
+            win.SetParent(go.transform, false);
+            win.position = new Vector3(0.4f, 1.475f, 1.495f);   // south wall, right of the desk; 1.0 x 1.05 m, sill at 0.95 m
+            Box(win.gameObject, "Pane", new Vector3(0f, 0f, 0f), new Vector3(0.96f, 1.01f, 0.01f), sky, true);
+            Box(win.gameObject, "Frame_T", new Vector3(0f, 0.525f, -0.02f), new Vector3(1.04f, 0.05f, 0.05f), frame, true);
+            Box(win.gameObject, "Frame_B", new Vector3(0f, -0.525f, -0.04f), new Vector3(1.1f, 0.04f, 0.12f), frame, true);
+            Box(win.gameObject, "Frame_L", new Vector3(-0.5f, 0f, -0.02f), new Vector3(0.05f, 1.1f, 0.05f), frame, true);
+            Box(win.gameObject, "Frame_R", new Vector3(0.5f, 0f, -0.02f), new Vector3(0.05f, 1.1f, 0.05f), frame, true);
+            for (int i = 0; i < 7; i++)                          // blinds lowered over the top half, slats tilted open
+            {
+                Box(win.gameObject, "Slat", new Vector3(0f, 0.47f - i * 0.07f, -0.05f), new Vector3(0.94f, 0.004f, 0.05f), frame, true);
+                win.GetChild(win.childCount - 1).localRotation = Quaternion.Euler(-35f, 0f, 0f);
+            }
+            var tissues = new GameObject("Tissues").transform;
+            tissues.SetParent(go.transform, false);
+            tissues.SetPositionAndRotation(new Vector3(0.98f, 0.83f, -0.72f), Quaternion.Euler(0f, 20f, 0f));
+            Box(tissues.gameObject, "Box", new Vector3(0f, 0.045f, 0f), new Vector3(0.12f, 0.09f, 0.24f), Mat("Office/Materials", "M_TissueBox", new Color(0.45f, 0.66f, 0.7f)), true);
+            Box(tissues.gameObject, "Tissue", new Vector3(0f, 0.11f, 0f), new Vector3(0.06f, 0.05f, 0.1f), frame, true);
+            foreach (var t in win.GetComponentsInChildren<Transform>().Concat(tissues.GetComponentsInChildren<Transform>())) t.gameObject.isStatic = true;
+            // bare upper corner above the door-side shelves for internal_stimuli looks (the old target sat on the shelves)
+            go.transform.Find("CornerLookTarget").position = new Vector3(-1.47f, 2.2f, -1.4f);
             return go;
         }
 
@@ -182,9 +201,11 @@ namespace PsychSim.Editor
             b.isStatic = !local;
         }
 
-        static Material Mat(string name, Color c)
+        static Material Mat(string name, Color c) => Mat("Placeholder", name, c);
+
+        static Material Mat(string room, string name, Color c)
         {
-            var path = $"Assets/Art/Environments/Placeholder/{name}.mat";
+            var path = $"Assets/Art/Environments/{room}/{name}.mat";
             return Asset(path, () => new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = c });
         }
 
