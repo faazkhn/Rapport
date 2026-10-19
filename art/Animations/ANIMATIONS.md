@@ -18,10 +18,13 @@ All clips use the CC3 skeleton (101 `CC_Base_*` bones, the same on Mégane `fema
 | `gesture_talk_small_02` | 0–150 | 5.0 s | loop | Arms | No | The left hand makes a small open-palm offer, then both hands open slightly outward together. |
 | `gesture_nod` | 0–42 | 1.4 s | one-shot | Head | No | Small nod (about 7°, with a little rebound). The neck leads and the head follows. |
 | `gesture_head_shake` | 0–72 | 2.4 s | one-shot | Head | No | Small, slow shake (about ±6° decaying), with the head dipped about 2°. |
+| `action_hold_out_hands` | 0–240 | 8.0 s | one-shot | Arms + Hands | No | Exam action. Both arms come up level in front, palms down, fingers a little spread, held still 1.5–5.7 s so code can add the tremor, then back to the lap. |
+| `action_roll_up_sleeves` | 0–390 | 13.0 s | one-shot | Arms | No | Exam action. The right hand rolls the left sleeve to the elbow (3 strokes), then the left rolls the right; both forearms rest palm-up over the thighs, held 7.75–10.8 s. |
+| `action_look_at_light` | 0–180 | 6.0 s | one-shot | Head | No | Exam action (penlight). The head comes up level toward the doctor and holds very still 1.0–4.7 s, then returns. Eyes are left to the gaze code; pair with `face_squint`. |
 
 Every gesture and cue clip carries a full-body pose (the `base_sit_neutral` frame 0) underneath the moving part, so it plays correctly on its own as well. Every loop's last frame equals its first frame. Gaze, tremor and slowed motion are not animated; code drives them.
 
-Face presets are in `Face/`: `face_neutral`, `face_sad`, `face_flat`, `face_anxious`, `face_ashamed`. Each file has the form `{"mesh": "CC_Base_Body", "weights": {...}}` on Unity's 0–100 scale. Every preset lists every key that any preset uses (most at 0), so playing a preset clip fully replaces the previous one. All the key names were checked against `CC_Base_Body`. The `Eye_Blink_*` lid drop has same-named keys on `CC_Base_EyeOcclusion` and `CC_Base_TearLine`. Drive those with the same weights in Phase B, otherwise the occlusion shadow will not follow the lid.
+Face presets are in `Face/`: `face_neutral`, `face_sad`, `face_flat`, `face_anxious`, `face_ashamed`, plus `face_squint` for `action_look_at_light`. Each file has the form `{"mesh": "CC_Base_Body", "weights": {...}}` on Unity's 0–100 scale. Every preset lists every key that any preset uses (most at 0), so playing a preset clip fully replaces the previous one. All the key names were checked against `CC_Base_Body`. The `Eye_Blink_*` lid drop has same-named keys on `CC_Base_EyeOcclusion` and `CC_Base_TearLine`. Drive those with the same weights in Phase B, otherwise the occlusion shadow will not follow the lid.
 
 ## Unity import (Rig = Humanoid)
 
@@ -37,7 +40,7 @@ Face presets are in `Face/`: `face_neutral`, `face_sad`, `face_flat`, `face_anxi
 | `sit_down` | off | Bake ✔, *Original* | Bake ✔, *Original* | Bake ✔, *Original* |
 | `base_sit_neutral`, `base_sit_slumped` | **on** (Loop Pose off; the curves already match) | Bake ✔, *Original* | Bake ✔, *Original* | Bake ✔, *Original* |
 | `cue_fidget_nails_Hands`, `gesture_talk_small_01/02` | **on** | Bake ✔, *Original* | Bake ✔, *Original* | Bake ✔, *Original* |
-| `cue_wipe_tears`, `gesture_nod`, `gesture_head_shake` | off | Bake ✔, *Original* | Bake ✔, *Original* | Bake ✔, *Original* |
+| `cue_wipe_tears`, `gesture_nod`, `gesture_head_shake`, `action_*` | off | Bake ✔, *Original* | Bake ✔, *Original* | Bake ✔, *Original* |
 
 *Based Upon: Original* matters for every seated clip. Without it, Unity re-centres the body over the GameObject and the pelvis leaves the chair.
 
@@ -63,4 +66,5 @@ Face presets are in `Face/`: `face_neutral`, `face_sad`, `face_flat`, `face_anxi
 - These are keyframed and procedural, not motion capture. The walk is believable at a room's distance, but the foot roll is simplified (no toe-off pivot on the toe joint itself in heels).
 - The fidget reads as finger motion at 1.5 m. The thumb-to-nail contact is approximate and not collision-checked.
 - In Blender the arm twist bones (`*Twist*`) are not driven, so the wrist skin can twist slightly at extreme hand rolls. Unity's humanoid twist settings take care of this.
-- Only Mégane's mesh was checked for seat contact. Matt was a visual spot check (see Foot IK above).
+- The seated hip height is an 8 mm compromise between the two bodies (Mégane settles slightly more, Matt slightly less). Every clip has `matt_*` previews; Matt was checked visually for all clips, including `base_sit_slumped` (no chair clipping, no T-poses, hands stay out of the thighs).
+- The exam actions are override layers over `base_sit_neutral`; over `base_sit_slumped` the shoulders start lower, so blend in over 0.3–0.5 s.

@@ -6,6 +6,9 @@ Usage (from Med/):
       "art_source/Mégane_Blender/Mégane_Blender.Fbx" art/Animations [--previews]
   /Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup --python tools/blender/make_clips.py -- \
       verify "art_source/Mégane_Blender/Mégane_Blender.Fbx" art/Animations
+  # play the exported clips on Matt: seat contact, hip travel and matt_<clip>_fNNN.png stills
+  /Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup --python tools/blender/make_clips.py -- \
+      model art/Matt/Matt.Fbx art/Animations matt [clip ...]
 
 Everything is generated from code: poses are functions of time, solved with a small analytic
 2-bone IK (legs and arms), sampled every frame at 30 fps, keyed as plain FK on the CC_Base_* bones
@@ -429,12 +432,16 @@ LEGS_SEATED = {'L': {'target': (0.11, -0.16, 0.155), 'pole': (0.13, -1.0, 0.5), 
                'R': {'target': (-0.12, -0.12, 0.155), 'pole': (-0.13, -1.0, 0.5), 'rot': (0, 0, -3)}}
 STAND_HIP_Z = 1.047                 # 1 cm below rest: knees soft, not locked
 FINGERS_RELAXED = {'L': {'Thumb': 14, 'Index': 18, 'Mid': 24, 'Ring': 29, 'Pinky': 34, 'Index_spread': 2},
-                   'R': {'Thumb': 16, 'Index': 21, 'Mid': 26, 'Ring': 30, 'Pinky': 36, 'Pinky_spread': -2}}
+                   'R': {'Thumb': 8, 'Index': 21, 'Mid': 26, 'Ring': 30, 'Pinky': 36, 'Pinky_spread': -2}}
+# hanging arms: thumb a little more open so its tip doesn't brush the thigh in the arm swing
+FINGERS_HANG = {s: dict(f, Thumb=f['Thumb'] - 8, Thumb_in=-8) for s, f in FINGERS_RELAXED.items()}
 # hands loosely together in the lap; both seated bases share this layout so the Hands-mask cue fits either
-LAP = {'L': {'target': (0.09, 0.17, 0.665), 'pole': (0.6, 0.6, 0.6), 'D': (-0.6, -0.75, -0.25), 'N': (-0.45, 0, -1)},
-       'R': {'target': (-0.085, 0.145, 0.675), 'pole': (-0.6, 0.6, 0.6), 'D': (0.55, -0.8, -0.2), 'N': (0.45, 0, -1)}}
-LAP_SLUMP = {'L': {'target': (0.08, 0.11, 0.65), 'pole': (0.5, 0.6, 0.45), 'D': (-0.65, -0.65, -0.3), 'N': (-0.4, 0, -1)},
-             'R': {'target': (-0.07, 0.085, 0.665), 'pole': (-0.5, 0.6, 0.45), 'D': (0.6, -0.7, -0.3), 'N': (0.4, 0, -1)}}
+# (quality pass: hands raised 15/16 mm (slumped 24/14 mm) and the right thumb opened, so the pinky edges and the right
+# thumb no longer sink into the thighs / the back of the left hand)
+LAP = {'L': {'target': (0.09, 0.17, 0.680), 'pole': (0.6, 0.6, 0.6), 'D': (-0.6, -0.75, -0.25), 'N': (-0.45, 0, -1)},
+       'R': {'target': (-0.085, 0.145, 0.691), 'pole': (-0.6, 0.6, 0.6), 'D': (0.55, -0.8, -0.2), 'N': (0.45, 0, -1)}}
+LAP_SLUMP = {'L': {'target': (0.08, 0.11, 0.674), 'pole': (0.5, 0.6, 0.45), 'D': (-0.65, -0.65, -0.3), 'N': (-0.4, 0, -1)},
+             'R': {'target': (-0.07, 0.085, 0.679), 'pole': (-0.5, 0.6, 0.45), 'D': (0.6, -0.7, -0.3), 'N': (0.4, 0, -1)}}
 
 
 def copy_pose(P):
@@ -519,7 +526,7 @@ def stand_pose(t, y0=0.0):
          'legs': {s: {'target': add(ANKLE_REST[s], (0, y0, 0)), 'pole': (0.2 * (1 if s == 'L' else -1), y0 - 1.0, 0.5),
                       'rot': (0, 0, 3 if s == 'L' else -3)} for s in 'LR'},
          'arms': {s: hang_arm(s, (0.0, y0, STAND_HIP_Z), 0.0, 0.0) for s in 'LR'},
-         'fingers': copy_pose(FINGERS_RELAXED)}
+         'fingers': copy_pose(FINGERS_HANG)}
     return P
 
 
@@ -527,7 +534,8 @@ def hang_arm(side, hip, swing, yaw):
     """Hand hanging by the thigh; swing +1 = forward. Offsets are taken relative to the hips."""
     sx = 1 if side == 'L' else -1
     R = Matrix.Rotation(math.radians(yaw), 3, 'Z')
-    off = Vector((sx * 0.212, -0.02 - 0.11 * swing, -0.045 + 0.025 * swing * swing + 0.01 * max(swing, 0)))
+    # quality pass: 26 mm wider than first authored (+12 mm on the back swing) so the fingertips clear the trouser sides
+    off = Vector((sx * (0.238 + 0.012 * max(-swing, 0.0)), -0.02 - 0.11 * swing, -0.045 + 0.025 * swing * swing + 0.01 * max(swing, 0)))
     tgt = Vector(hip) + R @ off
     pole = Vector(hip) + R @ Vector((sx * 0.45, 0.6, 0.35))
     D = R @ Vector((sx * 0.03, -0.12 - 0.3 * swing, -1))
@@ -642,7 +650,7 @@ def walk_in(t):
                  'NeckTwist02': (1 - 1.5 * bob * speed, 0, 0.2 * yaw),
                  'Head': (6 + 1.2 * track(sway_keys)(t - 0.1) * 0, 1.0 - 0.3 * roll, 0.15 * yaw),
                  'L_Clavicle': (0, -0.8 * b, -3 - 2 * swing_lag), 'R_Clavicle': (0, 0.6 * b, 3 - 2 * swing_lag)},
-         'legs': {}, 'arms': {}, 'fingers': copy_pose(FINGERS_RELAXED)}
+         'legs': {}, 'arms': {}, 'fingers': copy_pose(FINGERS_HANG)}
     for side in 'LR':
         ankle, pitch, toe = feet[side]
         sx = 1 if side == 'L' else -1
@@ -722,14 +730,17 @@ def sit_down(t):
         sx = 1 if side == 'L' else -1
         h0, h1 = st['arms'][side], se['arms'][side]
         tgt = track([(0.0, h0['target']), (0.35 + lag, h0['target']),
-                     (0.95 + lag, (sx * 0.20, -0.02, 0.80)), (1.40 + lag, (sx * 0.14, 0.02, 0.66)),
-                     (1.75 + lag, (sx * 0.13, 0.06, 0.665)), (2.45 + lag, h1['target']), (SIT_END, h1['target'])])(t)
+                     (0.95 + lag, (sx * 0.225, -0.04, 0.84)), (1.40 + lag, (sx * 0.16, 0.0, 0.72)),
+                     (1.75 + lag, (sx * 0.14, 0.06, 0.71)), (2.45 + lag, h1['target']), (SIT_END, h1['target'])])(t)
         mid_D, mid_N = (sx * -0.1, -0.7, -0.7), (sx * 0.1, -0.2, -1)
-        D = track([(0.0, h0['D']), (0.45 + lag, h0['D']), (1.1 + lag, mid_D), (1.6 + lag, (sx * -0.35, -0.9, -0.3)),
+        D = track([(0.0, h0['D']), (0.45 + lag, h0['D']), (1.1 + lag, mid_D), (1.6 + lag, (sx * -0.35, -0.9, -0.05)),
                    (2.5 + lag, h1['D']), (SIT_END, h1['D'])])(t - 0.05)
         N = track([(0.0, h0['N']), (0.45 + lag, h0['N']), (1.1 + lag, mid_N), (1.6 + lag, (sx * 0.15, 0, -1)),
                    (2.5 + lag, h1['N']), (SIT_END, h1['N'])])(t - 0.05)
         pole = Vector(h0['pole']).lerp(Vector(h1['pole']), smooth((t - 0.5) / 1.4))
+        # quality pass: the hands ride a little higher over the thighs (knees and thighs re-angle under them
+        # as the feet slide), so the fingers rest on the trousers instead of sinking in
+        tgt = add(tgt, (0, 0, 0.03 * bump(t, 1.75, 2.85, 0.4)))
         P['arms'][side] = {'target': tgt, 'pole': tuple(pole), 'D': D, 'N': N}
     if t >= SIT_END:
         return se
@@ -739,8 +750,20 @@ def sit_down(t):
 # ---------------------------------------------------------------- gestures on top of the neutral seated pose
 
 
-def base_static():
-    return seated_neutral(0.0)
+def base_static(t=0.0, T=None):
+    """seated_neutral frame 0; with T, adds its chest/shoulder breathing (whole breaths over the clip,
+    so t=0 and t=T are both exactly frame 0)."""
+    P = seated_neutral(0.0)
+    if T:
+        b = breath(t, T / max(1, round(T / 4.0)))
+        addrot(P, {'Waist': (-0.3, 0, 0), 'Spine01': (-0.6, 0, 0), 'Spine02': (-0.9, 0, 0), 'NeckTwist01': (0.4, 0, 0),
+                   'NeckTwist02': (0.3, 0, 0), 'Head': (0.3, 0, 0), 'L_Clavicle': (0, -1.3, 0), 'R_Clavicle': (0, 1.0, 0)}, b)
+    return P
+
+
+def base_slow(t, T):
+    """The whole seated_neutral cycle (breathing, weight shift, sway) time-scaled to span T seconds."""
+    return seated_neutral(t * 8.0 / T)
 
 
 def overlay_arm(P, side, keys_pos, keys_D=None, keys_N=None, t=0.0, period=None, orient_lag=0.07):
@@ -755,7 +778,7 @@ def overlay_arm(P, side, keys_pos, keys_D=None, keys_N=None, t=0.0, period=None,
 
 def talk_small_01(t):
     L = 4.0
-    P = base_static()
+    P = base_static(t, L)
     Z = (0, 0, 0)
     # right hand lifts a few cm, palm turns up-in, two small beats, settles
     overlay_arm(P, 'R', [(0.0, Z), (0.45, (0.02, -0.04, 0.055)), (0.95, (0.012, -0.05, 0.035)), (1.3, (0.022, -0.05, 0.06)),
@@ -776,11 +799,11 @@ def talk_small_01(t):
 
 def talk_small_02(t):
     L = 5.0
-    P = base_static()
+    P = base_static(t, L)
     Z = (0, 0, 0)
     # left hand leads a small open-palm offer, then both hands open slightly outward together
     overlay_arm(P, 'L', [(0.0, Z), (0.6, (-0.015, -0.035, 0.05)), (1.2, (-0.01, -0.04, 0.03)), (1.8, Z),
-                         (2.8, (0.012, -0.03, 0.04)), (3.4, (0.02, -0.035, 0.045)), (4.2, Z)],
+                         (2.8, (0.012, -0.03, 0.04)), (3.4, (0.02, -0.035, 0.045)), (4.2, Z), (4.7, Z)],  # hold key: no spline dip into the thigh before the wrap
                 [(0.0, Z), (0.7, (0.15, -0.2, 0.25)), (1.9, Z), (2.9, (0.25, -0.15, 0.2)), (3.5, (0.3, -0.15, 0.25)), (4.3, Z)],
                 [(0.0, Z), (0.7, (-0.4, 0, 0.7)), (1.9, Z), (2.9, (-0.2, 0, 0.6)), (3.5, (-0.3, 0, 0.8)), (4.3, Z)],
                 t=t, period=L)
@@ -800,7 +823,7 @@ def talk_small_02(t):
 def fidget_nails(t):
     """Thumbs worry at the index/middle nails of the same hand (fingers only, so any lap pose works)."""
     L = 6.0
-    P = base_static()
+    P = base_static(t, L)
     fr, fl = P['fingers']['R'], P['fingers']['L']
     # right hand: thumb rubs and picks across the index nail in irregular strokes
     rt = track([(0, 0), (0.4, 1), (0.7, 0.55), (1.0, 1), (1.25, 0.6), (1.7, 1), (2.4, 0.2), (3.4, 0.15),
@@ -824,7 +847,7 @@ def fidget_nails(t):
 
 def wipe_tears(t, solver=None):
     """Right hand comes up, fingertips wipe under the right eye from the inside out, back to the lap."""
-    P = base_static()
+    P = base_static(t, 2.5)
     solver = solver or _SOLVER
     pose = solver.solve(P)[1]
     H = pose[B + 'Head']
@@ -832,7 +855,8 @@ def wipe_tears(t, solver=None):
     Rh = H.to_3x3().normalized()
     # contact path in front of the lower lid, from inner to outer corner (world axes, head-relative offsets)
     def face_pt(dx, dz, dy):
-        return eye + Vector((dx, -0.029 + dy, -0.027 + dz))  # 5 mm spare so it also clears the slumped head
+        # quality pass: 8 mm further out; the finger pads (not the bone tips) were pressing into the cheek
+        return eye + Vector((dx, -0.037 + dy, -0.027 + dz))
     T0 = 0.2
     contact = track([(T0 + 0.55, (0.008, 0.002, -0.004)), (T0 + 0.85, (0.002, 0.0, 0.0)), (T0 + 1.15, (-0.016, -0.004, 0.0)),
                      (T0 + 1.3, (-0.024, -0.010, -0.018))])
@@ -887,6 +911,202 @@ def head_shake(t):
     return P
 
 
+# ---------------------------------------------------------------- exam actions (one-shot, from/to base_sit_neutral)
+# Each runs over base_slow(), so breathing, sway and weight shift continue underneath, and frame 0 and
+# the last frame are both base_sit_neutral frame 0.
+
+def _blend_arm(a, b, w, N_mid=None):
+    """Blend two arm dicts; N_mid routes the palm normal through a halfway direction (for 180 deg rolls)."""
+    out = blend_pose(a, b, w)
+    if N_mid is not None and 0 < w < 1:
+        out['N'] = track([(0, a['N']), (0.5, N_mid), (1, b['N'])])(w)
+    return out
+
+
+HOLD_T = 8.0
+
+
+def hold_out_hands(t):
+    """Both arms come up level in front, palms down, fingers spread a little; held still ~4.2 s
+    (1.5-5.7 s) for the code-driven tremor; then back to the lap."""
+    T = HOLD_T
+    P = base_slow(t, T)
+    b = breath(t, T / 2)
+    for side, lag in (('R', 0.0), ('L', 0.07)):
+        sx = 1 if side == 'L' else -1
+        # up with a small overshoot that settles (1.3-1.6 s), down a little slower than up
+        w = min(1.0, track([(0, 0), (0.35 + lag, 0), (1.3 + lag, 1.0), (5.75 + lag, 1.0),
+                            (6.4 + lag, 0.45), (7.15 + lag, 0.0), (T, 0)])(t))
+        out = {'target': (sx * 0.172, -0.055, 0.985 + 0.0015 * b), 'pole': (sx * 0.75, 0.45, 0.25),
+               'D': (-sx * 0.04, -1, 0.03), 'N': (sx * 0.06, 0, -1)}
+        lap = P['arms'][side]
+        # on the way up the hand leads with the wrist slightly flexed, on the way down the fingers trail
+        mid = dict(out, target=add(lerp(lap['target'], out['target'], 0.5), (0, 0, 0.035)), D=(-sx * 0.15, -0.8, -0.35))
+        if w <= 0.5:
+            arm = _blend_arm(lap, mid, w / 0.5)
+        else:
+            arm = _blend_arm(mid, out, (w - 0.5) / 0.5)
+        over = bump(t, 1.0 + lag, 1.9 + lag, 0.45)   # arms float a touch high, then settle
+        arm['target'] = add(arm['target'], (0, -0.006 * over, 0.012 * over))
+        P['arms'][side] = arm
+        # fingers open as the arm rises, spread slightly in the hold
+        f = smooth(w * 1.1 - 0.1) if w < 1 else 1.0
+        fr = P['fingers'][side]
+        for n, c in (('Thumb', 6), ('Index', 4), ('Mid', 4), ('Ring', 6), ('Pinky', 8)):
+            fr[n] = lerp(fr[n], c, f)
+        fr['Index_spread'] = lerp(fr.get('Index_spread', 0), 5, f)
+        fr['Pinky_spread'] = lerp(fr.get('Pinky_spread', 0), -7, f)
+        fr['Ring_spread'] = lerp(fr.get('Ring_spread', 0), -3, f)
+        # shoulders come forward and up a touch to carry the arms
+        k = w if w < 1 else 1.0
+        addrot(P, {side + '_Clavicle': (0, -sx * 2.0, -sx * 5.0)}, k)
+    # counter-balance: lean back a little as the arms go out, settle; small weight shift at the start
+    lb = track([(0, 0), (0.4, 0), (1.4, 1.15), (2.0, 1.0), (5.8, 1.0), (7.2, 0), (T, 0)])
+    for n, k, d in (('Waist', -1.4, 0.0), ('Spine01', -1.0, 0.06), ('Spine02', -0.6, 0.12), ('Head', 1.2, 0.2)):
+        addrot(P, {n: (k * lb(t - d), 0, 0)})
+    addrot(P, {'Hip': (0, 1.2 * bump(t, 0.1, 1.6), 0), 'Spine02': (0, -0.8 * bump(t, 0.25, 1.8), 0)})
+    return P
+
+
+ROLL_T = 13.0
+
+
+def _forearm(pose, side):
+    """Elbow, wrist (metres) and unit axis wrist->elbow of one forearm."""
+    e = pose[B + side + '_Forearm'].translation / CM
+    w = pose[B + side + '_Hand'].translation / CM
+    return e, w, (e - w).normalized()
+
+
+GRIP = dict(h=0.085, fo=0.05, back=0.075, curl=0.7)  # palm height over / offset across the forearm axis, wrist set-back, curl scale
+
+
+def _grip_on(host_pose, host, u, lift, roll):
+    """Arm dict for the other hand gripping the top of `host`'s forearm at u (0 wrist .. 1 elbow)."""
+    e, w, a = _forearm(host_pose, host)
+    up = Vector((0, 0, 1))
+    fwd = a.cross(up).normalized()
+    if fwd.y > 0:
+        fwd = -fwd  # fingers wrap over the far side (away from the body)
+    surf = w.lerp(e, u) + up * (GRIP['h'] + lift) + fwd * GRIP['fo']
+    # fingers point forward-down over the forearm; `roll` (0..1) curls the wrist toward the elbow (the fold)
+    D = (fwd * 0.85 - up * 0.45 + a * 0.35 * roll).normalized()
+    N = (-up + fwd * 0.2 - a * 0.25 * roll)
+    N = (N - D * N.dot(D)).normalized()
+    wrist = surf - D * GRIP['back']
+    sx = -1 if host == 'L' else 1   # the gripping hand's side sign
+    return {'target': tuple(wrist), 'pole': (sx * 0.7, 0.35, 0.35), 'D': tuple(D), 'N': tuple(N)}
+
+
+def _strokes(t, t0, t1, n=3, u0=0.05, u1=0.72):
+    """Grip position u, lift (m) and wrist fold for n push-strokes up a forearm between t0 and t1."""
+    if t <= t0:
+        return u0, 0.0, 0.0, 0.0
+    if t >= t1:
+        return u1, 0.0, 0.0, 1.0
+    h = (t1 - t0) / n
+    k = min(int((t - t0) / h), n - 1)
+    s = (t - t0 - k * h) / h
+    du = (u1 - u0) / n
+    push = smooth(s / 0.62)                       # grip and push for 62 % of the stroke
+    u = u0 + du * (k + push)
+    lift = 0.018 * bump(s, 0.6, 1.0, 0.45)        # let go, hop back onto the rolled cuff
+    fold = bump(s, 0.0, 0.68, 0.4)
+    grip = 1.0 - bump(s, 0.58, 1.0, 0.4)
+    return u, lift, fold, grip
+
+
+def roll_up_sleeves(t, solver=None):
+    """Right hand rolls the left sleeve to the elbow (3 strokes), then the left rolls the right; both
+    forearms then rest forward over the thighs turned palm-up (inner forearm up), held 7.75-10.8 s."""
+    solver = solver or _SOLVER
+    T = ROLL_T
+    P = base_slow(t, T)
+    lap = copy_pose(P['arms'])
+    host = {s: {'target': (sx * 0.035, 0.07, 0.83), 'pole': (sx * 0.8, 0.55, 0.45),
+                'D': (-sx * 0.75, -0.6, -0.12), 'N': (sx * 0.1, 0.25, -1)}
+            for s, sx in (('L', 1), ('R', -1))}
+    up = {s: {'target': (sx * 0.125, 0.045, 0.725), 'pole': (sx * 0.7, 0.6, 0.3),
+              'D': (-sx * 0.12, -1, -0.12), 'N': (sx * 0.12, 0, 1)}
+          for s, sx in (('L', 1), ('R', -1))}
+    N_side = {'L': (-1, 0, 0.1), 'R': (1, 0, 0.1)}  # palm facing in, halfway through the turn
+    # host arms (the forearm being rolled) first; they don't depend on the gripping hand
+    # (the right hand lies on top in the lap, so it lifts first and the left forearm comes up under it;
+    #  at the swap the left drops to the lap while the right, lifted, turns host above it)
+    hw = {'L': track([(0, 0), (0.6, 0), (1.3, 1), (3.45, 1), (4.0, 0)])(t),
+          'R': track([(0, 0), (3.6, 0), (4.25, 1), (6.6, 1), (7.1, 0)])(t)}
+    arms = {}
+    for s in 'LR':
+        a = _blend_arm(lap[s], host[s], hw[s])
+        # the host forearm gives a little under each push
+        a['target'] = add(a['target'], (0, -0.006 * hw[s] * math.sin(2 * math.pi * t / 0.73) ** 2, 0))
+        arms[s] = a
+    P['arms'] = arms
+    pose = solver.solve(P)[1]
+    # gripping hand: R on the L forearm 1.25-3.45 s, L on the R forearm 4.2-6.35 s
+    for g, hs, ta, t0, t1, tb in (('R', 'L', 0.3, 1.35, 3.45, 4.2), ('L', 'R', 4.35, 4.9, 6.6, 7.1)):
+        u, lift, fold, grip = _strokes(t, t0, t1)
+        # come in and leave from above, so the hand never cuts through the forearm it is reaching for
+        hop = 0.06 * (1 - smooth((t - ta) / (t0 - ta))) + 0.06 * smooth((t - t1) / (tb - t1))
+        gp = _grip_on(pose, hs, u, lift + hop, fold)
+        if t < t0:
+            w = smooth((t - ta) / (t0 - ta))
+            P['arms'][g] = _blend_arm(P['arms'][g], gp, w)
+        elif t <= t1:
+            P['arms'][g] = gp
+            w = 1.0
+        else:  # let go: lift off and become the next host (R), or turn straight to the palm-up pose (L)
+            w = smooth((t - t1) / (tb - t1))
+            P['arms'][g] = _blend_arm(gp, up[g], w, N_mid=N_side[g]) if g == 'L' else _blend_arm(gp, P['arms'][g], w)
+        # travel in an arc up and over the other arm (out of the lap it starts below it)
+        arc = math.sin(math.pi * w)
+        P['arms'][g]['target'] = add(P['arms'][g]['target'], (0, -0.06 * arc, 0.11 * arc))
+        fg = P['fingers'][g]
+        gw = (smooth((t - t0 + 0.15) / 0.2) * (1 - smooth((t - t1) / 0.25))) * grip
+        for n, c in (('Thumb', 16), ('Index', 50), ('Mid', 52), ('Ring', 44), ('Pinky', 40)):
+            fg[n] = lerp(fg[n], c * GRIP['curl'], gw)
+        fg['Thumb_in'] = 6 * gw
+    # both forearms turn up and rest forward over the thighs; hold; back to the lap
+    for s, lag in (('L', 0.0), ('R', 0.12)):   # the gripping (left) hand first, then the host
+        w_up = smooth((t - 6.9 - lag) / 0.75)
+        w_dn = smooth((t - 10.8 - lag) / 1.35)
+        if w_up > 0:
+            cur = _blend_arm(P['arms'][s], up[s], w_up, N_mid=N_side[s])
+            P['arms'][s] = _blend_arm(cur, lap[s], w_dn, N_mid=N_side[s])
+        fs = P['fingers'][s]
+        k = w_up * (1 - w_dn)
+        for n, c in (('Thumb', 10), ('Index', 16), ('Mid', 20), ('Ring', 24), ('Pinky', 28)):
+            fs[n] = lerp(fs[n], c, k)
+    # lean in and look down at the sleeves while rolling; sit back for the hold; weight toward the worked side
+    lean = track([(0, 0), (0.5, 0), (1.3, 1), (6.5, 1), (7.6, 0.35), (10.8, 0.35), (12.1, 0), (T, 0)])
+    for n, k, d in (('Waist', 2.0, 0.0), ('Spine01', 2.5, 0.07), ('Spine02', 1.5, 0.14), ('NeckTwist01', 3.0, 0.2), ('Head', 6.0, 0.28)):
+        addrot(P, {n: (k * lean(t - d), 0, 0)})
+    side_w = track([(0, 0), (0.6, 0), (1.5, 1), (3.5, 1), (4.7, -1), (6.5, -1), (7.3, 0), (T, 0)])
+    addrot(P, {'Hip': (0, 0.9 * side_w(t), 0), 'Spine02': (0, -0.6 * side_w(t - 0.1), 2.5 * side_w(t - 0.1)),
+               'Head': (0, 0, 4.0 * side_w(t - 0.25))})
+    return P
+
+
+LIGHT_T = 6.0
+
+
+def look_at_light(t):
+    """Head comes up to chin-level, facing straight ahead (toward the doctor), and holds very still
+    1.0-4.7 s for the penlight; then back to the base's slightly lowered head. Eyes are left to the gaze code."""
+    T = LIGHT_T
+    P = base_static(t, T)  # breathing only: the base's sway and settle would tip the head during the hold
+    w = track([(0, 0), (0.3, 0), (0.95, 1.06), (1.25, 1.0), (4.7, 1.0), (5.55, 0), (T, 0)])(t)
+    level = {'NeckTwist01': (0.0, 0, 0), 'NeckTwist02': (0.0, 0, 0), 'Head': (-1.0, 0, 0)}
+    rot = P['rot']
+    for n, lag in (('NeckTwist01', 0.0), ('NeckTwist02', 0.03), ('Head', 0.06)):
+        k = track([(0, 0), (0.3, 0), (0.95, 1.06), (1.25, 1.0), (4.7, 1.0), (5.55, 0), (T, 0)])(t - lag)
+        rot[n] = lerp(rot[n], level[n], max(0.0, k))
+    # sit up a touch for the exam
+    for n, k in (('Spine01', -0.8), ('Spine02', -1.0)):
+        addrot(P, {n: (k * max(0.0, w), 0, 0)})
+    return P
+
+
 # name: (function, seconds, loop, mask, root motion)
 CLIPS = {
     'walk_in': (walk_in, WALK_END, False, 'Full body', 'yes (hips travel -Y)'),
@@ -899,6 +1119,9 @@ CLIPS = {
     'gesture_talk_small_02': (talk_small_02, 5.0, True, 'Arms', 'no'),
     'gesture_nod': (nod, 1.4, False, 'Head', 'no'),
     'gesture_head_shake': (head_shake, 2.4, False, 'Head', 'no'),
+    'action_hold_out_hands': (hold_out_hands, HOLD_T, False, 'Arms + Hands', 'no'),
+    'action_roll_up_sleeves': (roll_up_sleeves, ROLL_T, False, 'Arms', 'no'),
+    'action_look_at_light': (look_at_light, LIGHT_T, False, 'Head', 'no'),
 }
 
 
@@ -920,6 +1143,9 @@ FACE = {
                      'Mouth_Roll_In_Lower_L': 14, 'Mouth_Roll_In_Lower_R': 16, 'Mouth_Frown_L': 14, 'Mouth_Frown_R': 18,
                      'Mouth_Pull_Lower_R': 8, 'Cheek_Suck_L': 6},
 }
+# for action_look_at_light (penlight): a slight squint, only keys the other presets already list
+FACE['face_squint'] = {'Eye_Squint_L': 38, 'Eye_Squint_R': 40, 'Eye_Blink_L': 14, 'Eye_Blink_R': 15,
+                       'Brow_Drop_L': 8, 'Brow_Drop_R': 8}
 FACE_KEYS = sorted({k for w in FACE.values() for k in w})
 FACE['face_neutral'] = {}
 
@@ -941,7 +1167,7 @@ def apply_face(weights):
 def write_faces(out_dir, body, previews):
     os.makedirs(os.path.join(out_dir, 'Face'), exist_ok=True)
     valid = set(body.data.shape_keys.key_blocks.keys())
-    for name in ('face_neutral', 'face_sad', 'face_flat', 'face_anxious', 'face_ashamed'):
+    for name in ('face_neutral', 'face_sad', 'face_flat', 'face_anxious', 'face_ashamed', 'face_squint'):
         w = face_weights(name)
         bad = [k for k in w if k not in valid]
         assert not bad, f'{name}: unknown shape keys {bad}'
@@ -986,7 +1212,28 @@ def preview_frames(name, frames):
         return [0, 20, 40, 60, 80, 110, frames]
     if name == 'sit_down':
         return [0, 24, 36, 48, 66, frames]
+    if name in ACTION_PREVIEW_FRAMES:
+        return ACTION_PREVIEW_FRAMES[name]
     return [round(frames * k / 3) for k in range(4)]
+
+
+# key moments: rest, on the way, the hold (exam pose), on the way back
+ACTION_PREVIEW_FRAMES = {'action_hold_out_hands': [0, 30, 100, 200],
+                         'action_roll_up_sleeves': [0, 55, 165, 270],
+                         'action_look_at_light': [0, 90]}
+
+
+def preview_view(name, hp):
+    """(target, ortho, tile size) for a clip's preview stills."""
+    if name == 'cue_fidget_nails_Hands':
+        return (0, 0.05, 0.66), 0.32, (213, 200)
+    if name == 'action_look_at_light':
+        return (0, 0.3, 1.18), 0.45, (213, 240)
+    if name.startswith('action_'):
+        return (0, 0.12, 0.85), 1.25, (213, 260)
+    if name.startswith(('cue_', 'gesture_')):
+        return (0, 0.25, 0.95), 1.0, (213, 260)
+    return (0, hp.y if name == 'walk_in' else 0.15, 0.88), 2.0, (213, 320)
 
 
 def make_all(fbx, out_dir, previews=False, only=None):
@@ -999,6 +1246,8 @@ def make_all(fbx, out_dir, previews=False, only=None):
         build_chair()
         setup_preview(sc)
         os.makedirs(os.path.join(out_dir, 'previews'), exist_ok=True)
+        for n in ('CC_Base_EyeOcclusion', 'CC_Base_TearLine'):  # Workbench draws these opaque white
+            bpy.data.objects[n].hide_render = True
     report = {}
     for name, (fn, secs, loop, mask, root) in CLIPS.items():
         if only and name not in only:
@@ -1009,16 +1258,9 @@ def make_all(fbx, out_dir, previews=False, only=None):
         report[name] = frames
         if previews:
             bpy.data.objects['REF_Chair'].hide_render = name == 'walk_in'
-            close = name.startswith(('cue_', 'gesture_'))
             for f in preview_frames(name, frames):
                 sc.frame_set(f)
-                hp = arm.matrix_world @ arm.pose.bones[B + 'Hip'].head
-                if name == 'cue_fidget_nails_Hands':
-                    tgt, ortho, size = (0, 0.05, 0.66), 0.32, (213, 200)
-                elif close:
-                    tgt, ortho, size = (0, 0.25, 0.95), 1.0, (213, 260)
-                else:
-                    tgt, ortho, size = (0, hp.y if name == 'walk_in' else 0.15, 0.88), 2.0, (213, 320)
+                tgt, ortho, size = preview_view(name, arm.matrix_world @ arm.pose.bones[B + 'Hip'].head)
                 render_views(os.path.join(out_dir, 'previews', f'{name}_f{f:03d}.png'), tgt, size=size, ortho=ortho)
     if not only:
         arm.animation_data.action = None
@@ -1060,9 +1302,63 @@ def verify(fbx_ref, out_dir):
     return ok
 
 
+def check_on_model(fbx, out_dir, prefix, names=None, previews=True):
+    """Play the exported clips on another CC3 character (e.g. Matt): seat height, the hip travel and
+    preview stills named <prefix>_<clip>_fNNN.png. The clip FBX is imported and its action moved onto the
+    character's armature, which is what Unity's Copy-From-Other-Avatar does for this identical skeleton."""
+    arm = load(fbx)
+    sc = bpy.context.scene
+    if previews:
+        build_chair()
+        setup_preview(sc)
+        for n in ('CC_Base_EyeOcclusion', 'CC_Base_TearLine'):  # Workbench draws these opaque white
+            if n in bpy.data.objects:
+                bpy.data.objects[n].hide_render = True
+    lower = [o for o in bpy.data.objects if o.type == 'MESH' and o.name != 'REF_Chair' and o.name != 'REF_Floor'
+             and any(g.name.startswith((B + 'Hip', B + 'Pelvis', B + 'L_Thigh', B + 'R_Thigh')) for g in o.vertex_groups)]
+    report = {}
+    for name in (names or list(CLIPS)):
+        before = set(bpy.data.objects)
+        bpy.ops.import_scene.fbx(filepath=os.path.join(out_dir, name + '.fbx'), anim_offset=0.0)
+        new = [o for o in bpy.data.objects if o not in before]
+        clip_arm = next(o for o in new if o.type == 'ARMATURE')
+        act = clip_arm.animation_data.action
+        for o in new:
+            bpy.data.objects.remove(o)
+        arm.animation_data.action = act
+        if getattr(act, 'slots', None):  # Blender 4.4+: slotted actions need the slot picked explicitly
+            arm.animation_data.action_slot = act.slots[0]
+        n = int(act.frame_range[1])
+        # lowest point of the pelvis/thigh skin and clothes in the seat footprint (seated clips)
+        sc.frame_set(n)
+        dg = bpy.context.evaluated_depsgraph_get()
+        low = 9.0
+        for o in lower:
+            m = o.evaluated_get(dg).to_mesh()
+            for v in m.vertices:
+                p = o.matrix_world @ v.co
+                if SEAT_FRONT_Y + 0.05 < p.y < SEAT_FRONT_Y + SEAT_DEPTH and abs(p.x) < 0.2:
+                    low = min(low, p.z)
+            o.evaluated_get(dg).to_mesh_clear()
+        sc.frame_set(0)
+        h0 = arm.matrix_world @ arm.pose.bones[B + 'Hip'].head
+        sc.frame_set(n)
+        h1 = arm.matrix_world @ arm.pose.bones[B + 'Hip'].head
+        report[name] = dict(frames=n, seat_low_last_frame=round(low, 3) if low < 9 else None,
+                            hip_travel=tuple(round(x, 3) for x in (h1 - h0)))
+        if previews:
+            for f in preview_frames(name, n):
+                sc.frame_set(f)
+                tgt, ortho, size = preview_view(name, arm.matrix_world @ arm.pose.bones[B + 'Hip'].head)
+                render_views(os.path.join(out_dir, 'previews', f'{prefix}_{name}_f{f:03d}.png'), tgt, size=size, ortho=ortho)
+    return report
+
+
 if __name__ == '__main__':
     argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
     if argv and argv[0] == 'verify':
         verify(argv[1], argv[2])
+    elif argv and argv[0] == 'model':  # model <character.fbx> <out_dir> <prefix> [clip ...]
+        print(check_on_model(argv[1], argv[2], argv[3], argv[4:] or None))
     else:
         print(make_all(argv[0], argv[1], previews='--previews' in argv))
