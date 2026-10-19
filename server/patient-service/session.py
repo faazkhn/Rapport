@@ -212,6 +212,7 @@ class Session:
         loop = asyncio.get_running_loop()
         case, state = self.case, dict(self.state)
         self.turn_no += 1
+        was_interrupted, self.interrupted = self.interrupted, False  # the doctor talked over the previous reply
         elapsed = (time.monotonic() - self.t_start) / 60
         self.messages.append({"role": "doctor", "text": text})
         prev = next((m["text"] for m in reversed(self.messages[:-1]) if m["role"] == "patient"), None)
@@ -280,8 +281,8 @@ class Session:
                 await speak(s)
         t_done = time.monotonic()
         tagged = await intents_fut
-        if self.interrupted:  # the doctor talked over the previous reply
-            tagged, self.interrupted = tagged + ["interrupt"], False
+        if was_interrupted:
+            tagged = tagged + ["interrupt"]
 
         meta = {"model": model, "allowed_fact_ids": allowed, "fallback": False, "guard_dropped": []}
         try:
