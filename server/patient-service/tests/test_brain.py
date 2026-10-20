@@ -26,7 +26,7 @@ def test_schema_enums_order_and_strictness():
 
     walk(s)
     p = s["properties"]
-    assert list(p)[:2] == ["emotion", "utterance"]  # generation order: voice can start before the rest
+    assert list(p)[:6] == ["behaviour", "emotion", "utterance", "reaction", "intensity", "resistance"]  # choose how to answer, then speak; the rest after (latency)
     assert p["revealed_fact_ids"]["items"]["enum"] == allowed and SI not in allowed
     assert set(p["event_cues"]["items"]["properties"]["id"]["enum"]) == {c["id"] for c in CASE["cues"]}
     assert p["emotion"]["enum"] == brain.EMOTIONS
@@ -35,7 +35,8 @@ def test_schema_enums_order_and_strictness():
     assert "ask_suicidal_ideation" in brain.build_intent_schema()["properties"]["doctor_intents"]["items"]["enum"]
     # the published contract has the same order and the merged fields
     pub = brain.load_json("schemas/patient_reply.schema.json")
-    assert list(pub["properties"]) == pub["required"] == ["emotion", "utterance", "state_delta", "event_cues", "revealed_fact_ids", "exam_action", "doctor_intents"]
+    assert list(pub["properties"]) == pub["required"] == ["behaviour", "emotion", "utterance", "reaction", "intensity", "resistance",
+                                                          "state_delta", "event_cues", "revealed_fact_ids", "exam_action", "doctor_intents"]
 
 
 def test_schema_empty_allow_list_has_no_empty_enum():
@@ -99,7 +100,7 @@ def test_history_is_trimmed():
 
 
 def _reply(**kw):
-    r = {"emotion": "sad", "utterance": "Hm.", "state_delta": {"trust": 0, "distress": 0, "agitation": 0, "engagement": 0},
+    r = {"reaction": "sad", "intensity": 5, "behaviour": "guarded_short", "resistance": "quantity", "emotion": "sad", "utterance": "Hm.", "state_delta": {"trust": 0, "distress": 0, "agitation": 0, "engagement": 0},
          "event_cues": [], "revealed_fact_ids": [], "exam_action": None, "doctor_intents": []}
     r.update(kw)
     return r
@@ -193,3 +194,42 @@ def test_tagger_uses_slot_1_and_never_raises():
     assert brain.tag_intents("How do you sleep?", client=fc, model="local") == ["ask_sleep", "ask_mood"]
     assert fc.calls[0]["extra_body"]["id_slot"] == 1 and fc.calls[0]["temperature"] == 0
     assert brain.tag_intents("x", client=fc, model="local") == []
+
+
+def test_schema_label_order():
+    assert list(brain.build_reply_schema(CASE, [])["properties"])[:6] == ["behaviour", "emotion", "utterance", "reaction", "intensity", "resistance"]
+
+
+def test_prompt_hides_locked():
+    si_text = next(f["text"] for f in CASE["facts"] if f["id"] == SI)
+    recalled = {"open": [], "locked_hit": [SI], "discomfort": True}
+    out = brain.build_messages(CASE, LOW, [{"role": "doctor", "text": "Any thoughts of ending your life?"}], recalled=recalled)
+    assert not any(si_text in m["content"] for m in out)
+    assert any("not ready to talk about" in m["content"] for m in out)
+
+
+def test_prompt_lists_open_recall():
+    recalled = {"open": ["f_sleep"], "locked_hit": [], "discomfort": False}
+    out = brain.build_messages(CASE, LOW, [{"role": "doctor", "text": "How do you sleep?"}], recalled=recalled)
+    assert "WHAT COMES TO MIND" in out[-1]["content"] and "[f_sleep]" in out[-1]["content"]
+
+
+def test_guard_bad_labels():
+    r, dropped = brain.guard(_reply(reaction="furious", intensity=14, behaviour="dances", resistance="sulks"), CASE, trust=30)
+    assert (r["reaction"], r["intensity"], r["behaviour"], r["resistance"]) == ("none", 10, "answers_plainly", "none")
+    assert sum(d["kind"] == "label" for d in dropped) == 4
+
+
+def test_generate_reply_uses_twin_recall():
+    good = _reply(reaction="warm")
+    del good["doctor_intents"]
+    llm = FakeClient([json.dumps(good)])
+    out = brain.generate_reply({"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "Have you had thoughts of ending your life?"}],
+                          "state": LOW}, client=llm, tagger=lambda: [])
+    assert any("WHAT COMES TO MIND" in m["content"] and "do not flatly deny" in m["content"] for m in llm.calls[0]["messages"])
+    assert out["reaction"] == "wary"
+
+
+def test_guard_non_finite_intensity():
+    r, dropped = brain.guard(_reply(intensity=float("nan")), CASE, trust=30)
+    assert r["intensity"] == 0 and any(d["id"] == "intensity" for d in dropped)

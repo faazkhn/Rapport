@@ -7,16 +7,21 @@ import contextlib
 import io
 import json
 import logging
+import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import jsonschema
 import numpy as np
 
 import brain
+import staged
 import stream
 import stt
+import twin
+import twin_bus
 
 log = logging.getLogger("patient-service")
 TTS_MODEL = "KittenML/kitten-tts-mini-0.8"
@@ -25,6 +30,7 @@ OUT_SR = 24000
 PRE_ROLL_FRAMES = 10  # ~320 ms of audio kept before VAD start so the first word is not clipped
 PRESSURED_OVERLAP_S = 1.5  # pressured_speech: keep talking over the doctor for 1-2 s (DESIGN 7.1)
 TTS = {"model": None}
+TWIN_LOG_DIR = Path(os.environ.get("RAPPORT_TWIN_LOG_DIR") or brain.REPO_ROOT / "logs" / "twin")  # local only, git-ignored
 # MLX and the ONNX TTS each get one dedicated thread
 STT_POOL = ThreadPoolExecutor(1, thread_name_prefix="stt")
 TTS_POOL = ThreadPoolExecutor(1, thread_name_prefix="tts")
@@ -69,6 +75,10 @@ class Session:
         self.playing_until = 0.0  # monotonic time the client should finish playing what we sent
         self.interrupted = False
         self.turn_no = 0
+        self.staged = None  # staged.Script in RAPPORT_STAGED concept-preview mode
+        self.mood = None  # Digital Twin PAD mood, set at start
+        self.next_speed = 1.0  # expression-map speed factor from the last reply, applied to the next one
+        self.twin_log = None  # this session's Twin event log (JSONL)
 
     # ---------- incoming ----------
 
@@ -114,9 +124,35 @@ class Session:
         p = self.case["patient"]
         await self.send_json({"type": "session", "case_id": self.case["id"], "variant": self.case["variant"], "name": p["name"],
                               "model_id": p["model_id"], "voice_id": p["voice_id"], "state": self.state,
-                              "in_rate": stt.SR, "out_rate": OUT_SR, "llm": brain.default_model()})
-        asyncio.get_running_loop().run_in_executor(None, self.warm)
+                              "in_rate": stt.SR, "out_rate": OUT_SR, "llm": brain.default_model(), "staged": staged.enabled()})
+        self.mood, self.next_speed = twin.pad_from(self.state), 1.0
+        if staged.enabled():
+            self.staged = staged.Script(self.case["variant"], OUT_SR)
+        else:
+            try:
+                TWIN_LOG_DIR.mkdir(parents=True, exist_ok=True)
+                self.twin_log = TWIN_LOG_DIR / f"{time.strftime('%Y%m%d_%H%M%S')}_{self.case['id']}.jsonl"
+            except OSError as e:  # the log is a convenience; never let it stop the voice
+                log.warning("twin log off: %s", type(e).__name__)
+                self.twin_log = None
+            await self.twin(twin.init_event(self.case, self.state))
+            asyncio.get_running_loop().run_in_executor(None, self.warm)
         await self.send_json({"type": "listening"})
+
+    async def twin(self, msg: dict):
+        """A Twin event or snapshot: to this client, to Twin view viewers, and to the session's Twin log."""
+        await self.send_json(msg if msg.get("type") == "brain_snapshot" else {"type": "twin_event", **msg})
+        e = ({**msg, "type": "snapshot"} if msg.get("type") == "brain_snapshot"
+             else {"type": msg["event"], **{k: v for k, v in msg.items() if k != "event"}})
+        e["t"] = round(time.monotonic() - self.t_start, 2)
+        twin_bus.publish(e)
+        if self.twin_log:
+            try:
+                with open(self.twin_log, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(e, ensure_ascii=False) + "\n")
+            except OSError as err:  # full or unwritable disk: drop the log, keep the voice
+                log.warning("twin log off: %s", type(err).__name__)
+                self.twin_log = None
 
     def warm(self):
         """Prefill slot 0's KV cache with the next turn's prompt up to the doctor's words (system, facts block for the current trust,
@@ -192,7 +228,7 @@ class Session:
         audio = np.concatenate(frames) if frames else np.zeros(0, np.float32)
         loop = asyncio.get_running_loop()
         t0 = time.monotonic()
-        text = await loop.run_in_executor(STT_POOL, self.stt_fn, audio)
+        text = self.staged.doctor_line() if self.staged else await loop.run_in_executor(STT_POOL, self.stt_fn, audio)
         timing = {"input": "voice", "t_end": t_end, "vad_endpoint_ms": ms(t_end, t_detect), "stt_ms": ms(t0, time.monotonic()),
                   "speech_s": round(len(audio) / stt.SR, 2)}
         if not text.strip():
@@ -216,6 +252,8 @@ class Session:
         self.turn_task = asyncio.create_task(self.run_turn(text, timing, self.cancel))
 
     async def run_turn(self, text, timing, cancel):
+        if self.staged:
+            return await self.run_staged_turn(text, timing, cancel)
         loop = asyncio.get_running_loop()
         case, state = self.case, dict(self.state)
         self.turn_no += 1
@@ -224,18 +262,20 @@ class Session:
         self.messages.append({"role": "doctor", "text": text})
         prev = next((m["text"] for m in reversed(self.messages[:-1]) if m["role"] == "patient"), None)
         model = brain.default_model()
+        await self.twin({"event": "doctor_end", "turn": self.turn_no})
         await self.send_json({"type": "thinking"})
 
+        recalled = twin.recall(case, state["trust"], text)
         allowed = [f["id"] for f in brain.allowed_facts(case, state["trust"])]
         schema = brain.build_reply_schema(case, allowed, brain.allowed_actions(case, state["trust"]))
-        kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed),
+        kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed, recalled=recalled),
                               schema, "patient_reply", 0)
         q: asyncio.Queue = asyncio.Queue()
         t_llm = time.monotonic()
         loop.run_in_executor(None, self._llm_stream, kw, q, loop, cancel)
 
         pause = brain.slowed_pause_s(case, state)
-        speed = tts_speed(case, state)
+        speed = tts_speed(case, state) * self.next_speed
         voice = case["patient"]["voice_id"]
         parser, splitter = stream.UtteranceStream(), stream.SentenceSplitter()
         spoken, dropped_banned, idx = [], [], 0
@@ -263,6 +303,7 @@ class Session:
                     if cancel.is_set():
                         return
                 await self.send_json({"type": "speaking", "slowed_pause_ms": round(marks["pause_applied"] * 1000)})
+                await self.twin({"event": "patient_start", "turn": self.turn_no})
             pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
             dur = len(pcm) / 2 / OUT_SR
             await self.send_json({"type": "sentence", "index": idx, "text": sentence, "samples": len(pcm) // 2})
@@ -302,8 +343,9 @@ class Session:
             if err:
                 raise RuntimeError(err)
             raw = parser.full()
-            jsonschema.validate(raw, schema)
+            jsonschema.validate(raw, brain.loose(schema))
             reply, meta["guard_dropped"] = brain.guard({**raw, "doctor_intents": tagged}, case, state["trust"])
+            meta["guard_dropped"] += twin.enforce_discomfort(reply, recalled)
         except Exception as e:
             meta.update(fallback=True, errors=[type(e).__name__])
             reply = {**brain.fallback_reply(case), "doctor_intents": tagged}
@@ -315,10 +357,17 @@ class Session:
             reply["utterance"] = (" ".join(spoken) + "...") if spoken else ""
         if reply["utterance"]:
             self.messages.append({"role": "patient", "text": reply["utterance"]})
-        self.state = brain.apply_turn(state, reply)
+        expr = twin.expression(reply, case)
+        have = {c["id"] for c in reply["event_cues"]}
+        reply["event_cues"] = (reply["event_cues"] + [c for c in expr["cues"] if c["id"] not in have])[:2]
+        self.next_speed = expr["speed"]
+        self.state, self.mood = twin.update(state, self.mood, reply, case)
         loop.run_in_executor(None, self.warm)
         await self.send_json({"type": "intents", "doctor_intents": tagged})
         await self.send_json({"type": "reply", "turn": self.turn_no, "reply": reply, "state": self.state, "meta": meta})
+        await self.twin(twin.snapshot(self.turn_no, text, reply, recalled, self.state, self.mood,
+                                      twin.why(recalled, reply, state["trust"], case), self.next_speed))
+        await self.twin({"event": "patient_end", "turn": self.turn_no})
 
         t_end = timing.pop("t_end")
         timing.update({
@@ -331,6 +380,44 @@ class Session:
         })
         await self.send_json(timing)
         log.info("turn %d timing %s", self.turn_no, json.dumps({k: v for k, v in timing.items() if k.endswith("_ms")}))
+        await self.send_json({"type": "listening"})
+
+    async def run_staged_turn(self, text, timing, cancel):
+        """Concept-preview turn: the next scripted line and its pre-rendered audio, sent at the planned latency."""
+        loop = asyncio.get_running_loop()
+        self.turn_no += 1
+        self.messages.append({"role": "doctor", "text": text})
+        prev = next((m["text"] for m in reversed(self.messages[:-1]) if m["role"] == "patient"), None)
+        await self.send_json({"type": "thinking"})
+        t, audio = self.staged.next()
+        if t is None:
+            await self.send_json({"type": "listening"})
+            return
+        if audio is None:
+            audio = await loop.run_in_executor(TTS_POOL, self.tts_fn, t["patient"], self.case["patient"]["voice_id"], 1.0)
+        pause = staged.HESITATE_S.get(t.get("nonverbal"), 0.0)
+        await asyncio.sleep(max(0.0, timing["t_end"] + staged.GAP_S + pause - time.monotonic()))
+        if cancel.is_set():
+            return
+        t_audio = time.monotonic()
+        await self.send_json({"type": "speaking", "slowed_pause_ms": round(pause * 1000)})
+        pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
+        await self.send_json({"type": "sentence", "index": 0, "text": t["patient"], "samples": len(pcm) // 2})
+        await self.send_bytes(pcm)
+        self.playing_until = max(self.playing_until, time.monotonic()) + len(pcm) / 2 / OUT_SR
+        tagged = await loop.run_in_executor(None, brain.tag_intents, text, prev, self.client, brain.default_model())
+        reply = {**staged.reply_of(t), "doctor_intents": tagged}
+        self.messages.append({"role": "patient", "text": t["patient"]})
+        self.state = brain.apply_turn(self.state, reply)
+        await self.send_json({"type": "brain_snapshot", "turn": self.turn_no, "brain": t["brain"], "state": self.state, "staged": True})
+        await self.send_json({"type": "intents", "doctor_intents": tagged})
+        await self.send_json({"type": "reply", "turn": self.turn_no, "reply": reply, "state": self.state,
+                              "meta": {"model": "staged", "staged": True, "fallback": False, "guard_dropped": []}})
+        t_end = timing.pop("t_end")
+        timing.update({"type": "timing", "turn": self.turn_no, "audio_start_ms": ms(t_end, t_audio) - round(pause * 1000),
+                       "slowed_pause_ms": round(pause * 1000), "staged": True})
+        await self.send_json(timing)
+        log.info("staged turn %d timing %s", self.turn_no, json.dumps({k: v for k, v in timing.items() if k.endswith("_ms")}))
         await self.send_json({"type": "listening"})
 
     def _llm_stream(self, kw, q, loop, cancel):

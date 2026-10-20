@@ -42,7 +42,7 @@ The TTS model loads once at startup (about 1 s when cached, about 13 s on the ve
   - The server does **not** apply the state change. The client does: `brain.apply_turn` (LLM delta + `state_rules.json` nudges, clamped per turn) is the reference for Unity's `PatientState`.
 - `POST /tts` `{"text": "...", "voice": "Bella", "speed": 0.9}` → `audio/wav`, 24 kHz mono 16-bit, in memory only. Voices: Bella, Luna, Rosie, Kiki, Jasper, Bruno, Hugo, Leo. Header `X-Gen-Ms` gives generation time. Not streamed per sentence yet (the client can split sentences and call per sentence).
 
-Logs hold latency, model, counts only; no conversation text and no key.
+Service logs (stdout) hold latency, model and counts only: no conversation text and no key. The Digital Twin session log (below) is the exception: it holds the conversation text, stays on this machine, and is git-ignored.
 
 ## Model notes (docs.x.ai, checked 2026-10-18)
 
@@ -50,6 +50,13 @@ Logs hold latency, model, counts only; no conversation text and no key.
 - Reasoning effort parameter: **`reasoning_effort`**, values `low | medium | high (default) | xhigh`. Docs say grok-4.7, 4.6 and 4.5 support it. The service sends it only when the request sets it, so leave it out for the non-reasoning model.
 - Structured outputs: `response_format={"type": "json_schema", "json_schema": {..., "strict": true}}`. The docs' examples use grok-4.7. An `enum` with zero values is a 400 error, so an empty fact allow-list becomes `{"type": "array", "maxItems": 0}`. `minimum`/`maximum` are accepted but not enforced, which is why the guard clamps numbers.
 - To compare models: `scripts/demo_convo.py --model grok-4.7 --reasoning-effort low`.
+
+## Digital Twin (docs/TWIN.md)
+
+- WebSocket `/session` now also sends, per live turn: `twin_event` (`init` at start, then `doctor_end`, `patient_start`, `patient_end`) and one `brain_snapshot` (state, PAD mood, reaction, intensity, behaviour, resistance, why, recalled, locked_hit, cues, expression, brain_version).
+- `WS /twin/ws`: the same events for Twin view viewers (`/twin/?live=1`); a late viewer gets the session so far. Never blocks the voice.
+- Each live session is logged to `logs/twin/<time>_<case>.jsonl` (`RAPPORT_TWIN_LOG_DIR` overrides). Local only; contains the conversation text.
+- Reply contract fields (in generation order): `behaviour, emotion, utterance, reaction, intensity, resistance, state_delta, event_cues, revealed_fact_ids, exam_action`.
 
 ## Data and checks
 

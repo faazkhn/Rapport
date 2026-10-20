@@ -1,11 +1,15 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "title": "Patient reply (DESIGN 7.2), ordered emotion, utterance, ... so the voice can stream. doctor_intents comes from the parallel tagging request. The service builds a stricter per-request copy with enums.",
+ "title": "Patient reply (DESIGN 7.2), ordered behaviour, emotion, utterance, reaction, intensity, resistance, ... so the voice can stream. doctor_intents comes from the parallel tagging request. The service builds a stricter per-request copy with enums.",
  "type": "object",
  "additionalProperties": false,
  "required": [
+  "behaviour",
   "emotion",
   "utterance",
+  "reaction",
+  "intensity",
+  "resistance",
   "state_delta",
   "event_cues",
   "revealed_fact_ids",
@@ -13,6 +17,10 @@
   "doctor_intents"
  ],
  "properties": {
+  "behaviour": {
+   "type": "string",
+   "description": "Digital Twin behaviour id."
+  },
   "emotion": {
    "enum": [
     "neutral",
@@ -28,6 +36,19 @@
   },
   "utterance": {
    "type": "string"
+  },
+  "reaction": {
+   "type": "string",
+   "description": "Digital Twin reaction id (data/brain/behaviours.json)."
+  },
+  "intensity": {
+   "type": "integer",
+   "minimum": 0,
+   "maximum": 10
+  },
+  "resistance": {
+   "type": "string",
+   "description": "Digital Twin resistance id."
   },
   "state_delta": {
    "type": "object",

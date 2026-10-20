@@ -3,6 +3,7 @@
 LLM backend: local llama-server (default, OpenAI-compatible) or Grok when PATIENT_LLM=grok and XAI_API_KEY is set.
 """
 import json
+import math
 import os
 import random
 import re
@@ -12,6 +13,8 @@ from functools import lru_cache
 from pathlib import Path
 
 import jsonschema
+
+import twin
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = Path(os.environ.get("PSYCHSIM_DATA_DIR") or REPO_ROOT / "unity/PsychSim/Assets/StreamingAssets/data")
@@ -93,6 +96,18 @@ def load_case(case_id: str, variant: str = "female") -> dict:
     return json.loads(_resolved(case_id, variant))
 
 
+def catalogue() -> dict:
+    """Digital Twin reactions, behaviours and resistance styles (data/brain/behaviours.json)."""
+    return load_json("brain/behaviours.json")
+
+
+def label_ids(group: str) -> list[str]:
+    return [i["id"] for i in catalogue()[group]]
+
+
+LABEL_DEFAULTS = {"reaction": ("reactions", "none"), "behaviour": ("behaviours", "answers_plainly"), "resistance": ("resistance", "none")}
+
+
 def intents() -> list[dict]:
     return load_json("intents.json")["intents"]
 
@@ -118,15 +133,21 @@ def _id_array(ids: list[str], max_items: int | None = None) -> dict:
 
 
 def build_reply_schema(case: dict, allowed_fact_ids: list[str], actions: list[str] | None = None) -> dict:
-    """Patient part of the contract. Property order is the generation order: emotion, utterance first so voice can stream."""
+    """Patient part of the contract. Property order is the generation order: the Twin's behaviour choice, emotion, then the
+    utterance so voice can stream; reaction, intensity and resistance follow it (each token before the utterance delays the voice)."""
     actions = actions or []
     return {
         "type": "object",
         "additionalProperties": False,
-        "required": ["emotion", "utterance", "state_delta", "event_cues", "revealed_fact_ids", "exam_action"],
+        "required": ["behaviour", "emotion", "utterance", "reaction", "intensity", "resistance", "state_delta", "event_cues",
+                     "revealed_fact_ids", "exam_action"],
         "properties": {
+            "behaviour": {"type": "string", "enum": label_ids("behaviours")},
             "emotion": {"type": "string", "enum": EMOTIONS},
             "utterance": {"type": "string"},
+            "reaction": {"type": "string", "enum": label_ids("reactions")},
+            "intensity": {"type": "integer", "minimum": 0, "maximum": 10},
+            "resistance": {"type": "string", "enum": label_ids("resistance")},
             "state_delta": {
                 "type": "object",
                 "additionalProperties": False,
@@ -151,6 +172,26 @@ def build_reply_schema(case: dict, allowed_fact_ids: list[str], actions: list[st
             "exam_action": {"anyOf": [{"type": "null"}, {"type": "string", "enum": actions}]} if actions else {"type": "null"},
         },
     }
+
+
+def loose(schema: dict) -> dict:
+    """Copy of a reply schema for validating what came back: no number bounds and no label enums, so the guard clamps and records
+    them instead of the whole reply becoming a fallback (backends such as Grok do not enforce minimum/maximum)."""
+    out = json.loads(json.dumps(schema))
+
+    def strip(node):
+        if isinstance(node, dict):
+            node.pop("minimum", None), node.pop("maximum", None)
+            for k, v in node.items():
+                strip(v)
+        elif isinstance(node, list):
+            for v in node:
+                strip(v)
+    strip(out)
+    for k in ("reaction", "behaviour", "resistance"):
+        out["properties"].get(k, {}).pop("enum", None)
+    out["properties"].get("intensity", {}).update(type="number")
+    return out
 
 
 def build_intent_schema() -> dict:
@@ -238,20 +279,44 @@ def build_system_prompt(case: dict) -> str:
         f"Referral note the doctor has: {case['referral_note']}",
         f"Background: {p.get('background', '')}",
         f"Personality: {p['personality']}",
-        f"Way of speaking: {p.get('speech_style', 'natural, everyday English')}. Conversation style: {case['style']}.",
+        f"Way of speaking: {p.get('speech_style', 'natural, everyday English')}. Conversation style: {case['style']}."
+        + (f" Dialect: {case['dialect']}." if case.get("dialect") else ""),
+        *([f"Deep down {name} believes: {case['core_belief']}"] if case.get("core_belief") else []),
+        *([f"With people {name} is: {case['attachment_style']}"] if case.get("attachment_style") else []),
         f"HOW {name.upper()} PRESENTS (mental state; show it, never describe it in these terms):\n" + _behavior_text(case["behavior"]),
         REALISM_RULES,
         f"WORDS {name.upper()} NEVER SAYS: {', '.join(case['banned_words'])}.",
         HARD_RULES,
-        "OUTPUT: the JSON object only, fields in this order.\n"
+        _menu(),
+        "OUTPUT: the JSON object only, fields in this order. Decide how the patient answers first, then speak.\n"
+        "- behaviour: how the patient answers, from BEHAVIOURS.\n"
         "- emotion: main emotion while speaking.\n"
         "- utterance: exactly what the patient says out loud. No stage directions, no asterisks, no quotes around it.\n"
+        "- reaction: the patient's inner reaction to the doctor's last line, from REACTIONS. intensity: 0-10.\n"
+        "- resistance: none, or how the patient holds back, from RESISTANCE.\n"
         "- state_delta: integers -10..10: how the doctor's LAST line changed trust, distress, agitation, engagement (0 if no change). "
         "Kindness, listening and open questions raise trust and engagement; judgment, rushing or insults lower them and raise distress or agitation.\n"
         f"- event_cues: optional short physical reactions to this line, from: {cue_ids}. intensity 0-1, duration_s 1-8. Usually empty.\n"
         "- revealed_fact_ids: ids of listed facts that this utterance actually reveals. Empty if none.\n"
         "- exam_action: if the doctor asks the patient to do one of the allowed exam actions and the patient does it, its id; otherwise null.",
     ])
+
+
+def _menu() -> str:
+    c = catalogue()
+    return "\n".join(f"{g.upper()}:\n" + "\n".join(f"- {i['id']}: {i['description']}" for i in c[g]) for g in ("reactions", "behaviours", "resistance"))
+
+
+def recall_block(case: dict, recalled: dict) -> str:
+    """What the doctor's words bring to mind this turn. Only open memories; a locked hit is a discomfort signal, never its text."""
+    facts = {f["id"]: f for f in case["facts"]}
+    lines = [_fact_line(facts[i]) for i in recalled.get("open", []) if i in facts]
+    if recalled.get("locked_hit"):
+        lines.append("The doctor is close to something painful you are not ready to talk about. Show discomfort and be evasive "
+                     "(hesitate, change the subject); do not reveal it, and do not flatly deny it.")
+    elif recalled.get("discomfort"):
+        lines.append("This is painful to think about; let the discomfort show.")
+    return "WHAT COMES TO MIND:\n" + "\n".join(lines) if lines else ""
 
 
 def style_reminder(case: dict, state: dict) -> str:
@@ -279,9 +344,9 @@ def facts_block(case: dict, state: dict) -> str:
     ])
 
 
-def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_min: float | None = None) -> str:
-    """Small per-turn tail: state, style reminder (A3), next-line framing (A4)."""
-    parts = []
+def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_min: float | None = None, recalled: dict | None = None) -> str:
+    """Small per-turn tail: recall, state, style reminder (A3), next-line framing (A4)."""
+    parts = [b] if recalled and (b := recall_block(case, recalled)) else []
     if summary:
         parts.append(f"EARLIER IN THIS CONSULTATION (summary): {summary}")
     if elapsed_min is not None:
@@ -291,12 +356,12 @@ def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_mi
     return "\n\n".join(parts)
 
 
-def build_messages(case, state, messages, summary=None, elapsed_min=None) -> list[dict]:
+def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None) -> list[dict]:
     """[system: fixed per case+variant] [first user msg: facts block + first doctor line] [history verbatim] [last doctor line + tail]."""
     out = [{"role": "system", "content": build_system_prompt(case)}]
     for m in messages[-HISTORY_TURNS:]:
         out.append({"role": "user" if m["role"] == "doctor" else "assistant", "content": m["text"]})
-    ctx = turn_context(case, state, summary, elapsed_min)
+    ctx = turn_context(case, state, summary, elapsed_min, recalled)
     if out[-1]["role"] == "user":
         out[-1] = {"role": "user", "content": f"Doctor: {out[-1]['content']}\n\n---\n{ctx}"}
     else:
@@ -382,7 +447,19 @@ def guard(reply: dict, case: dict, trust: float) -> tuple[dict, list[dict]]:
     utterance, hits = strip_banned(reply.get("utterance", ""), case.get("banned_words", []))
     dropped += [{"kind": "banned_word", "id": w, "reason": "sentence removed"} for w in hits]
 
-    out = {"emotion": reply.get("emotion", "neutral"), "utterance": utterance, "state_delta": delta, "event_cues": cues,
+    labels = {}
+    for key, (group, default) in LABEL_DEFAULTS.items():
+        v = reply.get(key)
+        labels[key] = v if v in label_ids(group) else default
+        if labels[key] != v:
+            dropped.append({"kind": "label", "id": key, "reason": f"unknown {v!r} -> {default}"})
+    raw_i = reply.get("intensity", 0)
+    ok = isinstance(raw_i, (int, float)) and math.isfinite(raw_i)
+    labels["intensity"] = max(0, min(10, int(raw_i))) if ok else 0
+    if labels["intensity"] != raw_i:
+        dropped.append({"kind": "label", "id": "intensity", "reason": f"clamped {raw_i!r} -> {labels['intensity']}"})
+
+    out = {**labels, "emotion": reply.get("emotion", "neutral"), "utterance": utterance, "state_delta": delta, "event_cues": cues,
            "revealed_fact_ids": facts, "exam_action": action, "doctor_intents": tagged}
     return out, dropped
 
@@ -439,7 +516,7 @@ def llm_kwargs(model: str, messages: list[dict], schema: dict, name: str, slot: 
 
 def _parse(content: str | None, schema: dict) -> dict:
     reply = json.loads(content or "")
-    jsonschema.validate(reply, schema)
+    jsonschema.validate(reply, loose(schema))
     if not reply.get("utterance", "x").strip():
         raise ValueError("empty utterance")
     return reply
@@ -457,7 +534,8 @@ def tag_intents(doctor_line: str, last_patient_line: str | None = None, client=N
 
 
 def fallback_reply(case: dict) -> dict:
-    return {"emotion": "confused", "utterance": random.choice(case["fallback_lines"]),
+    return {"reaction": "none", "intensity": 0, "behaviour": "answers_plainly", "resistance": "none",
+            "emotion": "confused", "utterance": random.choice(case["fallback_lines"]),
             "state_delta": {k: 0 for k in STATE_KEYS}, "event_cues": [], "revealed_fact_ids": [], "exam_action": None, "doctor_intents": []}
 
 
@@ -469,7 +547,10 @@ def generate_reply(req: dict, client=None, tagger=None) -> dict:
     model = req.get("model") or default_model()
     allowed = [f["id"] for f in allowed_facts(case, state["trust"])]
     schema = build_reply_schema(case, allowed, allowed_actions(case, state["trust"]))
-    kwargs = llm_kwargs(model, build_messages(case, state, req["messages"], req.get("summary"), req.get("elapsed_min")), schema, "patient_reply", 0)
+    doctor_now = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
+    recalled = twin.recall(case, state["trust"], doctor_now)
+    kwargs = llm_kwargs(model, build_messages(case, state, req["messages"], req.get("summary"), req.get("elapsed_min"), recalled),
+                        schema, "patient_reply", 0)
     if req.get("reasoning_effort"):
         kwargs["reasoning_effort"] = req["reasoning_effort"]
     doctor = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
@@ -496,6 +577,7 @@ def generate_reply(req: dict, client=None, tagger=None) -> dict:
         out = {**fallback_reply(case), "doctor_intents": tagged}
     else:
         out, meta["guard_dropped"] = guard({**reply, "doctor_intents": tagged}, case, state["trust"])
+        meta["guard_dropped"] += twin.enforce_discomfort(out, recalled)
         if not out["utterance"].strip():  # every sentence had a banned word
             out["utterance"] = random.choice(case["fallback_lines"])
             meta["fallback"] = True

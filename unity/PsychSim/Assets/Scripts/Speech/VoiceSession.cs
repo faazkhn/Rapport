@@ -102,8 +102,10 @@ namespace PsychSim.Speech
         async Task Send(byte[] data, WebSocketMessageType type)
         {
             if (!Connected) return;
-            await sendLock.WaitAsync();
-            try { await ws.SendAsync(new ArraySegment<byte>(data), type, true, cts.Token); }
+            // ConfigureAwait(false): resuming on the main thread costs a frame per await, which capped the mic at ~30 frames/s
+            // (it needs 31.25) and built a backlog that grew all session
+            await sendLock.WaitAsync().ConfigureAwait(false);
+            try { await ws.SendAsync(new ArraySegment<byte>(data), type, true, cts.Token).ConfigureAwait(false); }
             catch (Exception e) when (e is WebSocketException or OperationCanceledException or ObjectDisposedException) { }
             finally { sendLock.Release(); }
         }
@@ -212,7 +214,9 @@ namespace PsychSim.Speech
             else
             {
                 // virtual mic: real-time pacing; injected speech when queued, otherwise silence like an open mic
-                micClock += Time.unscaledDeltaTime;
+                // while the Recorder captures, the clip being played advances by captureDeltaTime per frame; pacing by wall time
+                // fell ~5% behind it and the backlog grew every turn
+                micClock += Time.captureDeltaTime > 0f ? Time.captureDeltaTime : Time.unscaledDeltaTime;
                 int due = (int)(micClock * InRate);
                 micClock -= due / (float)InRate;
                 lock (injected)

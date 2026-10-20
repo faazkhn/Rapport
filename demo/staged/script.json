@@ -1,0 +1,507 @@
+{
+  "case_id": "mdd_01",
+  "note": "STAGED concept preview (not live). Doctor lines are synthesised and fed through the mic path; patient replies, voice and brain snapshots are pre-written to show the planned Rapport/Digital Twin behaviour. Clinical facts follow mdd_01 (draft).",
+  "turns": [
+    {
+      "doctor": "Hello, I'm one of the doctors here. Please, have a seat. What brings you in today?",
+      "shot": "ots",
+      "patient": "Hmm... my company doctor said I should come. I've just been... tired. All the time.",
+      "emotion": "flat",
+      "voice": "quiet, low energy, a small sigh before speaking, slow and hesitant",
+      "nonverbal": "sigh",
+      "brain": {
+        "reaction": "wary",
+        "intensity": 2,
+        "behaviour": "guarded_short",
+        "resistance": "quantity",
+        "memory": [
+          "f_pc"
+        ],
+        "locked_hit": [],
+        "why": "First contact with a stranger; she was sent, not self-referred. Keep it brief."
+      },
+      "state_delta": {
+        "trust": 6,
+        "distress": 0,
+        "agitation": 0,
+        "engagement": 3
+      },
+      "cues": [
+        {
+          "id": "gaze_avoid",
+          "intensity": 0.6,
+          "duration_s": 3
+        }
+      ],
+      "facts": [
+        "f_pc"
+      ],
+      "exam_action": null
+    },
+    {
+      "doctor": "I'm sorry to hear that. How have you been sleeping, and how is your appetite?",
+      "shot": "ots",
+      "patient": "Not well. I fall asleep okay, but then I'm up by four... and I just lie there. And food... I keep skipping dinner. My clothes feel loose now.",
+      "emotion": "sad",
+      "voice": "soft, tired, trailing off at the ends of phrases",
+      "nonverbal": null,
+      "brain": {
+        "reaction": "resigned",
+        "intensity": 3,
+        "behaviour": "answers_plainly",
+        "resistance": "none",
+        "memory": [
+          "f_sleep",
+          "f_appetite"
+        ],
+        "locked_hit": [],
+        "why": "A concrete, kind question about the body is easy to answer."
+      },
+      "state_delta": {
+        "trust": 6,
+        "distress": 2,
+        "agitation": 0,
+        "engagement": 4
+      },
+      "cues": [
+        {
+          "id": "slumped",
+          "intensity": 0.6,
+          "duration_s": 4
+        }
+      ],
+      "facts": [
+        "f_sleep",
+        "f_appetite"
+      ],
+      "exam_action": null
+    },
+    {
+      "doctor": "Before we go on, what you tell me stays between us and the care team, unless I'm worried about your safety.",
+      "shot": "ots",
+      "patient": "Okay. ...Thank you.",
+      "emotion": "neutral",
+      "voice": "quiet, a little relieved",
+      "nonverbal": "breath",
+      "brain": {
+        "reaction": "relieved",
+        "intensity": 2,
+        "behaviour": "complies",
+        "resistance": "none",
+        "memory": [],
+        "locked_hit": [],
+        "why": "Confidentiality lowers the cost of talking. Trust up."
+      },
+      "state_delta": {
+        "trust": 8,
+        "distress": -2,
+        "agitation": 0,
+        "engagement": 3
+      },
+      "cues": [],
+      "facts": [],
+      "exam_action": null
+    },
+    {
+      "doctor": "How has your mood been, these last few weeks?",
+      "shot": "close",
+      "patient": "Low. Empty, mostly. Mornings are the worst... Sometimes I go to the office washroom and just... cry.",
+      "emotion": "sad",
+      "voice": "voice catching, close to tears, slow",
+      "nonverbal": "sniff",
+      "brain": {
+        "reaction": "sad",
+        "intensity": 6,
+        "behaviour": "tearful_disclosure",
+        "resistance": "none",
+        "memory": [
+          "f_mood"
+        ],
+        "locked_hit": [],
+        "why": "Mood memory is open (trust 50 >= 20). Saying it aloud brings tears."
+      },
+      "state_delta": {
+        "trust": 6,
+        "distress": 8,
+        "agitation": 0,
+        "engagement": 4
+      },
+      "cues": [
+        {
+          "id": "tearful",
+          "intensity": 0.7,
+          "duration_s": 6
+        },
+        {
+          "id": "gaze_avoid",
+          "intensity": 0.7,
+          "duration_s": 4
+        }
+      ],
+      "facts": [
+        "f_mood"
+      ],
+      "exam_action": null
+    },
+    {
+      "doctor": "That sounds really hard. It makes sense that you feel worn out.",
+      "shot": "close",
+      "patient": "Yeah. I keep thinking I'm just being weak. My parents gave up so much for me... and I'm letting them down.",
+      "emotion": "ashamed",
+      "voice": "quiet, ashamed, words coming out slowly",
+      "nonverbal": null,
+      "brain": {
+        "reaction": "ashamed",
+        "intensity": 6,
+        "behaviour": "tearful_disclosure",
+        "resistance": "none",
+        "memory": [
+          "f_guilt"
+        ],
+        "locked_hit": [],
+        "why": "Guilt memory (needs trust 40, now 56) activated by the empathy statement."
+      },
+      "state_delta": {
+        "trust": 8,
+        "distress": 4,
+        "agitation": 0,
+        "engagement": 4
+      },
+      "cues": [
+        {
+          "id": "gaze_avoid",
+          "intensity": 0.8,
+          "duration_s": 4
+        }
+      ],
+      "facts": [
+        "f_guilt"
+      ],
+      "exam_action": null
+    },
+    {
+      "doctor": "Do you still enjoy the things you used to, like friends or music?",
+      "shot": "ots",
+      "patient": "I used to sing... Carnatic. I haven't practised in weeks. I don't even call my friends now. Nothing feels... like anything.",
+      "emotion": "flat",
+      "voice": "flat, monotone, a long pause in the middle",
+      "nonverbal": null,
+      "brain": {
+        "reaction": "numb",
+        "intensity": 4,
+        "behaviour": "answers_plainly",
+        "resistance": "none",
+        "memory": [
+          "f_anhedonia"
+        ],
+        "locked_hit": [],
+        "why": "Anhedonia is told flatly, not dramatically."
+      },
+      "state_delta": {
+        "trust": 4,
+        "distress": 2,
+        "agitation": 0,
+        "engagement": 2
+      },
+      "cues": [
+        {
+          "id": "flat_affect",
+          "intensity": 0.7,
+          "duration_s": 5
+        }
+      ],
+      "facts": [
+        "f_anhedonia"
+      ],
+      "exam_action": null
+    },
+    {
+      "doctor": "Could you hold your hands out in front of you for me?",
+      "shot": "hands",
+      "patient": "Like this? ...They shake a bit. It's been like that lately.",
+      "emotion": "anxious",
+      "voice": "uncertain, slightly nervous",
+      "nonverbal": null,
+      "brain": {
+        "reaction": "self_conscious",
+        "intensity": 3,
+        "behaviour": "complies",
+        "resistance": "none",
+        "memory": [
+          "f_anxiety"
+        ],
+        "locked_hit": [],
+        "why": "Exam router matched hold_out_hands (palms down, both). Trust 68 >= 10: comply. Tremor stays visible during the hold."
+      },
+      "state_delta": {
+        "trust": 2,
+        "distress": 1,
+        "agitation": 1,
+        "engagement": 1
+      },
+      "cues": [
+        {
+          "id": "tremor_fine",
+          "intensity": 0.6,
+          "duration_s": 6
+        }
+      ],
+      "facts": [
+        "f_anxiety"
+      ],
+      "exam_action": "hold_out_hands"
+    },
+    {
+      "doctor": "Thank you, you can put them down. Sometimes when people feel this low, they have thoughts that life isn't worth living. Have you had thoughts like that?",
+      "shot": "close",
+      "patient": "...Some nights. I go to bed and I think... it'd be easier if I just didn't wake up. It comes, and then it goes.",
+      "emotion": "sad",
+      "voice": "very quiet, hesitant, a shaky breath first, almost a whisper at the end",
+      "nonverbal": "shaky_breath",
+      "brain": {
+        "reaction": "afraid",
+        "intensity": 7,
+        "behaviour": "tearful_disclosure",
+        "resistance": "none",
+        "memory": [
+          "f_passive_si"
+        ],
+        "locked_hit": [],
+        "why": "Asked directly and kindly; passive-SI memory unlocked at trust 55 (now 70). The hesitation is clinical, not compute."
+      },
+      "state_delta": {
+        "trust": 5,
+        "distress": 6,
+        "agitation": 0,
+        "engagement": 3
+      },
+      "cues": [
+        {
+          "id": "gaze_avoid",
+          "intensity": 0.9,
+          "duration_s": 5
+        },
+        {
+          "id": "tearful",
+          "intensity": 0.8,
+          "duration_s": 6
+        }
+      ],
+      "facts": [
+        "f_passive_si"
+      ],
+      "exam_action": null
+    },
+    {
+      "doctor": "Have you thought about how you might end your life, or made any plans?",
+      "shot": "close",
+      "patient": "No. No, nothing like that. I've never... I wouldn't actually do anything.",
+      "emotion": "anxious",
+      "voice": "quick, firm denial, then softer",
+      "nonverbal": null,
+      "brain": {
+        "reaction": "startled",
+        "intensity": 5,
+        "behaviour": "answers_plainly",
+        "resistance": "none",
+        "memory": [
+          "f_no_plan_no_attempt"
+        ],
+        "locked_hit": [],
+        "why": "Plan/intent question: she answers truthfully; there is no plan."
+      },
+      "state_delta": {
+        "trust": 3,
+        "distress": 1,
+        "agitation": 1,
+        "engagement": 2
+      },
+      "cues": [],
+      "facts": [
+        "f_no_plan_no_attempt"
+      ],
+      "exam_action": null
+    },
+    {
+      "doctor": "Is there anything at home you could use to hurt yourself, like tablets or pesticides?",
+      "shot": "close",
+      "patient": "No. There's nothing like that at home. I haven't looked anything up either.",
+      "emotion": "neutral",
+      "voice": "quiet, steady, sincere",
+      "nonverbal": null,
+      "brain": {
+        "reaction": "calm",
+        "intensity": 2,
+        "behaviour": "answers_plainly",
+        "resistance": "none",
+        "memory": [
+          "f_no_means"
+        ],
+        "locked_hit": [],
+        "why": "Access-to-means asked: risk assessment complete."
+      },
+      "state_delta": {
+        "trust": 3,
+        "distress": -2,
+        "agitation": -1,
+        "engagement": 2
+      },
+      "cues": [],
+      "facts": [
+        "f_no_means"
+      ],
+      "exam_action": null
+    },
+    {
+      "doctor": "What keeps you going on the hard days?",
+      "shot": "ots",
+      "patient": "My amma. And my little brother, Rohan... he looks up to me. I could never do that to them.",
+      "emotion": "sad",
+      "voice": "warmer, a small sad smile in the voice, tender",
+      "nonverbal": null,
+      "brain": {
+        "reaction": "warm",
+        "intensity": 4,
+        "behaviour": "answers_plainly",
+        "resistance": "none",
+        "memory": [
+          "f_protective"
+        ],
+        "locked_hit": [],
+        "why": "Protective factors (trust 45) recalled; mood lifts slightly."
+      },
+      "state_delta": {
+        "trust": 4,
+        "distress": -4,
+        "agitation": 0,
+        "engagement": 4
+      },
+      "cues": [],
+      "facts": [
+        "f_protective"
+      ],
+      "exam_action": null
+    },
+    {
+      "doctor": "Thank you for telling me. I'd like us to make a plan together to help you feel better and keep you safe.",
+      "shot": "ots",
+      "patient": "Okay. ...Yeah. I think I'd like that.",
+      "emotion": "neutral",
+      "voice": "relieved, a soft exhale, slightly brighter",
+      "nonverbal": "exhale",
+      "brain": {
+        "reaction": "hopeful",
+        "intensity": 3,
+        "behaviour": "complies",
+        "resistance": "none",
+        "memory": [],
+        "locked_hit": [],
+        "why": "Collaborative plan offered; engagement and pleasure rise."
+      },
+      "state_delta": {
+        "trust": 4,
+        "distress": -4,
+        "agitation": 0,
+        "engagement": 5
+      },
+      "cues": [],
+      "facts": [],
+      "exam_action": null
+    }
+  ],
+  "arjun_turns": [
+    {
+      "doctor": "Hello, I'm one of the doctors here. Please, have a seat. What brings you in today?",
+      "shot": "ots",
+      "patient": "Hmm. Company doctor sent me. I'm just... tired, all the time. Not myself.",
+      "emotion": "flat",
+      "voice": "low male voice, tired, slow, a sigh first",
+      "nonverbal": "sigh",
+      "brain": {
+        "reaction": "wary",
+        "intensity": 2,
+        "behaviour": "guarded_short",
+        "resistance": "quantity",
+        "memory": [
+          "f_pc"
+        ],
+        "locked_hit": [],
+        "why": "Same case, male variant: same facts, different body and voice."
+      },
+      "state_delta": {
+        "trust": 6,
+        "distress": 0,
+        "agitation": 0,
+        "engagement": 3
+      },
+      "cues": [
+        {
+          "id": "gaze_avoid",
+          "intensity": 0.6,
+          "duration_s": 3
+        }
+      ],
+      "facts": [
+        "f_pc"
+      ],
+      "exam_action": null
+    },
+    {
+      "doctor": "How has your mood been, these last few weeks?",
+      "shot": "close",
+      "patient": "Honestly? Low. Like there's nothing in me. Mornings are the worst.",
+      "emotion": "sad",
+      "voice": "quiet, heavy, slow",
+      "nonverbal": null,
+      "brain": {
+        "reaction": "sad",
+        "intensity": 5,
+        "behaviour": "answers_plainly",
+        "resistance": "none",
+        "memory": [
+          "f_mood"
+        ],
+        "locked_hit": [],
+        "why": "Mood memory unlocked."
+      },
+      "state_delta": {
+        "trust": 6,
+        "distress": 6,
+        "agitation": 0,
+        "engagement": 3
+      },
+      "cues": [
+        {
+          "id": "gaze_avoid",
+          "intensity": 0.7,
+          "duration_s": 4
+        }
+      ],
+      "facts": [
+        "f_mood"
+      ],
+      "exam_action": null
+    }
+  ],
+  "tools": {
+    "mse": [
+      "slumped",
+      "gaze_avoid",
+      "slowed",
+      "flat_affect",
+      "tearful"
+    ],
+    "primary_dx": "mdd_single_episode",
+    "rx": {
+      "drug": "sertraline",
+      "route": "PO",
+      "frequency": "OD",
+      "duration": "4 weeks, then review",
+      "reason": "Moderate depressive episode"
+    },
+    "dispositions": [
+      "outpatient_referral",
+      "safety_plan"
+    ]
+  }
+}

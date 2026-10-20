@@ -329,6 +329,33 @@
        "male"
       ],
       "description": "Sex-specific fact: only loaded for this variant."
+     },
+     "activation_tags": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      },
+      "description": "Lowercase words or short phrases a doctor might say that bring this memory to mind (Digital Twin recall)."
+     },
+     "kind": {
+      "enum": [
+       "symptom",
+       "history",
+       "trigger",
+       "formative",
+       "risk"
+      ]
+     },
+     "generates_discomfort": {
+      "type": "boolean",
+      "description": "Touching this memory shows discomfort, even when it is still locked."
+     },
+     "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40,
+      "description": "Short chip label for the Twin view; never the fact text."
      }
     }
    }
@@ -751,6 +778,52 @@
      }
     }
    }
+  },
+  "formulation": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "presenting",
+    "predisposing",
+    "precipitating",
+    "perpetuating",
+    "protective"
+   ],
+   "properties": {
+    "presenting": {
+     "type": "string",
+     "minLength": 1
+    },
+    "predisposing": {
+     "type": "string",
+     "minLength": 1
+    },
+    "precipitating": {
+     "type": "string",
+     "minLength": 1
+    },
+    "perpetuating": {
+     "type": "string",
+     "minLength": 1
+    },
+    "protective": {
+     "type": "string",
+     "minLength": 1
+    }
+   },
+   "description": "5Ps formulation (draft)."
+  },
+  "core_belief": {
+   "type": "string",
+   "minLength": 1
+  },
+  "attachment_style": {
+   "type": "string",
+   "minLength": 1
+  },
+  "dialect": {
+   "type": "string",
+   "minLength": 1
   }
  }
 }

@@ -1,0 +1,129 @@
+{
+ "version": "0.1",
+ "status": "draft",
+ "note": "Extra cues (intensity scaled by reply intensity / 10) and a TTS speed factor.",
+ "reactions": {
+  "afraid": {
+   "cues": [
+    {
+     "id": "fidget",
+     "intensity": 0.6
+    },
+    {
+     "id": "gaze_avoid",
+     "intensity": 0.5
+    }
+   ],
+   "speed": 1.1
+  },
+  "startled": {
+   "cues": [
+    {
+     "id": "startle",
+     "intensity": 0.7
+    }
+   ],
+   "speed": 1.05
+  },
+  "ashamed": {
+   "cues": [
+    {
+     "id": "gaze_avoid",
+     "intensity": 0.8
+    }
+   ],
+   "speed": 0.9
+  },
+  "sad": {
+   "cues": [
+    {
+     "id": "tearful",
+     "intensity": 0.6
+    }
+   ],
+   "speed": 0.9
+  },
+  "numb": {
+   "cues": [
+    {
+     "id": "flat_affect",
+     "intensity": 0.6
+    }
+   ],
+   "speed": 0.9
+  },
+  "resigned": {
+   "cues": [
+    {
+     "id": "slumped",
+     "intensity": 0.5
+    }
+   ],
+   "speed": 0.9
+  },
+  "challenged": {
+   "cues": [
+    {
+     "id": "restless",
+     "intensity": 0.4
+    }
+   ],
+   "speed": 1.05
+  },
+  "misunderstood": {
+   "cues": [
+    {
+     "id": "gaze_avoid",
+     "intensity": 0.5
+    }
+   ],
+   "speed": 1.0
+  },
+  "relieved": {
+   "cues": [],
+   "speed": 1.0
+  },
+  "warm": {
+   "cues": [],
+   "speed": 1.05
+  }
+ },
+ "behaviours": {
+  "tearful_disclosure": {
+   "cues": [
+    {
+     "id": "tearful",
+     "intensity": 0.9
+    }
+   ],
+   "speed": 0.85
+  },
+  "guarded_short": {
+   "cues": [
+    {
+     "id": "gaze_avoid",
+     "intensity": 0.5
+    }
+   ],
+   "speed": 1.0
+  },
+  "hostile": {
+   "cues": [
+    {
+     "id": "restless",
+     "intensity": 0.7
+    }
+   ],
+   "speed": 1.15
+  },
+  "deflects": {
+   "cues": [
+    {
+     "id": "gaze_avoid",
+     "intensity": 0.4
+    }
+   ],
+   "speed": 1.0
+  }
+ }
+}

@@ -11,12 +11,14 @@ import soundfile as sf
 from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import Response
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 import brain
 import mock
 import session
 import stt
+import twin_bus
 
 log = logging.getLogger("patient-service")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -51,6 +53,22 @@ async def lifespan(app):
 
 
 app = FastAPI(title="PsychSim patient service", lifespan=lifespan)
+
+
+@app.websocket("/twin/ws")  # declared before the /twin static mount, which would otherwise catch it
+async def twin_ws(ws: WebSocket):
+    await ws.accept()
+    q = twin_bus.subscribe()
+    try:
+        while True:
+            await ws.send_json(await q.get())
+    except Exception:  # viewer went away
+        pass
+    finally:
+        twin_bus.unsubscribe(q)
+
+
+app.mount("/twin", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "twin"), html=True), name="twin")  # Digital Twin
 
 
 class Msg(BaseModel):

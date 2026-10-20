@@ -1,0 +1,192 @@
+{
+ "version": "0.1",
+ "status": "draft",
+ "note": "AI draft for faculty review. Reaction trust_step is multiplied by state_rules.reaction_trust_unit.",
+ "reactions": [
+  {
+   "id": "none",
+   "description": "No strong reaction to this line.",
+   "example": "Okay.",
+   "trust_step": 0
+  },
+  {
+   "id": "understood",
+   "description": "Feels heard; the doctor got it right.",
+   "example": "Yes... that's exactly it.",
+   "trust_step": 1
+  },
+  {
+   "id": "hopeful",
+   "description": "A small sense that things could get better.",
+   "example": "You think it can get better?",
+   "trust_step": 1
+  },
+  {
+   "id": "relieved",
+   "description": "Tension drops; it was easier to say than feared.",
+   "example": "Okay... thank you.",
+   "trust_step": 1
+  },
+  {
+   "id": "warm",
+   "description": "Feels liked and safe with this doctor.",
+   "example": "You're very kind, doctor.",
+   "trust_step": 1
+  },
+  {
+   "id": "calm",
+   "description": "Settled; nothing in the line threatens.",
+   "example": "Hmm, that's fine.",
+   "trust_step": 0
+  },
+  {
+   "id": "wary",
+   "description": "Unsure of the doctor; holds back.",
+   "example": "Why do you want to know?",
+   "trust_step": -1
+  },
+  {
+   "id": "startled",
+   "description": "Caught off guard by a direct or sudden question.",
+   "example": "What? No... I mean...",
+   "trust_step": 0
+  },
+  {
+   "id": "afraid",
+   "description": "Fears what the answer means or what happens next.",
+   "example": "Will they put me somewhere?",
+   "trust_step": -1
+  },
+  {
+   "id": "ashamed",
+   "description": "Feels judged or exposed; wants to hide.",
+   "example": "I know it sounds stupid.",
+   "trust_step": -1
+  },
+  {
+   "id": "self_conscious",
+   "description": "Embarrassed about how they look or sound.",
+   "example": "Sorry, I'm not making sense.",
+   "trust_step": 0
+  },
+  {
+   "id": "sad",
+   "description": "Painful feeling rises; may tear up.",
+   "example": "I just... miss feeling normal.",
+   "trust_step": 0
+  },
+  {
+   "id": "numb",
+   "description": "Feels little; answers from a distance.",
+   "example": "I don't know. Nothing, really.",
+   "trust_step": 0
+  },
+  {
+   "id": "resigned",
+   "description": "Gives up on things changing.",
+   "example": "It doesn't matter anyway.",
+   "trust_step": 0
+  },
+  {
+   "id": "challenged",
+   "description": "Feels pushed or argued with.",
+   "example": "I already told you that.",
+   "trust_step": -1
+  },
+  {
+   "id": "misunderstood",
+   "description": "Feels the doctor got it wrong or dismissed them.",
+   "example": "That's not what I meant.",
+   "trust_step": -2
+  }
+ ],
+ "behaviours": [
+  {
+   "id": "answers_plainly",
+   "description": "Answers the question directly and honestly.",
+   "example": "I wake up around four and can't sleep again."
+  },
+  {
+   "id": "minimises",
+   "description": "Plays it down as small or normal.",
+   "example": "It's probably just work stress."
+  },
+  {
+   "id": "denies",
+   "description": "Says no to something that is true.",
+   "example": "No, no, nothing like that."
+  },
+  {
+   "id": "deflects",
+   "description": "Moves away from the topic or turns it back.",
+   "example": "Everyone gets tired, no?"
+  },
+  {
+   "id": "vague_timeline",
+   "description": "Cannot or will not give clear times.",
+   "example": "Some time... a while, maybe."
+  },
+  {
+   "id": "answers_different_question",
+   "description": "Answers a nearby, safer question instead.",
+   "example": "Work has been very busy."
+  },
+  {
+   "id": "tangential",
+   "description": "Drifts to a loosely linked topic.",
+   "example": "My flatmate also doesn't sleep, she watches shows."
+  },
+  {
+   "id": "guarded_short",
+   "description": "Very short answers, gives little.",
+   "example": "Fine."
+  },
+  {
+   "id": "hostile",
+   "description": "Irritable or sharp with the doctor.",
+   "example": "Why does that matter?"
+  },
+  {
+   "id": "tearful_disclosure",
+   "description": "Shares something painful and becomes tearful.",
+   "example": "Some nights I wish I just wouldn't wake up."
+  },
+  {
+   "id": "asks_back",
+   "description": "Answers with a question of their own.",
+   "example": "Is that normal?"
+  },
+  {
+   "id": "complies_without_engaging",
+   "description": "Goes along on the surface but gives nothing real.",
+   "example": "Okay. Whatever you think."
+  },
+  {
+   "id": "complies",
+   "description": "Carries out an exam request.",
+   "example": "Like this?"
+  }
+ ],
+ "resistance": [
+  {
+   "id": "none",
+   "description": "No resistance.",
+   "example": "Yes, I can tell you."
+  },
+  {
+   "id": "quantity",
+   "description": "Says very little.",
+   "example": "Hmm."
+  },
+  {
+   "id": "content",
+   "description": "Avoids or changes the subject.",
+   "example": "Can we talk about something else?"
+  },
+  {
+   "id": "style",
+   "description": "Talks in a way that blocks closeness: jokes, intellectualises, over-polite.",
+   "example": "Haha, I'm fine, really, don't worry."
+  }
+ ]
+}

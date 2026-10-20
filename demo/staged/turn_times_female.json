@@ -1,0 +1,86 @@
+[
+ {
+  "turn": 1,
+  "doctor_start": 20.49,
+  "doctor_end": 25.56,
+  "patient_start": 26.69,
+  "patient_end": 36.09
+ },
+ {
+  "turn": 2,
+  "doctor_start": 36.78,
+  "doctor_end": 40.89,
+  "patient_start": 41.46,
+  "patient_end": 53.14
+ },
+ {
+  "turn": 3,
+  "doctor_start": 54.0,
+  "doctor_end": 59.39,
+  "patient_start": 59.94,
+  "patient_end": 62.55
+ },
+ {
+  "turn": 4,
+  "doctor_start": 62.6,
+  "doctor_end": 65.33,
+  "patient_start": 66.34,
+  "patient_end": 77.93
+ },
+ {
+  "turn": 5,
+  "doctor_start": 78.47,
+  "doctor_end": 82.17,
+  "patient_start": 82.7,
+  "patient_end": 93.34
+ },
+ {
+  "turn": 6,
+  "doctor_start": 93.97,
+  "doctor_end": 97.55,
+  "patient_start": 98.13,
+  "patient_end": 109.94
+ },
+ {
+  "turn": 7,
+  "doctor_start": 110.39,
+  "doctor_end": 112.65,
+  "patient_start": 113.73,
+  "patient_end": 120.45
+ },
+ {
+  "turn": 8,
+  "doctor_start": 120.93,
+  "doctor_end": 128.97,
+  "patient_start": 129.54,
+  "patient_end": 140.15
+ },
+ {
+  "turn": 9,
+  "doctor_start": 140.2,
+  "doctor_end": 143.73,
+  "patient_start": 144.3,
+  "patient_end": 153.12
+ },
+ {
+  "turn": 10,
+  "doctor_start": 154.22,
+  "doctor_end": 158.78,
+  "patient_start": 159.9,
+  "patient_end": 164.86
+ },
+ {
+  "turn": 11,
+  "doctor_start": 165.31,
+  "doctor_end": 167.58,
+  "patient_start": 168.7,
+  "patient_end": 176.7
+ },
+ {
+  "turn": 12,
+  "doctor_start": 177.43,
+  "doctor_end": 182.61,
+  "patient_start": 183.19,
+  "patient_end": 187.67
+ }
+]

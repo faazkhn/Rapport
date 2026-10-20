@@ -37,3 +37,13 @@ def test_sentence_splitter_streams_like_batch():
     # a sentence is released as soon as the next one starts, not at the end
     s2 = stream.SentenceSplitter()
     assert s2.feed("I wake at four. ") == ["I wake at four."]
+
+
+def test_utterance_stream_after_twin_labels():
+    reply = {"reaction": "sad", "intensity": 6, "behaviour": "tearful_disclosure", "resistance": "none", "emotion": "sad",
+             "utterance": "Some nights I wish I wouldn't wake up.", "state_delta": {}}
+    raw = json.dumps(reply)
+    p, got = stream.UtteranceStream(), ""
+    for i in range(0, len(raw), 3):
+        got += p.feed(raw[i:i + 3])
+    assert got == reply["utterance"] and p.full() == reply

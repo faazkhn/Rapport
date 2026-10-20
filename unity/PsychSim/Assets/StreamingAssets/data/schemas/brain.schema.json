@@ -1,0 +1,215 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Digital Twin brain files (behaviours.json, expression_map.json)",
+ "oneOf": [
+  {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "version",
+    "status",
+    "reactions",
+    "behaviours",
+    "resistance"
+   ],
+   "properties": {
+    "version": {
+     "type": "string"
+    },
+    "status": {
+     "type": "string"
+    },
+    "note": {
+     "type": "string"
+    },
+    "reactions": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "id",
+       "description",
+       "example",
+       "trust_step"
+      ],
+      "properties": {
+       "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+       },
+       "description": {
+        "type": "string",
+        "minLength": 1
+       },
+       "example": {
+        "type": "string",
+        "minLength": 1
+       },
+       "trust_step": {
+        "enum": [
+         -2,
+         -1,
+         0,
+         1,
+         2
+        ]
+       }
+      }
+     }
+    },
+    "behaviours": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "id",
+       "description",
+       "example"
+      ],
+      "properties": {
+       "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+       },
+       "description": {
+        "type": "string",
+        "minLength": 1
+       },
+       "example": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     }
+    },
+    "resistance": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "id",
+       "description",
+       "example"
+      ],
+      "properties": {
+       "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+       },
+       "description": {
+        "type": "string",
+        "minLength": 1
+       },
+       "example": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "version",
+    "status",
+    "reactions",
+    "behaviours"
+   ],
+   "properties": {
+    "version": {
+     "type": "string"
+    },
+    "status": {
+     "type": "string"
+    },
+    "note": {
+     "type": "string"
+    },
+    "reactions": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "cues",
+       "speed"
+      ],
+      "properties": {
+       "cues": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "additionalProperties": false,
+         "required": [
+          "id",
+          "intensity"
+         ],
+         "properties": {
+          "id": {
+           "type": "string"
+          },
+          "intensity": {
+           "type": "number",
+           "minimum": 0,
+           "maximum": 1
+          }
+         }
+        }
+       },
+       "speed": {
+        "type": "number",
+        "minimum": 0.8,
+        "maximum": 1.2
+       }
+      }
+     }
+    },
+    "behaviours": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "cues",
+       "speed"
+      ],
+      "properties": {
+       "cues": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "additionalProperties": false,
+         "required": [
+          "id",
+          "intensity"
+         ],
+         "properties": {
+          "id": {
+           "type": "string"
+          },
+          "intensity": {
+           "type": "number",
+           "minimum": 0,
+           "maximum": 1
+          }
+         }
+        }
+       },
+       "speed": {
+        "type": "number",
+        "minimum": 0.8,
+        "maximum": 1.2
+       }
+      }
+     }
+    }
+   }
+  }
+ ]
+}

@@ -49,3 +49,13 @@ def test_live_reply_greeting():
     assert set(out["revealed_fact_ids"]) <= set(out["meta"]["allowed_fact_ids"])
     assert "f_passive_si" not in out["revealed_fact_ids"]
     assert "greet_introduce" in out["doctor_intents"]
+
+
+def test_twin_ws_replays_history():
+    import twin_bus
+    twin_bus.publish({"type": "init", "t": 0.0})
+    twin_bus.publish({"type": "doctor_end", "turn": 1, "t": 1.0})
+    c = TestClient(service.app)
+    with c.websocket_connect("/twin/ws") as ws:
+        assert ws.receive_json()["type"] == "init"
+        assert ws.receive_json() == {"type": "doctor_end", "turn": 1, "t": 1.0}
