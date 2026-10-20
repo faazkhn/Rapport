@@ -1,4 +1,4 @@
-# Chitta Twin
+# Digital Twin
 
 A visual "digital twin" of the simulated patient's brain state: regions that glow with recall, reaction, choice, speech and arousal; state gauges; a PAD mood dot; the memory ladder (items unlock as trust rises); the 5Ps formulation; and the expression output. **Metaphor, not neuroscience.** Concept preview; the formulation is a draft that faculty have not validated.
 
@@ -30,7 +30,7 @@ twin.push(obj);            // live: append an event stamped "now" (see below)
 twin.play(); twin.pause();
 ```
 
-Live feed (for a later WebSocket bridge in the service): call `twin.push(obj)` directly, `window.postMessage({chitta: obj}, "*")`, or `new BroadcastChannel("chitta-twin").postMessage(obj)`. `obj` is one of:
+Live feed (for a later WebSocket bridge in the service): call `twin.push(obj)` directly, `window.postMessage({twin: obj}, "*")`, or `new BroadcastChannel("digital-twin").postMessage(obj)`. `obj` is one of:
 - `{"type": "init", "meta", "memory_items", "formulation", "state_start"}`: resets the clock and the history.
 - `{"type": "doctor_start", "doctor": "..."}`, `{"type": "doctor_end"}`, `{"type": "patient_start"}`, `{"type": "patient_end"}`.
 - A snapshot: any object without one of those types, with the fields below. `mood` is derived from `state` if it is missing.

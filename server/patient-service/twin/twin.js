@@ -1,4 +1,4 @@
-/* Chitta Twin. Everything drawn is a pure function of time t (seconds) and the timeline, so render mode is deterministic.
+/* Digital Twin. Everything drawn is a pure function of time t (seconds) and the timeline, so render mode is deterministic.
    Modes: replay (?timeline=url, default: bundled demo_timeline.js), render (&render=1), live (?live=1). See README.md. */
 (() => {
   "use strict";
@@ -95,7 +95,6 @@
   function buildStatic() {
     const meta = TL.meta || {};
     $("who").innerHTML = meta.patient ? `<b>${esc(meta.patient)}</b>${meta.age ? ", " + meta.age : ""} · ${esc(meta.case_id || "")}${meta.title ? " · " + esc(meta.title) : ""}` : (LIVE ? "Live · waiting for session" : "—");
-    $("staged").hidden = !meta.staged;
     $("tPatName").textContent = meta.patient ? meta.patient.split(" ")[0] : "Patient";
     const gl = document.querySelector(".glist"); gl.innerHTML = "";
     for (const [k, label, c] of KEYS) {
@@ -357,8 +356,8 @@
     load(tl);
     if (Q.has("t")) setTime(+Q.get("t"));
     if (LIVE) {
-      try { new BroadcastChannel("chitta-twin").onmessage = (m) => push(m.data); } catch (_) { /* BroadcastChannel missing on old file:// contexts */ }
-      addEventListener("message", (m) => { if (m.data && m.data.chitta) push(m.data.chitta); });
+      try { new BroadcastChannel("digital-twin").onmessage = (m) => push(m.data); } catch (_) { /* BroadcastChannel missing on old file:// contexts */ }
+      addEventListener("message", (m) => { if (m.data && m.data.twin) push(m.data.twin); });
       document.body.classList.add("render");
     }
     wire(); updIcon(); requestAnimationFrame(loop);

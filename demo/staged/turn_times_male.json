@@ -1,16 +1,16 @@
 [
  {
   "turn": 1,
-  "doctor_start": 16.05,
-  "doctor_end": 21.12,
-  "patient_start": 22.28,
-  "patient_end": 31.64
+  "doctor_start": 17.98,
+  "doctor_end": 23.05,
+  "patient_start": 23.63,
+  "patient_end": 32.99
  },
  {
   "turn": 2,
-  "doctor_start": 32.22,
-  "doctor_end": 34.62,
-  "patient_start": 35.16,
-  "patient_end": 42.3
+  "doctor_start": 33.62,
+  "doctor_end": 36.02,
+  "patient_start": 36.55,
+  "patient_end": 43.7
  }
 ]

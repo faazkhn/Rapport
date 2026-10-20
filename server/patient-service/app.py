@@ -52,7 +52,7 @@ async def lifespan(app):
 
 
 app = FastAPI(title="PsychSim patient service", lifespan=lifespan)
-app.mount("/twin", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "twin"), html=True), name="twin")  # Chitta Twin
+app.mount("/twin", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "twin"), html=True), name="twin")  # Digital Twin
 
 
 class Msg(BaseModel):

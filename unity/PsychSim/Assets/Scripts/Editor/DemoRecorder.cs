@@ -28,7 +28,7 @@ namespace PsychSim.Editor
 
         const string VariantFlag = "PsychSim.Demo.Variant", StagedFlag = "PsychSim.Demo.Staged";
 
-        /// <summary>Staged concept preview: needs the service started with SANVAAD_STAGED=demo/staged/script.json.</summary>
+        /// <summary>Staged concept preview: needs the service started with RAPPORT_STAGED=demo/staged/script.json.</summary>
         [MenuItem("PsychSim/Record Staged Demo")]
         static void RecordStaged() { SessionState.SetBool(StagedFlag, true); Record(); }
 
@@ -57,7 +57,7 @@ namespace PsychSim.Editor
             SessionState.SetBool(StagedFlag, false);
             DemoDirector.ScriptPath = staged ? "demo/staged/script.json" : "demo/script.json";
             new GameObject("DemoDirector").AddComponent<DemoDirector>();
-            if (record) StartRecording(staged ? "Sanvaad_staged" : "PsychSim_take");
+            if (record) StartRecording(staged ? "Rapport_staged" : "PsychSim_take");
             DemoDirector.Finished -= OnFinished;
             DemoDirector.Finished += OnFinished;
         }

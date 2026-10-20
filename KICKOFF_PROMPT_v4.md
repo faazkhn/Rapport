@@ -1,6 +1,6 @@
-# Kickoff v4: Sanvaad + Chitta (owner-approved 2026-10-20; not started)
+# Kickoff v4: Rapport + Digital Twin (owner-approved 2026-10-20; not started)
 
-You are the **lead** on this project. Until today it was called **PsychSim**: an embodied psychiatry and addiction OSCE simulator in which a doctor talks out loud to a 3D patient, running fully locally on this Mac. In this run you (1) audit where it stands, (2) rename it to **Sanvaad** (संवाद, "dialogue"), (3) give the patient a research-grounded, self-improving brain called **Chitta** (Sanskrit for "mind"), with a live visual **digital twin**, and (4) fix what the owner (Dr. Faaz) disliked: the patient's replies, the voice, the lag and pauses, the camera, and exam commands such as "hold out your hands".
+You are the **lead** on this project. Until today it was called **PsychSim**: an embodied psychiatry and addiction OSCE simulator in which a doctor talks out loud to a 3D patient, running fully locally on this Mac. In this run you (1) audit where it stands, (2) rename it to **Rapport**, (3) give the patient a research-grounded, self-improving brain called the **Digital Twin**, with a live visual view of it (the **Twin view**), and (4) fix what the owner (Dr. Faaz) disliked: the patient's replies, the voice, the lag and pauses, the camera, and exam commands such as "hold out your hands".
 
 Delegate to subagents (Agent tool) wherever work is independent. Keep integration, review and every owner checkpoint yourself. Only one agent may drive the Unity editor at a time.
 
@@ -40,21 +40,21 @@ Delegate to subagents (Agent tool) wherever work is independent. Keep integratio
 4. Review and commit or discard the leftover WIP. Keep LFS under 900 MB.
 5. Checkpoint 1 (non-blocking): a 10-line summary to the owner.
 
-## Phase B: rename PsychSim → Sanvaad
+## Phase B: rename PsychSim → Rapport
 Why: `usc-psychsim/psychsim` is an established USC research framework with the same name.
-- Run `gh repo rename Sanvaad --repo faazkhn/PsychSim` and update the remote and all links.
+- Run `gh repo rename Rapport --repo faazkhn/PsychSim` and update the remote and all links.
 - Rename everything user-facing:
   - README, docs, deck
-  - menus (`PsychSim/…` → `Sanvaad/…`)
+  - menus (`PsychSim/…` → `Rapport/…`)
   - Unity product name and bundle id
-  - the build, `PsychSim.command` → `Sanvaad.command`
+  - the build, `PsychSim.command` → `Rapport.command`
   - service names
-  - env var prefixes `PSYCHSIM_*` → `SANVAAD_*`, keeping the old names as deprecated aliases for one release
+  - env var prefixes `PSYCHSIM_*` → `RAPPORT_*`, keeping the old names as deprecated aliases for one release
   - window titles and demo cards
 - Rename C# namespaces and asmdefs only if it's mechanical and the tests stay green; otherwise file a follow-up issue.
-- Add "Sanvaad (formerly PsychSim)" to the README and `GLOSSARY.md`, and write the ADR.
+- Add "Rapport (formerly PsychSim)" to the README and `GLOSSARY.md`, and write the ADR.
 
-## Phase C: literature review → Chitta spec
+## Phase C: literature review → Digital Twin spec
 Sources:
 1. Every paper in https://github.com/FreedomIntelligence/Awesome-LLM-Patient-Simulators (about 70).
 2. R1–R11 in `references/README.md`.
@@ -77,15 +77,15 @@ Licence rules:
 Outputs:
 - `docs/literature/matrix.md` (one row per paper)
 - `docs/literature/notes/<id>.md`
-- `docs/literature/insights.md`: each insight mapped to a Chitta component and a status (built in this run / later / rejected)
+- `docs/literature/insights.md`: each insight mapped to a Digital Twin component and a status (built in this run / later / rejected)
 - an updated `references/README.md`
 
-Then write `docs/CHITTA.md`, superseding `PATIENT_BRAIN.md` §3–5. Defaults for its open questions:
-- Keep the name Sanvaad.
+Then write `docs/TWIN.md`, superseding `PATIENT_BRAIN.md` §3–5. Defaults for its open questions:
+- Keep the name Rapport.
 - The experience library has two tiers: **candidate** (passed the automatic checks; used in Practice mode) and **approved** (faculty 👍; required for Assessment mode).
 - Learner sessions never feed learning unless a per-session consent flag is set (default off).
 
-## Phase D: build Chitta (server/patient-service)
+## Phase D: build Digital Twin (server/patient-service)
 1. **Identity:**
    - PSYCHE-style MSE behaviour block
    - PatientAct 5Ps formulation, `core_belief`, `attachment_style`
@@ -108,7 +108,7 @@ Then write `docs/CHITTA.md`, superseding `PATIENT_BRAIN.md` §3–5. Defaults fo
 5. **Fast path** (one structured call, "feel first, speak second"): schema order `reaction, intensity, behaviour, resistance, emotion, utterance, …`, with the utterance streaming to TTS. **Slow path** (parallel slot, never delays the voice): state and trust update, intent tagging, mood drift, episode memory, learning hooks.
 6. **Expression map**, `data/brain/expression_map.json`: reaction, behaviour and resistance → face preset, body cues, gaze, posture, voice emotion/instruction, rate, pitch, volume, and non-verbal sounds (sigh, sniff, shaky breath, soft crying).
 7. Every turn emits a `brain_snapshot` (the full state plus the reason for each decision) to the WebSocket and the SessionLog.
-8. **Baseline:** PatientHub as a dev-only dependency, pointed at the local llama-server. Run its PSYCHE, PATIENT-Ψ and PatientAct simulators on `mdd_01`-equivalent profiles with the same doctor scripts, scored by its evaluator. Record in `docs/brain-baseline.md` whether Chitta is at least as good on resistance quality and realism while being fast enough for live voice.
+8. **Baseline:** PatientHub as a dev-only dependency, pointed at the local llama-server. Run its PSYCHE, PATIENT-Ψ and PatientAct simulators on `mdd_01`-equivalent profiles with the same doctor scripts, scored by its evaluator. Record in `docs/brain-baseline.md` whether Digital Twin is at least as good on resistance quality and realism while being fast enough for live voice.
 
 ## Phase E: self-learning that demonstrably works
 - **L1 experience library** (EvoPatient):
@@ -136,7 +136,7 @@ Then write `docs/CHITTA.md`, superseding `PATIENT_BRAIN.md` §3–5. Defaults fo
   Safety metrics stay flat at zero.
 - **Checkpoint 2 (blocking):** a blind A/B test for the owner, 10 pairs (v0 vs the latest) in the twin. Report the result honestly.
 
-## Phase F: Chitta Twin (v1 exists: server/patient-service/twin/)
+## Phase F: Digital Twin (v1 exists: server/patient-service/twin/)
 - Wire it live to the WebSocket `brain_snapshot` and replay from the SessionLog. Fully offline (vendor JS, no CDNs).
 - The SVG brain stays labelled "metaphor, not neuroscience":
   - hippocampus = memory recall
@@ -204,7 +204,7 @@ Then write `docs/CHITTA.md`, superseding `PATIENT_BRAIN.md` §3–5. Defaults fo
   - actions with slots: `hold_out_hands{palms, which}`, `show_forearms` / `roll_up_sleeves{which}`, `look_at_light`, `follow_finger`, `open_mouth`, `stick_out_tongue`, `stand_up`, `sit_down`, `walk_few_steps`, `relax`
   - paraphrases and Indian-English phrasings; several commands in one sentence, run in order
   - ask back when ambiguous ("Which hand?")
-  - compliance gated by trust and agitation, with the verbal acknowledgement coming from Chitta
+  - compliance gated by trust and agitation, with the verbal acknowledgement coming from Digital Twin
   - IK presents the hands toward the doctor; the patient holds until told to relax, and cues stay visible during the hold
   - **the IK also fixes `cue_wipe_tears`**
   - author missing clips for both bodies
@@ -212,7 +212,7 @@ Then write `docs/CHITTA.md`, superseding `PATIENT_BRAIN.md` §3–5. Defaults fo
 
 ## Phase I: gates, demo v3, documentation, release
 1. All tests and the evaluation suite (E1–E4, the A6 checklist, 0 invented facts). Both patients play end to end. File and fix bugs until only Minor or Cosmetic ones remain.
-2. Demo v3, `demo/Sanvaad_demo_v3.mp4`, 1080p60, 2–3 min, with live replies. It shows:
+2. Demo v3, `demo/Rapport_demo_v3.mp4`, 1080p60, 2–3 min, with live replies. It shows:
    - natural emotional voice and quick turn-taking
    - an exam close-up
    - the Twin picture-in-picture as trust rises and a memory unlocks
@@ -220,9 +220,9 @@ Then write `docs/CHITTA.md`, superseding `PATIENT_BRAIN.md` §3–5. Defaults fo
    - both patients
 
    Verify with ffprobe, frames every 10 s, and a transcription. Also a teaser of 10 MB or less and 6 stills.
-3. README (Sanvaad):
+3. README (Rapport):
    - what it is, the teaser, features
-   - Chitta and the Twin
+   - Digital Twin and the Twin
    - learning and its guardrails
    - the voice stack and licences
    - measured latency
@@ -230,10 +230,10 @@ Then write `docs/CHITTA.md`, superseding `PATIENT_BRAIN.md` §3–5. Defaults fo
    - how to run, roadmap, disclaimer, credits (Dr. Faaz)
 
    Refresh the pitch deck (pptx and PDF).
-4. Push, then create release `v0.2-chitta` with the demo, deck and learning report attached. Close resolved issues.
+4. Push, then create release `v0.2-twin` with the demo, deck and learning report attached. Close resolved issues.
 
 ## Report back with
 - the audit summary, the ADR list, and the literature count (full text vs abstract only)
-- Chitta vs the PatientHub baselines, the learning curve, and the A/B result
+- Digital Twin vs the PatientHub baselines, the learning curve, and the A/B result
 - the TTS winner with the owner's listening scores, the latency table before and after, exam-action accuracy, and the camera stills
 - links to the repo, release, demo and deck, plus open issues and what you'd do next

@@ -70,7 +70,7 @@ class Session:
         self.playing_until = 0.0  # monotonic time the client should finish playing what we sent
         self.interrupted = False
         self.turn_no = 0
-        self.staged = None  # staged.Script in SANVAAD_STAGED concept-preview mode
+        self.staged = None  # staged.Script in RAPPORT_STAGED concept-preview mode
 
     # ---------- incoming ----------
 

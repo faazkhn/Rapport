@@ -1,4 +1,4 @@
-"""Build a Chitta Twin timeline JSON from the staged demo script.
+"""Build a Digital Twin timeline JSON from the staged demo script.
 
 Inputs: demo/staged/script.json (turns with `brain` blocks), the case file (facts, state_start) and a turn-times JSON
 [{"turn": i, "doctor_start": s, "doctor_end": s, "patient_start": s, "patient_end": s}] in seconds from video start

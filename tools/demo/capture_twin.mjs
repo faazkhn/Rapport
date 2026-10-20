@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Deterministic frame capture of the Chitta Twin into an H.264 mp4 (or PNG stills).
+// Deterministic frame capture of the Digital Twin into an H.264 mp4 (or PNG stills).
 // Loads twin/index.html?timeline=...&render=1 in headless Chrome, calls twin.setTime(t) per frame, pipes PNGs to ffmpeg.
 //
 // Setup (once): cd tools/demo && npm install

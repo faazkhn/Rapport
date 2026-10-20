@@ -1,6 +1,6 @@
 {
   "case_id": "mdd_01",
-  "note": "STAGED concept preview (not live). Doctor lines are synthesised and fed through the mic path; patient replies, voice and brain snapshots are pre-written to show the planned Sanvaad/Chitta behaviour. Clinical facts follow mdd_01 (draft).",
+  "note": "STAGED concept preview (not live). Doctor lines are synthesised and fed through the mic path; patient replies, voice and brain snapshots are pre-written to show the planned Rapport/Digital Twin behaviour. Clinical facts follow mdd_01 (draft).",
   "turns": [
     {
       "doctor": "Hello, I'm one of the doctors here. Please, have a seat. What brings you in today?",

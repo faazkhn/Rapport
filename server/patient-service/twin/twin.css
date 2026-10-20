@@ -1,4 +1,4 @@
-/* Chitta Twin. All state-driven motion is computed in twin.js as a pure function of time; no CSS transitions on it. */
+/* Digital Twin. All state-driven motion is computed in twin.js as a pure function of time; no CSS transitions on it. */
 :root {
   --bg: #0a0e14; --bg2: #0d131b; --panel: #111821; --panel2: #151e29; --line: #1f2a37; --line2: #2a3746;
   --text: #dde5ee; --muted: #8593a3; --faint: #5a6878;

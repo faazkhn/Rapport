@@ -1,4 +1,4 @@
-"""Staged concept-preview mode (SANVAAD_STAGED=<script.json>): the doctor's audio still goes through the real mic path and VAD, but
+"""Staged concept-preview mode (RAPPORT_STAGED=<script.json>): the doctor's audio still goes through the real mic path and VAD, but
 each turn replies with the next pre-written patient line and its pre-rendered WAV (demo/staged/audio/<variant>_<i>.wav, falling back
 to the live TTS when the file is missing). For presenting planned behaviour only; never used for evaluation or learning.
 """
@@ -9,8 +9,8 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-PATH = os.environ.get("SANVAAD_STAGED", "")
-GAP_S = float(os.environ.get("SANVAAD_STAGED_GAP_S", "0.6"))  # doctor stops -> patient audio, the planned target
+PATH = os.environ.get("RAPPORT_STAGED", "")
+GAP_S = float(os.environ.get("RAPPORT_STAGED_GAP_S", "0.6"))  # doctor stops -> patient audio, the planned target
 HESITATE_S = {"shaky_breath": 1.3}  # clinically sized hesitation for the hardest disclosure; logged as the slowed pause
 
 

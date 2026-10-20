@@ -145,18 +145,18 @@
  },
  "events": [
   {
-   "t": 20.76,
+   "t": 20.49,
    "type": "doctor_start",
    "turn": 1,
    "doctor": "Hello, I'm one of the doctors here. Please, have a seat. What brings you in today?"
   },
   {
-   "t": 25.84,
+   "t": 25.56,
    "type": "doctor_end",
    "turn": 1
   },
   {
-   "t": 26.37,
+   "t": 26.69,
    "type": "snapshot",
    "turn": 1,
    "doctor": "Hello, I'm one of the doctors here. Please, have a seat. What brings you in today?",
@@ -199,31 +199,31 @@
     "voice": "quiet, low energy, a small sigh before speaking, slow and hesitant",
     "nonverbal": "sigh"
    },
-   "latency_ms": 530
+   "latency_ms": 1130
   },
   {
-   "t": 26.37,
+   "t": 26.69,
    "type": "patient_start",
    "turn": 1
   },
   {
-   "t": 35.77,
+   "t": 36.09,
    "type": "patient_end",
    "turn": 1
   },
   {
-   "t": 36.34,
+   "t": 36.78,
    "type": "doctor_start",
    "turn": 2,
    "doctor": "I'm sorry to hear that. How have you been sleeping, and how is your appetite?"
   },
   {
-   "t": 40.45,
+   "t": 40.89,
    "type": "doctor_end",
    "turn": 2
   },
   {
-   "t": 41.02,
+   "t": 41.46,
    "type": "snapshot",
    "turn": 2,
    "doctor": "I'm sorry to hear that. How have you been sleeping, and how is your appetite?",
@@ -270,28 +270,28 @@
    "latency_ms": 570
   },
   {
-   "t": 41.02,
+   "t": 41.46,
    "type": "patient_start",
    "turn": 2
   },
   {
-   "t": 52.7,
+   "t": 53.14,
    "type": "patient_end",
    "turn": 2
   },
   {
-   "t": 53.81,
+   "t": 54.0,
    "type": "doctor_start",
    "turn": 3,
    "doctor": "Before we go on, what you tell me stays between us and the care team, unless I'm worried about your safety."
   },
   {
-   "t": 59.2,
+   "t": 59.39,
    "type": "doctor_end",
    "turn": 3
   },
   {
-   "t": 59.75,
+   "t": 59.94,
    "type": "snapshot",
    "turn": 3,
    "doctor": "Before we go on, what you tell me stays between us and the care team, unless I'm worried about your safety.",
@@ -327,28 +327,28 @@
    "latency_ms": 550
   },
   {
-   "t": 59.75,
+   "t": 59.94,
    "type": "patient_start",
    "turn": 3
   },
   {
-   "t": 62.37,
+   "t": 62.55,
    "type": "patient_end",
    "turn": 3
   },
   {
-   "t": 62.42,
+   "t": 62.6,
    "type": "doctor_start",
    "turn": 4,
    "doctor": "How has your mood been, these last few weeks?"
   },
   {
-   "t": 65.18,
+   "t": 65.33,
    "type": "doctor_end",
    "turn": 4
   },
   {
-   "t": 65.74,
+   "t": 66.34,
    "type": "snapshot",
    "turn": 4,
    "doctor": "How has your mood been, these last few weeks?",
@@ -397,31 +397,31 @@
     "voice": "voice catching, close to tears, slow",
     "nonverbal": "sniff"
    },
-   "latency_ms": 560
+   "latency_ms": 1010
   },
   {
-   "t": 65.74,
+   "t": 66.34,
    "type": "patient_start",
    "turn": 4
   },
   {
-   "t": 77.34,
+   "t": 77.93,
    "type": "patient_end",
    "turn": 4
   },
   {
-   "t": 77.95,
+   "t": 78.47,
    "type": "doctor_start",
    "turn": 5,
    "doctor": "That sounds really hard. It makes sense that you feel worn out."
   },
   {
-   "t": 81.94,
+   "t": 82.17,
    "type": "doctor_end",
    "turn": 5
   },
   {
-   "t": 82.47,
+   "t": 82.7,
    "type": "snapshot",
    "turn": 5,
    "doctor": "That sounds really hard. It makes sense that you feel worn out.",
@@ -467,28 +467,28 @@
    "latency_ms": 530
   },
   {
-   "t": 82.47,
+   "t": 82.7,
    "type": "patient_start",
    "turn": 5
   },
   {
-   "t": 93.11,
+   "t": 93.34,
    "type": "patient_end",
    "turn": 5
   },
   {
-   "t": 93.7,
+   "t": 93.97,
    "type": "doctor_start",
    "turn": 6,
    "doctor": "Do you still enjoy the things you used to, like friends or music?"
   },
   {
-   "t": 97.28,
+   "t": 97.55,
    "type": "doctor_end",
    "turn": 6
   },
   {
-   "t": 97.85,
+   "t": 98.13,
    "type": "snapshot",
    "turn": 6,
    "doctor": "Do you still enjoy the things you used to, like friends or music?",
@@ -531,31 +531,31 @@
     "voice": "flat, monotone, a long pause in the middle",
     "nonverbal": null
    },
-   "latency_ms": 570
+   "latency_ms": 580
   },
   {
-   "t": 97.85,
+   "t": 98.13,
    "type": "patient_start",
    "turn": 6
   },
   {
-   "t": 109.67,
+   "t": 109.94,
    "type": "patient_end",
    "turn": 6
   },
   {
-   "t": 109.72,
+   "t": 110.39,
    "type": "doctor_start",
    "turn": 7,
    "doctor": "Could you hold your hands out in front of you for me?"
   },
   {
-   "t": 112.33,
+   "t": 112.65,
    "type": "doctor_end",
    "turn": 7
   },
   {
-   "t": 112.85,
+   "t": 113.73,
    "type": "snapshot",
    "turn": 7,
    "doctor": "Could you hold your hands out in front of you for me?",
@@ -598,31 +598,31 @@
     "voice": "uncertain, slightly nervous",
     "nonverbal": null
    },
-   "latency_ms": 520
+   "latency_ms": 1080
   },
   {
-   "t": 112.85,
+   "t": 113.73,
    "type": "patient_start",
    "turn": 7
   },
   {
-   "t": 119.57,
+   "t": 120.45,
    "type": "patient_end",
    "turn": 7
   },
   {
-   "t": 120.69,
+   "t": 120.93,
    "type": "doctor_start",
    "turn": 8,
    "doctor": "Thank you, you can put them down. Sometimes when people feel this low, they have thoughts that life isn't worth living. Have you had thoughts like that?"
   },
   {
-   "t": 128.73,
+   "t": 128.97,
    "type": "doctor_end",
    "turn": 8
   },
   {
-   "t": 129.3,
+   "t": 129.54,
    "type": "snapshot",
    "turn": 8,
    "doctor": "Thank you, you can put them down. Sometimes when people feel this low, they have thoughts that life isn't worth living. Have you had thoughts like that?",
@@ -674,28 +674,28 @@
    "latency_ms": 570
   },
   {
-   "t": 129.3,
+   "t": 129.54,
    "type": "patient_start",
    "turn": 8
   },
   {
-   "t": 139.91,
+   "t": 140.15,
    "type": "patient_end",
    "turn": 8
   },
   {
-   "t": 140.5,
+   "t": 140.2,
    "type": "doctor_start",
    "turn": 9,
    "doctor": "Have you thought about how you might end your life, or made any plans?"
   },
   {
-   "t": 143.67,
+   "t": 143.73,
    "type": "doctor_end",
    "turn": 9
   },
   {
-   "t": 144.24,
+   "t": 144.3,
    "type": "snapshot",
    "turn": 9,
    "doctor": "Have you thought about how you might end your life, or made any plans?",
@@ -733,28 +733,28 @@
    "latency_ms": 570
   },
   {
-   "t": 144.24,
+   "t": 144.3,
    "type": "patient_start",
    "turn": 9
   },
   {
-   "t": 153.06,
+   "t": 153.12,
    "type": "patient_end",
    "turn": 9
   },
   {
-   "t": 154.14,
+   "t": 154.22,
    "type": "doctor_start",
    "turn": 10,
    "doctor": "Is there anything at home you could use to hurt yourself, like tablets or pesticides?"
   },
   {
-   "t": 158.7,
+   "t": 158.78,
    "type": "doctor_end",
    "turn": 10
   },
   {
-   "t": 159.84,
+   "t": 159.9,
    "type": "snapshot",
    "turn": 10,
    "doctor": "Is there anything at home you could use to hurt yourself, like tablets or pesticides?",
@@ -789,31 +789,31 @@
     "voice": "quiet, steady, sincere",
     "nonverbal": null
    },
-   "latency_ms": 1140
+   "latency_ms": 1120
   },
   {
-   "t": 159.84,
+   "t": 159.9,
    "type": "patient_start",
    "turn": 10
   },
   {
-   "t": 164.8,
+   "t": 164.86,
    "type": "patient_end",
    "turn": 10
   },
   {
-   "t": 164.85,
+   "t": 165.31,
    "type": "doctor_start",
    "turn": 11,
    "doctor": "What keeps you going on the hard days?"
   },
   {
-   "t": 167.46,
+   "t": 167.58,
    "type": "doctor_end",
    "turn": 11
   },
   {
-   "t": 167.99,
+   "t": 168.7,
    "type": "snapshot",
    "turn": 11,
    "doctor": "What keeps you going on the hard days?",
@@ -848,31 +848,31 @@
     "voice": "warmer, a small sad smile in the voice, tender",
     "nonverbal": null
    },
-   "latency_ms": 530
+   "latency_ms": 1120
   },
   {
-   "t": 167.99,
+   "t": 168.7,
    "type": "patient_start",
    "turn": 11
   },
   {
-   "t": 175.99,
+   "t": 176.7,
    "type": "patient_end",
    "turn": 11
   },
   {
-   "t": 176.69,
+   "t": 177.43,
    "type": "doctor_start",
    "turn": 12,
    "doctor": "Thank you for telling me. I'd like us to make a plan together to help you feel better and keep you safe."
   },
   {
-   "t": 181.87,
+   "t": 182.61,
    "type": "doctor_end",
    "turn": 12
   },
   {
-   "t": 182.46,
+   "t": 183.19,
    "type": "snapshot",
    "turn": 12,
    "doctor": "Thank you for telling me. I'd like us to make a plan together to help you feel better and keep you safe.",
@@ -905,15 +905,15 @@
     "voice": "relieved, a soft exhale, slightly brighter",
     "nonverbal": "exhale"
    },
-   "latency_ms": 590
+   "latency_ms": 580
   },
   {
-   "t": 182.46,
+   "t": 183.19,
    "type": "patient_start",
    "turn": 12
   },
   {
-   "t": 186.94,
+   "t": 187.67,
    "type": "patient_end",
    "turn": 12
   }

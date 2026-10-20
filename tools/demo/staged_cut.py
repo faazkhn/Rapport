@@ -4,7 +4,7 @@ When the editor is not frontmost the Recorder's game clock runs slow, the doctor
 take gets long silences between the doctor and the patient. The video itself is smooth (constant-rate capture), so the silences are
 cut (with a short dissolve) down to GAP_DP (doctor -> patient, the planned 0.6 s latency) and GAP_PD (patient -> next doctor line).
 
-Usage (from Med/): server/patient-service/.venv/bin/python tools/demo/staged_cut.py demo/raw/Sanvaad_staged.mp4 female
+Usage (from Med/): server/patient-service/.venv/bin/python tools/demo/staged_cut.py demo/raw/Rapport_staged.mp4 female
 Writes <take>_cut.mp4 and demo/staged/turn_times_<variant>.json.
 """
 import json
