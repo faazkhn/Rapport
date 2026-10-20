@@ -48,9 +48,33 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -6597378289169086553, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -272698260703527454, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 118098082505677847, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
       propertyPath: m_Name
       value: male_20s_a
+      objectReference: {fileID: 0}
+    - target: {fileID: 4562515721086526949, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5083867783084418045, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5197118176682910397, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
       propertyPath: m_Controller
@@ -63,6 +87,22 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6590717295415981238, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7634479467738841525, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8443775884153234311, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051005867030159785, guid: cde5ec8867ec749949dcdc53e77e7153, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

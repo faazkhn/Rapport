@@ -19,6 +19,7 @@ namespace PsychSim.UI
     {
         public static event Action Finished;
         public static string Variant = "female";
+        public static string ScriptPath = "demo/script.json";   // demo/staged/script.json for the staged concept preview
 
         [Serializable] class Turn { public string doctor, shot; }
         [Serializable] class Rx { public string drug, route, frequency, duration, reason; }
@@ -33,8 +34,9 @@ namespace PsychSim.UI
 
         IEnumerator Start()
         {
-            var script = JsonUtility.FromJson<Script>(File.ReadAllText(Path.Combine(Application.dataPath, "../../../demo/script.json")));
+            var script = JsonUtility.FromJson<Script>(File.ReadAllText(Path.Combine(Application.dataPath, "../../../" + ScriptPath)));
             bool arjun = Variant == "male";
+            PsychSim.Cues.CueDriver.WipeTears = !ScriptPath.Contains("staged");
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;   // uncapped editor rendering halves the local LLM's speed on the shared GPU
             em = FindAnyObjectByType<EncounterManager>();
@@ -42,6 +44,7 @@ namespace PsychSim.UI
             ui = FindAnyObjectByType<EncounterUI>();
             room = Room.Find();
             uiRoot = ui.GetComponent<UIDocument>().rootVisualElement;
+            em.PatientReplied += t => { if (t.reply.exam_action == "hold_out_hands") StartCoroutine(HandsCloseUp()); };
             doctorCam = Camera.main;
             demoCam = new GameObject("DemoCam").AddComponent<Camera>();
             demoCam.nearClipPlane = 0.05f;
@@ -126,8 +129,11 @@ namespace PsychSim.UI
 
         void ShowUi(bool on) => uiRoot.style.display = on ? DisplayStyle.Flex : DisplayStyle.None;
 
+        int shotNo;
+
         void Shot(string shot)
         {
+            shotNo++;
             switch (shot)
             {
                 case "close": CloseUp(); break;
@@ -184,6 +190,24 @@ namespace PsychSim.UI
             Cut(pos, head, 30f);
             demoCam.transform.Rotate(0f, 8f, 0f, Space.World);
             ShowUi(true);
+        }
+
+        /// <summary>When the patient holds out her hands: wait for the arms to rise, ease to a close-up of both hands, track them until the next shot.</summary>
+        IEnumerator HandsCloseUp()
+        {
+            int mine = shotNo;
+            yield return new WaitForSeconds(0.9f);
+            Transform l = em.Patient.GetBoneTransform(HumanBodyBones.LeftHand), r = em.Patient.GetBoneTransform(HumanBodyBones.RightHand);
+            Vector3 p0 = demoCam.transform.position; Quaternion q0 = demoCam.transform.rotation; float f0 = demoCam.fieldOfView;
+            for (float k = 0; mine == shotNo; k += Time.deltaTime / 1.4f)
+            {
+                var hands = (l.position + r.position) / 2f;
+                var pos = hands + ToDoctor * 0.75f + Vector3.up * 0.18f;
+                float e = Mathf.SmoothStep(0, 1, Mathf.Clamp01(k));
+                demoCam.transform.SetPositionAndRotation(Vector3.Lerp(p0, pos, e), Quaternion.Slerp(q0, Quaternion.LookRotation(hands - pos), e));
+                demoCam.fieldOfView = Mathf.Lerp(f0, 34f, e);
+                yield return null;
+            }
         }
 
         /// <summary>Medium shot for the hands exam: head to knees.</summary>

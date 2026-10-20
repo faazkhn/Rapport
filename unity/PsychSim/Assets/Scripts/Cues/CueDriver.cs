@@ -31,6 +31,8 @@ namespace PsychSim.Cues
         readonly Dictionary<int, float> layerTarget = new();
         int lFidget, lTalk, lArms, lHead;
         float nextWipe, talkingUntil;
+        // shortcut: the shared wipe clip touches the nose on Mégane and sinks into Matt's cheek; off for the staged demo until hand IK lands
+        public static bool WipeTears = true;
         HashSet<string> clips;
 
         public void Init(CaseFile c, PatientState s, Func<float> sessionMinutes, Animator animator, GazeController g, TremorController t, MaterialCueController m, FacePresets f)
@@ -132,7 +134,7 @@ namespace PsychSim.Cues
             if (!Seated) { layerTarget[lArms] = 0; layerTarget[lHead] = 0; }
 
             // tearful: wipe the tears now and then, more often as it rises
-            if (Seated && tearful > 0.45f && now > nextWipe && now > talkingUntil && !InExamAction)
+            if (WipeTears && Seated && tearful > 0.45f && now > nextWipe && now > talkingUntil && !InExamAction)
             {
                 PlayOneShot(lArms, "cue_wipe_tears");
                 CueFired?.Invoke("tearful", tearful);

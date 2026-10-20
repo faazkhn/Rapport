@@ -15,6 +15,7 @@ import jsonschema
 import numpy as np
 
 import brain
+import staged
 import stream
 import stt
 
@@ -69,6 +70,7 @@ class Session:
         self.playing_until = 0.0  # monotonic time the client should finish playing what we sent
         self.interrupted = False
         self.turn_no = 0
+        self.staged = None  # staged.Script in SANVAAD_STAGED concept-preview mode
 
     # ---------- incoming ----------
 
@@ -114,8 +116,11 @@ class Session:
         p = self.case["patient"]
         await self.send_json({"type": "session", "case_id": self.case["id"], "variant": self.case["variant"], "name": p["name"],
                               "model_id": p["model_id"], "voice_id": p["voice_id"], "state": self.state,
-                              "in_rate": stt.SR, "out_rate": OUT_SR, "llm": brain.default_model()})
-        asyncio.get_running_loop().run_in_executor(None, self.warm)
+                              "in_rate": stt.SR, "out_rate": OUT_SR, "llm": brain.default_model(), "staged": staged.enabled()})
+        if staged.enabled():
+            self.staged = staged.Script(self.case["variant"], OUT_SR)
+        else:
+            asyncio.get_running_loop().run_in_executor(None, self.warm)
         await self.send_json({"type": "listening"})
 
     def warm(self):
@@ -192,7 +197,7 @@ class Session:
         audio = np.concatenate(frames) if frames else np.zeros(0, np.float32)
         loop = asyncio.get_running_loop()
         t0 = time.monotonic()
-        text = await loop.run_in_executor(STT_POOL, self.stt_fn, audio)
+        text = self.staged.doctor_line() if self.staged else await loop.run_in_executor(STT_POOL, self.stt_fn, audio)
         timing = {"input": "voice", "t_end": t_end, "vad_endpoint_ms": ms(t_end, t_detect), "stt_ms": ms(t0, time.monotonic()),
                   "speech_s": round(len(audio) / stt.SR, 2)}
         if not text.strip():
@@ -216,6 +221,8 @@ class Session:
         self.turn_task = asyncio.create_task(self.run_turn(text, timing, self.cancel))
 
     async def run_turn(self, text, timing, cancel):
+        if self.staged:
+            return await self.run_staged_turn(text, timing, cancel)
         loop = asyncio.get_running_loop()
         case, state = self.case, dict(self.state)
         self.turn_no += 1
@@ -331,6 +338,44 @@ class Session:
         })
         await self.send_json(timing)
         log.info("turn %d timing %s", self.turn_no, json.dumps({k: v for k, v in timing.items() if k.endswith("_ms")}))
+        await self.send_json({"type": "listening"})
+
+    async def run_staged_turn(self, text, timing, cancel):
+        """Concept-preview turn: the next scripted line and its pre-rendered audio, sent at the planned latency."""
+        loop = asyncio.get_running_loop()
+        self.turn_no += 1
+        self.messages.append({"role": "doctor", "text": text})
+        prev = next((m["text"] for m in reversed(self.messages[:-1]) if m["role"] == "patient"), None)
+        await self.send_json({"type": "thinking"})
+        t, audio = self.staged.next()
+        if t is None:
+            await self.send_json({"type": "listening"})
+            return
+        if audio is None:
+            audio = await loop.run_in_executor(TTS_POOL, self.tts_fn, t["patient"], self.case["patient"]["voice_id"], 1.0)
+        pause = staged.HESITATE_S.get(t.get("nonverbal"), 0.0)
+        await asyncio.sleep(max(0.0, timing["t_end"] + staged.GAP_S + pause - time.monotonic()))
+        if cancel.is_set():
+            return
+        t_audio = time.monotonic()
+        await self.send_json({"type": "speaking", "slowed_pause_ms": round(pause * 1000)})
+        pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
+        await self.send_json({"type": "sentence", "index": 0, "text": t["patient"], "samples": len(pcm) // 2})
+        await self.send_bytes(pcm)
+        self.playing_until = max(self.playing_until, time.monotonic()) + len(pcm) / 2 / OUT_SR
+        tagged = await loop.run_in_executor(None, brain.tag_intents, text, prev, self.client, brain.default_model())
+        reply = {**staged.reply_of(t), "doctor_intents": tagged}
+        self.messages.append({"role": "patient", "text": t["patient"]})
+        self.state = brain.apply_turn(self.state, reply)
+        await self.send_json({"type": "brain_snapshot", "turn": self.turn_no, "brain": t["brain"], "state": self.state, "staged": True})
+        await self.send_json({"type": "intents", "doctor_intents": tagged})
+        await self.send_json({"type": "reply", "turn": self.turn_no, "reply": reply, "state": self.state,
+                              "meta": {"model": "staged", "staged": True, "fallback": False, "guard_dropped": []}})
+        t_end = timing.pop("t_end")
+        timing.update({"type": "timing", "turn": self.turn_no, "audio_start_ms": ms(t_end, t_audio) - round(pause * 1000),
+                       "slowed_pause_ms": round(pause * 1000), "staged": True})
+        await self.send_json(timing)
+        log.info("staged turn %d timing %s", self.turn_no, json.dumps({k: v for k, v in timing.items() if k.endswith("_ms")}))
         await self.send_json({"type": "listening"})
 
     def _llm_stream(self, kw, q, loop, cancel):

@@ -1,0 +1,133 @@
+{
+ "female_0": {
+  "acc": 1.0,
+  "hyp": "Hmm. My company doctor said I should come. I've just been... tired all the time.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 9.4,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -19.6
+ },
+ "female_1": {
+  "acc": 1.0,
+  "hyp": "Not well. I fall asleep okay, but then I'm up by four and I just lie there and food. I keep skipping dinner. My clothes feel loose now.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 11.68,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -22.3
+ },
+ "female_2": {
+  "acc": 1.0,
+  "hyp": "Okay. Thank you.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 2.61,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -24.0
+ },
+ "female_3": {
+  "acc": 1.0,
+  "hyp": "Low. Empty mostly. Mornings are the worst. Sometimes I go to the office washroom and just... cry.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 11.6,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -21.0
+ },
+ "female_4": {
+  "acc": 1.0,
+  "hyp": "Yeah. I keep thinking I'm just... being weak. My parents gave up so much for me, and I'm letting them down.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 10.64,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -20.6
+ },
+ "female_5": {
+  "acc": 1.0,
+  "hyp": "I used to sing. Carnatic, I haven't practiced in weeks. I don't even call my friends now. Nothing feels... like anything.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 11.82,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -19.4
+ },
+ "female_6": {
+  "acc": 1.0,
+  "hyp": "Like this? They shake a bit. It's been like that lately.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 6.72,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -21.2
+ },
+ "female_7": {
+  "acc": 0.958,
+  "hyp": "Some nights. I go to bed and I think ugh It'd be easier if I just didn't wake up. It comes and then it goes.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 10.61,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -17.5
+ },
+ "female_8": {
+  "acc": 1.0,
+  "hyp": "No. No, nothing like that. I've never... I wouldn't actually do anything.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 8.82,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -20.1
+ },
+ "female_9": {
+  "acc": 1.0,
+  "hyp": "No, there's nothing like that at home. I haven't looked anything up either.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 4.96,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -17.9
+ },
+ "female_10": {
+  "acc": 0.947,
+  "hyp": "My Ama and my little brother Rohan, he looks up to me. I could never do that to them.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 8.0,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -18.1
+ },
+ "female_11": {
+  "acc": 1.0,
+  "hyp": "Okay. Yeah. I think I'd like that.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 4.48,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -18.5
+ },
+ "male_0": {
+  "acc": 1.0,
+  "hyp": "Hmm. Company doctor sent me. I'm just tired all the time. Not myself.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 9.36,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -21.0
+ },
+ "male_1": {
+  "acc": 0.909,
+  "hyp": "Uh honestly, low. Like there's nothing in me. Mornings are the worst.",
+  "seed_offset": 0,
+  "tries": 1,
+  "dur_s": 7.14,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -18.2
+ },
+ "_perf": {
+  "rtf": 0.88,
+  "peak_mem_gb": 8.91,
+  "renders": 14
+ }
+}

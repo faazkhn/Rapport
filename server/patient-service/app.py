@@ -11,6 +11,7 @@ import soundfile as sf
 from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import Response
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 import brain
@@ -51,6 +52,7 @@ async def lifespan(app):
 
 
 app = FastAPI(title="PsychSim patient service", lifespan=lifespan)
+app.mount("/twin", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "twin"), html=True), name="twin")  # Chitta Twin
 
 
 class Msg(BaseModel):

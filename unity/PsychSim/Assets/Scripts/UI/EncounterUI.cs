@@ -76,7 +76,7 @@ namespace PsychSim.UI
             root.Add(panel);
 
             var head = Row();
-            head.Add(Text("PsychSim", 22, Color.white, true));
+            head.Add(Text("Sanvaad", 22, Color.white, true));
             head.Add(Spacer());
             timer = Text("", 18, new Color(0.8f, 0.85f, 0.9f));
             head.Add(timer);
@@ -223,6 +223,7 @@ namespace PsychSim.UI
         {
             overlay?.RemoveFromHierarchy();
             panel.SetEnabled(p == Phase.Active);
+            panel.style.display = p == Phase.Debrief ? DisplayStyle.None : DisplayStyle.Flex;   // the debrief card stands alone, no greyed tablet behind it
             if (p == Phase.Start) ShowStart();
             if (p == Phase.Brief) ShowBrief();
             if (p == Phase.Active) OpenTab("Chat");
@@ -237,7 +238,7 @@ namespace PsychSim.UI
         {
             if (string.IsNullOrEmpty(startCase) || !encounter.Data.cases.ContainsKey(startCase)) startCase = encounter.Data.cases.Keys.First();
             var card = Overlay(900);
-            card.Add(Text("PsychSim", 34, Color.white, true));
+            card.Add(Text("Sanvaad", 34, Color.white, true));
             card.Add(Text("Embodied psychiatry and addiction OSCE simulator. For education only.", 17, Warn));
             card.Add(Heading("1. Case"));
             var cases = encounter.Data.cases.Values.ToList();

@@ -187,3 +187,27 @@ def test_client_state_drift_unlocks_facts_and_is_clamped():
     si = next(f["text"] for f in brain.load_case("mdd_01")["facts"] if f["id"] == "f_passive_si")
     patient = [c for c in llm.calls if c.get("response_format") and c["response_format"]["json_schema"]["name"] == "patient_reply"]
     assert si in json.dumps(patient[0]["messages"]) and "bogus" not in s.state and s.state["distress"] <= 100
+
+
+def test_staged_turn_plays_scripted_line_at_planned_gap(monkeypatch, tmp_path):
+    import staged
+    script = {"turns": [{"doctor": "Hello?", "patient": "Hmm. Tired.", "emotion": "flat", "nonverbal": None, "brain": {"reaction": "wary"},
+                         "state_delta": {"trust": 5, "distress": 0, "agitation": 0, "engagement": 0}, "cues": [], "facts": ["f_pc"],
+                         "exam_action": None}], "arjun_turns": []}
+    (tmp_path / "script.json").write_text(json.dumps(script))
+    monkeypatch.setattr(staged, "PATH", str(tmp_path / "script.json"))
+    monkeypatch.setattr(staged, "GAP_S", 0.2)
+
+    async def go():
+        s, ev, audio = make(FakeLLM(intents=["greet_introduce"]))
+        await s.on_json({"type": "start", "case_id": "mdd_01", "variant": "female"})
+        t0 = time.monotonic()
+        await s.begin_turn("Hello?", {"input": "voice", "t_end": t0})
+        await s.turn_task
+        return s, ev, audio, t0
+    s, ev, audio, t0 = asyncio.run(go())
+    reply = next(m for _, m in ev if m["type"] == "reply")
+    assert reply["reply"]["utterance"] == "Hmm. Tired." and reply["reply"]["doctor_intents"] == ["greet_introduce"]
+    assert reply["state"]["trust"] > 30 and "brain_snapshot" in types(ev)
+    assert 0.18 <= audio[0][0] - t0 <= 0.35
+    assert s.staged.next() == (None, None)

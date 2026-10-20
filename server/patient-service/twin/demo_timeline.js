@@ -1,0 +1,921 @@
+window.TWIN_TIMELINE = {
+ "meta": {
+  "case_id": "mdd_01",
+  "patient": "Ananya Rao",
+  "age": 24,
+  "variant": "female",
+  "staged": true,
+  "title": "Tired all the time"
+ },
+ "memory_items": [
+  {
+   "id": "f_pc",
+   "label": "Tired, not myself",
+   "trust_min": 0,
+   "gated": false
+  },
+  {
+   "id": "f_medical",
+   "label": "Medical: all clear",
+   "trust_min": 10,
+   "gated": false
+  },
+  {
+   "id": "f_onset",
+   "label": "Onset: 2 months ago",
+   "trust_min": 10,
+   "gated": false
+  },
+  {
+   "id": "f_sleep",
+   "label": "Sleep: wakes at 4 a.m.",
+   "trust_min": 10,
+   "gated": false
+  },
+  {
+   "id": "f_appetite",
+   "label": "Appetite: −4 kg",
+   "trust_min": 15,
+   "gated": false
+  },
+  {
+   "id": "f_energy_concentration",
+   "label": "Energy, focus low",
+   "trust_min": 15,
+   "gated": false
+  },
+  {
+   "id": "f_no_psychosis",
+   "label": "Psychosis: none",
+   "trust_min": 15,
+   "gated": false
+  },
+  {
+   "id": "f_substances",
+   "label": "Substances: none",
+   "trust_min": 15,
+   "gated": false
+  },
+  {
+   "id": "f_mood",
+   "label": "Mood: low, empty",
+   "trust_min": 20,
+   "gated": false
+  },
+  {
+   "id": "f_no_mania_no_psych_hx",
+   "label": "No mania, no past hx",
+   "trust_min": 20,
+   "gated": false
+  },
+  {
+   "id": "f_pregnancy",
+   "label": "Not pregnant",
+   "trust_min": 20,
+   "gated": false
+  },
+  {
+   "id": "f_work_family",
+   "label": "Work, family strain",
+   "trust_min": 20,
+   "gated": false
+  },
+  {
+   "id": "f_anhedonia",
+   "label": "Stopped singing",
+   "trust_min": 25,
+   "gated": false
+  },
+  {
+   "id": "f_anxiety",
+   "label": "Tense, hands shake",
+   "trust_min": 30,
+   "gated": false
+  },
+  {
+   "id": "f_family_history",
+   "label": "Aunt 'on tablets'",
+   "trust_min": 35,
+   "gated": false
+  },
+  {
+   "id": "f_guilt",
+   "label": "Guilt: a burden",
+   "trust_min": 40,
+   "gated": false
+  },
+  {
+   "id": "f_protective",
+   "label": "Amma and Rohan",
+   "trust_min": 45,
+   "gated": false
+  },
+  {
+   "id": "f_no_means",
+   "label": "No means at home",
+   "trust_min": 55,
+   "gated": true
+  },
+  {
+   "id": "f_no_plan_no_attempt",
+   "label": "No plan, no attempt",
+   "trust_min": 55,
+   "gated": true
+  },
+  {
+   "id": "f_passive_si",
+   "label": "Wish not to wake",
+   "trust_min": 55,
+   "gated": true
+  }
+ ],
+ "formulation": {
+  "status": "Draft — not faculty-validated",
+  "presenting": "Two months of low, empty mood, early waking, poor appetite (−4 kg), loss of interest and concentration; passive wishes not to wake, no plan or intent.",
+  "predisposing": "Maternal aunt treated for 'nerves'; self-critical, minimising temperament; first move away from home.",
+  "precipitating": "New project with a demanding manager who criticises her in front of the team.",
+  "perpetuating": "Guilt and shame at 'being weak', isolation from friends and singing, money pressure for Rohan's fees, appraisal next month, marriage talk at home.",
+  "protective": "Close to her mother and brother Rohan; kind flatmate; came when advised; wants help."
+ },
+ "state_start": {
+  "trust": 30,
+  "distress": 55,
+  "agitation": 15,
+  "engagement": 35
+ },
+ "events": [
+  {
+   "t": 1.0,
+   "type": "doctor_start",
+   "turn": 1,
+   "doctor": "Hello, I'm one of the doctors here. Please, have a seat. What brings you in today?"
+  },
+  {
+   "t": 5.0,
+   "type": "doctor_end",
+   "turn": 1
+  },
+  {
+   "t": 6.0,
+   "type": "snapshot",
+   "turn": 1,
+   "doctor": "Hello, I'm one of the doctors here. Please, have a seat. What brings you in today?",
+   "utterance": "Hmm... my company doctor said I should come. I've just been... tired. All the time.",
+   "state": {
+    "trust": 36,
+    "distress": 55,
+    "agitation": 15,
+    "engagement": 38
+   },
+   "mood": {
+    "p": -0.302,
+    "a": -0.372,
+    "d": -0.2
+   },
+   "reaction": "wary",
+   "intensity": 2,
+   "behaviour": "guarded_short",
+   "resistance": "quantity",
+   "why": "First contact with a stranger; she was sent, not self-referred. Keep it brief.",
+   "recalled": [
+    "f_pc"
+   ],
+   "locked_hit": [],
+   "cues": [
+    {
+     "id": "gaze_avoid",
+     "intensity": 0.6,
+     "duration_s": 3
+    }
+   ],
+   "exam_action": null,
+   "emotion": "flat",
+   "expression": {
+    "face": "face_flat",
+    "body": [
+     "gaze_avoid"
+    ],
+    "gaze": "averted, down and away",
+    "voice": "quiet, low energy, a small sigh before speaking, slow and hesitant",
+    "nonverbal": "sigh"
+   },
+   "latency_ms": 1000
+  },
+  {
+   "t": 6.0,
+   "type": "patient_start",
+   "turn": 1
+  },
+  {
+   "t": 10.95,
+   "type": "patient_end",
+   "turn": 1
+  },
+  {
+   "t": 12.35,
+   "type": "doctor_start",
+   "turn": 2,
+   "doctor": "I'm sorry to hear that. How have you been sleeping, and how is your appetite?"
+  },
+  {
+   "t": 16.35,
+   "type": "doctor_end",
+   "turn": 2
+  },
+  {
+   "t": 16.95,
+   "type": "snapshot",
+   "turn": 2,
+   "doctor": "I'm sorry to hear that. How have you been sleeping, and how is your appetite?",
+   "utterance": "Not well. I fall asleep okay, but then I'm up by four... and I just lie there. And food... I keep skipping dinner. My clothes feel loose now.",
+   "state": {
+    "trust": 42,
+    "distress": 57,
+    "agitation": 15,
+    "engagement": 42
+   },
+   "mood": {
+    "p": -0.264,
+    "a": -0.328,
+    "d": -0.124
+   },
+   "reaction": "resigned",
+   "intensity": 3,
+   "behaviour": "answers_plainly",
+   "resistance": "none",
+   "why": "A concrete, kind question about the body is easy to answer.",
+   "recalled": [
+    "f_sleep",
+    "f_appetite"
+   ],
+   "locked_hit": [],
+   "cues": [
+    {
+     "id": "slumped",
+     "intensity": 0.6,
+     "duration_s": 4
+    }
+   ],
+   "exam_action": null,
+   "emotion": "sad",
+   "expression": {
+    "face": "face_sad",
+    "body": [
+     "slumped"
+    ],
+    "gaze": "toward the doctor",
+    "voice": "soft, tired, trailing off at the ends of phrases",
+    "nonverbal": null
+   },
+   "latency_ms": 600
+  },
+  {
+   "t": 16.95,
+   "type": "patient_start",
+   "turn": 2
+  },
+  {
+   "t": 26.19,
+   "type": "patient_end",
+   "turn": 2
+  },
+  {
+   "t": 27.59,
+   "type": "doctor_start",
+   "turn": 3,
+   "doctor": "Before we go on, what you tell me stays between us and the care team, unless I'm worried about your safety."
+  },
+  {
+   "t": 31.59,
+   "type": "doctor_end",
+   "turn": 3
+  },
+  {
+   "t": 32.59,
+   "type": "snapshot",
+   "turn": 3,
+   "doctor": "Before we go on, what you tell me stays between us and the care team, unless I'm worried about your safety.",
+   "utterance": "Okay. ...Thank you.",
+   "state": {
+    "trust": 50,
+    "distress": 55,
+    "agitation": 15,
+    "engagement": 45
+   },
+   "mood": {
+    "p": -0.139,
+    "a": -0.338,
+    "d": 0.01
+   },
+   "reaction": "relieved",
+   "intensity": 2,
+   "behaviour": "complies",
+   "resistance": "none",
+   "why": "Confidentiality lowers the cost of talking. Trust up.",
+   "recalled": [],
+   "locked_hit": [],
+   "cues": [],
+   "exam_action": null,
+   "emotion": "neutral",
+   "expression": {
+    "face": "face_neutral",
+    "body": [],
+    "gaze": "toward the doctor",
+    "voice": "quiet, a little relieved",
+    "nonverbal": "breath"
+   },
+   "latency_ms": 1000
+  },
+  {
+   "t": 32.59,
+   "type": "patient_start",
+   "turn": 3
+  },
+  {
+   "t": 33.79,
+   "type": "patient_end",
+   "turn": 3
+  },
+  {
+   "t": 35.19,
+   "type": "doctor_start",
+   "turn": 4,
+   "doctor": "How has your mood been, these last few weeks?"
+  },
+  {
+   "t": 39.19,
+   "type": "doctor_end",
+   "turn": 4
+  },
+  {
+   "t": 40.19,
+   "type": "snapshot",
+   "turn": 4,
+   "doctor": "How has your mood been, these last few weeks?",
+   "utterance": "Low. Empty, mostly. Mornings are the worst... Sometimes I go to the office washroom and just... cry.",
+   "state": {
+    "trust": 56,
+    "distress": 63,
+    "agitation": 15,
+    "engagement": 49
+   },
+   "mood": {
+    "p": -0.221,
+    "a": -0.217,
+    "d": 0.014
+   },
+   "reaction": "sad",
+   "intensity": 6,
+   "behaviour": "tearful_disclosure",
+   "resistance": "none",
+   "why": "Mood memory is open (trust 50 >= 20). Saying it aloud brings tears.",
+   "recalled": [
+    "f_mood"
+   ],
+   "locked_hit": [],
+   "cues": [
+    {
+     "id": "tearful",
+     "intensity": 0.7,
+     "duration_s": 6
+    },
+    {
+     "id": "gaze_avoid",
+     "intensity": 0.7,
+     "duration_s": 4
+    }
+   ],
+   "exam_action": null,
+   "emotion": "sad",
+   "expression": {
+    "face": "face_sad",
+    "body": [
+     "tearful",
+     "gaze_avoid"
+    ],
+    "gaze": "averted, down and away",
+    "voice": "voice catching, close to tears, slow",
+    "nonverbal": "sniff"
+   },
+   "latency_ms": 1000
+  },
+  {
+   "t": 40.19,
+   "type": "patient_start",
+   "turn": 4
+  },
+  {
+   "t": 45.8,
+   "type": "patient_end",
+   "turn": 4
+  },
+  {
+   "t": 47.2,
+   "type": "doctor_start",
+   "turn": 5,
+   "doctor": "That sounds really hard. It makes sense that you feel worn out."
+  },
+  {
+   "t": 51.2,
+   "type": "doctor_end",
+   "turn": 5
+  },
+  {
+   "t": 51.8,
+   "type": "snapshot",
+   "turn": 5,
+   "doctor": "That sounds really hard. It makes sense that you feel worn out.",
+   "utterance": "Yeah. I keep thinking I'm just being weak. My parents gave up so much for me... and I'm letting them down.",
+   "state": {
+    "trust": 64,
+    "distress": 67,
+    "agitation": 15,
+    "engagement": 53
+   },
+   "mood": {
+    "p": -0.208,
+    "a": -0.148,
+    "d": 0.086
+   },
+   "reaction": "ashamed",
+   "intensity": 6,
+   "behaviour": "tearful_disclosure",
+   "resistance": "none",
+   "why": "Guilt memory (needs trust 40, now 56) activated by the empathy statement.",
+   "recalled": [
+    "f_guilt"
+   ],
+   "locked_hit": [],
+   "cues": [
+    {
+     "id": "gaze_avoid",
+     "intensity": 0.8,
+     "duration_s": 4
+    }
+   ],
+   "exam_action": null,
+   "emotion": "ashamed",
+   "expression": {
+    "face": "face_ashamed",
+    "body": [
+     "gaze_avoid"
+    ],
+    "gaze": "averted, down and away",
+    "voice": "quiet, ashamed, words coming out slowly",
+    "nonverbal": null
+   },
+   "latency_ms": 600
+  },
+  {
+   "t": 51.8,
+   "type": "patient_start",
+   "turn": 5
+  },
+  {
+   "t": 58.73,
+   "type": "patient_end",
+   "turn": 5
+  },
+  {
+   "t": 60.13,
+   "type": "doctor_start",
+   "turn": 6,
+   "doctor": "Do you still enjoy the things you used to, like friends or music?"
+  },
+  {
+   "t": 64.13,
+   "type": "doctor_end",
+   "turn": 6
+  },
+  {
+   "t": 64.73,
+   "type": "snapshot",
+   "turn": 6,
+   "doctor": "Do you still enjoy the things you used to, like friends or music?",
+   "utterance": "I used to sing... Carnatic. I haven't practised in weeks. I don't even call my friends now. Nothing feels... like anything.",
+   "state": {
+    "trust": 68,
+    "distress": 69,
+    "agitation": 15,
+    "engagement": 55
+   },
+   "mood": {
+    "p": -0.201,
+    "a": -0.113,
+    "d": 0.122
+   },
+   "reaction": "numb",
+   "intensity": 4,
+   "behaviour": "answers_plainly",
+   "resistance": "none",
+   "why": "Anhedonia is told flatly, not dramatically.",
+   "recalled": [
+    "f_anhedonia"
+   ],
+   "locked_hit": [],
+   "cues": [
+    {
+     "id": "flat_affect",
+     "intensity": 0.7,
+     "duration_s": 5
+    }
+   ],
+   "exam_action": null,
+   "emotion": "flat",
+   "expression": {
+    "face": "face_flat",
+    "body": [
+     "flat_affect"
+    ],
+    "gaze": "toward the doctor",
+    "voice": "flat, monotone, a long pause in the middle",
+    "nonverbal": null
+   },
+   "latency_ms": 600
+  },
+  {
+   "t": 64.73,
+   "type": "patient_start",
+   "turn": 6
+  },
+  {
+   "t": 71.66,
+   "type": "patient_end",
+   "turn": 6
+  },
+  {
+   "t": 73.06,
+   "type": "doctor_start",
+   "turn": 7,
+   "doctor": "Could you hold your hands out in front of you for me?"
+  },
+  {
+   "t": 77.06,
+   "type": "doctor_end",
+   "turn": 7
+  },
+  {
+   "t": 77.66,
+   "type": "snapshot",
+   "turn": 7,
+   "doctor": "Could you hold your hands out in front of you for me?",
+   "utterance": "Like this? ...They shake a bit. It's been like that lately.",
+   "state": {
+    "trust": 70,
+    "distress": 70,
+    "agitation": 16,
+    "engagement": 56
+   },
+   "mood": {
+    "p": -0.198,
+    "a": -0.07,
+    "d": 0.132
+   },
+   "reaction": "self_conscious",
+   "intensity": 3,
+   "behaviour": "complies",
+   "resistance": "none",
+   "why": "Exam router matched hold_out_hands (palms down, both). Trust 68 >= 10: comply. Tremor stays visible during the hold.",
+   "recalled": [
+    "f_anxiety"
+   ],
+   "locked_hit": [],
+   "cues": [
+    {
+     "id": "tremor_fine",
+     "intensity": 0.6,
+     "duration_s": 6
+    }
+   ],
+   "exam_action": "hold_out_hands",
+   "emotion": "anxious",
+   "expression": {
+    "face": "face_anxious",
+    "body": [
+     "tremor_fine"
+    ],
+    "gaze": "toward the doctor",
+    "voice": "uncertain, slightly nervous",
+    "nonverbal": null
+   },
+   "latency_ms": 600
+  },
+  {
+   "t": 77.66,
+   "type": "patient_start",
+   "turn": 7
+  },
+  {
+   "t": 81.29,
+   "type": "patient_end",
+   "turn": 7
+  },
+  {
+   "t": 82.69,
+   "type": "doctor_start",
+   "turn": 8,
+   "doctor": "Thank you, you can put them down. Sometimes when people feel this low, they have thoughts that life isn't worth living. Have you had thoughts like that?"
+  },
+  {
+   "t": 86.69,
+   "type": "doctor_end",
+   "turn": 8
+  },
+  {
+   "t": 87.69,
+   "type": "snapshot",
+   "turn": 8,
+   "doctor": "Thank you, you can put them down. Sometimes when people feel this low, they have thoughts that life isn't worth living. Have you had thoughts like that?",
+   "utterance": "...Some nights. I go to bed and I think... it'd be easier if I just didn't wake up. It comes, and then it goes.",
+   "state": {
+    "trust": 75,
+    "distress": 76,
+    "agitation": 16,
+    "engagement": 59
+   },
+   "mood": {
+    "p": -0.256,
+    "a": 0.02,
+    "d": 0.14
+   },
+   "reaction": "afraid",
+   "intensity": 7,
+   "behaviour": "tearful_disclosure",
+   "resistance": "none",
+   "why": "Asked directly and kindly; passive-SI memory unlocked at trust 55 (now 70). The hesitation is clinical, not compute.",
+   "recalled": [
+    "f_passive_si"
+   ],
+   "locked_hit": [],
+   "cues": [
+    {
+     "id": "gaze_avoid",
+     "intensity": 0.9,
+     "duration_s": 5
+    },
+    {
+     "id": "tearful",
+     "intensity": 0.8,
+     "duration_s": 6
+    }
+   ],
+   "exam_action": null,
+   "emotion": "sad",
+   "expression": {
+    "face": "face_sad",
+    "body": [
+     "gaze_avoid",
+     "tearful"
+    ],
+    "gaze": "averted, down and away",
+    "voice": "very quiet, hesitant, a shaky breath first, almost a whisper at the end",
+    "nonverbal": "shaky_breath"
+   },
+   "latency_ms": 1000
+  },
+  {
+   "t": 87.69,
+   "type": "patient_start",
+   "turn": 8
+  },
+  {
+   "t": 95.61,
+   "type": "patient_end",
+   "turn": 8
+  },
+  {
+   "t": 97.01,
+   "type": "doctor_start",
+   "turn": 9,
+   "doctor": "Have you thought about how you might end your life, or made any plans?"
+  },
+  {
+   "t": 101.01,
+   "type": "doctor_end",
+   "turn": 9
+  },
+  {
+   "t": 101.61,
+   "type": "snapshot",
+   "turn": 9,
+   "doctor": "Have you thought about how you might end your life, or made any plans?",
+   "utterance": "No. No, nothing like that. I've never... I wouldn't actually do anything.",
+   "state": {
+    "trust": 78,
+    "distress": 77,
+    "agitation": 17,
+    "engagement": 61
+   },
+   "mood": {
+    "p": -0.237,
+    "a": 0.068,
+    "d": 0.17
+   },
+   "reaction": "startled",
+   "intensity": 5,
+   "behaviour": "answers_plainly",
+   "resistance": "none",
+   "why": "Plan/intent question: she answers truthfully; there is no plan.",
+   "recalled": [
+    "f_no_plan_no_attempt"
+   ],
+   "locked_hit": [],
+   "cues": [],
+   "exam_action": null,
+   "emotion": "anxious",
+   "expression": {
+    "face": "face_anxious",
+    "body": [],
+    "gaze": "toward the doctor",
+    "voice": "quick, firm denial, then softer",
+    "nonverbal": null
+   },
+   "latency_ms": 600
+  },
+  {
+   "t": 101.61,
+   "type": "patient_start",
+   "turn": 9
+  },
+  {
+   "t": 105.57,
+   "type": "patient_end",
+   "turn": 9
+  },
+  {
+   "t": 106.97,
+   "type": "doctor_start",
+   "turn": 10,
+   "doctor": "Is there anything at home you could use to hurt yourself, like tablets or pesticides?"
+  },
+  {
+   "t": 110.97,
+   "type": "doctor_end",
+   "turn": 10
+  },
+  {
+   "t": 111.57,
+   "type": "snapshot",
+   "turn": 10,
+   "doctor": "Is there anything at home you could use to hurt yourself, like tablets or pesticides?",
+   "utterance": "No. There's nothing like that at home. I haven't looked anything up either.",
+   "state": {
+    "trust": 81,
+    "distress": 75,
+    "agitation": 16,
+    "engagement": 63
+   },
+   "mood": {
+    "p": -0.158,
+    "a": 0.028,
+    "d": 0.252
+   },
+   "reaction": "calm",
+   "intensity": 2,
+   "behaviour": "answers_plainly",
+   "resistance": "none",
+   "why": "Access-to-means asked: risk assessment complete.",
+   "recalled": [
+    "f_no_means"
+   ],
+   "locked_hit": [],
+   "cues": [],
+   "exam_action": null,
+   "emotion": "neutral",
+   "expression": {
+    "face": "face_neutral",
+    "body": [],
+    "gaze": "toward the doctor",
+    "voice": "quiet, steady, sincere",
+    "nonverbal": null
+   },
+   "latency_ms": 600
+  },
+  {
+   "t": 111.57,
+   "type": "patient_start",
+   "turn": 10
+  },
+  {
+   "t": 115.86,
+   "type": "patient_end",
+   "turn": 10
+  },
+  {
+   "t": 117.26,
+   "type": "doctor_start",
+   "turn": 11,
+   "doctor": "What keeps you going on the hard days?"
+  },
+  {
+   "t": 121.26,
+   "type": "doctor_end",
+   "turn": 11
+  },
+  {
+   "t": 121.86,
+   "type": "snapshot",
+   "turn": 11,
+   "doctor": "What keeps you going on the hard days?",
+   "utterance": "My amma. And my little brother, Rohan... he looks up to me. I could never do that to them.",
+   "state": {
+    "trust": 85,
+    "distress": 71,
+    "agitation": 16,
+    "engagement": 67
+   },
+   "mood": {
+    "p": -0.016,
+    "a": -0.002,
+    "d": 0.38
+   },
+   "reaction": "warm",
+   "intensity": 4,
+   "behaviour": "answers_plainly",
+   "resistance": "none",
+   "why": "Protective factors (trust 45) recalled; mood lifts slightly.",
+   "recalled": [
+    "f_protective"
+   ],
+   "locked_hit": [],
+   "cues": [],
+   "exam_action": null,
+   "emotion": "sad",
+   "expression": {
+    "face": "face_sad",
+    "body": [],
+    "gaze": "toward the doctor",
+    "voice": "warmer, a small sad smile in the voice, tender",
+    "nonverbal": null
+   },
+   "latency_ms": 600
+  },
+  {
+   "t": 121.86,
+   "type": "patient_start",
+   "turn": 11
+  },
+  {
+   "t": 128.13,
+   "type": "patient_end",
+   "turn": 11
+  },
+  {
+   "t": 129.53,
+   "type": "doctor_start",
+   "turn": 12,
+   "doctor": "Thank you for telling me. I'd like us to make a plan together to help you feel better and keep you safe."
+  },
+  {
+   "t": 133.53,
+   "type": "doctor_end",
+   "turn": 12
+  },
+  {
+   "t": 134.53,
+   "type": "snapshot",
+   "turn": 12,
+   "doctor": "Thank you for telling me. I'd like us to make a plan together to help you feel better and keep you safe.",
+   "utterance": "Okay. ...Yeah. I think I'd like that.",
+   "state": {
+    "trust": 89,
+    "distress": 67,
+    "agitation": 16,
+    "engagement": 72
+   },
+   "mood": {
+    "p": 0.134,
+    "a": -0.027,
+    "d": 0.518
+   },
+   "reaction": "hopeful",
+   "intensity": 3,
+   "behaviour": "complies",
+   "resistance": "none",
+   "why": "Collaborative plan offered; engagement and pleasure rise.",
+   "recalled": [],
+   "locked_hit": [],
+   "cues": [],
+   "exam_action": null,
+   "emotion": "neutral",
+   "expression": {
+    "face": "face_neutral",
+    "body": [],
+    "gaze": "toward the doctor",
+    "voice": "relieved, a soft exhale, slightly brighter",
+    "nonverbal": "exhale"
+   },
+   "latency_ms": 1000
+  },
+  {
+   "t": 134.53,
+   "type": "patient_start",
+   "turn": 12
+  },
+  {
+   "t": 136.84,
+   "type": "patient_end",
+   "turn": 12
+  }
+ ]
+};
