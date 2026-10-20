@@ -31,6 +31,13 @@
 - `cue_wipe_tears` reads as touching the nose. A single clip can't fit both bodies (measured: Matt's fingers land 1.5–3 cm deeper). Decision: hand IK in Unity, aiming at each body's eye bone (do it with the Phase H exam IK). It is switched off for staged demos only (`CueDriver.WipeTears`). The candidate Blender patch was in a scratchpad that has since been cleared.
 - Service: `staged.py`, `/twin` static mount in `app.py`, staged test (41 tests pass).
 
+## 4b. Live Digital Twin (branch `live-digital-twin`, 2026-10-20)
+- Plan: `docs/superpowers/plans/2026-10-20-live-digital-twin.md`; spec of what was built: `docs/TWIN.md`; decision: `docs/adr/0001-digital-twin-architecture.md`.
+- Every live turn: lexical recall with trust locks → one structured call (`behaviour, emotion, utterance, reaction, intensity, resistance, …`) → guard → expression map → `twin.update` (trust step + PAD mood) → `brain_snapshot`.
+- Twin view live at `http://127.0.0.1:8765/twin/?live=1` (`/twin/ws`); sessions logged to `logs/twin/*.jsonl`, replay via `tools/demo/log_to_timeline.py`.
+- Latency p50 1,598 ms / p90 1,731 ms (ws_bench, 26 turns). The owner chose behaviour-only before the words after all-labels-first measured p50 3,068 ms.
+- Service tests 75 pass; Unity EditMode 28 pass.
+
 ## 5. Next steps
 1. Commit §4; rebuild the player; re-measure latency after the send fix.
 2. `KICKOFF_PROMPT_v4.md` Phases A–I: audit, rename (repo, product, bundle id, menus, `PSYCHSIM_*` → `RAPPORT_*` aliases), literature review, Digital Twin brain, self-learning with A/B, Twin live wiring, TTS bake-off (Qwen3-TTS is the lead candidate) + Smart Turn + streaming STT, camera and exam router with IK, gates, demo v3, release `v0.2-twin`.

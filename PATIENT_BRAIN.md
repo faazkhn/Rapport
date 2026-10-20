@@ -1,5 +1,7 @@
 # A "virtual brain" for the patient: what already exists, and what to build on
 
+> §3–5 are superseded by [`docs/TWIN.md`](docs/TWIN.md) (what was built, 2026-10-20). The research survey below still stands.
+
 **Date:** 2026-10-20 · **Status:** research and proposal for review. Nothing in the project has changed yet.
 
 **Short answer:** yes, people have built this, and we don't need to start from scratch. The best base is **PatientHub** (`Sahandfer/PatientHub`, MIT licence). It packages **16 published patient simulators** behind one interface. Its newest one, **PatientAct** (EMNLP 2026), is very close to the brain you're describing. For "improves over time", **EvoPatient** (`ZJUMAI/EvoPatient`, Apache-2.0) has a simple, working learning loop we can adopt. Everything else below is supporting parts.
