@@ -328,6 +328,7 @@
     if (o.type === "init") { TL = { meta: o.meta || {}, memory_items: o.memory_items || [], formulation: o.formulation || {}, state_start: o.state_start, events: [] }; liveT0 = now() - (o.t ?? 0); liveTurn = 0; prepare(TL); buildStatic(); return; }
     if (!TL) { TL = { meta: {}, memory_items: [], formulation: {}, events: [] }; prepare(TL); buildStatic(); }
     const e = { ...o, type: EVT.has(o.type) ? o.type : "snapshot", t: LIVE ? (o.t ?? now() - liveT0) : (o.t ?? T) };  // the service stamps t (s since session start); a late viewer replays it in place
+    if (LIVE && o.t != null && o.t > now() - liveT0) liveT0 = now() - o.t;  // a late viewer's clock catches up with the session
     if (e.type === "doctor_start" && e.turn == null) e.turn = ++liveTurn;
     if (e.turn == null) e.turn = liveTurn || 1; else liveTurn = Math.max(liveTurn, e.turn);
     if (e.type === "snapshot" && !e.mood && e.state) e.mood = padFrom(e.state);

@@ -289,7 +289,8 @@ def recall_block(case: dict, recalled: dict) -> str:
     facts = {f["id"]: f for f in case["facts"]}
     lines = [_fact_line(facts[i]) for i in recalled.get("open", []) if i in facts]
     if recalled.get("locked_hit"):
-        lines.append("The doctor is close to something painful you are not ready to talk about. Show discomfort; do not reveal it.")
+        lines.append("The doctor is close to something painful you are not ready to talk about. Show discomfort and be evasive "
+                     "(hesitate, change the subject); do not reveal it, and do not flatly deny it.")
     elif recalled.get("discomfort"):
         lines.append("This is painful to think about; let the discomfort show.")
     return "WHAT COMES TO MIND:\n" + "\n".join(lines) if lines else ""

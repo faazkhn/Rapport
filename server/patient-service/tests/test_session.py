@@ -217,7 +217,7 @@ def test_staged_turn_plays_scripted_line_at_planned_gap(monkeypatch, tmp_path):
 
 
 SNAP_KEYS = {"type", "turn", "doctor", "utterance", "state", "mood", "reaction", "intensity", "behaviour", "resistance", "why",
-             "recalled", "locked_hit", "cues", "exam_action", "emotion", "brain_version"}
+             "recalled", "locked_hit", "cues", "exam_action", "emotion", "brain_version", "expression"}
 
 
 def _one_turn(text="How do you sleep?", llm=None):
@@ -235,6 +235,7 @@ def test_turn_emits_snapshot():
     assert t.count("brain_snapshot") == 1 and t.index("brain_snapshot") > t.index("reply")
     snap = next(m for _, m in ev if m["type"] == "brain_snapshot")
     assert set(snap) == SNAP_KEYS and "f_sleep" in snap["recalled"] and snap["brain_version"] == "twin-0.1"
+    assert snap["expression"]["face"] == "face_sad" and snap["expression"]["body"] == [c["id"] for c in snap["cues"]]
     tw = [m["event"] for _, m in ev if m["type"] == "twin_event"]
     assert tw == ["init", "doctor_end", "patient_start", "patient_end"]
     assert t.index("brain_snapshot") < [i for i, x in enumerate(t) if x == "twin_event"][-1]
@@ -301,3 +302,17 @@ def test_session_writes_twin_log(tmp_path, monkeypatch):
     assert len(files) == 1
     types_ = [json.loads(line)["type"] for line in files[0].read_text().splitlines()]
     assert types_ == ["init", "doctor_end", "patient_start", "snapshot", "patient_end"]
+
+
+def test_expression_cues_not_duplicated():
+    reply = {**REPLY, "reaction": "ashamed", "intensity": 8, "event_cues": [{"id": "gaze_avoid", "intensity": 0.5, "duration_s": 2}]}
+    s, ev = _one_turn(llm=FakeLLM(reply=reply))
+    cues = next(m for _, m in ev if m["type"] == "reply")["reply"]["event_cues"]
+    assert [c["id"] for c in cues].count("gaze_avoid") == 1
+
+
+def test_init_uses_case_labels():
+    s, ev = _one_turn()
+    init = next(m for _, m in ev if m["type"] == "twin_event")
+    labels = {m["id"]: m["label"] for m in init["memory_items"]}
+    assert labels["f_pc"] == "Tired, not myself"

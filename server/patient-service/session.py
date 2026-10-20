@@ -349,14 +349,15 @@ class Session:
         if reply["utterance"]:
             self.messages.append({"role": "patient", "text": reply["utterance"]})
         expr = twin.expression(reply, case)
-        reply["event_cues"] = (reply["event_cues"] + expr["cues"])[:2]
+        have = {c["id"] for c in reply["event_cues"]}
+        reply["event_cues"] = (reply["event_cues"] + [c for c in expr["cues"] if c["id"] not in have])[:2]
         self.next_speed = expr["speed"]
         self.state, self.mood = twin.update(state, self.mood, reply, case)
         loop.run_in_executor(None, self.warm)
         await self.send_json({"type": "intents", "doctor_intents": tagged})
         await self.send_json({"type": "reply", "turn": self.turn_no, "reply": reply, "state": self.state, "meta": meta})
         await self.twin(twin.snapshot(self.turn_no, text, reply, recalled, self.state, self.mood,
-                                      twin.why(recalled, reply, state["trust"], case)))
+                                      twin.why(recalled, reply, state["trust"], case), self.next_speed))
         await self.twin({"event": "patient_end", "turn": self.turn_no})
 
         t_end = timing.pop("t_end")

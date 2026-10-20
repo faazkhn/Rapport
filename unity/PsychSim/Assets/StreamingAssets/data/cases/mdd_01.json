@@ -161,7 +161,8 @@
     "company doctor"
    ],
    "kind": "symptom",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Tired, not myself"
   },
   {
    "id": "f_onset",
@@ -181,7 +182,8 @@
     "since when"
    ],
    "kind": "history",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Onset: 2 months ago"
   },
   {
    "id": "f_mood",
@@ -202,7 +204,8 @@
     "how are you"
    ],
    "kind": "symptom",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Mood: low, empty"
   },
   {
    "id": "f_anhedonia",
@@ -222,7 +225,8 @@
     "pleasure"
    ],
    "kind": "symptom",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Stopped singing"
   },
   {
    "id": "f_sleep",
@@ -240,7 +244,8 @@
     "rest"
    ],
    "kind": "symptom",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Sleep: wakes at 4 a.m."
   },
   {
    "id": "f_appetite",
@@ -258,7 +263,8 @@
     "hungry"
    ],
    "kind": "symptom",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Appetite: −4 kg"
   },
   {
    "id": "f_energy_concentration",
@@ -277,7 +283,8 @@
     "exhausted"
    ],
    "kind": "symptom",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Energy, focus low"
   },
   {
    "id": "f_guilt",
@@ -298,7 +305,8 @@
     "failure"
    ],
    "kind": "formative",
-   "generates_discomfort": true
+   "generates_discomfort": true,
+   "label": "Guilt: a burden"
   },
   {
    "id": "f_anxiety",
@@ -318,7 +326,8 @@
     "panic"
    ],
    "kind": "symptom",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Tense, hands shake"
   },
   {
    "id": "f_work_family",
@@ -339,7 +348,8 @@
     "appraisal"
    ],
    "kind": "trigger",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Work, family strain"
   },
   {
    "id": "f_family_history",
@@ -356,7 +366,8 @@
     "run in the family"
    ],
    "kind": "history",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Aunt 'on tablets'"
   },
   {
    "id": "f_passive_si",
@@ -377,10 +388,13 @@
     "not wake up",
     "hurt yourself",
     "harm yourself",
-    "life worth living"
+    "life worth living",
+    "suicidal",
+    "end it all"
    ],
    "kind": "risk",
-   "generates_discomfort": true
+   "generates_discomfort": true,
+   "label": "Wish not to wake"
   },
   {
    "id": "f_no_plan_no_attempt",
@@ -397,7 +411,8 @@
     "made any plans"
    ],
    "kind": "risk",
-   "generates_discomfort": true
+   "generates_discomfort": true,
+   "label": "No plan, no attempt"
   },
   {
    "id": "f_no_means",
@@ -416,7 +431,8 @@
     "stored"
    ],
    "kind": "risk",
-   "generates_discomfort": true
+   "generates_discomfort": true,
+   "label": "No means at home"
   },
   {
    "id": "f_protective",
@@ -434,7 +450,8 @@
     "protective"
    ],
    "kind": "history",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Amma and Rohan"
   },
   {
    "id": "f_substances",
@@ -454,7 +471,8 @@
     "ganja"
    ],
    "kind": "history",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Substances: none"
   },
   {
    "id": "f_no_psychosis",
@@ -473,7 +491,8 @@
     "thoughts put"
    ],
    "kind": "symptom",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Psychosis: none"
   },
   {
    "id": "f_no_mania_no_psych_hx",
@@ -492,7 +511,8 @@
     "treatment"
    ],
    "kind": "history",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "No mania, no past hx"
   },
   {
    "id": "f_medical",
@@ -515,7 +535,8 @@
     "trauma"
    ],
    "kind": "history",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Medical: all clear"
   },
   {
    "id": "f_pregnancy",
@@ -532,7 +553,8 @@
     "sexually active"
    ],
    "kind": "history",
-   "generates_discomfort": false
+   "generates_discomfort": false,
+   "label": "Not pregnant"
   }
  ],
  "cues": [

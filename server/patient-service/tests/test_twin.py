@@ -143,3 +143,9 @@ def test_bus_late_viewer_gets_init_after_long_session():
         return first, n
     first, n = asyncio.run(go())
     assert first["type"] == "init" and n <= twin_bus.MAX_QUEUED
+
+
+def test_recall_suicide_phrasings():
+    for line in ["Sometimes when people feel this low, they have thoughts of ending their life. Have you had thoughts like that?",
+                 "Have you felt suicidal?", "Do you ever feel like you want to end it all?", "Have you thought about killing yourself?"]:
+        assert "f_passive_si" in twin.recall(CASE, 30, line)["locked_hit"], line

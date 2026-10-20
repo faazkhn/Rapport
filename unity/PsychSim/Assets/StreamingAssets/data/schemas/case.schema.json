@@ -350,6 +350,12 @@
      "generates_discomfort": {
       "type": "boolean",
       "description": "Touching this memory shows discomfort, even when it is still locked."
+     },
+     "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40,
+      "description": "Short chip label for the Twin view; never the fact text."
      }
     }
    }
