@@ -21,6 +21,7 @@ import staged
 import stream
 import stt
 import twin
+import voice
 import twin_bus
 
 log = logging.getLogger("patient-service")
@@ -46,7 +47,7 @@ def synth(text: str, voice: str, speed: float) -> np.ndarray:
 def tts_speed(case: dict, state: dict) -> float:
     base = case["patient"].get("voice_speed", 1.0)
     slowed, pressured = brain.cue_live(case, "slowed", state), brain.cue_live(case, "pressured_speech", state)
-    speed = base + (min(base, 0.85) - base) * slowed  # Unity SpeechTiming.TtsSpeed
+    speed = base + (min(base, 0.9) - base) * slowed  # Unity SpeechTiming.TtsSpeed
     return speed + (1.3 - speed) * pressured
 
 
@@ -276,7 +277,7 @@ class Session:
 
         pause = brain.slowed_pause_s(case, state)
         speed = tts_speed(case, state) * self.next_speed
-        voice = case["patient"]["voice_id"]
+        voice_id = case["patient"]["voice_id"]
         parser, splitter = stream.UtteranceStream(), stream.SentenceSplitter()
         spoken, dropped_banned, idx = [], [], 0
         marks = {"ttft": None, "first_sentence": None, "tts_first_ms": None, "audio_start": None}
@@ -287,10 +288,11 @@ class Session:
             nonlocal idx
             sentence, hits = brain.strip_banned(sentence, case["banned_words"])
             dropped_banned.extend(hits)
+            sentence = voice.speakable(sentence, keep_first=not any("..." in x for x in spoken))
             if not sentence or cancel.is_set():
                 return
             t = time.monotonic()
-            audio = await loop.run_in_executor(TTS_POOL, self.tts_fn, sentence, voice, speed)
+            audio = await loop.run_in_executor(TTS_POOL, self.tts_fn, sentence, voice_id, speed)
             if cancel.is_set():
                 return
             if marks["audio_start"] is None:

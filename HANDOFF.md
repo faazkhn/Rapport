@@ -38,6 +38,16 @@
 - Latency p50 1,598 ms / p90 1,731 ms (ws_bench, 26 turns). The owner chose behaviour-only before the words after all-labels-first measured p50 3,068 ms.
 - Service tests 75 pass; Unity EditMode 28 pass.
 
+## 4c. Production readiness (branch `production-readiness`, paused 2026-10-21)
+- Repo renamed on GitHub to **faazkhn/Rapport** (remote updated). PR #1 (`live-digital-twin`) is open, not merged.
+- Phase A audit done: `docs/STATE_AUDIT.md` (owner feedback → root causes, what's left).
+- Phase G in progress: plan `docs/superpowers/plans/2026-10-21-phase-g-voice-quality.md`, ledger `.superpowers/sdd/2026-10-21-phase-g-voice-quality/progress.md`.
+  - Done but not yet gated: Task 1 code (hesitation cap `voice.speakable`, recent-phrase avoidance, rewritten `REALISM_RULES`, wider length bands, mdd_01 speech style); Task 2 (pause ≤ 1.2 s, speed 1.0, Unity mirror + test).
+  - Baseline measured (`tests/llm-eval/results/g-before.jsonl`): ellipsis 70%, 5.8 words, behaviours 55× guarded_short / 16× answers_plainly. **Resume at Task 1's after-eval:** `run_eval.py --label g-after --runs 1`, `reply_stats.py`, `judge.py`, then `docs/voice-quality.md`.
+  - Task 3 script written (`tools/tts_lab/bakeoff.py`), not run. Candidates: Kitten mini, Kokoro, Qwen3-TTS 1.7B VoiceDesign, Qwen3-TTS 0.6B CustomVoice, Chatterbox Turbo; Kitten 2 and Pocket TTS excluded (licence/gating).
+  - Then Tasks 4–6 (winner backend, Smart Turn + speculative STT, rebuild app). Then Phases H (all common exam commands, owner asked), B leftovers, C, E, I.
+- Live demo guide: `docs/LIVE_DEMO_GUIDE.md` (run from the Unity editor until the app is rebuilt).
+
 ## 5. Next steps
 1. Commit §4; rebuild the player; re-measure latency after the send fix.
 2. `KICKOFF_PROMPT_v4.md` Phases A–I: audit, rename (repo, product, bundle id, menus, `PSYCHSIM_*` → `RAPPORT_*` aliases), literature review, Digital Twin brain, self-learning with A/B, Twin live wiring, TTS bake-off (Qwen3-TTS is the lead candidate) + Smart Turn + streaming STT, camera and exam router with IK, gates, demo v3, release `v0.2-twin`.

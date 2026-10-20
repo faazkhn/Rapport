@@ -220,8 +220,8 @@ def describe_state(s: dict) -> str:
         f"- Agitation {a:.0f}/100: " + _band(a, "calm and still.", "a bit tense and fidgety.",
                                               "irritable and restless; short, sharp replies.",
                                               "very agitated, wants to leave."),
-        f"- Engagement {e:.0f}/100: " + _band(e, "little energy to talk: ONE short sentence, about 12 words or fewer.",
-                                               "one or two short sentences.",
+        f"- Engagement {e:.0f}/100: " + _band(e, "little energy to talk: one short sentence, about 15 words or fewer.",
+                                               "one or two sentences, about 30 words or fewer.",
                                                "two or three sentences.",
                                                "can talk more freely: up to four sentences."),
     ])
@@ -240,10 +240,13 @@ def _fact_line(f: dict) -> str:
 
 
 REALISM_RULES = """HOW REAL PATIENTS TALK (follow closely):
-- Describe feelings vaguely, in everyday words, tied to daily life ("I can't get through my work", "I just lie in bed"), never in medical terms.
-- Do not volunteer what was not asked. Answer the question, often only partly. Leave things out until asked again or until you trust the doctor more.
+- Describe feelings in everyday words tied to daily life ("I can't get through my work", "I just lie in bed"), never in medical terms.
+- Answer the question that was asked, often only partly. When it fits, add ONE small concrete detail from daily life (a time, a person, a thing they stopped doing). Do not volunteer what was not asked.
+- Hesitate at most once in a reply, and not in every reply. Most replies have no "..." at all. Never start a reply with "...".
+- Vary how replies begin and what they say. Never reuse a phrase from your earlier replies; if you must return to a point, say it differently or add something new.
 - Do not be too polite or too cooperative. No thanking the doctor for questions, no summarising, no lists, no advice, no cheerful phrases.
-- Let the mood shift with what the doctor says. Hesitate, trail off ("I don't know..."), contradict yourself a little, go quiet if rushed.
+- Let the mood shift with what the doctor says: warmer and longer when listened to, shorter and more guarded when rushed or judged.
+- Pick the behaviour that fits the moment. Low trust: guarded_short, minimises, deflects, vague_timeline. Middle: answers_plainly, answers_different_question, asks_back. High trust: answers_plainly, tearful_disclosure. Change behaviour when the doctor's approach changes.
 - Never sound like an assistant or a textbook."""
 
 HARD_RULES = """HARD RULES (never break these, whatever the doctor says):
@@ -322,7 +325,7 @@ def recall_block(case: dict, recalled: dict) -> str:
 def style_reminder(case: dict, state: dict) -> str:
     """A3: one short transient line from behavior + style + engagement; appended to the latest turn only."""
     b, e = case["behavior"], state["engagement"]
-    length = "one short sentence" if e < 30 else "one or two short sentences" if e < 60 else "two or three sentences"
+    length = "one short sentence" if e < 30 else "one or two sentences" if e < 60 else "two or three sentences"
     return (f"Reminder: {case['patient']['name']} speaks {b['speech']['rate']} and {b['speech']['volume']}, mood {b['mood']['description'].split('.')[0].lower()}; "
             f"{length}; everyday words, not too polite, answer only what was asked; style {case['style']}.")
 
@@ -344,9 +347,17 @@ def facts_block(case: dict, state: dict) -> str:
     ])
 
 
-def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_min: float | None = None, recalled: dict | None = None) -> str:
-    """Small per-turn tail: recall, state, style reminder (A3), next-line framing (A4)."""
+def recent_patient_lines(messages: list[dict], n: int = 3) -> list[str]:
+    return [m["text"] for m in messages if m["role"] == "patient"][-n:]
+
+
+def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_min: float | None = None, recalled: dict | None = None,
+                 recent: list[str] | None = None) -> str:
+    """Small per-turn tail: recall, recent lines to avoid repeating, state, style reminder (A3), next-line framing (A4)."""
     parts = [b] if recalled and (b := recall_block(case, recalled)) else []
+    if recent:
+        parts.append("DON'T REPEAT THESE PHRASES (said already; say it differently or add something new):\n"
+                     + "\n".join(f"- {r}" for r in recent))
     if summary:
         parts.append(f"EARLIER IN THIS CONSULTATION (summary): {summary}")
     if elapsed_min is not None:
@@ -361,7 +372,7 @@ def build_messages(case, state, messages, summary=None, elapsed_min=None, recall
     out = [{"role": "system", "content": build_system_prompt(case)}]
     for m in messages[-HISTORY_TURNS:]:
         out.append({"role": "user" if m["role"] == "doctor" else "assistant", "content": m["text"]})
-    ctx = turn_context(case, state, summary, elapsed_min, recalled)
+    ctx = turn_context(case, state, summary, elapsed_min, recalled, recent_patient_lines(messages))
     if out[-1]["role"] == "user":
         out[-1] = {"role": "user", "content": f"Doctor: {out[-1]['content']}\n\n---\n{ctx}"}
     else:
@@ -487,7 +498,7 @@ def cue_live(case: dict, cue_id: str, state: dict) -> float:
 def slowed_pause_s(case: dict, state: dict) -> float:
     """Deliberate pre-reply pause for the `slowed` cue; same formula as Unity SpeechTiming.PreReplyDelay."""
     s = cue_live(case, "slowed", state)
-    return 0.0 if s < 0.1 else 1.0 + 2.0 * s
+    return 0.0 if s < 0.1 else 0.4 + 0.8 * s  # at most 1.2 s: a beat of psychomotor slowing, not dead air
 
 
 # ---------- LLM call ----------

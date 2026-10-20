@@ -39,10 +39,10 @@
  "patient": {
   "age": 24,
   "variant": "office_casual",
-  "voice_speed": 0.9,
+  "voice_speed": 1.0,
   "background": "Grew up in Mysuru; moved to Bengaluru two years ago for {their} first job as a software test engineer at an IT services company. Shares a rented flat in HSR Layout with a colleague. Father is a retired government school teacher, mother looks after the home; younger brother Rohan (19) is in second-year engineering. Sends part of {their} salary home towards Rohan's college fees. Speaks English at work and Kannada at home.",
   "personality": "Quiet, polite and apologetic. Minimises {their} problems ('it's probably just work stress'), says sorry for wasting the doctor's time, and is ashamed of 'being weak'. Answers briefly at first and opens up when {they} feels listened to and not judged. Does not like to complain about {their} family. Never dramatic.",
-  "speech_style": "Soft, slow, short sentences with pauses. Natural Indian English; occasional 'actually', 'no?', 'what to do'. No caricature."
+  "speech_style": "Soft and a little slow, plain short sentences. Natural Indian English; occasional 'actually', 'no?', 'what to do'. No caricature."
  },
  "behavior": {
   "appearance": {
@@ -55,10 +55,10 @@
    "rate": "slow",
    "volume": "soft",
    "latency": "long",
-   "description": "Short answers with pauses before replying; trails off; speaks more when listened to.",
+   "description": "Short answers, a beat before replying; speaks more when listened to.",
    "example_lines": [
-    "Hmm... I don't know. Just tired, I think.",
-    "It's... it's been like this for some time."
+    "I don't know. Just tired, I think.",
+    "It's been like this for some time now."
    ]
   },
   "mood": {

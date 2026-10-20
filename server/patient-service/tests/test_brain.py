@@ -233,3 +233,13 @@ def test_generate_reply_uses_twin_recall():
 def test_guard_non_finite_intensity():
     r, dropped = brain.guard(_reply(intensity=float("nan")), CASE, trust=30)
     assert r["intensity"] == 0 and any(d["id"] == "intensity" for d in dropped)
+
+
+def test_recent_lines_in_context():
+    msgs = [{"role": "doctor", "text": "a"}, {"role": "patient", "text": "I'm just tired."},
+            {"role": "doctor", "text": "b"}, {"role": "patient", "text": "Not myself, really."},
+            {"role": "doctor", "text": "c"}]
+    out = brain.build_messages(CASE, LOW, msgs)
+    assert "DON'T REPEAT THESE PHRASES" in out[-1]["content"] and "Not myself, really." in out[-1]["content"]
+    assert "DON'T REPEAT" not in out[0]["content"]
+    assert brain.recent_patient_lines(msgs, 1) == ["Not myself, really."]

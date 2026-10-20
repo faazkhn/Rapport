@@ -146,10 +146,10 @@ namespace PsychSim.Cues
         }
     }
 
-    /// <summary>Psychomotor slowing on the voice (brief 3.5): 1-3 s before replying and TTS speed lowered toward 0.85.</summary>
+    /// <summary>Psychomotor slowing on the voice: up to 1.2 s before replying and TTS speed lowered toward 0.9 (mirrors the service).</summary>
     public static class SpeechTiming
     {
-        public static float PreReplyDelay(float slowed) => slowed < 0.1f ? 0f : Mathf.Lerp(1f, 3f, slowed);
-        public static float TtsSpeed(float baseSpeed, float slowed) => Mathf.Lerp(baseSpeed, Mathf.Min(baseSpeed, 0.85f), slowed);
+        public static float PreReplyDelay(float slowed) => slowed < 0.1f ? 0f : 0.4f + 0.8f * slowed;  // mirrors brain.slowed_pause_s: at most 1.2 s
+        public static float TtsSpeed(float baseSpeed, float slowed) => Mathf.Lerp(baseSpeed, Mathf.Min(baseSpeed, 0.9f), slowed);
     }
 }

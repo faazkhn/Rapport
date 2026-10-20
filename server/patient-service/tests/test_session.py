@@ -171,8 +171,8 @@ def test_slowed_pause_formula_matches_unity():
     c = brain.load_case("mdd_01")
     st = c["state_start"]
     live = 0.5 - 0.2 * st["engagement"] / 100
-    assert ORIG_PAUSE(c, st) == pytest.approx(1 + 2 * live)
-    assert session.tts_speed(c, st) == pytest.approx(0.9 + (0.85 - 0.9) * live)
+    assert ORIG_PAUSE(c, st) == pytest.approx(0.4 + 0.8 * live) and ORIG_PAUSE(c, st) <= 1.2
+    assert session.tts_speed(c, st) == pytest.approx(1.0 + (0.9 - 1.0) * live)
 
 
 def test_client_state_drift_unlocks_facts_and_is_clamped():
@@ -337,3 +337,10 @@ def test_unwritable_twin_log_never_breaks_voice(tmp_path, monkeypatch):
     monkeypatch.setattr(session, "TWIN_LOG_DIR", blocker / "twin")
     s, ev = _one_turn()
     assert "reply" in types(ev) and "brain_snapshot" in types(ev)
+
+
+def test_one_hesitation_per_reply_across_sentences():
+    reply = {**REPLY, "utterance": "I... wake up at four. Then... I just lie there. It's... hard."}
+    s, ev = _one_turn(llm=FakeLLM(reply=reply))
+    said = " ".join(m["text"] for _, m in ev if m["type"] == "sentence")
+    assert said.count("...") == 1

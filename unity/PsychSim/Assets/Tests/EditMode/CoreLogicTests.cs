@@ -321,5 +321,14 @@ namespace PsychSim.Tests
             pad.Add(Rx("sertraline"));
             Assert.AreEqual(1, pad.Items.Count);
         }
+
+        [Test]
+        public void SlowedPauseAndSpeedMatchTheService()
+        {
+            Assert.AreEqual(0f, PsychSim.Cues.SpeechTiming.PreReplyDelay(0.05f));
+            Assert.AreEqual(1.2f, PsychSim.Cues.SpeechTiming.PreReplyDelay(1f), 1e-4f);
+            Assert.AreEqual(0.8f, PsychSim.Cues.SpeechTiming.PreReplyDelay(0.5f), 1e-4f);
+            Assert.AreEqual(0.9f, PsychSim.Cues.SpeechTiming.TtsSpeed(1f, 1f), 1e-4f);
+        }
     }
 }
