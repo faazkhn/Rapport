@@ -7,9 +7,11 @@ import contextlib
 import io
 import json
 import logging
+import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import jsonschema
 import numpy as np
@@ -18,6 +20,8 @@ import brain
 import staged
 import stream
 import stt
+import twin
+import twin_bus
 
 log = logging.getLogger("patient-service")
 TTS_MODEL = "KittenML/kitten-tts-mini-0.8"
@@ -26,6 +30,7 @@ OUT_SR = 24000
 PRE_ROLL_FRAMES = 10  # ~320 ms of audio kept before VAD start so the first word is not clipped
 PRESSURED_OVERLAP_S = 1.5  # pressured_speech: keep talking over the doctor for 1-2 s (DESIGN 7.1)
 TTS = {"model": None}
+TWIN_LOG_DIR = Path(os.environ.get("RAPPORT_TWIN_LOG_DIR") or brain.REPO_ROOT / "logs" / "twin")  # local only, git-ignored
 # MLX and the ONNX TTS each get one dedicated thread
 STT_POOL = ThreadPoolExecutor(1, thread_name_prefix="stt")
 TTS_POOL = ThreadPoolExecutor(1, thread_name_prefix="tts")
@@ -71,6 +76,9 @@ class Session:
         self.interrupted = False
         self.turn_no = 0
         self.staged = None  # staged.Script in RAPPORT_STAGED concept-preview mode
+        self.mood = None  # Digital Twin PAD mood, set at start
+        self.next_speed = 1.0  # expression-map speed factor from the last reply, applied to the next one
+        self.twin_log = None  # this session's Twin event log (JSONL)
 
     # ---------- incoming ----------
 
@@ -117,11 +125,26 @@ class Session:
         await self.send_json({"type": "session", "case_id": self.case["id"], "variant": self.case["variant"], "name": p["name"],
                               "model_id": p["model_id"], "voice_id": p["voice_id"], "state": self.state,
                               "in_rate": stt.SR, "out_rate": OUT_SR, "llm": brain.default_model(), "staged": staged.enabled()})
+        self.mood, self.next_speed = twin.pad_from(self.state), 1.0
         if staged.enabled():
             self.staged = staged.Script(self.case["variant"], OUT_SR)
         else:
+            TWIN_LOG_DIR.mkdir(parents=True, exist_ok=True)
+            self.twin_log = TWIN_LOG_DIR / f"{time.strftime('%Y%m%d_%H%M%S')}_{self.case['id']}.jsonl"
+            await self.twin(twin.init_event(self.case, self.state))
             asyncio.get_running_loop().run_in_executor(None, self.warm)
         await self.send_json({"type": "listening"})
+
+    async def twin(self, msg: dict):
+        """A Twin event or snapshot: to this client, to Twin view viewers, and to the session's Twin log."""
+        await self.send_json(msg if msg.get("type") == "brain_snapshot" else {"type": "twin_event", **msg})
+        e = ({**msg, "type": "snapshot"} if msg.get("type") == "brain_snapshot"
+             else {"type": msg["event"], **{k: v for k, v in msg.items() if k != "event"}})
+        e["t"] = round(time.monotonic() - self.t_start, 2)
+        twin_bus.publish(e)
+        if self.twin_log:
+            with open(self.twin_log, "a", encoding="utf-8") as f:
+                f.write(json.dumps(e, ensure_ascii=False) + "\n")
 
     def warm(self):
         """Prefill slot 0's KV cache with the next turn's prompt up to the doctor's words (system, facts block for the current trust,
@@ -231,18 +254,20 @@ class Session:
         self.messages.append({"role": "doctor", "text": text})
         prev = next((m["text"] for m in reversed(self.messages[:-1]) if m["role"] == "patient"), None)
         model = brain.default_model()
+        await self.twin({"event": "doctor_end", "turn": self.turn_no})
         await self.send_json({"type": "thinking"})
 
+        recalled = twin.recall(case, state["trust"], text)
         allowed = [f["id"] for f in brain.allowed_facts(case, state["trust"])]
         schema = brain.build_reply_schema(case, allowed, brain.allowed_actions(case, state["trust"]))
-        kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed),
+        kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed, recalled=recalled),
                               schema, "patient_reply", 0)
         q: asyncio.Queue = asyncio.Queue()
         t_llm = time.monotonic()
         loop.run_in_executor(None, self._llm_stream, kw, q, loop, cancel)
 
         pause = brain.slowed_pause_s(case, state)
-        speed = tts_speed(case, state)
+        speed = tts_speed(case, state) * self.next_speed
         voice = case["patient"]["voice_id"]
         parser, splitter = stream.UtteranceStream(), stream.SentenceSplitter()
         spoken, dropped_banned, idx = [], [], 0
@@ -270,6 +295,7 @@ class Session:
                     if cancel.is_set():
                         return
                 await self.send_json({"type": "speaking", "slowed_pause_ms": round(marks["pause_applied"] * 1000)})
+                await self.twin({"event": "patient_start", "turn": self.turn_no})
             pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
             dur = len(pcm) / 2 / OUT_SR
             await self.send_json({"type": "sentence", "index": idx, "text": sentence, "samples": len(pcm) // 2})
@@ -322,10 +348,16 @@ class Session:
             reply["utterance"] = (" ".join(spoken) + "...") if spoken else ""
         if reply["utterance"]:
             self.messages.append({"role": "patient", "text": reply["utterance"]})
-        self.state = brain.apply_turn(state, reply)
+        expr = twin.expression(reply, case)
+        reply["event_cues"] = (reply["event_cues"] + expr["cues"])[:2]
+        self.next_speed = expr["speed"]
+        self.state, self.mood = twin.update(state, self.mood, reply, case)
         loop.run_in_executor(None, self.warm)
         await self.send_json({"type": "intents", "doctor_intents": tagged})
         await self.send_json({"type": "reply", "turn": self.turn_no, "reply": reply, "state": self.state, "meta": meta})
+        await self.twin(twin.snapshot(self.turn_no, text, reply, recalled, self.state, self.mood,
+                                      twin.why(recalled, reply, state["trust"], case)))
+        await self.twin({"event": "patient_end", "turn": self.turn_no})
 
         t_end = timing.pop("t_end")
         timing.update({

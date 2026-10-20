@@ -80,7 +80,7 @@ def test_text_turn_streams_sentences_guards_and_times():
         return s, ev, audio
     s, ev, audio = asyncio.run(go())
     t = types(ev)
-    assert t[:3] == ["session", "listening", "transcript"] and "thinking" in t and t[-1] == "listening"
+    assert [x for x in t if x != "twin_event"][:3] == ["session", "listening", "transcript"] and "thinking" in t and t[-1] == "listening"
     assert next(m for _, m in ev if m["type"] == "session")["name"] == "Arjun Rao"
     sentences = [m["text"] for _, m in ev if m["type"] == "sentence"]
     assert sentences == ["I wake up at four every day.", "Then I just lie there."]  # banned-word sentence never spoken
@@ -197,6 +197,8 @@ def test_staged_turn_plays_scripted_line_at_planned_gap(monkeypatch, tmp_path):
     (tmp_path / "script.json").write_text(json.dumps(script))
     monkeypatch.setattr(staged, "PATH", str(tmp_path / "script.json"))
     monkeypatch.setattr(staged, "GAP_S", 0.2)
+    import twin
+    monkeypatch.setattr(twin, "recall", lambda *a, **k: (_ for _ in ()).throw(AssertionError("Twin ran in staged mode")))
 
     async def go():
         s, ev, audio = make(FakeLLM(intents=["greet_introduce"]))
@@ -209,5 +211,93 @@ def test_staged_turn_plays_scripted_line_at_planned_gap(monkeypatch, tmp_path):
     reply = next(m for _, m in ev if m["type"] == "reply")
     assert reply["reply"]["utterance"] == "Hmm. Tired." and reply["reply"]["doctor_intents"] == ["greet_introduce"]
     assert reply["state"]["trust"] > 30 and "brain_snapshot" in types(ev)
+    assert next(m for _, m in ev if m["type"] == "brain_snapshot")["staged"] is True
     assert 0.18 <= audio[0][0] - t0 <= 0.35
     assert s.staged.next() == (None, None)
+
+
+SNAP_KEYS = {"type", "turn", "doctor", "utterance", "state", "mood", "reaction", "intensity", "behaviour", "resistance", "why",
+             "recalled", "locked_hit", "cues", "exam_action", "emotion", "brain_version"}
+
+
+def _one_turn(text="How do you sleep?", llm=None):
+    async def go():
+        s, ev, audio = make(llm or FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        await run_text(s, text)
+        return s, ev
+    return asyncio.run(go())
+
+
+def test_turn_emits_snapshot():
+    s, ev = _one_turn()
+    t = types(ev)
+    assert t.count("brain_snapshot") == 1 and t.index("brain_snapshot") > t.index("reply")
+    snap = next(m for _, m in ev if m["type"] == "brain_snapshot")
+    assert set(snap) == SNAP_KEYS and "f_sleep" in snap["recalled"] and snap["brain_version"] == "twin-0.1"
+    tw = [m["event"] for _, m in ev if m["type"] == "twin_event"]
+    assert tw == ["init", "doctor_end", "patient_start", "patient_end"]
+    assert t.index("brain_snapshot") < [i for i, x in enumerate(t) if x == "twin_event"][-1]
+
+
+def test_init_event_on_start():
+    s, ev = _one_turn()
+    init = next(m for _, m in ev if m["type"] == "twin_event")
+    assert init["event"] == "init" and len(init["memory_items"]) == 20
+    assert all(len(m["label"]) <= 40 for m in init["memory_items"])
+    assert set(init["formulation"]) == {"presenting", "predisposing", "precipitating", "perpetuating", "protective"}
+    assert init["meta"]["patient"] == "Ananya Rao" and init["state_start"]["trust"] == 30
+
+
+def test_locked_text_not_sent():
+    s, ev = _one_turn("Have you had thoughts of ending your life?")
+    si = next(f["text"] for f in brain.load_case("mdd_01")["facts"] if f["id"] == "f_passive_si")
+    assert all(si not in json.dumps(m) for _, m in ev)
+    snap = next(m for _, m in ev if m["type"] == "brain_snapshot")
+    assert snap["locked_hit"] == ["f_passive_si"] or "f_passive_si" in snap["locked_hit"]
+
+
+def test_barge_in_snapshot(monkeypatch):
+    import twin
+    calls = []
+    real = twin.update
+    monkeypatch.setattr(twin, "update", lambda *a: calls.append(1) or real(*a))
+
+    async def go():
+        s, ev, audio = make(FakeLLM(delay=0.01))
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        mood0 = dict(s.mood)
+        await s.on_json({"type": "text", "text": "How do you sleep?"})
+        while not audio:
+            await asyncio.sleep(0.005)
+        await s.on_speech_start()
+        await s.turn_task
+        return s, ev, mood0
+    s, ev, mood0 = asyncio.run(go())
+    snaps = [m for _, m in ev if m["type"] == "brain_snapshot"]
+    assert len(snaps) == 1 and snaps[0]["utterance"].endswith("...") and len(calls) == 1
+
+
+def test_session_publishes():
+    import twin_bus
+
+    async def go():
+        s, ev, audio = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        await run_text(s)
+        q = twin_bus.subscribe()  # a late viewer gets the session so far
+        out = [q.get_nowait() for _ in range(q.qsize())]
+        twin_bus.unsubscribe(q)
+        return out
+    out = asyncio.run(go())
+    assert [e["type"] for e in out] == ["init", "doctor_end", "patient_start", "snapshot", "patient_end"]
+    assert all(isinstance(e["t"], float) for e in out)
+
+
+def test_session_writes_twin_log(tmp_path, monkeypatch):
+    monkeypatch.setattr(session, "TWIN_LOG_DIR", tmp_path)
+    s, ev = _one_turn()
+    files = list(tmp_path.glob("*_mdd_01.jsonl"))
+    assert len(files) == 1
+    types_ = [json.loads(line)["type"] for line in files[0].read_text().splitlines()]
+    assert types_ == ["init", "doctor_end", "patient_start", "snapshot", "patient_end"]

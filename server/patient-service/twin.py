@@ -5,6 +5,8 @@ import re
 
 import brain
 
+VERSION = "twin-0.1"
+
 _WORD = re.compile(r"[a-z']+")
 _SUFFIX = re.compile(r"(ing|ed|es|s)$")
 
@@ -96,3 +98,21 @@ def expression(reply: dict, case: dict) -> dict:
         cues += [{"id": c["id"], "intensity": round(c["intensity"] * reply.get("intensity", 0) / 10, 2), "duration_s": 3.0}
                  for c in e["cues"] if c["id"] in have]
     return {"cues": cues, "speed": _clamp(speed, 0.8, 1.2)}
+
+
+def init_event(case: dict, state: dict) -> dict:
+    """What the Twin view needs before the first turn. Memory labels are short; full fact text never leaves the service."""
+    p = case["patient"]
+    return {"event": "init", "meta": {"case_id": case["id"], "patient": p["name"], "age": p["age"], "variant": case["variant"],
+                                      "title": case.get("title")},
+            "memory_items": [{"id": f["id"], "label": _topic(f["id"]).capitalize()[:40], "trust_min": f["trust_min"],
+                              "gated": bool(f.get("must_be_asked"))} for f in case["facts"]],
+            "formulation": case.get("formulation", {}), "state_start": {k: state[k] for k in brain.STATE_KEYS}}
+
+
+def snapshot(turn: int, doctor: str, reply: dict, recalled: dict, state: dict, mood: dict, why_text: str) -> dict:
+    """One brain_snapshot in the Twin view's timeline format (twin/README.md)."""
+    return {"type": "brain_snapshot", "turn": turn, "doctor": doctor, "utterance": reply["utterance"], "state": state, "mood": mood,
+            "reaction": reply["reaction"], "intensity": reply["intensity"], "behaviour": reply["behaviour"],
+            "resistance": reply["resistance"], "why": why_text, "recalled": recalled["open"], "locked_hit": recalled["locked_hit"],
+            "cues": reply["event_cues"], "exam_action": reply["exam_action"], "emotion": reply["emotion"], "brain_version": VERSION}
