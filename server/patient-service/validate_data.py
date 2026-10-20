@@ -51,7 +51,7 @@ def _strings(node):
 
 def validate_all() -> list[str]:
     errors = []
-    for schema_name in ["patient_reply", *[n for n in CATALOGS.values()], "case"]:
+    for schema_name in ["patient_reply", *[n for n in CATALOGS.values()], "case", "brain"]:
         try:
             jsonschema.Draft202012Validator.check_schema(_load(DATA_DIR / "schemas" / f"{schema_name}.schema.json"))
         except Exception as e:
@@ -76,6 +76,18 @@ def validate_all() -> list[str]:
     for d in drugs:
         _refs(errors, d["contraindication_rules"] + d["interaction_rules"], rule_ids, f"formulary.json {d['id']} rules")
     _refs(errors, data["state_rules"]["intent_nudges"], intent_ids, "state_rules.json intent_nudges")
+
+    brain_files = {name: _load(DATA_DIR / "brain" / name) for name in ("behaviours.json", "expression_map.json")}
+    for name, d in brain_files.items():
+        _check_schema(errors, d, "brain", f"brain/{name}")
+    if errors:
+        return errors
+    for group in ("reactions", "behaviours"):
+        known = _dupes(errors, brain_files["behaviours.json"][group], f"brain/behaviours.json {group}")
+        for k, e in brain_files["expression_map.json"][group].items():
+            _refs(errors, [k], known, f"brain/expression_map.json {group}")
+            _refs(errors, [c["id"] for c in e["cues"]], cue_ids, f"brain/expression_map.json {group}.{k} cues")
+    _dupes(errors, brain_files["behaviours.json"]["resistance"], "brain/behaviours.json resistance")
 
     cases = sorted((DATA_DIR / "cases").glob("*.json"))
     if not cases:
