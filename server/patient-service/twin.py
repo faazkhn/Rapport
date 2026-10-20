@@ -37,3 +37,22 @@ def recall(case: dict, trust: float, doctor_text: str, limit: int = 3) -> dict:
     locked = [f["id"] for _, f in scored if f["trust_min"] > trust]
     hot = any(f.get("generates_discomfort") for _, f in scored if f["id"] in open_)
     return {"open": open_, "locked_hit": locked, "discomfort": bool(locked) or hot}
+
+
+def _topic(fact_id: str) -> str:
+    return fact_id.removeprefix("f_").replace("_", " ")
+
+
+def why(recalled: dict, reply: dict, trust: float, case: dict) -> str:
+    """One plain sentence for the examiner: what came to mind, what stayed locked, and how the patient chose to answer."""
+    mins = {f["id"]: f["trust_min"] for f in case["facts"]}
+    parts = []
+    if recalled.get("open"):
+        top = recalled["open"][0]
+        parts.append(f"{_topic(top).capitalize()} memory open (trust {trust:.0f} ≥ {mins[top]:.0f}).")
+    if recalled.get("locked_hit"):
+        need = min(mins[i] for i in recalled["locked_hit"])
+        parts.append(f"Touched something locked (needs trust {need:.0f}); showed discomfort.")
+    behaviour = reply.get("behaviour", "answers_plainly").replace("_", " ")
+    parts.append(f"Reaction {reply.get('reaction', 'none').replace('_', ' ')}, {behaviour}.")
+    return " ".join(parts)

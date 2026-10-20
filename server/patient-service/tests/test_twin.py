@@ -32,3 +32,14 @@ def test_recall_fast():
     for i in range(200):
         twin.recall(CASE, 30, lines[i % 4])
     assert time.perf_counter() - t < 2.0
+
+
+def test_why_locked():
+    reply = {"reaction": "afraid", "behaviour": "deflects"}
+    w = twin.why({"open": [], "locked_hit": ["f_passive_si"], "discomfort": True}, reply, 30, CASE)
+    assert "locked" in w and "55" in w
+
+
+def test_why_open():
+    w = twin.why({"open": ["f_sleep"], "locked_hit": [], "discomfort": False}, {"reaction": "wary", "behaviour": "guarded_short"}, 42, CASE)
+    assert "f_sleep" not in w and "trust 42" in w and "wary" in w

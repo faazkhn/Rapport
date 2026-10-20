@@ -12,7 +12,7 @@ import session
 
 ORIG_PAUSE = brain.slowed_pause_s
 
-REPLY = {"emotion": "sad", "utterance": "I wake up at four every day. Then I just lie there. Maybe I am depressed, I don't know.",
+REPLY = {"reaction": "sad", "intensity": 5, "behaviour": "answers_plainly", "resistance": "none", "emotion": "sad", "utterance": "I wake up at four every day. Then I just lie there. Maybe I am depressed, I don't know.",
          "state_delta": {"trust": 3, "distress": 0, "agitation": 0, "engagement": 1}, "event_cues": [],
          "revealed_fact_ids": ["f_sleep"], "exam_action": None}
 

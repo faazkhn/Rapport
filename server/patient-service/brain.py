@@ -93,6 +93,18 @@ def load_case(case_id: str, variant: str = "female") -> dict:
     return json.loads(_resolved(case_id, variant))
 
 
+def catalogue() -> dict:
+    """Digital Twin reactions, behaviours and resistance styles (data/brain/behaviours.json)."""
+    return load_json("brain/behaviours.json")
+
+
+def label_ids(group: str) -> list[str]:
+    return [i["id"] for i in catalogue()[group]]
+
+
+LABEL_DEFAULTS = {"reaction": ("reactions", "none"), "behaviour": ("behaviours", "answers_plainly"), "resistance": ("resistance", "none")}
+
+
 def intents() -> list[dict]:
     return load_json("intents.json")["intents"]
 
@@ -118,13 +130,19 @@ def _id_array(ids: list[str], max_items: int | None = None) -> dict:
 
 
 def build_reply_schema(case: dict, allowed_fact_ids: list[str], actions: list[str] | None = None) -> dict:
-    """Patient part of the contract. Property order is the generation order: emotion, utterance first so voice can stream."""
+    """Patient part of the contract. Property order is the generation order: the Twin's short labels first ("feel first, speak
+    second"), then emotion and utterance so voice can stream."""
     actions = actions or []
     return {
         "type": "object",
         "additionalProperties": False,
-        "required": ["emotion", "utterance", "state_delta", "event_cues", "revealed_fact_ids", "exam_action"],
+        "required": ["reaction", "intensity", "behaviour", "resistance", "emotion", "utterance", "state_delta", "event_cues",
+                     "revealed_fact_ids", "exam_action"],
         "properties": {
+            "reaction": {"type": "string", "enum": label_ids("reactions")},
+            "intensity": {"type": "integer", "minimum": 0, "maximum": 10},
+            "behaviour": {"type": "string", "enum": label_ids("behaviours")},
+            "resistance": {"type": "string", "enum": label_ids("resistance")},
             "emotion": {"type": "string", "enum": EMOTIONS},
             "utterance": {"type": "string"},
             "state_delta": {
@@ -238,12 +256,18 @@ def build_system_prompt(case: dict) -> str:
         f"Referral note the doctor has: {case['referral_note']}",
         f"Background: {p.get('background', '')}",
         f"Personality: {p['personality']}",
-        f"Way of speaking: {p.get('speech_style', 'natural, everyday English')}. Conversation style: {case['style']}.",
+        f"Way of speaking: {p.get('speech_style', 'natural, everyday English')}. Conversation style: {case['style']}."
+        + (f" Dialect: {case['dialect']}." if case.get("dialect") else ""),
+        *([f"Deep down {name} believes: {case['core_belief']}"] if case.get("core_belief") else []),
+        *([f"With people {name} is: {case['attachment_style']}"] if case.get("attachment_style") else []),
         f"HOW {name.upper()} PRESENTS (mental state; show it, never describe it in these terms):\n" + _behavior_text(case["behavior"]),
         REALISM_RULES,
         f"WORDS {name.upper()} NEVER SAYS: {', '.join(case['banned_words'])}.",
         HARD_RULES,
-        "OUTPUT: the JSON object only, fields in this order.\n"
+        _menu(),
+        "OUTPUT: the JSON object only, fields in this order. Decide how the patient feels and acts first, then speak.\n"
+        "- reaction: the patient's inner reaction to the doctor's last line, from REACTIONS. intensity: 0-10.\n"
+        "- behaviour: how the patient answers, from BEHAVIOURS. resistance: none, or how the patient holds back, from RESISTANCE.\n"
         "- emotion: main emotion while speaking.\n"
         "- utterance: exactly what the patient says out loud. No stage directions, no asterisks, no quotes around it.\n"
         "- state_delta: integers -10..10: how the doctor's LAST line changed trust, distress, agitation, engagement (0 if no change). "
@@ -252,6 +276,22 @@ def build_system_prompt(case: dict) -> str:
         "- revealed_fact_ids: ids of listed facts that this utterance actually reveals. Empty if none.\n"
         "- exam_action: if the doctor asks the patient to do one of the allowed exam actions and the patient does it, its id; otherwise null.",
     ])
+
+
+def _menu() -> str:
+    c = catalogue()
+    return "\n".join(f"{g.upper()}:\n" + "\n".join(f"- {i['id']}: {i['description']}" for i in c[g]) for g in ("reactions", "behaviours", "resistance"))
+
+
+def recall_block(case: dict, recalled: dict) -> str:
+    """What the doctor's words bring to mind this turn. Only open memories; a locked hit is a discomfort signal, never its text."""
+    facts = {f["id"]: f for f in case["facts"]}
+    lines = [_fact_line(facts[i]) for i in recalled.get("open", []) if i in facts]
+    if recalled.get("locked_hit"):
+        lines.append("The doctor is close to something painful you are not ready to talk about. Show discomfort; do not reveal it.")
+    elif recalled.get("discomfort"):
+        lines.append("This is painful to think about; let the discomfort show.")
+    return "WHAT COMES TO MIND:\n" + "\n".join(lines) if lines else ""
 
 
 def style_reminder(case: dict, state: dict) -> str:
@@ -279,9 +319,9 @@ def facts_block(case: dict, state: dict) -> str:
     ])
 
 
-def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_min: float | None = None) -> str:
-    """Small per-turn tail: state, style reminder (A3), next-line framing (A4)."""
-    parts = []
+def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_min: float | None = None, recalled: dict | None = None) -> str:
+    """Small per-turn tail: recall, state, style reminder (A3), next-line framing (A4)."""
+    parts = [b] if recalled and (b := recall_block(case, recalled)) else []
     if summary:
         parts.append(f"EARLIER IN THIS CONSULTATION (summary): {summary}")
     if elapsed_min is not None:
@@ -291,12 +331,12 @@ def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_mi
     return "\n\n".join(parts)
 
 
-def build_messages(case, state, messages, summary=None, elapsed_min=None) -> list[dict]:
+def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None) -> list[dict]:
     """[system: fixed per case+variant] [first user msg: facts block + first doctor line] [history verbatim] [last doctor line + tail]."""
     out = [{"role": "system", "content": build_system_prompt(case)}]
     for m in messages[-HISTORY_TURNS:]:
         out.append({"role": "user" if m["role"] == "doctor" else "assistant", "content": m["text"]})
-    ctx = turn_context(case, state, summary, elapsed_min)
+    ctx = turn_context(case, state, summary, elapsed_min, recalled)
     if out[-1]["role"] == "user":
         out[-1] = {"role": "user", "content": f"Doctor: {out[-1]['content']}\n\n---\n{ctx}"}
     else:
@@ -382,7 +422,18 @@ def guard(reply: dict, case: dict, trust: float) -> tuple[dict, list[dict]]:
     utterance, hits = strip_banned(reply.get("utterance", ""), case.get("banned_words", []))
     dropped += [{"kind": "banned_word", "id": w, "reason": "sentence removed"} for w in hits]
 
-    out = {"emotion": reply.get("emotion", "neutral"), "utterance": utterance, "state_delta": delta, "event_cues": cues,
+    labels = {}
+    for key, (group, default) in LABEL_DEFAULTS.items():
+        v = reply.get(key)
+        labels[key] = v if v in label_ids(group) else default
+        if labels[key] != v:
+            dropped.append({"kind": "label", "id": key, "reason": f"unknown {v!r} -> {default}"})
+    raw_i = reply.get("intensity", 0)
+    labels["intensity"] = max(0, min(10, int(raw_i))) if isinstance(raw_i, (int, float)) else 0
+    if labels["intensity"] != raw_i:
+        dropped.append({"kind": "label", "id": "intensity", "reason": f"clamped {raw_i!r} -> {labels['intensity']}"})
+
+    out = {**labels, "emotion": reply.get("emotion", "neutral"), "utterance": utterance, "state_delta": delta, "event_cues": cues,
            "revealed_fact_ids": facts, "exam_action": action, "doctor_intents": tagged}
     return out, dropped
 
@@ -457,7 +508,8 @@ def tag_intents(doctor_line: str, last_patient_line: str | None = None, client=N
 
 
 def fallback_reply(case: dict) -> dict:
-    return {"emotion": "confused", "utterance": random.choice(case["fallback_lines"]),
+    return {"reaction": "none", "intensity": 0, "behaviour": "answers_plainly", "resistance": "none",
+            "emotion": "confused", "utterance": random.choice(case["fallback_lines"]),
             "state_delta": {k: 0 for k in STATE_KEYS}, "event_cues": [], "revealed_fact_ids": [], "exam_action": None, "doctor_intents": []}
 
 
