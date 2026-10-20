@@ -405,10 +405,14 @@
    ],
    "must_be_asked": true,
    "activation_tags": [
-    "plan",
-    "attempt",
-    "tried",
-    "made any plans"
+    "made any plans to",
+    "plan to end",
+    "plans to end",
+    "tried to end",
+    "tried to kill",
+    "tried to hurt",
+    "attempted",
+    "made an attempt"
    ],
    "kind": "risk",
    "generates_discomfort": true,
@@ -423,12 +427,14 @@
    ],
    "must_be_asked": true,
    "activation_tags": [
-    "tablets",
-    "pills",
-    "means",
+    "tablets at home",
+    "pills at home",
+    "means to end",
+    "means to hurt",
+    "stored up",
+    "stockpiled",
     "rope",
-    "at home",
-    "stored"
+    "weapon"
    ],
    "kind": "risk",
    "generates_discomfort": true,
@@ -443,11 +449,11 @@
    ],
    "activation_tags": [
     "keeps you going",
-    "stop you",
+    "stops you",
+    "stopped you",
     "reasons to live",
-    "support",
-    "who helps",
-    "protective"
+    "reason to live",
+    "holds you back from"
    ],
    "kind": "history",
    "generates_discomfort": false,

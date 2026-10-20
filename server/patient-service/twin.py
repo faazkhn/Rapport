@@ -43,8 +43,8 @@ def recall(case: dict, trust: float, doctor_text: str, limit: int = 3) -> dict:
     scored.sort(key=lambda x: -x[0])
     open_ = [f["id"] for _, f in scored if f["trust_min"] <= trust][:limit]
     locked = [f["id"] for _, f in scored if f["trust_min"] > trust]
-    hot = any(f.get("generates_discomfort") for _, f in scored if f["id"] in open_)
-    return {"open": open_, "locked_hit": locked, "discomfort": bool(locked) or hot}
+    hit = set(open_) | set(locked)
+    return {"open": open_, "locked_hit": locked, "discomfort": any(f.get("generates_discomfort") for _, f in scored if f["id"] in hit)}
 
 
 def _topic(fact_id: str) -> str:
@@ -60,10 +60,19 @@ def why(recalled: dict, reply: dict, trust: float, case: dict) -> str:
         parts.append(f"{_topic(top).capitalize()} memory open (trust {trust:.0f} ≥ {mins[top]:.0f}).")
     if recalled.get("locked_hit"):
         need = min(mins[i] for i in recalled["locked_hit"])
-        parts.append(f"Touched something locked (needs trust {need:.0f}); showed discomfort.")
+        parts.append(f"Touched something locked (needs trust {need:.0f})" + ("; showed discomfort." if recalled.get("discomfort") else "; stayed vague."))
     behaviour = reply.get("behaviour", "answers_plainly").replace("_", " ")
     parts.append(f"Reaction {reply.get('reaction', 'none').replace('_', ' ')}, {behaviour}.")
     return " ".join(parts)
+
+
+def enforce_discomfort(reply: dict, recalled: dict) -> list[dict]:
+    """Code decides: a painful locked hit never gets a reaction that raises trust; returns what was changed, for guard_dropped."""
+    steps = {r["id"]: r["trust_step"] for r in brain.catalogue()["reactions"]}
+    if not (recalled.get("locked_hit") and recalled.get("discomfort")) or steps.get(reply.get("reaction"), 0) < 0:
+        return []
+    old, reply["reaction"] = reply.get("reaction"), "wary"
+    return [{"kind": "label", "id": "reaction", "reason": f"locked hit: {old!r} -> 'wary'"}]
 
 
 def _clamp(v: float, lo: float = -1.0, hi: float = 1.0) -> float:

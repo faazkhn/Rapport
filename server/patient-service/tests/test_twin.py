@@ -149,3 +149,22 @@ def test_recall_suicide_phrasings():
     for line in ["Sometimes when people feel this low, they have thoughts of ending their life. Have you had thoughts like that?",
                  "Have you felt suicidal?", "Do you ever feel like you want to end it all?", "Have you thought about killing yourself?"]:
         assert "f_passive_si" in twin.recall(CASE, 30, line)["locked_hit"], line
+
+
+def test_benign_lines_never_hit_locked_items():
+    for line in ["What do you mean?", "Have you tried anything to help with it?", "What is your plan for the week?",
+                 "Any plans for the weekend?", "Do you live at home?", "Who helps you at home?"]:
+        assert twin.recall(CASE, 30, line)["locked_hit"] == [], line
+
+
+def test_locked_hit_without_discomfort_flag():
+    r = twin.recall(CASE, 10, "Does anyone in your family have mental health problems? Any family history?")
+    assert "f_family_history" in r["locked_hit"] and r["discomfort"] is False
+
+
+def test_enforce_discomfort_on_locked_hit():
+    reply = {"reaction": "warm", "intensity": 3}
+    dropped = twin.enforce_discomfort(reply, {"open": [], "locked_hit": ["f_passive_si"], "discomfort": True})
+    assert reply["reaction"] == "wary" and dropped == [{"kind": "label", "id": "reaction", "reason": "locked hit: 'warm' -> 'wary'"}]
+    ok = {"reaction": "afraid"}
+    assert twin.enforce_discomfort(ok, {"open": [], "locked_hit": ["f_passive_si"], "discomfort": True}) == [] and ok["reaction"] == "afraid"

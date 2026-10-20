@@ -3,6 +3,7 @@
 LLM backend: local llama-server (default, OpenAI-compatible) or Grok when PATIENT_LLM=grok and XAI_API_KEY is set.
 """
 import json
+import math
 import os
 import random
 import re
@@ -12,6 +13,8 @@ from functools import lru_cache
 from pathlib import Path
 
 import jsonschema
+
+import twin
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = Path(os.environ.get("PSYCHSIM_DATA_DIR") or REPO_ROOT / "unity/PsychSim/Assets/StreamingAssets/data")
@@ -169,6 +172,26 @@ def build_reply_schema(case: dict, allowed_fact_ids: list[str], actions: list[st
             "exam_action": {"anyOf": [{"type": "null"}, {"type": "string", "enum": actions}]} if actions else {"type": "null"},
         },
     }
+
+
+def loose(schema: dict) -> dict:
+    """Copy of a reply schema for validating what came back: no number bounds and no label enums, so the guard clamps and records
+    them instead of the whole reply becoming a fallback (backends such as Grok do not enforce minimum/maximum)."""
+    out = json.loads(json.dumps(schema))
+
+    def strip(node):
+        if isinstance(node, dict):
+            node.pop("minimum", None), node.pop("maximum", None)
+            for k, v in node.items():
+                strip(v)
+        elif isinstance(node, list):
+            for v in node:
+                strip(v)
+    strip(out)
+    for k in ("reaction", "behaviour", "resistance"):
+        out["properties"].get(k, {}).pop("enum", None)
+    out["properties"].get("intensity", {}).update(type="number")
+    return out
 
 
 def build_intent_schema() -> dict:
@@ -431,7 +454,8 @@ def guard(reply: dict, case: dict, trust: float) -> tuple[dict, list[dict]]:
         if labels[key] != v:
             dropped.append({"kind": "label", "id": key, "reason": f"unknown {v!r} -> {default}"})
     raw_i = reply.get("intensity", 0)
-    labels["intensity"] = max(0, min(10, int(raw_i))) if isinstance(raw_i, (int, float)) else 0
+    ok = isinstance(raw_i, (int, float)) and math.isfinite(raw_i)
+    labels["intensity"] = max(0, min(10, int(raw_i))) if ok else 0
     if labels["intensity"] != raw_i:
         dropped.append({"kind": "label", "id": "intensity", "reason": f"clamped {raw_i!r} -> {labels['intensity']}"})
 
@@ -492,7 +516,7 @@ def llm_kwargs(model: str, messages: list[dict], schema: dict, name: str, slot: 
 
 def _parse(content: str | None, schema: dict) -> dict:
     reply = json.loads(content or "")
-    jsonschema.validate(reply, schema)
+    jsonschema.validate(reply, loose(schema))
     if not reply.get("utterance", "x").strip():
         raise ValueError("empty utterance")
     return reply
@@ -523,7 +547,10 @@ def generate_reply(req: dict, client=None, tagger=None) -> dict:
     model = req.get("model") or default_model()
     allowed = [f["id"] for f in allowed_facts(case, state["trust"])]
     schema = build_reply_schema(case, allowed, allowed_actions(case, state["trust"]))
-    kwargs = llm_kwargs(model, build_messages(case, state, req["messages"], req.get("summary"), req.get("elapsed_min")), schema, "patient_reply", 0)
+    doctor_now = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
+    recalled = twin.recall(case, state["trust"], doctor_now)
+    kwargs = llm_kwargs(model, build_messages(case, state, req["messages"], req.get("summary"), req.get("elapsed_min"), recalled),
+                        schema, "patient_reply", 0)
     if req.get("reasoning_effort"):
         kwargs["reasoning_effort"] = req["reasoning_effort"]
     doctor = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
@@ -550,6 +577,7 @@ def generate_reply(req: dict, client=None, tagger=None) -> dict:
         out = {**fallback_reply(case), "doctor_intents": tagged}
     else:
         out, meta["guard_dropped"] = guard({**reply, "doctor_intents": tagged}, case, state["trust"])
+        meta["guard_dropped"] += twin.enforce_discomfort(out, recalled)
         if not out["utterance"].strip():  # every sentence had a banned word
             out["utterance"] = random.choice(case["fallback_lines"])
             meta["fallback"] = True

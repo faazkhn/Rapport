@@ -316,3 +316,24 @@ def test_init_uses_case_labels():
     init = next(m for _, m in ev if m["type"] == "twin_event")
     labels = {m["id"]: m["label"] for m in init["memory_items"]}
     assert labels["f_pc"] == "Tired, not myself"
+
+
+def test_out_of_range_intensity_is_clamped_not_fallback():
+    s, ev = _one_turn(llm=FakeLLM(reply={**REPLY, "intensity": 14}))
+    rep = next(m for _, m in ev if m["type"] == "reply")
+    assert rep["meta"]["fallback"] is False and rep["reply"]["intensity"] == 10
+    assert any(d["kind"] == "label" and d["id"] == "intensity" for d in rep["meta"]["guard_dropped"])
+
+
+def test_locked_hit_forces_discomfort_reaction():
+    s, ev = _one_turn("Have you had thoughts of ending your life?", llm=FakeLLM(reply={**REPLY, "reaction": "warm"}))
+    snap = next(m for _, m in ev if m["type"] == "brain_snapshot")
+    assert snap["reaction"] == "wary" and "f_passive_si" in snap["locked_hit"] and "f_passive_si" not in snap["recalled"]
+
+
+def test_unwritable_twin_log_never_breaks_voice(tmp_path, monkeypatch):
+    blocker = tmp_path / "not_a_dir"
+    blocker.write_text("x")
+    monkeypatch.setattr(session, "TWIN_LOG_DIR", blocker / "twin")
+    s, ev = _one_turn()
+    assert "reply" in types(ev) and "brain_snapshot" in types(ev)

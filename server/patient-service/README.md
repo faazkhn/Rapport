@@ -42,7 +42,7 @@ The TTS model loads once at startup (about 1 s when cached, about 13 s on the ve
   - The server does **not** apply the state change. The client does: `brain.apply_turn` (LLM delta + `state_rules.json` nudges, clamped per turn) is the reference for Unity's `PatientState`.
 - `POST /tts` `{"text": "...", "voice": "Bella", "speed": 0.9}` → `audio/wav`, 24 kHz mono 16-bit, in memory only. Voices: Bella, Luna, Rosie, Kiki, Jasper, Bruno, Hugo, Leo. Header `X-Gen-Ms` gives generation time. Not streamed per sentence yet (the client can split sentences and call per sentence).
 
-Logs hold latency, model, counts only; no conversation text and no key.
+Service logs (stdout) hold latency, model and counts only: no conversation text and no key. The Digital Twin session log (below) is the exception: it holds the conversation text, stays on this machine, and is git-ignored.
 
 ## Model notes (docs.x.ai, checked 2026-10-18)
 

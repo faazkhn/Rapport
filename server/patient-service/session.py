@@ -129,8 +129,12 @@ class Session:
         if staged.enabled():
             self.staged = staged.Script(self.case["variant"], OUT_SR)
         else:
-            TWIN_LOG_DIR.mkdir(parents=True, exist_ok=True)
-            self.twin_log = TWIN_LOG_DIR / f"{time.strftime('%Y%m%d_%H%M%S')}_{self.case['id']}.jsonl"
+            try:
+                TWIN_LOG_DIR.mkdir(parents=True, exist_ok=True)
+                self.twin_log = TWIN_LOG_DIR / f"{time.strftime('%Y%m%d_%H%M%S')}_{self.case['id']}.jsonl"
+            except OSError as e:  # the log is a convenience; never let it stop the voice
+                log.warning("twin log off: %s", type(e).__name__)
+                self.twin_log = None
             await self.twin(twin.init_event(self.case, self.state))
             asyncio.get_running_loop().run_in_executor(None, self.warm)
         await self.send_json({"type": "listening"})
@@ -143,8 +147,12 @@ class Session:
         e["t"] = round(time.monotonic() - self.t_start, 2)
         twin_bus.publish(e)
         if self.twin_log:
-            with open(self.twin_log, "a", encoding="utf-8") as f:
-                f.write(json.dumps(e, ensure_ascii=False) + "\n")
+            try:
+                with open(self.twin_log, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(e, ensure_ascii=False) + "\n")
+            except OSError as err:  # full or unwritable disk: drop the log, keep the voice
+                log.warning("twin log off: %s", type(err).__name__)
+                self.twin_log = None
 
     def warm(self):
         """Prefill slot 0's KV cache with the next turn's prompt up to the doctor's words (system, facts block for the current trust,
@@ -335,8 +343,9 @@ class Session:
             if err:
                 raise RuntimeError(err)
             raw = parser.full()
-            jsonschema.validate(raw, schema)
+            jsonschema.validate(raw, brain.loose(schema))
             reply, meta["guard_dropped"] = brain.guard({**raw, "doctor_intents": tagged}, case, state["trust"])
+            meta["guard_dropped"] += twin.enforce_discomfort(reply, recalled)
         except Exception as e:
             meta.update(fallback=True, errors=[type(e).__name__])
             reply = {**brain.fallback_reply(case), "doctor_intents": tagged}

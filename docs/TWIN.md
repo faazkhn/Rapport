@@ -18,6 +18,12 @@ Version: `twin-0.1` (sent in every snapshot as `brain_version`).
 
 The reason line (`why`) is built by code (`twin.why`), not by the model: e.g. "Mood memory open (trust 39 ≥ 20). Touched something locked (needs trust 55); showed discomfort. Reaction afraid, guarded short."
 
+## Typed mode (`POST /reply`)
+
+The typed path uses the same recall and the same locked-hit rule, but the client applies state with `brain.apply_turn` (Unity `PatientState`), so the reaction's trust step and the PAD mood are voice-path only for now.
+
+A painful locked hit always ends with a reaction that does not raise trust (`twin.enforce_discomfort`; changed to `wary` and listed in `guard_dropped`). Replies are validated against a loose copy of the schema (`brain.loose`), so out-of-range numbers or unknown labels are clamped by the guard instead of turning the whole reply into a fallback.
+
 ## Data
 
 - `data/brain/behaviours.json`: 16 reactions (each with `trust_step` −2..2), 13 behaviours, 4 resistance styles, each with a description and an example line.

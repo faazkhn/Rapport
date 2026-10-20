@@ -218,3 +218,18 @@ def test_guard_bad_labels():
     r, dropped = brain.guard(_reply(reaction="furious", intensity=14, behaviour="dances", resistance="sulks"), CASE, trust=30)
     assert (r["reaction"], r["intensity"], r["behaviour"], r["resistance"]) == ("none", 10, "answers_plainly", "none")
     assert sum(d["kind"] == "label" for d in dropped) == 4
+
+
+def test_generate_reply_uses_twin_recall():
+    good = _reply(reaction="warm")
+    del good["doctor_intents"]
+    llm = FakeClient([json.dumps(good)])
+    out = brain.generate_reply({"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "Have you had thoughts of ending your life?"}],
+                          "state": LOW}, client=llm, tagger=lambda: [])
+    assert any("WHAT COMES TO MIND" in m["content"] and "do not flatly deny" in m["content"] for m in llm.calls[0]["messages"])
+    assert out["reaction"] == "wary"
+
+
+def test_guard_non_finite_intensity():
+    r, dropped = brain.guard(_reply(intensity=float("nan")), CASE, trust=30)
+    assert r["intensity"] == 0 and any(d["id"] == "intensity" for d in dropped)
