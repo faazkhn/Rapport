@@ -3,6 +3,8 @@ the slow-path state and mood update, the expression map, and the brain_snapshot.
 """
 import re
 
+import brain
+
 _WORD = re.compile(r"[a-z']+")
 _SUFFIX = re.compile(r"(ing|ed|es|s)$")
 
@@ -56,3 +58,41 @@ def why(recalled: dict, reply: dict, trust: float, case: dict) -> str:
     behaviour = reply.get("behaviour", "answers_plainly").replace("_", " ")
     parts.append(f"Reaction {reply.get('reaction', 'none').replace('_', ' ')}, {behaviour}.")
     return " ".join(parts)
+
+
+def _clamp(v: float, lo: float = -1.0, hi: float = 1.0) -> float:
+    return min(hi, max(lo, v))
+
+
+def pad_from(s: dict) -> dict:
+    """Pleasure-arousal-dominance from the four state values; the same formula as padFrom in twin/twin.js."""
+    t, d, a, e = (s[k] for k in brain.STATE_KEYS)
+    return {"p": _clamp(((t - 50) * .35 + (e - 50) * .35 - (d - 50) * .9) / 45),
+            "a": _clamp(((a - 30) + (d - 50) * .5 + (e - 50) * .2) / 40),
+            "d": _clamp(((t - 50) * .5 + (e - 50) * .5 - (d - 50) * .6 - (a - 30) * .4) / 50)}
+
+
+def update(state: dict, mood: dict, reply: dict, case: dict) -> tuple[dict, dict]:
+    """Slow path: the reaction's trust step joins the model's delta before the one clamp in brain.apply_turn; the mood then
+    drifts part of the way toward the PAD of the new state."""
+    rules = brain.load_json("state_rules.json")
+    step = next((r["trust_step"] for r in brain.catalogue()["reactions"] if r["id"] == reply.get("reaction")), 0)
+    delta = {**reply["state_delta"], "trust": reply["state_delta"]["trust"] + step * rules["reaction_trust_unit"]}
+    new = brain.apply_turn(state, {**reply, "state_delta": delta}, rules)
+    target, rate = pad_from(new), rules["mood_rate"]
+    return new, {k: _clamp(mood[k] + (target[k] - mood[k]) * rate) for k in "pad"}
+
+
+def expression(reply: dict, case: dict) -> dict:
+    """Extra cues and a TTS speed factor for this reaction and behaviour; only cues the case has."""
+    m = brain.load_json("brain/expression_map.json")
+    have = {c["id"] for c in case["cues"]}
+    cues, speed = [], 1.0
+    for group, key in (("reactions", "reaction"), ("behaviours", "behaviour")):
+        e = m[group].get(reply.get(key))
+        if not e:
+            continue
+        speed *= e["speed"]
+        cues += [{"id": c["id"], "intensity": round(c["intensity"] * reply.get("intensity", 0) / 10, 2), "duration_s": 3.0}
+                 for c in e["cues"] if c["id"] in have]
+    return {"cues": cues, "speed": _clamp(speed, 0.8, 1.2)}

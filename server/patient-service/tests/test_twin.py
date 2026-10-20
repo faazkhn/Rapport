@@ -43,3 +43,50 @@ def test_why_locked():
 def test_why_open():
     w = twin.why({"open": ["f_sleep"], "locked_hit": [], "discomfort": False}, {"reaction": "wary", "behaviour": "guarded_short"}, 42, CASE)
     assert "f_sleep" not in w and "trust 42" in w and "wary" in w
+
+
+ST = {"trust": 30, "distress": 55, "agitation": 15, "engagement": 35}
+ZERO = {k: 0 for k in brain.STATE_KEYS}
+
+
+def _r(**kw):
+    r = {"reaction": "none", "intensity": 5, "behaviour": "answers_plainly", "resistance": "none", "state_delta": dict(ZERO),
+         "doctor_intents": []}
+    r.update(kw)
+    return r
+
+
+def test_pad_from_matches_js():
+    m = twin.pad_from(ST)
+    assert (round(m["p"], 4), round(m["a"], 4), round(m["d"], 4)) == (-0.3722, -0.3875, -0.29)
+
+
+def test_update_understood_raises_trust():
+    unit = brain.load_json("state_rules.json")["reaction_trust_unit"]
+    new, _ = twin.update(ST, twin.pad_from(ST), _r(reaction="understood"), CASE)
+    assert new["trust"] == ST["trust"] + unit
+    assert {k: new[k] for k in ("distress", "agitation", "engagement")} == {k: ST[k] for k in ("distress", "agitation", "engagement")}
+
+
+def test_update_clamped():
+    clamp = brain.load_json("state_rules.json")["clamp_per_turn"]
+    reply = _r(reaction="warm", state_delta={**ZERO, "trust": 10}, doctor_intents=["explain_confidentiality", "empathy_statement"])
+    new, _ = twin.update(ST, twin.pad_from(ST), reply, CASE)
+    assert new["trust"] - ST["trust"] <= clamp
+
+
+def test_mood_moves_toward_target():
+    mood = twin.pad_from(ST)
+    new, m2 = twin.update(ST, mood, _r(reaction="warm", state_delta={**ZERO, "trust": 8, "engagement": 8}), CASE)
+    target = twin.pad_from(new)
+    for k in "pad":
+        lo, hi = sorted((mood[k], target[k]))
+        assert lo <= m2[k] <= hi and m2[k] != mood[k]
+
+
+def test_expression_filters_unknown_cues():
+    e = twin.expression(_r(reaction="startled", behaviour="tearful_disclosure", intensity=10), CASE)  # startle is not an mdd_01 cue
+    assert [c["id"] for c in e["cues"]] == ["tearful"]
+    assert e["cues"][0]["intensity"] == 0.9 and e["cues"][0]["duration_s"] == 3.0
+    assert 0.8 <= e["speed"] <= 1.2
+    assert twin.expression(_r(), CASE) == {"cues": [], "speed": 1.0}
