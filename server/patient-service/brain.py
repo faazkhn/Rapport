@@ -130,21 +130,21 @@ def _id_array(ids: list[str], max_items: int | None = None) -> dict:
 
 
 def build_reply_schema(case: dict, allowed_fact_ids: list[str], actions: list[str] | None = None) -> dict:
-    """Patient part of the contract. Property order is the generation order: the Twin's short labels first ("feel first, speak
-    second"), then emotion and utterance so voice can stream."""
+    """Patient part of the contract. Property order is the generation order: the Twin's behaviour choice, emotion, then the
+    utterance so voice can stream; reaction, intensity and resistance follow it (each token before the utterance delays the voice)."""
     actions = actions or []
     return {
         "type": "object",
         "additionalProperties": False,
-        "required": ["reaction", "intensity", "behaviour", "resistance", "emotion", "utterance", "state_delta", "event_cues",
+        "required": ["behaviour", "emotion", "utterance", "reaction", "intensity", "resistance", "state_delta", "event_cues",
                      "revealed_fact_ids", "exam_action"],
         "properties": {
-            "reaction": {"type": "string", "enum": label_ids("reactions")},
-            "intensity": {"type": "integer", "minimum": 0, "maximum": 10},
             "behaviour": {"type": "string", "enum": label_ids("behaviours")},
-            "resistance": {"type": "string", "enum": label_ids("resistance")},
             "emotion": {"type": "string", "enum": EMOTIONS},
             "utterance": {"type": "string"},
+            "reaction": {"type": "string", "enum": label_ids("reactions")},
+            "intensity": {"type": "integer", "minimum": 0, "maximum": 10},
+            "resistance": {"type": "string", "enum": label_ids("resistance")},
             "state_delta": {
                 "type": "object",
                 "additionalProperties": False,
@@ -265,11 +265,12 @@ def build_system_prompt(case: dict) -> str:
         f"WORDS {name.upper()} NEVER SAYS: {', '.join(case['banned_words'])}.",
         HARD_RULES,
         _menu(),
-        "OUTPUT: the JSON object only, fields in this order. Decide how the patient feels and acts first, then speak.\n"
-        "- reaction: the patient's inner reaction to the doctor's last line, from REACTIONS. intensity: 0-10.\n"
-        "- behaviour: how the patient answers, from BEHAVIOURS. resistance: none, or how the patient holds back, from RESISTANCE.\n"
+        "OUTPUT: the JSON object only, fields in this order. Decide how the patient answers first, then speak.\n"
+        "- behaviour: how the patient answers, from BEHAVIOURS.\n"
         "- emotion: main emotion while speaking.\n"
         "- utterance: exactly what the patient says out loud. No stage directions, no asterisks, no quotes around it.\n"
+        "- reaction: the patient's inner reaction to the doctor's last line, from REACTIONS. intensity: 0-10.\n"
+        "- resistance: none, or how the patient holds back, from RESISTANCE.\n"
         "- state_delta: integers -10..10: how the doctor's LAST line changed trust, distress, agitation, engagement (0 if no change). "
         "Kindness, listening and open questions raise trust and engagement; judgment, rushing or insults lower them and raise distress or agitation.\n"
         f"- event_cues: optional short physical reactions to this line, from: {cue_ids}. intensity 0-1, duration_s 1-8. Usually empty.\n"

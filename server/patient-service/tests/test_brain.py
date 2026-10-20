@@ -26,7 +26,7 @@ def test_schema_enums_order_and_strictness():
 
     walk(s)
     p = s["properties"]
-    assert list(p)[:6] == ["reaction", "intensity", "behaviour", "resistance", "emotion", "utterance"]  # feel first, speak second
+    assert list(p)[:6] == ["behaviour", "emotion", "utterance", "reaction", "intensity", "resistance"]  # choose how to answer, then speak; the rest after (latency)
     assert p["revealed_fact_ids"]["items"]["enum"] == allowed and SI not in allowed
     assert set(p["event_cues"]["items"]["properties"]["id"]["enum"]) == {c["id"] for c in CASE["cues"]}
     assert p["emotion"]["enum"] == brain.EMOTIONS
@@ -35,7 +35,7 @@ def test_schema_enums_order_and_strictness():
     assert "ask_suicidal_ideation" in brain.build_intent_schema()["properties"]["doctor_intents"]["items"]["enum"]
     # the published contract has the same order and the merged fields
     pub = brain.load_json("schemas/patient_reply.schema.json")
-    assert list(pub["properties"]) == pub["required"] == ["reaction", "intensity", "behaviour", "resistance", "emotion", "utterance",
+    assert list(pub["properties"]) == pub["required"] == ["behaviour", "emotion", "utterance", "reaction", "intensity", "resistance",
                                                           "state_delta", "event_cues", "revealed_fact_ids", "exam_action", "doctor_intents"]
 
 
@@ -197,7 +197,7 @@ def test_tagger_uses_slot_1_and_never_raises():
 
 
 def test_schema_label_order():
-    assert list(brain.build_reply_schema(CASE, [])["properties"])[:6] == ["reaction", "intensity", "behaviour", "resistance", "emotion", "utterance"]
+    assert list(brain.build_reply_schema(CASE, [])["properties"])[:6] == ["behaviour", "emotion", "utterance", "reaction", "intensity", "resistance"]
 
 
 def test_prompt_hides_locked():
