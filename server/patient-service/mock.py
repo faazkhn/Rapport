@@ -3,15 +3,10 @@
 Keyword rules over the doctor's last line pick intents; the reply speaks only the text of allowed facts
 (trust_min met, and must_be_asked facts only when their intent was tagged). Output goes through brain.guard.
 """
-import json
-import os
 import re
 
 import brain
 
-# Staged demo take: doctor line -> scripted patient reply (demo/script.json). Still goes through brain.guard.
-_DEMO = os.environ.get("PSYCHSIM_DEMO_SCRIPT")
-DEMO_TURNS = {t["doctor"]: t["patient"] for t in json.load(open(_DEMO))["turns"]} if _DEMO else {}
 
 # intent -> regex over the lower-cased doctor line (first match order does not matter)
 INTENT_RULES = {
@@ -69,8 +64,6 @@ def mock_reply(req: dict) -> dict:
     state = req["state"]
     line = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
     tagged = tag_intents(line)
-    if line.strip() in DEMO_TURNS:
-        return scripted_reply(DEMO_TURNS[line.strip()], tagged, case, state)
     kind = bool(re.search(KIND, line.lower())) or "empathy_statement" in tagged
     judged = "judgmental_language" in tagged
     allowed = brain.allowed_facts(case, state["trust"])
@@ -114,11 +107,6 @@ def mock_reply(req: dict) -> dict:
              "revealed_fact_ids": [f["id"] for f in facts], "doctor_intents": tagged}
     return finish(reply, case, state)
 
-
-def scripted_reply(p: dict, tagged: list[str], case: dict, state: dict) -> dict:
-    reply = {"utterance": p["utterance"], "emotion": p["emotion"], "event_cues": p["cues"], "revealed_fact_ids": p["facts"],
-             "state_delta": {"trust": 0, "distress": 0, "agitation": 0, "engagement": 0, **p["delta"]}, "doctor_intents": tagged}
-    return finish(reply, case, state)
 
 
 def finish(reply: dict, case: dict, state: dict) -> dict:

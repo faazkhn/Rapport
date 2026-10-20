@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using PsychSim.Cues;
 using PsychSim.Data;
 using PsychSim.Logging;
@@ -15,23 +16,26 @@ using UnityEngine;
 
 namespace PsychSim.Core
 {
-    public enum Phase { Brief, Enter, Active, Debrief }
+    public enum Phase { Start, Brief, Enter, Active, Debrief }
+    public enum Mode { Practice, Assessment }
 
     /// <summary>
-    /// Brief -> Enter -> Active -> Debrief. Owns the session clock, the patient brain and state, the tool controllers and the SessionLog.
-    /// Interview/examine/assess/plan are not locked steps inside Active. Public methods double as the demo-video hooks.
+    /// Start (case, patient sex, mode) -> Brief (prebrief) -> Enter -> Active -> Debrief. Owns the session clock, the patient state, the
+    /// voice session (server/patient-service/PROTOCOL.md), the tool controllers and the SessionLog. Interview/examine/assess/plan are not
+    /// locked steps inside Active. Public methods double as the demo-video hooks.
     /// </summary>
     public class EncounterManager : MonoBehaviour
     {
         [SerializeField] string caseId = "mdd_01";
         [SerializeField] ServiceSettings settings;
-        [SerializeField] GameObject[] patientPrefabs;     // matched to the case's model_id by name
+        [SerializeField] GameObject[] patientPrefabs;     // matched to the variant's model_id by name
         [SerializeField] TextAsset[] facePresets;
         [SerializeField] uLipSync.Profile lipSyncProfile;
         [SerializeField] AudioSource doctorVoice;
         [SerializeField] PsychSim.Platform.DesktopRig desktopRig;
 
         public Phase Phase { get; private set; }
+        public Mode Mode { get; private set; }
         public event Action<Phase> PhaseChanged;
         public event Action<string, string> Subtitle;      // (speaker "doctor" | "patient", text); empty text clears
         public event Action<PatientTurn> PatientReplied;
@@ -42,7 +46,6 @@ namespace PsychSim.Core
         public ContentData Data { get; private set; }
         public CaseFile Case { get; private set; }
         public PatientState State { get; private set; }
-        public PatientBrain Brain { get; private set; }
         public IntentLedger Ledger { get; private set; }
         public SessionLog Log { get; private set; }
         public MsePanel Mse { get; private set; }
@@ -50,38 +53,42 @@ namespace PsychSim.Core
         public PrescriptionPad Rx { get; private set; }
         public DispositionSelector Disposition { get; private set; }
         public ScoreResult Score { get; private set; }
+        public VoiceSession Voice { get; private set; }
         public readonly List<string> RevealedFacts = new();
+        public readonly List<TurnRecord> Turns = new();
         public float SessionSeconds { get; private set; }
         public float TimeLimitSeconds => (Case.time_limit_min ?? 15f) * 60f;
-        public bool Busy { get; private set; }
+        public bool Busy => Voice != null && (Voice.State == VoiceState.Thinking || Voice.State == VoiceState.Speaking);
         public Animator Patient { get; private set; }
         public CueDriver Cues { get; private set; }
+        public long LastLatencyMs { get; private set; } = -1;
+        [field: NonSerialized] public string ServiceError { get; private set; }
+        /// <summary>false: the real microphone is not opened; only InjectMicAudio feeds the mic path (demo take, play-mode tests).</summary>
+        [NonSerialized] public bool UseMicrophone = true;
 
-        /// <summary>Transports; default to the HTTP client. Tests swap in fakes before BeginEncounter.</summary>
-        public IPatientService Service;
-        public IVoice Voice;
-
+        PatientServiceClient http;
         GazeController gaze;
         LipSyncBridge lips;
         Room room;
-        float driftAccum;
+        float driftAccum, stateSyncAccum, turnStart;
+        string pendingDoctor;
+        int repliesSeen;
+        bool lastReplyBarged;
 
         void Awake()
         {
             Data = CaseLoader.LoadAll(Path.Combine(Application.streamingAssetsPath, "data"), releaseBuild: !Debug.isDebugBuild);
-            if (!Data.cases.TryGetValue(caseId, out var c)) throw new ContentException($"case '{caseId}' not found (or not approved in a release build)");
-            Case = c;
+            if (!Data.cases.ContainsKey(caseId)) caseId = Data.cases.Keys.FirstOrDefault() ?? throw new ContentException("no cases (or none approved in a release build)");
+            Case = CaseVariants.Resolve(Data.cases[caseId], "female");
             Mse = new MsePanel(Data.cues);
             Dx = new DiagnosisPicker(Data.diagnoses);
             Rx = new PrescriptionPad(Data.formulary);
             Disposition = new DispositionSelector(Data.dispositions);
-            var client = new PatientServiceClient(settings);
-            Service ??= client;
-            Voice ??= client;
+            http = new PatientServiceClient(settings);
             room = Room.Find();
         }
 
-        void Start() => SetPhase(Phase.Brief);
+        void Start() => SetPhase(Phase.Start);
 
         void SetPhase(Phase p)
         {
@@ -90,16 +97,23 @@ namespace PsychSim.Core
             PhaseChanged?.Invoke(p);
         }
 
-        /// <summary>Brief -> Enter: starts the session, spawns the patient and plays the entrance; Active follows automatically.</summary>
+        /// <summary>Start screen: case, then the patient's sex (DESIGN 6.1 variants), then Practice or Assessment. Shows the prebrief.</summary>
+        public void Configure(string caseId, string variant, Mode mode)
+        {
+            if (Phase != Phase.Start) return;
+            Case = CaseVariants.Resolve(Data.cases[caseId], variant);
+            Mode = mode;
+            SetPhase(Phase.Brief);
+        }
+
+        /// <summary>Brief -> Enter: starts the session, spawns the patient, connects the voice loop and plays the entrance; Active follows.</summary>
         public void BeginEncounter()
         {
             if (Phase != Phase.Brief) return;
             State = new PatientState(Case.state_start);
-            Brain = new PatientBrain(Case, Data, State, Service) { Model = string.IsNullOrEmpty(settings.model) ? null : settings.model };
             Ledger = new IntentLedger();
             Log = new SessionLog(Application.persistentDataPath, Case.id, () => SessionSeconds);
-            Log.Write("session_start", new { case_id = Case.id, case_version = Case.version, case_status = Case.status, state = State.Snapshot() });
-            Brain.PatientReplied += OnReplied;
+            Log.Write("session_start", new { case_id = Case.id, case_version = Case.version, case_status = Case.status, variant = Case.variant, mode = Mode.ToString(), state = State.Snapshot() });
             Action<string, string> logTool = (kind, id) => Log.Write("tool", new { action = kind, id });
             Mse.Changed += logTool; Dx.Changed += logTool; Rx.Changed += logTool; Disposition.Changed += logTool;
             SetPhase(Phase.Enter);
@@ -109,9 +123,35 @@ namespace PsychSim.Core
         IEnumerator Enter()
         {
             SpawnPatient();
+            var connect = ConnectVoice();   // the service warms the model's cache for this case while the patient walks in
             if (!room.SoundSourceDoor.TryGetComponent(out AudioSource doorAudio)) doorAudio = room.SoundSourceDoor.gameObject.AddComponent<AudioSource>();  // not ??: Unity fake-null
             yield return EntranceSequence.Run(Patient, Cues, gaze, room, doorAudio);
+            while (!connect.IsCompleted) yield return null;
+            if (Voice.Connected) Voice.SetHandsFree(true);   // off during the entrance so door and footsteps are not heard as speech
             SetPhase(Phase.Active);
+        }
+
+        async Task ConnectVoice()
+        {
+            Voice = gameObject.AddComponent<VoiceSession>();
+            Voice.UseMicrophone = UseMicrophone;
+            Voice.Setup(lips.Source);
+            Voice.Event += OnVoiceEvent;
+            Voice.SentenceStarted += OnSentence;
+            Voice.Stopped += () => Log.Write("barge_in");
+            try
+            {
+                await Voice.Connect(settings.baseUrl, new JObject
+                {
+                    ["case_id"] = Case.id, ["variant"] = Case.variant, ["state"] = JObject.FromObject(State.Snapshot()), ["hands_free"] = false, ["vad_silence_ms"] = settings.vadSilenceMs,
+                });
+            }
+            catch (Exception e)
+            {
+                ServiceError = $"Cannot reach the patient service at {settings.baseUrl} ({e.GetBaseException().Message}). Start it with server/patient-service/run.sh.";
+                Log.Write("service_error", new { error = e.GetBaseException().Message });
+                Debug.LogError("PsychSim: " + ServiceError);
+            }
         }
 
         void SpawnPatient()
@@ -144,97 +184,144 @@ namespace PsychSim.Core
             if (Phase != Phase.Active) return;
             SessionSeconds += Time.deltaTime;
             driftAccum += Time.deltaTime;
+            stateSyncAccum += Time.deltaTime;
             if (driftAccum >= 1f)  // drift once a second; SessionLog snapshots every 30 s
             {
                 State.Drift(Case.state_drift_per_min, driftAccum / 60f, Data.stateRules.range);
                 driftAccum = 0f;
                 if ((int)SessionSeconds % 30 == 0) Log.Write("state", State.Snapshot());
             }
-            if (SessionSeconds >= TimeLimitSeconds && !Busy) { Log.Write("timeout"); Submit(); }
+            if (stateSyncAccum >= 5f && !Busy && Voice != null) { stateSyncAccum = 0f; _ = Voice.SendState(State.Snapshot()); }  // drift reaches the fact gate
+            gaze.Thinking = Voice != null && Voice.State == VoiceState.Thinking;
+            if (Mode == Mode.Assessment && SessionSeconds >= TimeLimitSeconds && !Busy) { Log.Write("timeout"); Submit(); }  // D4: hard stop
         }
 
-        /// <summary>
-        /// Demo hook and the chat box's entry point: one doctor line -> /reply -> GuardCheck -> state -> /tts -> lip-synced audio.
-        /// Completes when the patient's audio has finished. speakAloud plays the line in the doctor voice first.
-        /// </summary>
-        public async Task<PatientTurn> SubmitDoctorLine(string text, bool speakAloud = false)
+        // ---------------------------------------------------------------- voice events
+
+        void OnVoiceEvent(JObject o)
         {
-            text = text?.Trim();
-            if (Phase != Phase.Active || Busy || string.IsNullOrEmpty(text)) return null;
-            Busy = true;
-            try
+            switch ((string)o["type"])
             {
-                if (speakAloud) await SpeakDoctor(text);
-                else Subtitle?.Invoke("doctor", text);
-                var start = Time.realtimeSinceStartup;
-                gaze.LookAtDoctor(1.5f);
-                gaze.Thinking = true;
-                float slowed = Cues.Get("slowed");
-                var turn = await Brain.Ask(text, SessionSeconds / 60f);
-                float replyDone = Time.realtimeSinceStartup;
-                AudioClip clip = null;
-                try { clip = await Voice.Speak(turn.reply.utterance, Case.patient.voice_id, SpeechTiming.TtsSpeed(Case.patient.voice_speed, slowed)); }
-                catch (Exception e) { Log.Write("tts_error", new { error = e.Message }); }
-                float ttsMs = (Time.realtimeSinceStartup - replyDone) * 1000f;
-                float wait = SpeechTiming.PreReplyDelay(slowed) - (Time.realtimeSinceStartup - start);
-                if (wait > 0) await Awaitable.WaitForSecondsAsync(wait);
-                gaze.Thinking = false;
-                float totalMs = (Time.realtimeSinceStartup - start) * 1000f;
-
-                Subtitle?.Invoke("patient", turn.reply.utterance);
-                float seconds = clip ? clip.length : Mathf.Clamp(turn.reply.utterance.Length / 15f, 1.5f, 6f);  // reading time without audio
-                Cues.OnSpeechStarted(turn.reply.utterance, seconds);
-                Log.Write("turn", new
-                {
-                    doctor = text, patient = turn.reply.utterance, turn.reply.emotion, turn.reply.doctor_intents, turn.reply.revealed_fact_ids, turn.reply.event_cues,
-                    turn.fallback, turn.dropped, state = turn.stateAfter, reply_ms = turn.replyMs, tts_ms = Math.Round(ttsMs), total_ms = Math.Round(totalMs),
-                });
-                if (clip)
-                {
-                    lips.Source.clip = clip;
-                    lips.Source.Play();
-                    while (lips.Source && lips.Source.isPlaying) await Awaitable.NextFrameAsync();
-                }
-                else await Awaitable.WaitForSecondsAsync(seconds);
-                return turn;
+                case "transcript":
+                    var text = (string)o["text"];
+                    if (string.IsNullOrWhiteSpace(text)) break;
+                    pendingDoctor = text;
+                    turnStart = SessionSeconds;
+                    Subtitle?.Invoke("doctor", text);
+                    gaze.LookAtDoctor(1.5f);
+                    break;
+                case "reply": OnReply(o); break;
+                case "timing":
+                    if (o["audio_start_ms"]?.Type == JTokenType.Integer) LastLatencyMs = (long)o["audio_start_ms"];
+                    Log.Write("timing", o);
+                    break;
+                case "error": Log.Write("service_error", new { error = (string)o["error"] }); break;
             }
-            finally { Busy = false; }
         }
 
-        void OnReplied(PatientTurn turn)
+        string patientSoFar = "";
+
+        /// <summary>Live subtitle: the patient's words so far, sentence by sentence as each one starts playing.</summary>
+        void OnSentence(int index, string text)
         {
-            Ledger.Add(turn.reply.doctor_intents, SessionSeconds);
-            foreach (var f in turn.reply.revealed_fact_ids.Where(f => !RevealedFacts.Contains(f)))
+            patientSoFar = index == 0 ? text : patientSoFar + " " + text;
+            Subtitle?.Invoke("patient", patientSoFar);
+            Cues.OnSpeechStarted(text, Mathf.Clamp(text.Length / 14f, 1f, 8f));
+        }
+
+        void OnReply(JObject o)
+        {
+            var raw = o["reply"].ToObject<PatientReply>();
+            var dropped = new List<string>();
+            var reply = GuardCheck.Clean(raw, Case, Data.intents, State.Trust, dropped) ?? new PatientReply { utterance = "", emotion = "neutral" };
+            var before = State.Snapshot();
+            State.Set(o["state"].ToObject<Dictionary<string, float>>());
+            var turn = new PatientTurn { doctorLine = pendingDoctor, reply = reply, dropped = dropped, fallback = o["meta"]?["fallback"]?.Value<bool>() == true,
+                                         stateAfter = State.Snapshot() };
+            turn.stateApplied = PatientState.Keys.ToDictionary(k => k, k => turn.stateAfter[k] - before[k]);
+            Turns.Add(new TurnRecord { t = turnStart, doctor = pendingDoctor, patient = reply.utterance, intents = reply.doctor_intents.ToList(),
+                                       revealed = reply.revealed_fact_ids.ToList(), trustBefore = before["trust"], trustAfter = State.Trust });
+            lastReplyBarged = o["meta"]?["barge_in"]?.Value<bool>() == true;
+            repliesSeen++;
+            Ledger.Add(reply.doctor_intents, SessionSeconds);
+            foreach (var f in reply.revealed_fact_ids.Where(f => !RevealedFacts.Contains(f)))
             {
                 RevealedFacts.Add(f);
                 Log.Write("fact_revealed", new { id = f });
                 FactRevealed?.Invoke(f);
             }
             Cues.OnPatientReplied(turn);
+            if (reply.exam_action != null) { Cues.PlayExamAction(reply.exam_action); Log.Write("exam_action", new { id = reply.exam_action }); }
+            Log.Write("turn", new
+            {
+                doctor = pendingDoctor, patient = reply.utterance, reply.emotion, reply.doctor_intents, reply.revealed_fact_ids, reply.event_cues, reply.exam_action,
+                turn.fallback, dropped, state = turn.stateAfter, meta = o["meta"],
+            });
             PatientReplied?.Invoke(turn);
         }
 
-        /// <summary>Demo hook: says a line in the doctor's voice (male KittenTTS voice from ServiceSettings) with its own subtitle.</summary>
-        public async Task SpeakDoctor(string text)
+        // ---------------------------------------------------------------- doctor input
+
+        /// <summary>Typed fallback (and a test hook): sends one line over the voice session. Completes when the patient has finished speaking.</summary>
+        public async Task SubmitDoctorLine(string text)
         {
-            Subtitle?.Invoke("doctor", text);
-            AudioClip clip = null;
-            try { clip = await Voice.Speak(text, settings.doctorVoice, 1.0f); }
-            catch (Exception e) { Log?.Write("tts_error", new { error = e.Message }); }
-            if (!clip || !doctorVoice) return;
-            doctorVoice.clip = clip;
-            doctorVoice.Play();
-            while (doctorVoice.isPlaying) await Awaitable.NextFrameAsync();
+            text = text?.Trim();
+            if (Phase != Phase.Active || string.IsNullOrEmpty(text) || Voice == null || !Voice.Connected) return;
+            int seen = repliesSeen;
+            await Voice.SendText(text);
+            await WaitForReply(seen);
         }
 
-        /// <summary>Ends the station (learner submits, or time runs out) and scores it.</summary>
+        /// <summary>
+        /// Demo hook: synthesises the line in the doctor's KittenTTS voice, plays it in the room and feeds the same audio, resampled to
+        /// 16 kHz, into the microphone path (VAD -> STT -> LLM -> TTS on the service). Completes when the patient has finished replying.
+        /// </summary>
+        public async Task SpeakDoctorIntoMic(string text)
+        {
+            if (Phase != Phase.Active || Voice == null || !Voice.Connected) return;
+            var clip = await http.Speak(text, settings.doctorVoice, 1.0f);
+            var data = new float[clip.samples * clip.channels];
+            clip.GetData(data, 0);
+            data = CapPauses(data, clip.frequency, 0.25f);   // TTS leaves long gaps between sentences; a person speaking one turn does not
+            clip = AudioClip.Create("doctor_line", data.Length, 1, clip.frequency, false);
+            clip.SetData(data, 0);
+            int seen = repliesSeen;
+            if (doctorVoice) { doctorVoice.clip = clip; doctorVoice.Play(); }
+            Voice.InjectMicAudio(VoiceSession.Resample(data, clip.frequency, VoiceSession.InRate));
+            await WaitForReply(seen);
+        }
+
+        /// <summary>Shortens every silence longer than maxGap seconds (|x| below 1% for that long) to maxGap.</summary>
+        public static float[] CapPauses(float[] x, int rate, float maxGap)
+        {
+            int cap = (int)(maxGap * rate), run = 0;
+            var o = new List<float>(x.Length);
+            foreach (var v in x)
+            {
+                run = Mathf.Abs(v) < 0.01f ? run + 1 : 0;
+                if (run <= cap) o.Add(v);
+            }
+            return o.ToArray();
+        }
+
+        async Task WaitForReply(int seen)
+        {
+            float t0 = Time.realtimeSinceStartup;
+            while (repliesSeen == seen && Time.realtimeSinceStartup - t0 < 60f) await Awaitable.NextFrameAsync();
+            while (lastReplyBarged && Time.realtimeSinceStartup - t0 < 60f) { seen = repliesSeen; while (repliesSeen == seen && Time.realtimeSinceStartup - t0 < 60f) await Awaitable.NextFrameAsync(); }
+            while (Voice.State == VoiceState.Speaking || Voice.State == VoiceState.Thinking) await Awaitable.NextFrameAsync();
+        }
+
+        /// <summary>Ends the station (learner submits, or the Assessment timer runs out) and scores it.</summary>
         public ScoreResult Submit()
         {
             if (Phase != Phase.Active) return Score;
+            if (Voice != null) Voice.SetHandsFree(false);
             Score = ScoringEngine.Score(new ScoreInput
             {
                 caseFile = Case, data = Data, ledger = Ledger, mseCues = new HashSet<string>(Mse.Ticked), primaryDx = Dx.Primary,
                 differentials = Dx.Differentials.ToList(), rx = Rx.Items.ToList(), dispositions = Disposition.Selected.ToList(), finalTrust = State.Trust,
+                turns = Turns.ToList(),
             });
             Log.Write("mse", new { ticked = Mse.Ticked.OrderBy(x => x), notes = Mse.Notes });
             Log.Write("score", Score);

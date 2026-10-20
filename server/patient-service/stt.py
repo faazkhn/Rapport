@@ -47,6 +47,7 @@ class Vad:
 
     def reset(self):
         self.it.reset_states()
+        self.samples, self.end_sample = 0, None  # the iterator's sample count restarts too
 
 
 def load(model: str = STT_MODEL):

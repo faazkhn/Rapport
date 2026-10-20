@@ -136,7 +136,7 @@ def test_barge_in(monkeypatch, pressured, lo, hi):
     assert rep["meta"]["barge_in"] is True and s.interrupted
 
 
-def test_slowed_pause_is_separate_from_lag(monkeypatch):
+def test_slowed_pause_absorbs_compute_and_is_separate_from_lag(monkeypatch):
     monkeypatch.setattr(brain, "slowed_pause_s", lambda c, st: 0.2)
 
     async def go():
@@ -146,8 +146,10 @@ def test_slowed_pause_is_separate_from_lag(monkeypatch):
         return ev
     ev = asyncio.run(go())
     tm = next(m for _, m in ev if m["type"] == "timing")
-    assert tm["slowed_pause_ms"] == 200 and tm["audio_start_ms"] < 150
-    assert next(m for _, m in ev if m["type"] == "speaking")["slowed_pause_ms"] == 200
+    # the pause runs from the end of the doctor's line: compute time + extra wait == the target pause
+    assert tm["slowed_target_ms"] == 200 and tm["audio_start_ms"] < 150
+    assert abs(tm["audio_start_ms"] + tm["slowed_pause_ms"] - 200) <= 15
+    assert next(m for _, m in ev if m["type"] == "speaking")["slowed_pause_ms"] == tm["slowed_pause_ms"]
 
 
 def test_bad_llm_output_falls_back_and_errors_are_events():
@@ -171,3 +173,17 @@ def test_slowed_pause_formula_matches_unity():
     live = 0.5 - 0.2 * st["engagement"] / 100
     assert ORIG_PAUSE(c, st) == pytest.approx(1 + 2 * live)
     assert session.tts_speed(c, st) == pytest.approx(0.9 + (0.85 - 0.9) * live)
+
+
+def test_client_state_drift_unlocks_facts_and_is_clamped():
+    async def go():
+        llm = FakeLLM()
+        s, ev, _ = make(llm)
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        await s.on_json({"type": "state", "state": {"trust": 70, "distress": 250, "bogus": 5}})
+        await run_text(s, "Do you ever wish you wouldn't wake up?")
+        return s, llm
+    s, llm = asyncio.run(go())
+    si = next(f["text"] for f in brain.load_case("mdd_01")["facts"] if f["id"] == "f_passive_si")
+    patient = [c for c in llm.calls if c.get("response_format") and c["response_format"]["json_schema"]["name"] == "patient_reply"]
+    assert si in json.dumps(patient[0]["messages"]) and "bogus" not in s.state and s.state["distress"] <= 100

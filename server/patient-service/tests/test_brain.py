@@ -54,25 +54,29 @@ def test_prompt_fixed_prefix_and_locked_facts_never_sent():
     low = brain.build_messages(CASE, LOW, [{"role": "doctor", "text": "Hi"}])
     ctx = low[-1]["content"]
     si_text = next(f["text"] for f in CASE["facts"] if f["id"] == SI)
-    assert ctx.startswith("Doctor: Hi") and SI not in ctx and si_text not in ctx
+    assert len(low) == 2 and "\n---\nDoctor: Hi" in ctx and SI not in ctx and si_text not in ctx
     for f in CASE["facts"]:
         assert (f["text"] in ctx) == (f["trust_min"] <= 30)
     assert "Reminder:" in ctx and ctx.rstrip().endswith("Write Ananya Rao's next line in this dialogue.")
     high = brain.build_messages(CASE, HIGH, [{"role": "doctor", "text": "Hi"}], summary="Work is hard.", elapsed_min=5)[-1]["content"]
     assert si_text in high and "ONLY if the doctor asks directly" in high and "Work is hard." in high
+    # facts sit at the start of the conversation (cached), the per-turn tail holds no facts
+    long = brain.build_messages(CASE, LOW, [{"role": "doctor", "text": "a"}, {"role": "patient", "text": "b"}, {"role": "doctor", "text": "c"}])
+    assert long[1]["content"].startswith("WHAT THE PATIENT CAN SHARE NOW") and long[1]["content"].endswith("Doctor: a")
+    assert not any(f["text"] in long[-1]["content"] for f in CASE["facts"])
 
 
 def test_style_reminder_is_transient():
     msgs = [{"role": "doctor", "text": "a"}, {"role": "patient", "text": "b"}, {"role": "doctor", "text": "c"}]
     out = brain.build_messages(CASE, LOW, msgs)
-    assert [m["content"] for m in out[1:3]] == ["a", "b"]  # history verbatim, no reminder stored
+    assert out[1]["content"].endswith("Doctor: a") and out[2]["content"] == "b"  # history verbatim, no reminder stored
     assert sum("Reminder:" in m["content"] for m in out) == 1 and "Reminder:" in out[-1]["content"]
     assert msgs[-1]["text"] == "c"  # caller's history untouched
 
 
 def test_exam_actions_follow_trust():
     assert brain.allowed_actions(CASE, 20) == ["hold_out_hands", "look_at_light"]
-    ctx = brain.turn_context(CASE, {**LOW, "trust": 20})
+    ctx = brain.facts_block(CASE, {**LOW, "trust": 20})
     assert "roll_up_sleeves: hesitates or refuses" in ctx and "do I have to?" in ctx
     r, d = brain.guard(_reply(exam_action="roll_up_sleeves"), CASE, trust=20)
     assert r["exam_action"] is None and d == [{"kind": "exam_action", "id": "roll_up_sleeves", "reason": "trust"}]

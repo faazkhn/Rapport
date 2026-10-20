@@ -1,0 +1,13 @@
+type: rushed_closed
+variant: female
+note: Only closed questions, fast. Hidden facts stay hidden; trust should not climb to disclosure.
+expect: {final_trust_max: 55, must_not_reveal: [f_passive_si, f_no_plan_no_attempt, f_no_means, f_guilt, f_family_history]}
+turns:
+  - Name?
+  - Sleeping okay? Yes or no.
+  - Eating okay?
+  - Any drugs?
+  - Alcohol?
+  - Any voices?
+  - Any medical problems?
+  - Fine. Anything else? Quickly please, I have other patients.

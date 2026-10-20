@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: PsychSim.Speech::PsychSim.Speech.ServiceSettings
   baseUrl: http://127.0.0.1:8765
   model: 
+  vadSilenceMs: 500
   replyTimeoutS: 25
   ttsTimeoutS: 15
-  doctorVoice: Jasper
+  doctorVoice: Hugo

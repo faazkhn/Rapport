@@ -39,8 +39,23 @@ namespace PsychSim.Cues
             nextBlink = Time.time + 2f;
         }
 
+        float holdUntil;
+
+        /// <summary>Shows one preset for a few seconds (e.g. face_squint during the penlight) over the current emotion.</summary>
+        public void Hold(string preset, float seconds)
+        {
+            if (!presets.TryGetValue(preset, out var p)) return;
+            held = target;
+            target = new Dictionary<string, float>(p);
+            foreach (var k in current.Keys.ToList()) if (!target.ContainsKey(k)) target[k] = 0f;
+            holdUntil = Time.time + seconds;
+        }
+
+        Dictionary<string, float> held;
+
         public void SetEmotion(string emotion)
         {
+            if (Time.time < holdUntil) return;
             if (!presets.TryGetValue("face_" + emotion, out var p) && !presets.TryGetValue("face_neutral", out p)) return;
             target = new Dictionary<string, float>(p);
             foreach (var k in current.Keys.ToList()) if (!target.ContainsKey(k)) target[k] = 0f;
@@ -49,6 +64,7 @@ namespace PsychSim.Cues
         void LateUpdate()
         {
             if (meshes.Count == 0) return;
+            if (held != null && Time.time >= holdUntil) { target = held; held = null; }
             float k = 1f - Mathf.Exp(-Time.deltaTime * 4f);  // ~0.5 s ease between presets
             foreach (var key in target.Keys) current[key] = Mathf.Lerp(current.TryGetValue(key, out var c) ? c : 0f, target[key], k);
 

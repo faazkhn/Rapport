@@ -58,18 +58,3 @@ def test_endpoint_uses_mock(monkeypatch):
     assert c.get("/health").json()["mock"] is True
     r = c.post("/reply", json={"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "How is your appetite?"}], "state": LOW}).json()
     assert r["meta"]["mock"] is True and r["revealed_fact_ids"] == ["f_appetite"]
-
-
-def test_demo_script_reveals_every_scripted_fact(monkeypatch):
-    import json
-    from pathlib import Path
-    script = json.loads((Path(__file__).resolve().parents[3] / "demo" / "script.json").read_text())
-    monkeypatch.setattr(mock, "DEMO_TURNS", {t["doctor"]: t["patient"] for t in script["turns"]})
-    state, messages = dict(CASE["state_start"]), []
-    for t in script["turns"]:
-        messages.append({"role": "doctor", "text": t["doctor"]})
-        out = mock.mock_reply({"case_id": "mdd_01", "messages": messages, "state": state})
-        assert out["meta"]["guard_dropped"] == [], (t["doctor"], state, out["meta"]["guard_dropped"])
-        assert out["revealed_fact_ids"] == t["patient"]["facts"]
-        messages.append({"role": "patient", "text": out["utterance"]})
-        state = brain.apply_turn(state, out)

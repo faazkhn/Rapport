@@ -1,7 +1,7 @@
 {
     "name": "PsychSim.UI",
     "rootNamespace": "PsychSim.UI",
-    "references": ["PsychSim.Data","PsychSim.Patient","PsychSim.Scoring","PsychSim.Tools","PsychSim.Core"],
+    "references": ["PsychSim.Data","PsychSim.Patient","PsychSim.Scoring","PsychSim.Tools","PsychSim.Core","PsychSim.Speech","Unity.InputSystem","Unity.RenderPipelines.Universal.Runtime","Unity.RenderPipelines.Core.Runtime"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

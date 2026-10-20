@@ -10,7 +10,7 @@ namespace PsychSim.Patient
     /// <summary>The DESIGN 7.2 reply contract (meta is whatever the service adds).</summary>
     public class PatientReply
     {
-        public string utterance, emotion;
+        public string utterance, emotion, exam_action;
         public Dictionary<string, int> state_delta = new();
         public List<EventCue> event_cues = new();
         public List<string> revealed_fact_ids = new(), doctor_intents = new();
@@ -55,8 +55,16 @@ namespace PsychSim.Patient
                 if (delta[k] != v) dropped.Add($"state_delta {k}: clamped {v} -> {delta[k]}");
             }
 
+            string action = r.exam_action;
+            if (action != null && (!c.exam_actions.TryGetValue(action, out var rule) || rule.trust_min > trust))
+            {
+                dropped.Add($"exam_action {action}: {(rule == null ? "unknown" : "trust")}");
+                action = null;
+            }
+
             return new PatientReply
             {
+                exam_action = action,
                 utterance = r.utterance.Trim(),
                 emotion = Emotions.Contains(r.emotion) ? r.emotion : "neutral",
                 state_delta = delta, event_cues = cues, revealed_fact_ids = facts, doctor_intents = tagged, meta = r.meta,

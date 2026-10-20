@@ -16,7 +16,22 @@ namespace PsychSim.Data
         public JObject exam, scales;
         public List<string> fallback_lines = new();
         public AnswerKey answer_key;
+        // v0.3 (DESIGN 6.1)
+        public string style, variant;  // variant: set by CaseVariants.Resolve
+        public List<string> banned_words = new(), principles = new();
+        public JObject behavior;
+        public JToken rubric;
+        public Dictionary<string, CaseVariant> variants = new();
+        public Dictionary<string, ExamActionRule> exam_actions = new();
     }
+
+    public class CaseVariant
+    {
+        public string name, sex, model_id, voice_id;
+        public Dictionary<string, string> pronouns = new();
+    }
+
+    public class ExamActionRule { public float trust_min; public string refusal_line; }
 
     public class PatientInfo
     {
@@ -27,7 +42,7 @@ namespace PsychSim.Data
 
     public class Fact
     {
-        public string id, text;
+        public string id, text, variant;
         public float trust_min;
         public bool volunteered, must_be_asked;
         public List<string> unlock_intents = new();

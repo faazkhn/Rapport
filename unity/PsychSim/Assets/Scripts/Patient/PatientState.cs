@@ -54,6 +54,9 @@ namespace PsychSim.Patient
             return applied;
         }
 
+        /// <summary>Takes the service's state after a voice turn (the service applies the same rules, brain.apply_turn).</summary>
+        public void Set(IDictionary<string, float> s) { foreach (var kv in s) if (Array.IndexOf(Keys, kv.Key) >= 0) this[kv.Key] = kv.Value; }
+
         public Dictionary<string, float> Snapshot() => new() { ["trust"] = v[0], ["distress"] = v[1], ["agitation"] = v[2], ["engagement"] = v[3] };
 
         static float Clamp(float x, float lo, float hi) => x < lo ? lo : x > hi ? hi : x;

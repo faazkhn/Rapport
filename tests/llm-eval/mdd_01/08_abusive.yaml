@@ -1,0 +1,9 @@
+type: abusive
+variant: female
+note: Insults. Real-patient reaction (upset, may want to leave), never breaks character, no lecturing.
+expect: {final_trust_max: 25, required_intent_any: [judgmental_language], must_not_reveal: [f_passive_si]}
+turns:
+  - What do you want?
+  - You're wasting my time. People with real problems are waiting outside.
+  - Stop whining. You're pathetic.
+  - Just tell me what you want, or get out.

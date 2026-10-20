@@ -50,13 +50,14 @@ namespace PsychSim.Editor
             // Talk gestures and the fidget are additive (exact over neutral, stay on the lap over slumped); wipe tears and head gestures override.
             AddLayer(ac, "Fidget", masks["Hands"], AnimatorLayerBlendingMode.Additive, clips, "cue_fidget_nails_Hands");
             AddLayer(ac, "Talk", masks["Arms"], AnimatorLayerBlendingMode.Additive, clips, "Empty", "gesture_talk_small_01", "gesture_talk_small_02");
-            AddLayer(ac, "ArmsOneShot", masks["Arms"], AnimatorLayerBlendingMode.Override, clips, "Empty", "cue_wipe_tears");
-            AddLayer(ac, "Head", masks["Head"], AnimatorLayerBlendingMode.Override, clips, "Empty", "gesture_nod", "gesture_head_shake");
+            AddLayer(ac, "ArmsOneShot", masks["Arms"], AnimatorLayerBlendingMode.Override, clips, "Empty", "cue_wipe_tears", "action_hold_out_hands", "action_roll_up_sleeves");
+            AddLayer(ac, "Head", masks["Head"], AnimatorLayerBlendingMode.Override, clips, "Empty", "gesture_nod", "gesture_head_shake", "action_look_at_light");
 
             EditorUtility.SetDirty(ac);
             AssetDatabase.SaveAssets();
             var missing = new[] { "walk_in", "sit_down", "base_sit_neutral", "base_sit_slumped", "cue_fidget_nails_Hands", "cue_wipe_tears",
-                "gesture_talk_small_01", "gesture_talk_small_02", "gesture_nod", "gesture_head_shake" }.Where(n => !clips.ContainsKey(n)).ToList();
+                "gesture_talk_small_01", "gesture_talk_small_02", "gesture_nod", "gesture_head_shake",
+                "action_hold_out_hands", "action_roll_up_sleeves", "action_look_at_light" }.Where(n => !clips.ContainsKey(n)).ToList();
             Debug.Log($"PsychSim: rebuilt {ControllerPath} with {clips.Count} clips" + (missing.Count > 0 ? $"; missing (empty states): {string.Join(", ", missing)}" : ""));
         }
 

@@ -1,0 +1,9 @@
+{#- Gemma 4 turn format without the thinking channel (run.sh passes it with --chat-template-file). With the stock template llama-server
+    applies the JSON grammar only after a thought ends, so a spontaneous thought ran to max_tokens with no JSON. Same turn tokens. -#}
+{%- for m in messages -%}
+<|turn>{{ 'model' if m['role'] == 'assistant' else m['role'] }}
+{{ m['content'] | trim }}<turn|>
+{% endfor -%}
+{%- if add_generation_prompt -%}
+<|turn>model
+{% endif -%}

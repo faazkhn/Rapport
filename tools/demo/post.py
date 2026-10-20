@@ -45,33 +45,69 @@ def probe(path):
 
 
 def main():
-    take = Path(sys.argv[1]) if len(sys.argv) > 1 else DEMO / "raw" / "PsychSim_take.mp4"
-    work = DEMO / "raw"
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("take", nargs="?", default=str(DEMO / "raw" / "PsychSim_take.mp4"))
+    ap.add_argument("--arjun", default=str(DEMO / "raw" / "PsychSim_take_arjun.mp4"), help="male-variant take; a 10 s cut is inserted")
+    ap.add_argument("--arjun-start", type=float, default=None, help="start of the Arjun cut in its take (default: 10 s before its end)")
+    ap.add_argument("--trim-start", type=float, default=0.0)
+    ap.add_argument("--trim-end", type=float, default=TRIM_END)
+    ap.add_argument("--latency", default="", help="measured median, e.g. '1.4 s'")
+    a = ap.parse_args()
+    take, work = Path(a.take), DEMO / "raw"
     white, grey, amber = (240, 240, 240), (170, 178, 190), (240, 170, 60)
-    card(work / "title.png", [("PsychSim", 110, white, True), ("Clinical encounter simulator", 48, grey, False),
+    card(work / "title.png", [("PsychSim", 110, white, True), ("Embodied psychiatry & addiction OSCE simulator", 48, grey, False),
                               ("For education only", 40, amber, False)])
-    card(work / "end.png", [("Coming next", 56, white, True), ("Voice input  ·  10 cases  ·  VR on Quest 3S", 44, grey, False),
-                            ("", 20, grey, False), ("Draft content, not yet faculty-validated", 40, amber, False),
-                            ("Patient replies in this take were scripted. The live build generates them with Grok (xAI).", 30, grey, False)])
-    take_s = float(probe(take)["format"]["duration"]) - TRIM_END
+    card(work / "end.png", [("Measured voice latency (doctor stops to patient speaks): " + (a.latency or "see docs/latency.md"), 36, white, True),
+                            ("Everything runs on one Mac: Parakeet STT · local Gemma LLM · KittenTTS", 32, grey, False),
+                            ("Next: faster replies · 10 cases · faculty review · VR on Quest 3S", 32, grey, False),
+                            ("", 20, grey, False), ("Draft clinical content, not yet faculty-validated", 40, amber, False),
+                            ("Dr. Faaz's lines are synthesised (KittenTTS Hugo) and fed through the live microphone path.", 26, grey, False),
+                            ("Patient replies are generated live by the local model.", 26, grey, False)])
+    take_s = float(probe(take)["format"]["duration"]) - a.trim_end - a.trim_start
+    segs = [("img", work / "title.png", TITLE_S), ("vid", take, take_s, a.trim_start)]
+    arjun = Path(a.arjun)
+    if arjun.exists():
+        ad = float(probe(arjun)["format"]["duration"])
+        card(work / "arjun.png", [("Same case, male variant", 56, white, True), ("Arjun Rao · same clinical facts, different body and voice", 36, grey, False)])
+        segs += [("img", work / "arjun.png", 2.0), ("vid", arjun, 10.0, a.arjun_start if a.arjun_start is not None else max(0.0, ad - 10.5))]
+    segs.append(("img", work / "end.png", END_S))
     out = DEMO / "PsychSim_demo_v1.mp4"
-    total = TITLE_S + take_s + END_S - 2 * XF
-    fc = (
-        f"[0:v]fps={FPS},format=yuv420p,setsar=1[t];"
-        f"[1:v]fps={FPS},scale={W}:{H},format=yuv420p,setsar=1[m];"
-        f"[2:v]fps={FPS},format=yuv420p,setsar=1[e];"
-        f"[t][m]xfade=transition=fade:duration={XF}:offset={TITLE_S - XF}[tm];"
-        f"[tm][e]xfade=transition=fade:duration={XF}:offset={TITLE_S + take_s - 2 * XF}[v];"
-        f"[1:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay={int((TITLE_S - XF) * 1000)}|{int((TITLE_S - XF) * 1000)}[dlg];"
-        f"anoisesrc=color=brown:amplitude=0.012:sample_rate=48000:duration={total},lowpass=f=400,"
-        f"afade=t=in:d=1.5,afade=t=out:st={total - 2}:d=2,aformat=channel_layouts=stereo[tone];"
-        f"[dlg][tone]amix=inputs=2:duration=longest:normalize=0,atrim=0:{total},loudnorm=I=-16:TP=-1.5:LRA=11,"
-        f"aresample=48000[a]"
-    )
-    run(["ffmpeg", "-y", "-loop", "1", "-t", str(TITLE_S), "-i", work / "title.png", "-t", f"{take_s:.3f}", "-i", take,
-         "-loop", "1", "-t", str(END_S), "-i", work / "end.png", "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
-         "-c:v", "libx264", "-profile:v", "high", "-preset", "slow", "-crf", "18", "-r", str(FPS), "-pix_fmt", "yuv420p",
+    inputs, vf, af = [], [], []
+    for i, sg in enumerate(segs):
+        if sg[0] == "img":
+            inputs += ["-loop", "1", "-t", str(sg[2]), "-i", sg[1]]
+            vf.append(f"[{i}:v]fps={FPS},scale={W}:{H},format=yuv420p,setsar=1[v{i}]")
+            af.append(f"anullsrc=r=48000:cl=stereo,atrim=0:{sg[2]}[a{i}]")
+        else:
+            inputs += ["-ss", f"{sg[3]:.3f}", "-t", f"{sg[2]:.3f}", "-i", sg[1]]
+            vf.append(f"[{i}:v]fps={FPS},scale={W}:{H},format=yuv420p,setsar=1,setpts=PTS-STARTPTS[v{i}]")
+            af.append(f"[{i}:a]aformat=sample_rates=48000:channel_layouts=stereo,asetpts=PTS-STARTPTS,apad,atrim=0:{sg[2]}[a{i}]")
+    # chain crossfades
+    durs = [sg[2] for sg in segs]
+    chain_v, chain_a, off = "v0", "a0", 0.0
+    xf = []
+    for i in range(1, len(segs)):
+        off += durs[i - 1] - XF
+        xf.append(f"[{chain_v}][v{i}]xfade=transition=fade:duration={XF}:offset={off:.3f}[xv{i}]")
+        xf.append(f"[{chain_a}][a{i}]acrossfade=d={XF}[xa{i}]")
+        chain_v, chain_a = f"xv{i}", f"xa{i}"
+        off -= 0  # offsets accumulate on the shortened chain
+    total = sum(durs) - XF * (len(segs) - 1)
+    fc = ";".join(vf + af + xf) + (f";anoisesrc=color=brown:amplitude=0.012:sample_rate=48000:duration={total},lowpass=f=400,"
+                                   f"afade=t=in:d=1.5,afade=t=out:st={total - 2}:d=2,aformat=channel_layouts=stereo[tone];"
+                                   f"[{chain_a}][tone]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]")
+    run(["ffmpeg", "-y", *inputs, "-filter_complex", fc, "-map", f"[{chain_v}]", "-map", "[a]",
+         "-c:v", "libx264", "-profile:v", "high", "-preset", "medium", "-crf", "18", "-r", str(FPS), "-pix_fmt", "yuv420p",
          "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out])
+
+    # teaser: <= 20 s, <= 10 MB, from the interview
+    teaser = ROOT / "docs" / "media" / "teaser.mp4"
+    teaser.parent.mkdir(parents=True, exist_ok=True)
+    tstart = TITLE_S + min(60.0, take_s * 0.35)
+    run(["ffmpeg", "-y", "-v", "error", "-ss", f"{tstart:.2f}", "-t", "18", "-i", out, "-vf", "scale=1280:-2", "-c:v", "libx264", "-crf", "28",
+         "-preset", "slow", "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", teaser])
+    print("teaser", teaser, round(teaser.stat().st_size / 1e6, 1), "MB")
 
     info = probe(out)
     v = next(s for s in info["streams"] if s["codec_type"] == "video")

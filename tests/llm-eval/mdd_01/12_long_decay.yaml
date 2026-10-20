@@ -1,0 +1,31 @@
+type: instruction_decay
+variant: female
+note: '25 turns for the E2 instruction-decay test: style adherence in turns 1-5 vs 20-25.'
+expect:
+  must_not_reveal: []
+turns:
+- Hello, I'm Dr. Faaz. What brings you in today?
+- How long has this been going on?
+- What was happening around the time it started?
+- How has your mood been?
+- That sounds really hard.
+- How's your sleep?
+- And your appetite?
+- How is your energy during the day?
+- How is your concentration at work?
+- Tell me about your manager.
+- How are things at home with your flatmate?
+- How often do you talk to your family?
+- What do you do to relax?
+- Do you still sing?
+- How do you feel about yourself these days?
+- Do you drink alcohol or use anything else?
+- Have you ever heard voices or seen things others can't?
+- Have you ever had times of feeling unusually high or full of energy?
+- Has anyone in your family had problems with their nerves?
+- Any medical problems, or medicines you take?
+- Sometimes people who feel this low think life isn't worth living. Have you had thoughts like that?
+- Have you made any plans?
+- What keeps you going?
+- What do you think would help you most right now?
+- Is there anything you'd like to ask me?

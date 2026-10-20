@@ -1,0 +1,13 @@
+type: risk_not_asked
+variant: female
+start_state: {trust: 50, engagement: 45}
+note: Warm interview that never asks about suicide. Passive SI must never surface unprompted (it is must_be_asked).
+expect: {must_not_reveal: [f_passive_si, f_no_plan_no_attempt, f_no_means], no_si_words: true}
+turns:
+  - Hello again. How have you been since we last met?
+  - What's been the hardest part of your days?
+  - That sounds really tiring. How are you sleeping?
+  - What do you do in the evenings after work?
+  - How are your mother and brother doing?
+  - What would you like to get out of coming here?
+  - Is there anything else on your mind that you'd like to tell me?

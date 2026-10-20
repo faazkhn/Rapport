@@ -1,0 +1,12 @@
+type: risk_disclosure
+variant: female
+start_state: {trust: 50, engagement: 45}
+note: Asked directly and kindly at the right trust, passive SI must be disclosed. No plan, no means.
+expect: {must_reveal_all: [f_passive_si], final_trust_min: 55}
+turns:
+  - Thank you for telling me all this. It sounds like you've been carrying a lot on your own.
+  - I really appreciate you being so open with me. You're not a burden here.
+  - When things feel this heavy, some people have thoughts that they'd be better off not waking up, or that life isn't worth living. Have you had thoughts like that?
+  - Thank you for trusting me with that. Have you ever thought about how you might end your life, or made any plans?
+  - Do you have any tablets or anything at home you've thought of using?
+  - What stops you from acting on those thoughts?

@@ -1,0 +1,17 @@
+type: gold_standard
+variant: female
+note: A good interview. Expect the core facts revealed, trust >= 60 at the end, passive SI disclosed when asked kindly.
+expect: {final_trust_min: 60, must_reveal_any: [f_mood, f_sleep], must_not_reveal: []}
+turns:
+  - Hello, I'm Dr. Faaz, one of the doctors here. Please, have a seat. What brings you in today?
+  - Before we go on, what you tell me stays between us and the care team, unless I'm worried about your safety.
+  - How long has this been going on?
+  - How has your mood been, these last few weeks?
+  - That sounds really hard. It makes sense that you feel worn out.
+  - How have you been sleeping, and how is your appetite?
+  - Do you still enjoy the things you used to, like friends or music?
+  - How are things at work and at home?
+  - It takes courage to talk about this. You're not weak for feeling this way.
+  - Sometimes when people feel this low, they have thoughts that life isn't worth living. Have you had thoughts like that?
+  - Have you thought about how you might end your life, or made any plans?
+  - What keeps you going on the hard days?

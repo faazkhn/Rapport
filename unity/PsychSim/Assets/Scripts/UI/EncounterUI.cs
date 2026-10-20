@@ -3,7 +3,9 @@ using System.Globalization;
 using System.Linq;
 using PsychSim.Core;
 using PsychSim.Scoring;
+using PsychSim.Speech;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace PsychSim.UI
@@ -19,7 +21,9 @@ namespace PsychSim.UI
         [SerializeField] EncounterManager encounter;
 
         VisualElement root, panel, tabBody, overlay;
-        Label timer, docSub, patSub, status;
+        Label timer, docSub, patSub, status, voiceLabel, latency;
+        VisualElement voiceDot, micFill;
+        Button modeButton;
         ScrollView transcript;
         TextField input;
         string currentTab = "Chat";
@@ -39,6 +43,7 @@ namespace PsychSim.UI
             encounter.PhaseChanged += OnPhase;
             encounter.Subtitle += OnSubtitle;
             encounter.Scored += ShowScore;
+            encounter.PatientReplied += t => { if (!string.IsNullOrEmpty(t.reply.utterance)) AddTranscript(encounter.Case.patient.name.Split(' ')[0], t.reply.utterance, Color.white); };
             Action<string, string> refresh = (_, __) => { if (!uiEdit) OpenTab(currentTab); };
             encounter.Mse.Changed += refresh; encounter.Dx.Changed += refresh; encounter.Rx.Changed += refresh; encounter.Disposition.Changed += refresh;
             OnPhase(encounter.Phase);
@@ -49,9 +54,12 @@ namespace PsychSim.UI
             if (timer != null && encounter.Case != null)
             {
                 var s = encounter.SessionSeconds;
-                timer.text = $"{(int)s / 60:00}:{(int)s % 60:00} / {encounter.TimeLimitSeconds / 60:0} min";
+                bool over = s > encounter.TimeLimitSeconds;
+                timer.text = $"{encounter.Mode} · {(int)s / 60:00}:{(int)s % 60:00} / {encounter.TimeLimitSeconds / 60:0} min" + (over ? " (over time)" : "");
+                timer.style.color = over ? Bad : s > encounter.TimeLimitSeconds - 120 ? Warn : new Color(0.8f, 0.85f, 0.9f);
             }
-            if (status != null) status.text = encounter.Busy ? "The patient is responding..." : "";
+            UpdateVoiceBar();
+            if (status != null) status.text = encounter.ServiceError;
             if (Time.time > docSubUntil) docSub.style.display = DisplayStyle.None;
             if (Time.time > patSubUntil) patSub.style.display = DisplayStyle.None;
         }
@@ -74,6 +82,7 @@ namespace PsychSim.UI
             head.Add(timer);
             panel.Add(head);
             panel.Add(Text("For education only. Draft content, not faculty-validated.", 14, Warn));
+            panel.Add(BuildVoiceBar());
 
             var tabs = Row();
             tabs.style.flexWrap = Wrap.Wrap;
@@ -127,12 +136,85 @@ namespace PsychSim.UI
             label.text = $"{name}: {text}";
             label.style.display = string.IsNullOrEmpty(text) ? DisplayStyle.None : DisplayStyle.Flex;
             float until = Time.time + Mathf.Clamp(text.Length / 12f, 3f, 12f);
-            if (speaker == "doctor") docSubUntil = until; else patSubUntil = until;
-            var line = Text($"{name}: {text}", 16, speaker == "doctor" ? new Color(0.75f, 0.85f, 1f) : Color.white);
+            if (speaker == "doctor") { docSubUntil = until; AddTranscript("Dr. Faaz", text, new Color(0.75f, 0.85f, 1f)); }
+            else patSubUntil = until;
+        }
+
+        void AddTranscript(string name, string text, Color c)
+        {
+            var line = Text($"{name}: {text}", 16, c);
             line.style.whiteSpace = WhiteSpace.Normal;
             line.style.marginBottom = 6;
             transcript.Add(line);
             transcript.schedule.Execute(() => transcript.scrollOffset = new Vector2(0, float.MaxValue));
+        }
+
+        // ---------------------------------------------------------------- voice bar: listening / thinking / speaking, mic meter, mode
+
+        VisualElement BuildVoiceBar()
+        {
+            var bar = Row();
+            bar.style.marginTop = 8; bar.style.paddingTop = bar.style.paddingBottom = 6; bar.style.paddingLeft = 8;
+            bar.style.backgroundColor = Card;
+            voiceDot = new VisualElement();
+            voiceDot.style.width = voiceDot.style.height = 16;
+            voiceDot.style.borderTopLeftRadius = voiceDot.style.borderTopRightRadius = voiceDot.style.borderBottomLeftRadius = voiceDot.style.borderBottomRightRadius = 8;
+            voiceDot.style.marginRight = 8;
+            bar.Add(voiceDot);
+            voiceLabel = Text("Voice off", 17, Color.white, true);
+            voiceLabel.style.width = 150;
+            bar.Add(voiceLabel);
+            var meter = Box(new Color(0, 0, 0, 0.5f));
+            meter.style.width = 120; meter.style.height = 10; meter.style.marginRight = 10;
+            micFill = Box(Good);
+            micFill.style.height = 10; micFill.style.width = 0;
+            meter.Add(micFill);
+            bar.Add(Text("Mic", 13, new Color(0.7f, 0.75f, 0.8f)));
+            bar.Add(meter);
+            modeButton = Button("Hands-free", ToggleMode, 13);
+            bar.Add(modeButton);
+            bar.Add(Spacer());
+            latency = Text("", 13, new Color(0.7f, 0.75f, 0.8f));
+            latency.style.marginRight = 8;
+            bar.Add(latency);
+            return bar;
+        }
+
+        void ToggleMode()
+        {
+            var v = encounter.Voice;
+            if (v == null) return;
+            v.SetHandsFree(!v.HandsFree);
+        }
+
+        bool pttDown;
+
+        void UpdateVoiceBar()
+        {
+            if (voiceLabel == null) return;
+            var v = encounter.Voice;
+            var st = v == null || !v.Connected ? VoiceState.Off : v.State;
+            (string label, Color c) = st switch
+            {
+                VoiceState.Listening => (v.HandsFree ? "Listening" : pttDown ? "Listening (PTT)" : "Hold Space to talk", Good),
+                VoiceState.Hearing => ("Hearing you", new Color(0.55f, 0.95f, 0.6f)),
+                VoiceState.Thinking => ("Thinking...", Warn),
+                VoiceState.Speaking => ("Speaking", Accent),
+                _ => ("Voice off (typed only)", new Color(0.5f, 0.5f, 0.5f)),
+            };
+            voiceLabel.text = label;
+            voiceDot.style.backgroundColor = c;
+            micFill.style.width = 120 * (v?.MicLevel ?? 0);
+            if (modeButton != null && v != null) modeButton.text = v.HandsFree ? "Hands-free (switch to PTT)" : "Push-to-talk (switch to hands-free)";
+            if (encounter.LastLatencyMs >= 0) latency.text = $"Last reply {encounter.LastLatencyMs / 1000f:0.0} s";
+
+            // push-to-talk on Space, unless the learner is typing in the chat box
+            var kb = Keyboard.current;
+            if (v != null && !v.HandsFree && kb != null && encounter.Phase == Phase.Active && (input == null || input.focusController?.focusedElement != input))
+            {
+                if (kb.spaceKey.wasPressedThisFrame) { pttDown = true; v.PushToTalk(true); }
+                if (kb.spaceKey.wasReleasedThisFrame && pttDown) { pttDown = false; v.PushToTalk(false); }
+            }
         }
 
         // ---------------------------------------------------------------- phases
@@ -141,26 +223,89 @@ namespace PsychSim.UI
         {
             overlay?.RemoveFromHierarchy();
             panel.SetEnabled(p == Phase.Active);
+            if (p == Phase.Start) ShowStart();
             if (p == Phase.Brief) ShowBrief();
             if (p == Phase.Active) OpenTab("Chat");
+        }
+
+        // ---------------------------------------------------------------- start screen and prebrief (plan C6)
+
+        string startCase, startVariant = "female";
+        Mode startMode = Mode.Practice;
+
+        void ShowStart()
+        {
+            if (string.IsNullOrEmpty(startCase) || !encounter.Data.cases.ContainsKey(startCase)) startCase = encounter.Data.cases.Keys.First();
+            var card = Overlay(900);
+            card.Add(Text("PsychSim", 34, Color.white, true));
+            card.Add(Text("Embodied psychiatry and addiction OSCE simulator. For education only.", 17, Warn));
+            card.Add(Heading("1. Case"));
+            var cases = encounter.Data.cases.Values.ToList();
+            var caseRow = Row();
+            foreach (var c in cases) { var id = c.id; caseRow.Add(Choice(c.title, startCase == id, () => { startCase = id; ShowStart(); })); }
+            card.Add(caseRow);
+            card.Add(Heading("2. Patient"));
+            var vRow = Row();
+            foreach (var kv in encounter.Data.cases[startCase].variants)
+            {
+                var key = kv.Key;
+                vRow.Add(Choice($"{char.ToUpper(key[0]) + key.Substring(1)} · {kv.Value.name}", startVariant == key, () => SelectVariant(key)));
+            }
+            card.Add(vRow);
+            card.Add(Para("Same clinical story for both; only the name, pronouns, body and voice change."));
+            card.Add(Heading("3. Mode"));
+            var mRow = Row();
+            mRow.Add(Choice("Practice", startMode == Mode.Practice, () => { startMode = Mode.Practice; ShowStart(); }));
+            mRow.Add(Choice("Assessment", startMode == Mode.Assessment, () => { startMode = Mode.Assessment; ShowStart(); }));
+            card.Add(mRow);
+            card.Add(Para(startMode == Mode.Practice ? "Practice: the 15-minute clock is a guide; you can run over." : "Assessment: a strict 15-minute station; it ends and scores itself at 15:00."));
+            var go = Button("Continue", () => encounter.Configure(startCase, startVariant, startMode), 20);
+            go.style.marginTop = 16;
+            card.Add(go);
+        }
+
+        /// <summary>Demo hook: highlights a patient option on the start screen as if clicked.</summary>
+        public void SelectVariant(string variant)
+        {
+            startVariant = variant;
+            if (encounter.Phase == Phase.Start) ShowStart();
+        }
+
+        Button Choice(string text, bool selected, Action onClick)
+        {
+            var b = Button(text, onClick, 18);
+            b.style.marginRight = 10;
+            b.style.paddingLeft = b.style.paddingRight = 14; b.style.paddingTop = b.style.paddingBottom = 8;
+            b.style.backgroundColor = selected ? Accent : new Color(0.25f, 0.27f, 0.31f);
+            b.style.color = Color.white;
+            return b;
         }
 
         void ShowBrief()
         {
             var c = encounter.Case;
-            var card = Overlay(760);
-            card.Add(Text(c.title, 30, Color.white, true));
-            card.Add(Text("For education only. Not for use with real patients.", 16, Warn));
+            var card = Overlay(860);
+            card.Add(Text("Before you start", 30, Color.white, true));
+            card.Add(Text($"{c.title} · {c.patient.name} · {encounter.Mode}", 18, new Color(0.8f, 0.85f, 0.9f)));
             if (c.status != "approved") card.Add(Banner("Draft content, not faculty-validated"));
+            card.Add(Heading("Objectives"));
+            card.Add(Para("• Build rapport and take a focused psychiatric history.\n• Observe the patient: posture, gaze, speech, affect. Record what you see in the MSE tab.\n"
+                          + "• Assess risk directly and kindly.\n• Make a working diagnosis and a safe management plan."));
+            card.Add(Heading("How it works"));
+            card.Add(Para($"Talk to the patient out loud. The patient answers in their own voice. {c.time_limit_min ?? 15:0} minutes. Hands-free listening is on; "
+                          + "you can switch to push-to-talk (hold Space) or type. Use headphones so the patient does not hear their own voice."));
+            card.Add(Para("Scoring is formative and risk-first: risk assessment counts most, and missing a risk question means 'Not passed'. "
+                          + "The debrief quotes your own words and shows your conclusions next to the case."));
             if (!string.IsNullOrEmpty(c.content_note))
             {
-                var note = Text("Content note: " + c.content_note + " You can pause or leave at any time.", 18, Warn);
-                note.style.whiteSpace = WhiteSpace.Normal; note.style.marginTop = 12;
+                var note = Text("Content note: " + c.content_note, 17, Warn);
+                note.style.whiteSpace = WhiteSpace.Normal; note.style.marginTop = 10;
                 card.Add(note);
             }
+            card.Add(Para("This is a safe place to practise and make mistakes. You can pause or leave at any time.", Good));
             card.Add(Heading("Referral note"));
             card.Add(Para(c.referral_note));
-            card.Add(Para("Your typed questions are sent to an AI model (xAI) to generate the patient's replies. Nothing you type is linked to your identity."));
+            card.Add(Para("Privacy: your voice is processed on this computer only (local speech recognition and a local language model). Nothing is recorded or sent to the cloud."));
             var go = Button("Enter the room", () => encounter.BeginEncounter(), 20);
             go.style.marginTop = 16;
             card.Add(go);
@@ -175,7 +320,33 @@ namespace PsychSim.UI
             sv.Add(Banner("Draft content, not faculty-validated. For education only."));
             sv.Add(Text(s.verdict, 34, s.critical_errors.Count > 0 ? Bad : Good, true));
             foreach (var e in s.critical_errors) sv.Add(Para("Critical error: " + e, Bad));
-            sv.Add(Text($"Score {s.total:0.#} / 100", 26, Color.white, true));
+            sv.Add(Text($"Score {s.total:0.#} / 100 (formative)", 26, Color.white, true));
+            sv.Add(Heading("Your conclusions vs the case"));
+            var grid = new VisualElement();
+            var hdr = Row();
+            foreach (var h in new[] { ("", 120), ("You", 440), ("Case truth", 440) }) { var l = Text(h.Item1, 15, Accent, true); l.style.width = h.Item2; hdr.Add(l); }
+            grid.Add(hdr);
+            foreach (var row in s.side_by_side)
+            {
+                var r = Row();
+                r.style.alignItems = Align.FlexStart;
+                r.style.backgroundColor = row.match ? new Color(0.2f, 0.35f, 0.25f, 0.5f) : new Color(0.45f, 0.2f, 0.18f, 0.5f);
+                r.style.paddingTop = r.style.paddingBottom = 4;
+                foreach (var (txt, w, bold) in new[] { (row.area, 120, true), (row.yours, 440, false), (row.truth, 440, false) })
+                {
+                    var l = Text(txt, 14, Color.white, bold);
+                    l.style.width = w; l.style.whiteSpace = WhiteSpace.Normal; l.style.paddingRight = 8;
+                    r.Add(l);
+                }
+                grid.Add(r);
+            }
+            sv.Add(grid);
+            sv.Add(Heading("Feedback on your own words"));
+            foreach (var f in s.feedback)
+            {
+                var when = f.quote == null ? "" : $"At {(int)f.t / 60:00}:{(int)f.t % 60:00} you said \"{f.quote}\". ";
+                sv.Add(Para((f.kind == "good" ? "✓ " : "△ ") + when + f.note, f.kind == "good" ? Good : Warn));
+            }
             foreach (var d in s.domains)
             {
                 var r = Row();
@@ -225,7 +396,7 @@ namespace PsychSim.UI
             r.Add(input);
             r.Add(Button("Send", Send, 16));
             tabBody.Add(r);
-            tabBody.Add(Text("Type a question and press Enter.", 13, new Color(0.65f, 0.7f, 0.75f)));
+            tabBody.Add(Text("Speak to the patient, or type a question and press Enter.", 13, new Color(0.65f, 0.7f, 0.75f)));
             input.schedule.Execute(() => input.Focus());
         }
 
@@ -348,6 +519,7 @@ namespace PsychSim.UI
 
         VisualElement Overlay(float width)
         {
+            overlay?.RemoveFromHierarchy();   // re-rendering a card (start screen choices) replaces it
             overlay = new VisualElement();
             overlay.style.position = Position.Absolute;
             overlay.style.left = overlay.style.right = overlay.style.top = overlay.style.bottom = 0;

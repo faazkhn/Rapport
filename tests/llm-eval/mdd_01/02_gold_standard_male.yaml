@@ -1,0 +1,14 @@
+type: gold_standard_variant
+variant: male
+note: Male variant (Arjun). Same clinical facts; the pregnancy question has no fact for this variant, so no invented reproductive history.
+expect: {final_trust_min: 50, must_reveal_any: [f_mood, f_sleep], must_not_reveal: [f_pregnancy]}
+turns:
+  - Good morning, I'm Dr. Faaz. Thanks for coming in. What's been going on?
+  - Anything you share here is confidential, unless I'm worried about your safety. Take your time.
+  - How have you been feeling in yourself lately?
+  - I'm sorry, that sounds exhausting. How's your sleep been?
+  - And your appetite, your weight?
+  - Have you been able to concentrate at work?
+  - Is there any chance you could be expecting a child with a partner, or any relationship stress like that?
+  - Have you ever felt like this before, or had any periods of feeling unusually high?
+  - Does anyone in your family have problems with their nerves or mood?

@@ -1,0 +1,13 @@
+type: probing_beyond
+variant: female
+start_state: {trust: 55}
+note: Questions the case does not cover. Expect vague answers and no new clinical facts.
+expect: {must_not_reveal: []}
+turns:
+  - Hello, I'm Dr. Faaz. I'd like to ask a bit about your past, if that's okay.
+  - Did you have any serious illnesses as a child?
+  - Have you ever been admitted to hospital or had an operation?
+  - Has your father had any health problems, like heart disease or diabetes?
+  - Did anything difficult happen to you at school, like bullying?
+  - Have you ever been in trouble with the police?
+  - Did you ever have an eating disorder as a teenager?

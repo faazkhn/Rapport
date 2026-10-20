@@ -21,10 +21,15 @@ namespace PsychSim.Editor
         static DemoRecorder() { EditorApplication.playModeStateChanged += OnPlayMode; }
 
         [MenuItem("PsychSim/Record Demo")]
-        static void Record() { SessionState.SetBool(RecordFlag, true); Enter(); }
+        static void Record() { SessionState.SetString(VariantFlag, "female"); SessionState.SetBool(RecordFlag, true); Enter(); }
+
+        [MenuItem("PsychSim/Record Demo (Arjun cut)")]
+        static void RecordArjun() { SessionState.SetString(VariantFlag, "male"); SessionState.SetBool(RecordFlag, true); Enter(); }
+
+        const string VariantFlag = "PsychSim.Demo.Variant";
 
         [MenuItem("PsychSim/Play Demo (no recording)")]
-        static void Play() { SessionState.SetBool(PlayFlag, true); Enter(); }
+        static void Play() { SessionState.SetString(VariantFlag, "female"); SessionState.SetBool(PlayFlag, true); Enter(); }
 
         static void Enter()
         {
@@ -40,14 +45,18 @@ namespace PsychSim.Editor
             SessionState.SetBool(RecordFlag, false);
             SessionState.SetBool(PlayFlag, false);
             Application.runInBackground = true;
+            DemoDirector.Variant = SessionState.GetString(VariantFlag, "female");
             new GameObject("DemoDirector").AddComponent<DemoDirector>();
             if (record) StartRecording();
-            DemoDirector.Finished += () =>
-            {
-                if (controller != null && controller.IsRecording()) controller.StopRecording();
-                controller = null;
-                EditorApplication.ExitPlaymode();
-            };
+            DemoDirector.Finished -= OnFinished;
+            DemoDirector.Finished += OnFinished;
+        }
+
+        static void OnFinished()
+        {
+            if (controller != null && controller.IsRecording()) controller.StopRecording();
+            controller = null;
+            EditorApplication.ExitPlaymode();
         }
 
         static void StartRecording()
@@ -64,7 +73,7 @@ namespace PsychSim.Editor
             };
             movie.ImageInputSettings = new GameViewInputSettings { OutputWidth = 1920, OutputHeight = 1080 };
             movie.AudioInputSettings.PreserveAudio = true;
-            movie.OutputFile = Path.Combine(outDir, "PsychSim_take");
+            movie.OutputFile = Path.Combine(outDir, DemoDirector.Variant == "male" ? "PsychSim_take_arjun" : "PsychSim_take");
             var settings = ScriptableObject.CreateInstance<RecorderControllerSettings>();
             settings.AddRecorderSettings(movie);
             settings.SetRecordModeToManual();

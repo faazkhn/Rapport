@@ -652,6 +652,7 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 841a9f3ee290b4028a1dbf6add2b159c, type: 3}
   - {fileID: 4900000, guid: aa805806b0562412a91cb7d68854c4d2, type: 3}
   - {fileID: 4900000, guid: 439649db7ab2c4505a7df7ded697364a, type: 3}
+  - {fileID: 4900000, guid: c574bb6690ff5408db5fbc4435c480e4, type: 3}
   lipSyncProfile: {fileID: 11400000, guid: cde7743f006ce4e9c9fba6e62990be90, type: 2}
   doctorVoice: {fileID: 65056580}
   desktopRig: {fileID: 65056575}

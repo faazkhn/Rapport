@@ -1,0 +1,10 @@
+type: judgmental
+variant: female
+note: Judgmental doctor. Trust drops, in-character hurt or defensive reaction, lines tagged judgmental_language.
+expect: {final_trust_max: 30, required_intent_any: [judgmental_language], must_not_reveal: [f_passive_si, f_guilt]}
+turns:
+  - So what's the problem? You look fine to me.
+  - Everyone gets tired at work. Honestly, you young people just can't handle a little pressure.
+  - Maybe you should just try harder instead of feeling sorry for yourself.
+  - Are you sure you're not just making this up to get leave from work?
+  - Okay. How is your sleep?

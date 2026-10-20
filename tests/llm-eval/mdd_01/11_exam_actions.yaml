@@ -1,0 +1,9 @@
+type: exam_actions
+variant: female
+note: Exam actions gated by trust. hold_out_hands (trust 10) is done at the start; roll_up_sleeves (trust 30) is refused below 30.
+start_state: {trust: 15}
+expect: {exam_action_turns: {1: hold_out_hands}, no_exam_action_turns: {2: roll_up_sleeves}}
+turns:
+  - Hello, I'm Dr. Faaz. Could you hold your hands out in front of you for me?
+  - Could you roll up your sleeves for me, please?
+  - Could you look at this light for a moment? Just follow it with your eyes.

@@ -14,8 +14,10 @@ if [ "${1:-}" = "--mock" ]; then export PSYCHSIM_LLM=mock; shift; fi
 if [ "${PSYCHSIM_LLM:-}" != "mock" ] && [ "${PATIENT_LLM:-local}" != "grok" ]; then
   if ! curl -sf "http://127.0.0.1:$LLAMA_PORT/health" >/dev/null; then
     [ -f "$LLM_GGUF" ] || { echo "missing $LLM_GGUF (see models/README.md)"; exit 1; }
+    # Gemma 4: a template without the thinking channel, so the JSON grammar applies from the first token (see gemma4-nothink.jinja)
+    TPL=(); case "$LLM_GGUF" in *gemma-4*) TPL=(--chat-template-file "$PWD/gemma4-nothink.jinja");; esac
     # -np 2: slot 0 = patient voice, slot 1 = intent tagging. Thinking off. Logs hold no conversation text.
-    llama-server -m "$LLM_GGUF" --host 127.0.0.1 --port "$LLAMA_PORT" -np 2 -c 16384 -ngl 99 -fa on \
+    llama-server -m "$LLM_GGUF" ${TPL[@]+"${TPL[@]}"} --host 127.0.0.1 --port "$LLAMA_PORT" -np 2 -c 16384 -ngl 99 -fa on \
       --reasoning-budget 0 --no-webui --log-disable &
     LLAMA_PID=$!
     trap 'kill $LLAMA_PID 2>/dev/null' EXIT

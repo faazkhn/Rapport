@@ -70,9 +70,26 @@ namespace PsychSim.Cues
             talkingUntil = Time.time + seconds;
             if (HasClip("gesture_talk_small_01")) anim.CrossFade(UnityEngine.Random.value < 0.5f ? "gesture_talk_small_01" : "gesture_talk_small_02", 0.3f, lTalk);
             var u = utterance.TrimStart().ToLowerInvariant();
+            if (InExamAction) return;
             if (u.StartsWith("yes") || u.StartsWith("yeah") || u.StartsWith("hmm, yes")) PlayOneShot(lHead, "gesture_nod");
             else if (u.StartsWith("no") && !u.StartsWith("not")) PlayOneShot(lHead, "gesture_head_shake");
         }
+
+        /// <summary>Exam action (plan B1) the service accepted: plays its clip; the fine tremor shows on the held-out hands, a squint on the light.</summary>
+        public float PlayExamAction(string action)
+        {
+            int layer = action == "look_at_light" ? lHead : lArms;
+            var state = "action_" + action;
+            if (!HasClip(state)) return 0f;
+            PlayOneShot(layer, state);
+            examUntil = Time.time + anim.runtimeAnimatorController.animationClips.First(c => c.name == state).length;
+            if (action == "hold_out_hands") Boost("tremor_fine", 0.35f, 6f);
+            if (action == "look_at_light") face?.Hold("face_squint", 4.5f);
+            return examUntil - Time.time;
+        }
+
+        float examUntil;
+        public bool InExamAction => Time.time < examUntil;
 
         void PlayOneShot(int layer, string state)
         {
@@ -104,7 +121,7 @@ namespace PsychSim.Cues
 
             // layer weights: fidget follows intensity, talk while speaking, one-shots until their clip ends
             if (lFidget >= 0) layerTarget[lFidget] = Seated && HasClip("cue_fidget_nails_Hands") ? Get("fidget") : 0f;
-            if (lTalk >= 0) layerTarget[lTalk] = Seated && now < talkingUntil && HasClip("gesture_talk_small_01") ? 0.8f : 0f;
+            if (lTalk >= 0) layerTarget[lTalk] = Seated && !InExamAction && now < talkingUntil && HasClip("gesture_talk_small_01") ? 0.8f : 0f;
             foreach (var l in new[] { lArms, lHead })
                 if (l >= 0 && layerTarget.TryGetValue(l, out var w) && w > 0 && !anim.IsInTransition(l) && anim.GetCurrentAnimatorStateInfo(l).normalizedTime >= 0.95f
                     && !anim.GetCurrentAnimatorStateInfo(l).IsName("Empty"))
@@ -115,7 +132,7 @@ namespace PsychSim.Cues
             if (!Seated) { layerTarget[lArms] = 0; layerTarget[lHead] = 0; }
 
             // tearful: wipe the tears now and then, more often as it rises
-            if (Seated && tearful > 0.45f && now > nextWipe && now > talkingUntil)
+            if (Seated && tearful > 0.45f && now > nextWipe && now > talkingUntil && !InExamAction)
             {
                 PlayOneShot(lArms, "cue_wipe_tears");
                 CueFired?.Invoke("tearful", tearful);

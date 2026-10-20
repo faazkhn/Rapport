@@ -95,6 +95,9 @@ class Session:
             self.vad.reset()
         elif t == "stop":
             await self.stop("client")
+        elif t == "state":  # client-side drift (case state_drift_per_min); clamped, unknown keys ignored
+            st = msg.get("state") or {}
+            self.state.update({k: min(100.0, max(0.0, float(st[k]))) for k in brain.STATE_KEYS if k in st})
         else:
             await self.send_json({"type": "error", "error": f"unknown type {t!r}"})
 
@@ -116,10 +119,14 @@ class Session:
         await self.send_json({"type": "listening"})
 
     def warm(self):
-        """Fill slot 0's KV cache with this case+variant's fixed prefix so the first turn is fast."""
+        """Prefill slot 0's KV cache with the next turn's prompt up to the doctor's words (system, facts block for the current trust,
+        history), so only the doctor's line and the small tail are left when they stop talking. Run at start and after every reply:
+        a trust change rewrites the facts block near the start, and Gemma's sliding-window cache cannot reuse what follows it."""
+        if brain.use_grok():
+            return
         with contextlib.suppress(Exception):
-            kw = brain.llm_kwargs(brain.default_model(), brain.build_messages(self.case, self.state, [{"role": "doctor", "text": "Hello."}]),
-                                  {"type": "object"}, "warm", 0)
+            msgs = self.messages + [{"role": "doctor", "text": ""}]
+            kw = brain.llm_kwargs(brain.default_model(), brain.build_messages(self.case, self.state, msgs), {"type": "object"}, "warm", 0)
             kw.pop("response_format")
             (self.client or brain.get_client()).chat.completions.create(**{**kw, "max_tokens": 1})
 
@@ -219,7 +226,6 @@ class Session:
         model = brain.default_model()
         await self.send_json({"type": "thinking"})
 
-        intents_fut = loop.run_in_executor(None, brain.tag_intents, text, prev, self.client, model)
         allowed = [f["id"] for f in brain.allowed_facts(case, state["trust"])]
         schema = brain.build_reply_schema(case, allowed, brain.allowed_actions(case, state["trust"]))
         kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed),
@@ -235,6 +241,7 @@ class Session:
         spoken, dropped_banned, idx = [], [], 0
         marks = {"ttft": None, "first_sentence": None, "tts_first_ms": None, "audio_start": None}
         err = None
+        flushed = False
 
         async def speak(sentence):
             nonlocal idx
@@ -249,11 +256,13 @@ class Session:
             if marks["audio_start"] is None:
                 marks["tts_first_ms"] = ms(t, time.monotonic())
                 marks["audio_start"] = time.monotonic()
-                await self.send_json({"type": "speaking", "slowed_pause_ms": round(pause * 1000)})
-                if pause:
-                    await asyncio.sleep(pause)  # deliberate `slowed` pause, logged separately, not lag
+                # deliberate `slowed` pause, counted from the end of the doctor's speech so it absorbs compute time
+                marks["pause_applied"] = max(0.0, timing["t_end"] + pause - marks["audio_start"])
+                if marks["pause_applied"]:
+                    await asyncio.sleep(marks["pause_applied"])
                     if cancel.is_set():
                         return
+                await self.send_json({"type": "speaking", "slowed_pause_ms": round(marks["pause_applied"] * 1000)})
             pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
             dur = len(pcm) / 2 / OUT_SR
             await self.send_json({"type": "sentence", "index": idx, "text": sentence, "samples": len(pcm) // 2})
@@ -267,7 +276,10 @@ class Session:
             if kind == "chunk":
                 if marks["ttft"] is None:
                     marks["ttft"] = time.monotonic()
-                for s in splitter.feed(parser.feed(val)):
+                pieces = splitter.feed(parser.feed(val))
+                if parser.done and not flushed:  # the utterance string closed: speak its tail now, not when the whole JSON ends
+                    pieces, flushed = pieces + splitter.flush(), True
+                for s in pieces:
                     marks["first_sentence"] = marks["first_sentence"] or time.monotonic()
                     await speak(s)
             elif kind == "error":
@@ -280,7 +292,8 @@ class Session:
                 marks["first_sentence"] = marks["first_sentence"] or time.monotonic()
                 await speak(s)
         t_done = time.monotonic()
-        tagged = await intents_fut
+        # intent tagging runs after the voice stream: on one GPU a parallel request halves the patient's token rate
+        tagged = await loop.run_in_executor(None, brain.tag_intents, text, prev, self.client, model)
         if was_interrupted:
             tagged = tagged + ["interrupt"]
 
@@ -303,6 +316,7 @@ class Session:
         if reply["utterance"]:
             self.messages.append({"role": "patient", "text": reply["utterance"]})
         self.state = brain.apply_turn(state, reply)
+        loop.run_in_executor(None, self.warm)
         await self.send_json({"type": "intents", "doctor_intents": tagged})
         await self.send_json({"type": "reply", "turn": self.turn_no, "reply": reply, "state": self.state, "meta": meta})
 
@@ -311,8 +325,9 @@ class Session:
             "type": "timing", "turn": self.turn_no,
             "llm_ttft_ms": ms(t_llm, marks["ttft"]), "llm_first_sentence_ms": ms(t_llm, marks["first_sentence"]),
             "llm_total_ms": ms(t_llm, t_done), "tts_first_chunk_ms": marks["tts_first_ms"],
-            "audio_start_ms": ms(t_end, marks["audio_start"]),  # end of doctor speech -> first patient audio, excluding pause
-            "slowed_pause_ms": round(pause * 1000), "banned_dropped": dropped_banned,
+            "audio_start_ms": ms(t_end, marks["audio_start"]),  # end of doctor speech -> first patient audio ready, excluding pause
+            "slowed_pause_ms": round(marks.get("pause_applied", 0) * 1000),  # extra wait added after audio was ready
+            "slowed_target_ms": round(pause * 1000), "banned_dropped": dropped_banned,
         })
         await self.send_json(timing)
         log.info("turn %d timing %s", self.turn_no, json.dumps({k: v for k, v in timing.items() if k.endswith("_ms")}))

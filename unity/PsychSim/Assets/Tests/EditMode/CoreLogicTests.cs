@@ -171,7 +171,8 @@ namespace PsychSim.Tests
         public void PerfectSession()
         {
             var r = ScoringEngine.Score(Perfect());
-            Assert.AreEqual(98.4f, r.total, 1e-3);  // communication 20*(0.6+0.4*0.8)=18.4, all others full
+            Assert.AreEqual(99.0f, r.total, 1e-3);  // communication 12*(0.6+0.4*0.8)=11.04 -> 11.0, all others full (risk 30, MSE 20, history 12, dx 13, mgmt 13)
+            Assert.AreEqual("risk", r.domains[0].id);  // risk-first
             Assert.AreEqual("No critical errors", r.verdict);
             Assert.IsEmpty(r.critical_errors);
             Assert.IsEmpty(r.missed_intents);
@@ -186,8 +187,37 @@ namespace PsychSim.Tests
             i.ledger.Entries.RemoveAll(e => e.intent.StartsWith("ask_suicid"));
             var r = ScoringEngine.Score(i);
             Assert.AreEqual(0, r.domains.Single(d => d.id == "risk").score);
-            Assert.AreEqual(83.4f, r.total, 1e-3);
+            Assert.AreEqual(69.0f, r.total, 1e-3);
             CollectionAssert.AreEquivalent(new[] { "ask_suicidal_ideation", "ask_suicide_plan", "ask_suicide_means" }, r.missed_intents);
+            Assert.AreEqual("Not passed", r.verdict);  // plan C1: no pass without the risk items
+            Assert.AreEqual(3, r.critical_errors.Count(e => e.StartsWith("Risk item not asked")));
+            Assert.IsFalse(r.side_by_side.Single(x => x.area == "Risk").match);
+        }
+
+        [Test]
+        public void FeedbackQuotesTheLearnersLines()
+        {
+            var i = Perfect();
+            i.turns.Add(new TurnRecord { t = 252, doctor = "Have you had thoughts that life isn't worth living?", intents = { "ask_suicidal_ideation" }, revealed = { "f_passive_si" }, trustBefore = 60, trustAfter = 63 });
+            i.turns.Add(new TurnRecord { t = 30, doctor = "Just answer yes or no.", intents = { "judgmental_language" }, trustBefore = 30, trustAfter = 22 });
+            var r = ScoringEngine.Score(i);
+            var si = r.feedback.Single(f => f.quote != null && f.quote.StartsWith("Have you had"));
+            Assert.AreEqual(252, si.t); StringAssert.Contains("disclosed", si.note);
+            Assert.AreEqual("Just answer yes or no.", r.feedback[0].quote);  // ordered by time
+            Assert.AreEqual(4, r.side_by_side.Count);
+            Assert.IsTrue(r.side_by_side.Single(x => x.area == "Diagnosis").match);
+        }
+
+        [Test]
+        public void VariantsFillTemplatesAndFollowSex()
+        {
+            var f = CaseVariants.Resolve(mdd, "female");
+            var m = CaseVariants.Resolve(mdd, "male");
+            Assert.AreEqual("Ananya Rao", f.patient.name); Assert.AreEqual("male_20s_a", m.patient.model_id); Assert.AreEqual("Leo", m.patient.voice_id);
+            Assert.IsTrue(f.facts.Any(x => x.id == "f_pregnancy")); Assert.IsFalse(m.facts.Any(x => x.id == "f_pregnancy"));
+            Assert.IsFalse(m.referral_note.Contains("{")); Assert.IsFalse(f.patient.background.Contains("{their}"));
+            Assert.AreEqual(f.facts.Count - 1, m.facts.Count);  // identical clinical facts except the variant-only one
+            Assert.Throws<ContentException>(() => CaseVariants.Resolve(mdd, "other"));
         }
 
         [Test]

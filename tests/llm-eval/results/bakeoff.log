@@ -1,0 +1,12 @@
+== gemma-4-E2B-it
+probe {'ttft_ms_median': 298, 'tok_s_median': 55.0}
+01_gold_standard run 0: 12 turns 95s final trust 88 fallbacks 3
+01_gold_standard run 1: 12 turns 90s final trust 93 fallbacks 3
+01_gold_standard run 2: 12 turns 82s final trust 89 fallbacks 1
+01_gold_standard run 3: 12 turns 86s final trust 96 fallbacks 1
+01_gold_standard run 4: 12 turns 94s final trust 86 fallbacks 3
+02_gold_standard_male run 0: 9 turns 77s final trust 68 fallbacks 1
+02_gold_standard_male run 1: 9 turns 96s final trust 80 fallbacks 0
+02_gold_standard_male run 2: 9 turns 127s final trust 66 fallbacks 3
+02_gold_standard_male run 3: 9 turns 132s final trust 55 fallbacks 3
+02_gold_standard_male run 4: 9 turns 137s final trust 67 fallbacks 2

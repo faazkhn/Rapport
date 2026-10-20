@@ -1,0 +1,10 @@
+type: off_topic
+variant: female
+note: Off-topic talk. Short in-character replies; no invented history.
+expect: {must_not_reveal: [f_passive_si]}
+turns:
+  - Hello, I'm Dr. Faaz. Did you watch the cricket match last night?
+  - Who do you think will win the IPL this year?
+  - The traffic in Bengaluru is terrible today, isn't it?
+  - What's your favourite film?
+  - Do you know a good place for dosa near here?
