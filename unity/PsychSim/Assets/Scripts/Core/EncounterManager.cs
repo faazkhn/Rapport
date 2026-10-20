@@ -211,6 +211,7 @@ namespace PsychSim.Core
                     gaze.LookAtDoctor(1.5f);
                     break;
                 case "reply": OnReply(o); break;
+                case "brain_snapshot": Log.Write("brain_snapshot", o); break;
                 case "timing":
                     if (o["audio_start_ms"]?.Type == JTokenType.Integer) LastLatencyMs = (long)o["audio_start_ms"];
                     Log.Write("timing", o);

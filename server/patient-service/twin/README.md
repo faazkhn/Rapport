@@ -30,7 +30,7 @@ twin.push(obj);            // live: append an event stamped "now" (see below)
 twin.play(); twin.pause();
 ```
 
-Live feed (for a later WebSocket bridge in the service): call `twin.push(obj)` directly, `window.postMessage({twin: obj}, "*")`, or `new BroadcastChannel("digital-twin").postMessage(obj)`. `obj` is one of:
+Live feed: open `http://127.0.0.1:8765/twin/?live=1` while the service runs. The page connects to `ws://<host>/twin/ws` (or `&ws=<url>`), reconnects every 2 s, and a late viewer first receives the session so far. Each session is also logged to `logs/twin/<time>_<case>.jsonl`; replay one with `python3 tools/demo/log_to_timeline.py <log> -o <timeline.json>` and `?timeline=<url>`. Other ways to feed it: call `twin.push(obj)` directly, `window.postMessage({twin: obj}, "*")`, or `new BroadcastChannel("digital-twin").postMessage(obj)`. `obj` is one of:
 - `{"type": "init", "meta", "memory_items", "formulation", "state_start"}`: resets the clock and the history.
 - `{"type": "doctor_start", "doctor": "..."}`, `{"type": "doctor_end"}`, `{"type": "patient_start"}`, `{"type": "patient_end"}`.
 - A snapshot: any object without one of those types, with the fields below. `mood` is derived from `state` if it is missing.

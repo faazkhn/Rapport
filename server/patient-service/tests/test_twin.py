@@ -90,3 +90,56 @@ def test_expression_filters_unknown_cues():
     assert e["cues"][0]["intensity"] == 0.9 and e["cues"][0]["duration_s"] == 3.0
     assert 0.8 <= e["speed"] <= 1.2
     assert twin.expression(_r(), CASE) == {"cues": [], "speed": 1.0}
+
+
+def test_bus_never_blocks():
+    import asyncio
+    import twin_bus
+
+    async def go():
+        twin_bus.publish({"type": "init", "t": 0})
+        q = twin_bus.subscribe()
+        t = time.perf_counter()
+        for i in range(1000):
+            twin_bus.publish({"type": "doctor_end", "turn": i, "t": i})
+        dt = time.perf_counter() - t
+        twin_bus.unsubscribe(q)
+        return dt, q.qsize()
+    dt, n = asyncio.run(go())
+    assert dt < 0.5 and n <= 200
+
+
+def test_log_to_timeline(tmp_path):
+    import json
+    import subprocess
+    import sys
+    lines = [{"type": "init", "t": 0, "meta": {"patient": "Ananya Rao"}, "memory_items": [{"id": "f_sleep"}], "formulation": {"presenting": "x"},
+              "state_start": ST},
+             {"type": "snapshot", "t": 9.0, "turn": 1, "state": ST},
+             {"type": "doctor_end", "t": 3.0, "turn": 1},
+             {"type": "patient_start", "t": 5.0, "turn": 1},
+             {"type": "patient_end", "t": 12.0, "turn": 1}]
+    src, out = tmp_path / "s.jsonl", tmp_path / "tl.json"
+    src.write_text("\n".join(json.dumps(x) for x in lines) + "\n")
+    tool = brain.REPO_ROOT / "tools/demo/log_to_timeline.py"
+    subprocess.run([sys.executable, str(tool), str(src), "-o", str(out)], check=True)
+    tl = json.loads(out.read_text())
+    assert tl["meta"]["patient"] == "Ananya Rao" and tl["memory_items"] == [{"id": "f_sleep"}] and tl["state_start"] == ST
+    assert [e["t"] for e in tl["events"]] == [3.0, 5.0, 9.0, 12.0]
+    assert tl["events"][2]["type"] == "snapshot"
+
+
+def test_bus_late_viewer_gets_init_after_long_session():
+    import asyncio
+    import twin_bus
+
+    async def go():
+        twin_bus.publish({"type": "init", "t": 0})
+        for i in range(500):
+            twin_bus.publish({"type": "doctor_end", "turn": i, "t": i})
+        q = twin_bus.subscribe()
+        first, n = q.get_nowait(), q.qsize() + 1
+        twin_bus.unsubscribe(q)
+        return first, n
+    first, n = asyncio.run(go())
+    assert first["type"] == "init" and n <= twin_bus.MAX_QUEUED

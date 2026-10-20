@@ -325,9 +325,9 @@
   const EVT = new Set(["doctor_start", "doctor_end", "patient_start", "patient_end", "snapshot"]);
   function push(o) {
     if (!o || typeof o !== "object") return;
-    if (o.type === "init") { TL = { meta: o.meta || {}, memory_items: o.memory_items || [], formulation: o.formulation || {}, state_start: o.state_start, events: [] }; liveT0 = now(); liveTurn = 0; prepare(TL); buildStatic(); return; }
+    if (o.type === "init") { TL = { meta: o.meta || {}, memory_items: o.memory_items || [], formulation: o.formulation || {}, state_start: o.state_start, events: [] }; liveT0 = now() - (o.t ?? 0); liveTurn = 0; prepare(TL); buildStatic(); return; }
     if (!TL) { TL = { meta: {}, memory_items: [], formulation: {}, events: [] }; prepare(TL); buildStatic(); }
-    const e = { ...o, type: EVT.has(o.type) ? o.type : "snapshot", t: LIVE ? now() - liveT0 : (o.t ?? T) };
+    const e = { ...o, type: EVT.has(o.type) ? o.type : "snapshot", t: LIVE ? (o.t ?? now() - liveT0) : (o.t ?? T) };  // the service stamps t (s since session start); a late viewer replays it in place
     if (e.type === "doctor_start" && e.turn == null) e.turn = ++liveTurn;
     if (e.turn == null) e.turn = liveTurn || 1; else liveTurn = Math.max(liveTurn, e.turn);
     if (e.type === "snapshot" && !e.mood && e.state) e.mood = padFrom(e.state);
@@ -358,6 +358,9 @@
     if (LIVE) {
       try { new BroadcastChannel("digital-twin").onmessage = (m) => push(m.data); } catch (_) { /* BroadcastChannel missing on old file:// contexts */ }
       addEventListener("message", (m) => { if (m.data && m.data.twin) push(m.data.twin); });
+      const wsUrl = Q.get("ws") || (location.protocol.startsWith("http") ? `ws://${location.host}/twin/ws` : null);
+      const connect = () => { const ws = new WebSocket(wsUrl); ws.onmessage = (m) => push(JSON.parse(m.data)); ws.onclose = () => setTimeout(connect, 2000); };
+      if (wsUrl) connect();
       document.body.classList.add("render");
     }
     wire(); updIcon(); requestAnimationFrame(loop);
