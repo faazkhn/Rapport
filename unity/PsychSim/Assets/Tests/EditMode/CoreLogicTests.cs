@@ -386,6 +386,30 @@ namespace PsychSim.Tests
         }
 
         [Test]
+        public void ExamQueue_CommandMidMotionRunsAfterShortHold()
+        {
+            var q = Queue(out _);
+            q.Enqueue(new[] { Step("hold_out_hands") });
+            q.Tick(0f, false);
+            q.Enqueue(new[] { Step("open_mouth") });  // arrives while the hands are still rising
+            q.Tick(1f, true);
+            Assert.IsTrue(q.Holding);
+            q.Tick(1f + PsychSim.Cues.ExamQueue.MinHoldS + 0.01f, true);
+            Assert.AreEqual("open_mouth", q.Current.id);
+        }
+
+        [Test]
+        public void ExamQueue_ChainedInOneMessageDoesNotWaitForTheCap()
+        {
+            var q = Queue(out _);
+            q.Enqueue(new[] { Step("hold_out_hands"), Step("open_mouth") });
+            q.Tick(0f, false);
+            q.Tick(1f, true);
+            q.Tick(3f, true);
+            Assert.AreEqual("open_mouth", q.Current.id);
+        }
+
+        [Test]
         public void ExamQueue_RunsInOrder()
         {
             var q = Queue(out var log);

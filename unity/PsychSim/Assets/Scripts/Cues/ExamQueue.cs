@@ -14,13 +14,15 @@ namespace PsychSim.Cues
 
     /// <summary>
     /// Order and timing of exam actions the service routed (Phase H), with no Unity calls so it is testable. Actions run one at a time in
-    /// order. Held actions (hands out, sleeves, light, mouth) stay until relax, a new command, or 30 s. Posture comes first when needed:
+    /// order. Held actions (hands out, sleeves, light, mouth) stay until relax, a new command, or 30 s; with more commands already
+    /// waiting ("hold out your hands, then open your mouth") they hold 1.5 s and move on. Posture comes first when needed:
     /// sleeves or forearms while standing sit down first, a walk while seated stands up first. ExamController plays what Started reports
     /// and tells Tick when the current motion has finished.
     /// </summary>
     public class ExamQueue
     {
         public const float HoldCapS = 30f;
+        public const float MinHoldS = 1.5f;  // a held action with more commands waiting shows its pose this long, then moves on
         public static readonly HashSet<string> SeatedOnly = new() { "roll_up_sleeves", "show_forearms" };
         public static readonly HashSet<string> Held = new() { "hold_out_hands", "roll_up_sleeves", "show_forearms", "look_at_light", "open_mouth", "stick_out_tongue" };
 
@@ -58,7 +60,7 @@ namespace PsychSim.Cues
         {
             if (Current != null)
             {
-                if (Holding && now - holdStart >= HoldCapS) Finish();
+                if (Holding && (now - holdStart >= HoldCapS || (pending.Count > 0 && now - holdStart >= MinHoldS))) Finish();
                 else if (motionDone && !Holding)
                 {
                     if (Held.Contains(Current.id)) { Holding = true; holdStart = now; }

@@ -17,7 +17,7 @@ namespace PsychSim.Cues
     /// Also aims the wipe_tears fingertips under the eye with IK.
     /// Must sit on the Animator's GameObject (OnAnimatorIK).
     /// </summary>
-    [DefaultExecutionOrder(200)]  // LateUpdate after FacePresets, LipSyncBridge and TremorController, so jaw and palm changes win
+    [DefaultExecutionOrder(200)]  // after default-order scripts; FacePresets, TremorController and LipSyncBridge run later, so the tremor stays on the presented hands
     public class ExamController : MonoBehaviour
     {
         public event Action<string> ExamStarted, ExamEnded;
@@ -27,6 +27,8 @@ namespace PsychSim.Cues
 
         // normalized hold poses: action_hold_out_hands 1.5-5.7 s of 8, action_roll_up_sleeves 7.75-10.8 s of 13, action_look_at_light 1.0-4.7 s of 6
         const float HandsHold = 0.3f, RollHold = 0.62f, LightHold = 0.3f;
+        // where each clip starts lowering (end of its hold section): on release it jumps there, the pose is the same, so the hands come down now
+        const float HandsLower = 0.71f, RollLower = 0.83f, LightLower = 0.78f;
         Animator anim;
         CueDriver cues;
         GazeController gaze;
@@ -95,10 +97,18 @@ namespace PsychSim.Cues
 
         void OnEnded(ExamStep s)
         {
+            if (s.id == "hold_out_hands") Lower(lArms, "action_hold_out_hands", HandsLower);
+            if (s.id is "roll_up_sleeves" or "show_forearms") Lower(lArms, "action_roll_up_sleeves", RollLower);
+            if (s.id == "look_at_light") Lower(lHead, "action_look_at_light", LightLower);
             if (s.id == "follow_finger") gaze.Override = null;
             if (s.id == "sit_down") cues.Seated = true;
             cues.ExamBusy = false;
             ExamEnded?.Invoke(s.id);
+        }
+
+        void Lower(int layer, string state, float lowerAt)
+        {
+            if (layer >= 0 && anim.GetCurrentAnimatorStateInfo(layer).IsName(state) && Norm(layer, state) < lowerAt) anim.Play(state, layer, lowerAt);
         }
 
         bool MotionDone(ExamStep c)
