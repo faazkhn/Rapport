@@ -616,7 +616,8 @@ def generate_reply(req: dict, client=None, tagger=None, version: dict | None = N
     recalled = twin.recall(case, state["trust"], doctor_now)
     exam = exam_for_turn(case, state, doctor_now)
     version = version or learning.current()
-    examples = learning.retrieve(case["id"], doctor_now, req.get("mode") or "practice", version.get("examples_k", 0))
+    examples = learning.retrieve(case["id"], doctor_now, req.get("mode") or "practice", version.get("examples_k", 0),
+                                 version.get("library_upto"))
     kwargs = llm_kwargs(model, build_messages(case, state, req["messages"], req.get("summary"), req.get("elapsed_min"), recalled, exam,
                                               examples, version), schema, "patient_reply", 0)
     if req.get("reasoning_effort"):

@@ -295,7 +295,7 @@ def test_generate_reply_meta_brain_version_and_examples(monkeypatch):
     del good["doctor_intents"]
     llm = FakeClient([json.dumps(good)])
     v = {**learning.load_version("v0"), "id": "v9", "examples_k": 2, "realism_rules": "TALK LIKE A TIRED PERSON."}
-    monkeypatch.setattr(learning, "retrieve", lambda case_id, text, mode, k: [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}])
+    monkeypatch.setattr(learning, "retrieve", lambda case_id, text, mode, k, upto=None: [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}])
     out = brain.generate_reply({**REQ, "mode": "practice"}, client=llm, tagger=TAG, version=v)
     assert out["meta"]["brain_version"] == "twin-0.1+v9" and out["meta"]["examples"] == ["e1"]
     msgs = llm.calls[0]["messages"]

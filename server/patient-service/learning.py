@@ -180,13 +180,15 @@ def _index(case_id: str):
     """Judged entries and their doctor-line embeddings, computed once per library change (not per turn)."""
     key = ("lib", case_id)
     if key not in _cache:
-        entries = [e for e in library(case_id) if e.get("judged")]
+        entries = [{**e, "seq": i} for i, e in enumerate(library(case_id)) if e.get("judged")]
         _cache[key] = (entries, embed([e["doctor"] for e in entries]))
     return _cache[key]
 
 
-def retrieve(case_id: str, doctor_text: str, mode: str, k: int) -> list[dict]:
-    """Top-k past replies to similar doctor lines, from the tiers this mode may use. [] whenever anything is missing."""
+def retrieve(case_id: str, doctor_text: str, mode: str, k: int, upto: int | None = None) -> list[dict]:
+    """Top-k past replies to similar doctor lines, from the tiers this mode may use. [] whenever anything is missing.
+    upto: a version's library snapshot; self-play entries from line `upto` on are newer than the version and skipped
+    (faculty and consented entries are always used)."""
     if k <= 0:
         return []
     entries, mat = _index(case_id)
@@ -195,7 +197,8 @@ def retrieve(case_id: str, doctor_text: str, mode: str, k: int) -> list[dict]:
         return []
     tiers = TIERS.get(mode, TIERS["assessment"])
     sims = mat @ q[0]
-    ranked = [i for i in np.argsort(-sims) if sims[i] >= MIN_SIM and entries[i]["tier"] in tiers]
+    ranked = [i for i in np.argsort(-sims) if sims[i] >= MIN_SIM and entries[i]["tier"] in tiers
+              and (upto is None or entries[i]["source"] != "self_play" or entries[i]["seq"] < upto)]
     out, seen = [], set()
     for i in ranked:  # no two examples with the same words
         if entries[i]["utterance"] not in seen:

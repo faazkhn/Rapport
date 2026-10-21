@@ -518,7 +518,7 @@ def test_session_consent_writes_candidate(lib):
 def test_session_uses_retrieved_examples_in_tail(lib, monkeypatch):
     monkeypatch.setattr(lib, "current", lambda: {**lib.load_version("v0"), "examples_k": 2})
     seen = []
-    monkeypatch.setattr(lib, "retrieve", lambda case_id, text, mode, k: seen.append((mode, k)) or
+    monkeypatch.setattr(lib, "retrieve", lambda case_id, text, mode, k, upto=None: seen.append((mode, k)) or
                         [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}])
     llm = FakeLLM()
     _one_turn(llm=llm, mode="assessment")

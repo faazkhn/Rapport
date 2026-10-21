@@ -316,7 +316,8 @@ class Session:
         await self.send_json({"type": "thinking"})
 
         recalled = twin.recall(case, state["trust"], text)
-        examples = learning.retrieve(case["id"], text, self.mode, learning.current().get("examples_k", 0))
+        v = learning.current()
+        examples = learning.retrieve(case["id"], text, self.mode, v.get("examples_k", 0), v.get("library_upto"))
         allowed = [f["id"] for f in brain.allowed_facts(case, state["trust"])]
         schema = brain.build_reply_schema(case, allowed, [])
         kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed, recalled=recalled, exam=exam,

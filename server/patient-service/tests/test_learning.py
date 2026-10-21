@@ -90,6 +90,15 @@ def test_approve_makes_entry_usable_in_assessment(monkeypatch):
     assert learning.approve("mdd_01", "missing") is False
 
 
+def test_retrieve_upto_pins_self_play_entries_only(monkeypatch):
+    monkeypatch.setattr(learning, "_embedder", _fake_embed)
+    old = learning.add_experience("mdd_01", _entry("How do you sleep at night?", "I wake at four."), consent=False)
+    new = learning.add_experience("mdd_01", _entry("Sleep at night?", "Badly."), consent=False)
+    fac = learning.add_experience("mdd_01", {**_entry("Your sleep at night?", "Not good.", tier="approved"), "source": "faculty"}, consent=False)
+    got = {e["id"] for e in learning.retrieve("mdd_01", "Sleep at night?", "practice", 3, upto=1)}
+    assert got == {old["id"], fac["id"]} and new["id"] not in got
+
+
 def test_retrieve_no_embedder():
     learning.add_experience("mdd_01", _entry("How do you sleep?", "Badly."), consent=False)
     assert learning.retrieve("mdd_01", "How do you sleep?", "practice", 2) == []
