@@ -19,6 +19,7 @@ import mock
 import session
 import stt
 import twin_bus
+import voice
 
 log = logging.getLogger("patient-service")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -40,6 +41,15 @@ async def lifespan(app):
             log.info("TTS loaded in %.1fs", time.perf_counter() - t)
         except Exception as e:  # /reply still works without TTS
             log.error("TTS failed to load: %s", type(e).__name__)
+        name = os.environ.get("RAPPORT_TTS", "qwen3-design")
+        if name != "kitten":
+            try:
+                t = time.perf_counter()
+                tts["backend"] = await run_in_threadpool(voice.load, name, session.synth)
+                await run_in_threadpool(lambda: session.TTS_POOL.submit(lambda: list(tts["backend"].stream("Hello, doctor.", "", 1.0, ""))).result())
+                log.info("TTS backend %s loaded in %.1fs", name, time.perf_counter() - t)
+            except Exception as e:  # sessions use KittenTTS
+                log.error("TTS backend %s failed to load (%s); using KittenTTS", name, type(e).__name__)
     if os.environ.get("PSYCHSIM_SKIP_STT") != "1":
         t = time.perf_counter()
         stt.vad_model()

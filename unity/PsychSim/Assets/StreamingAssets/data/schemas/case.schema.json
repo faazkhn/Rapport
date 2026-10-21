@@ -139,6 +139,10 @@
     },
     "voice_id": {
      "$ref": "#/$defs/voice"
+    },
+    "voice_description": {
+     "type": "string",
+     "description": "Text-only voice design for instructable TTS (never a real person's voice)."
     }
    }
   }

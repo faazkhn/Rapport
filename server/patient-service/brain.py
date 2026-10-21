@@ -87,7 +87,8 @@ def _resolved(case_id: str, variant: str) -> str:
     case["facts"] = [f for f in case["facts"] if f.get("variant", variant) == variant]
     case["variant"] = variant
     # legacy flat fields, so code that reads patient.name/model_id/voice_id keeps working
-    case["patient"] = {**case["patient"], "name": v["name"], "sex": v["sex"], "model_id": v["model_id"], "voice_id": v["voice_id"]}
+    case["patient"] = {**case["patient"], "name": v["name"], "sex": v["sex"], "model_id": v["model_id"], "voice_id": v["voice_id"],
+                       "voice_description": v.get("voice_description", "")}
     return json.dumps(case)
 
 

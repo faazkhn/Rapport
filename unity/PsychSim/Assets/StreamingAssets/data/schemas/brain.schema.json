@@ -166,6 +166,10 @@
         "type": "number",
         "minimum": 0.8,
         "maximum": 1.2
+       },
+       "voice": {
+        "type": "string",
+        "minLength": 1
        }
       }
      }
@@ -205,8 +209,20 @@
         "type": "number",
         "minimum": 0.8,
         "maximum": 1.2
+       },
+       "voice": {
+        "type": "string",
+        "minLength": 1
        }
       }
+     }
+    },
+    "emotions": {
+     "type": "object",
+     "description": "Reply emotion to a TTS voice instruction.",
+     "additionalProperties": {
+      "type": "string",
+      "minLength": 1
      }
     }
    }

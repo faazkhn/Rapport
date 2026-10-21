@@ -344,3 +344,57 @@ def test_one_hesitation_per_reply_across_sentences():
     s, ev = _one_turn(llm=FakeLLM(reply=reply))
     said = " ".join(m["text"] for _, m in ev if m["type"] == "sentence")
     assert said.count("...") == 1
+
+
+class ChunkBackend:
+    """Two chunks per sentence; raises on the sentence number in `fail_on` (0-based) before its first chunk."""
+    def __init__(self, fail_on=None):
+        self.fail_on, self.n, self.instructions = fail_on, 0, []
+
+    def stream(self, text, voice_id, speed, instruction=""):
+        n, self.n = self.n, self.n + 1
+        self.instructions.append(instruction)
+        if n == self.fail_on:
+            raise RuntimeError("out of memory")
+        yield np.zeros(1200, np.float32)
+        yield np.zeros(1200, np.float32)
+
+
+def _turn_with(backend):
+    async def go():
+        s, ev, audio = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        s.tts = backend
+        await run_text(s)
+        return s, ev, audio
+    return asyncio.run(go())
+
+
+def test_streaming_backend_sends_chunks_and_instruction():
+    b = ChunkBackend()
+    s, ev, audio = _turn_with(b)
+    sentences = [m for _, m in ev if m["type"] == "sentence"]
+    assert len(sentences) == 2 and len(audio) == 4  # the third sentence is guard-stripped; first chunk with its sentence message, the second as bare PCM
+    assert all(i.startswith(s.case["patient"]["voice_description"]) for i in b.instructions)
+
+
+def test_backend_failure_falls_back_for_the_session():
+    b = ChunkBackend(fail_on=1)
+    s, ev, audio = _turn_with(b)
+    sentences = [m for _, m in ev if m["type"] == "sentence"]
+    assert len(sentences) == 2 and sentences[1]["samples"] == 2400  # the failed sentence is re-spoken by the fallback (fake: 2400)
+    assert s.tts is s.fallback and b.n == 2
+    rep = next(m for _, m in ev if m["type"] == "reply")
+    assert rep["meta"]["fallback"] is False
+
+
+def test_backend_failure_mid_sentence_drops_rest_and_switches():
+    class MidFail(ChunkBackend):
+        def stream(self, text, voice_id, speed, instruction=""):
+            self.n += 1
+            yield np.zeros(1200, np.float32)
+            raise RuntimeError("metal crash")
+    b = MidFail()
+    s, ev, audio = _turn_with(b)
+    assert s.tts is s.fallback and b.n == 1
+    assert len([m for _, m in ev if m["type"] == "sentence"]) == 2 and len(audio) == 2

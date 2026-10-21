@@ -22,7 +22,8 @@
     "their": "her"
    },
    "model_id": "female_20s_a",
-   "voice_id": "Luna"
+   "voice_id": "Luna",
+   "voice_description": "A 24-year-old Indian woman from Bengaluru with a soft, natural Indian-English accent. Young, warm but tired voice, mid-low pitch, quiet. Natural and human, not a narrator."
   },
   "male": {
    "name": "Arjun Rao",
@@ -33,7 +34,8 @@
     "their": "his"
    },
    "model_id": "male_20s_a",
-   "voice_id": "Leo"
+   "voice_id": "Leo",
+   "voice_description": "A 24-year-old Indian man from Bengaluru with a natural Indian-English accent. Young, low and soft male voice, tired and quiet. Natural and human, not a narrator."
   }
  },
  "patient": {

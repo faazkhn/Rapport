@@ -30,7 +30,7 @@ VOICES = ["Bella", "Luna", "Rosie", "Kiki", "Jasper", "Bruno", "Hugo", "Leo"]
 OUT_SR = 24000
 PRE_ROLL_FRAMES = 10  # ~320 ms of audio kept before VAD start so the first word is not clipped
 PRESSURED_OVERLAP_S = 1.5  # pressured_speech: keep talking over the doctor for 1-2 s (DESIGN 7.1)
-TTS = {"model": None}
+TTS = {"model": None, "backend": None}  # backend: voice.load(RAPPORT_TTS) at startup; None = KittenTTS
 TWIN_LOG_DIR = Path(os.environ.get("RAPPORT_TWIN_LOG_DIR") or brain.REPO_ROOT / "logs" / "twin")  # local only, git-ignored
 # MLX and the ONNX TTS each get one dedicated thread
 STT_POOL = ThreadPoolExecutor(1, thread_name_prefix="stt")
@@ -60,6 +60,8 @@ class Session:
         self.send_json, self.send_bytes = send_json, send_bytes
         self.client = llm_client  # None = brain.get_client()
         self.tts_fn = tts_fn or synth
+        self.fallback = voice.FnBackend(self.tts_fn)
+        self.tts = self.fallback if tts_fn else (TTS["backend"] or self.fallback)
         self.stt_fn = stt_fn or stt.transcribe
         self.case = None
         self.state = None
@@ -122,6 +124,8 @@ class Session:
         self.messages, self.t_start = [], time.monotonic()
         self.hands_free = bool(msg.get("hands_free", True))
         self.vad = stt.Vad(int(msg.get("vad_silence_ms", stt.SILENCE_MS)))
+        if hasattr(self.tts, "seed"):  # one fixed speaker per variant
+            self.tts.seed = voice.QwenDesign.SEEDS.get(self.case["variant"], 1234)
         p = self.case["patient"]
         await self.send_json({"type": "session", "case_id": self.case["id"], "variant": self.case["variant"], "name": p["name"],
                               "model_id": p["model_id"], "voice_id": p["voice_id"], "state": self.state,
@@ -292,9 +296,10 @@ class Session:
             if not sentence or cancel.is_set():
                 return
             t = time.monotonic()
-            audio = await loop.run_in_executor(TTS_POOL, self.tts_fn, sentence, voice_id, speed)
-            if cancel.is_set():
+            first = await self._first_chunk(loop, sentence, voice_id, speed, voice.instruction(case, voice.labels_so_far(parser.buf)))
+            if first is None or cancel.is_set():
                 return
+            chunks, audio = first
             if marks["audio_start"] is None:
                 marks["tts_first_ms"] = ms(t, time.monotonic())
                 marks["audio_start"] = time.monotonic()
@@ -307,12 +312,20 @@ class Session:
                 await self.send_json({"type": "speaking", "slowed_pause_ms": round(marks["pause_applied"] * 1000)})
                 await self.twin({"event": "patient_start", "turn": self.turn_no})
             pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
-            dur = len(pcm) / 2 / OUT_SR
             await self.send_json({"type": "sentence", "index": idx, "text": sentence, "samples": len(pcm) // 2})
-            await self.send_bytes(pcm)
-            self.playing_until = max(self.playing_until, time.monotonic()) + dur
             spoken.append(sentence)
             idx += 1
+            while pcm:  # later chunks of a streamed sentence go out as bare PCM, which the client appends to the same sentence
+                await self.send_bytes(pcm)
+                self.playing_until = max(self.playing_until, time.monotonic()) + len(pcm) / 2 / OUT_SR
+                try:
+                    audio = await loop.run_in_executor(TTS_POOL, next, chunks, None)
+                except Exception as e:  # mid-sentence failure: drop the rest of this sentence, the next one uses the fallback
+                    self._tts_failed(e)
+                    audio = None
+                if audio is None or cancel.is_set():
+                    break
+                pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
 
         while True:
             kind, val = await q.get()
@@ -421,6 +434,24 @@ class Session:
         await self.send_json(timing)
         log.info("staged turn %d timing %s", self.turn_no, json.dumps({k: v for k, v in timing.items() if k.endswith("_ms")}))
         await self.send_json({"type": "listening"})
+
+    async def _first_chunk(self, loop, text, voice_id, speed, instruction):
+        """(chunk iterator, first chunk) from the session's TTS backend; if it fails before any audio, the fallback says the sentence."""
+        for backend in (self.tts, self.fallback) if self.tts is not self.fallback else (self.fallback,):
+            chunks = backend.stream(text, voice_id, speed, instruction)
+            try:
+                audio = await loop.run_in_executor(TTS_POOL, next, chunks, None)
+                return (chunks, audio) if audio is not None else None
+            except Exception as e:
+                if backend is self.fallback:
+                    raise
+                self._tts_failed(e)
+        return None
+
+    def _tts_failed(self, e):
+        if self.tts is not self.fallback:
+            log.error("TTS backend failed (%s); KittenTTS for the rest of the session", type(e).__name__)
+            self.tts = self.fallback
 
     def _llm_stream(self, kw, q, loop, cancel):
         put = lambda *x: loop.call_soon_threadsafe(q.put_nowait, x)  # noqa: E731
