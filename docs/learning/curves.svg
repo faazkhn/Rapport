@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="450" font-family="system-ui,sans-serif" font-size="11">
+<rect width="100%" height="100%" fill="#fbfbf8"/>
+<text x="30" y="16" fill="#1c2b2a" font-weight="600">Unmentioned-symptom fidelity ↑</text>
+<line x1="30" y1="120.0" x2="190" y2="120.0" stroke="#ccc"/>
+<text x="4" y="44.0" fill="#888">1</text><text x="4" y="124.0" fill="#888">0</text>
+<polyline fill="none" stroke="#2a6f6a" stroke-width="2" points="30.0,50.0 190.0,52.0"/>
+<circle cx="30.0" cy="50.0" r="3.5" fill="#2a6f6a" stroke="#2a6f6a"/>
+<text x="24.0" y="140" fill="#555">v0</text>
+<circle cx="190.0" cy="52.0" r="3.5" fill="#fbfbf8" stroke="#2a6f6a"/>
+<text x="184.0" y="140" fill="#555">v1</text>
+<text x="250" y="16" fill="#1c2b2a" font-weight="600">Banned-word rate ↓</text>
+<line x1="250" y1="120.0" x2="410" y2="120.0" stroke="#ccc"/>
+<text x="224" y="44.0" fill="#888">1</text><text x="224" y="124.0" fill="#888">0</text>
+<polyline fill="none" stroke="#2a6f6a" stroke-width="2" points="250.0,120.0 410.0,120.0"/>
+<circle cx="250.0" cy="120.0" r="3.5" fill="#2a6f6a" stroke="#2a6f6a"/>
+<text x="244.0" y="140" fill="#555">v0</text>
+<circle cx="410.0" cy="120.0" r="3.5" fill="#fbfbf8" stroke="#2a6f6a"/>
+<text x="404.0" y="140" fill="#555">v1</text>
+<text x="470" y="16" fill="#1c2b2a" font-weight="600">Repetition ↓</text>
+<line x1="470" y1="120.0" x2="630" y2="120.0" stroke="#ccc"/>
+<text x="444" y="44.0" fill="#888">1</text><text x="444" y="124.0" fill="#888">0</text>
+<polyline fill="none" stroke="#2a6f6a" stroke-width="2" points="470.0,118.4 630.0,118.4"/>
+<circle cx="470.0" cy="118.4" r="3.5" fill="#2a6f6a" stroke="#2a6f6a"/>
+<text x="464.0" y="140" fill="#555">v0</text>
+<circle cx="630.0" cy="118.4" r="3.5" fill="#fbfbf8" stroke="#2a6f6a"/>
+<text x="624.0" y="140" fill="#555">v1</text>
+<text x="30" y="166" fill="#1c2b2a" font-weight="600">Length fits state ↑</text>
+<line x1="30" y1="270.0" x2="190" y2="270.0" stroke="#ccc"/>
+<text x="4" y="194.0" fill="#888">1</text><text x="4" y="274.0" fill="#888">0</text>
+<polyline fill="none" stroke="#2a6f6a" stroke-width="2" points="30.0,190.0 190.0,190.0"/>
+<circle cx="30.0" cy="190.0" r="3.5" fill="#2a6f6a" stroke="#2a6f6a"/>
+<text x="24.0" y="290" fill="#555">v0</text>
+<circle cx="190.0" cy="190.0" r="3.5" fill="#fbfbf8" stroke="#2a6f6a"/>
+<text x="184.0" y="290" fill="#555">v1</text>
+<text x="250" y="166" fill="#1c2b2a" font-weight="600">Resistance appropriate ↑</text>
+<line x1="250" y1="270.0" x2="410" y2="270.0" stroke="#ccc"/>
+<text x="224" y="194.0" fill="#888">1</text><text x="224" y="274.0" fill="#888">0</text>
+<polyline fill="none" stroke="#2a6f6a" stroke-width="2" points="250.0,195.7 410.0,195.7"/>
+<circle cx="250.0" cy="195.7" r="3.5" fill="#2a6f6a" stroke="#2a6f6a"/>
+<text x="244.0" y="290" fill="#555">v0</text>
+<circle cx="410.0" cy="195.7" r="3.5" fill="#fbfbf8" stroke="#2a6f6a"/>
+<text x="404.0" y="290" fill="#555">v1</text>
+<text x="470" y="166" fill="#1c2b2a" font-weight="600">Composite ↑</text>
+<line x1="470" y1="270.0" x2="630" y2="270.0" stroke="#ccc"/>
+<text x="444" y="194.0" fill="#888">1</text><text x="444" y="274.0" fill="#888">0</text>
+<polyline fill="none" stroke="#2a6f6a" stroke-width="2" points="470.0,193.5 630.0,193.9"/>
+<circle cx="470.0" cy="193.5" r="3.5" fill="#2a6f6a" stroke="#2a6f6a"/>
+<text x="464.0" y="290" fill="#555">v0</text>
+<circle cx="630.0" cy="193.9" r="3.5" fill="#fbfbf8" stroke="#2a6f6a"/>
+<text x="624.0" y="290" fill="#555">v1</text>
+<text x="30" y="316" fill="#1c2b2a" font-weight="600">Invented facts</text>
+<line x1="30" y1="420.0" x2="190" y2="420.0" stroke="#ccc"/>
+<text x="4" y="344.0" fill="#888">1</text><text x="4" y="424.0" fill="#888">0</text>
+<polyline fill="none" stroke="#2a6f6a" stroke-width="2" points="30.0,420.0 190.0,340.0"/>
+<circle cx="30.0" cy="420.0" r="3.5" fill="#2a6f6a" stroke="#2a6f6a"/>
+<text x="24.0" y="440" fill="#555">v0</text>
+<circle cx="190.0" cy="340.0" r="3.5" fill="#fbfbf8" stroke="#2a6f6a"/>
+<text x="184.0" y="440" fill="#555">v1</text>
+<text x="250" y="316" fill="#1c2b2a" font-weight="600">Jailbreak fails</text>
+<line x1="250" y1="420.0" x2="410" y2="420.0" stroke="#ccc"/>
+<text x="224" y="344.0" fill="#888">1</text><text x="224" y="424.0" fill="#888">0</text>
+<polyline fill="none" stroke="#2a6f6a" stroke-width="2" points="250.0,420.0 410.0,420.0"/>
+<circle cx="250.0" cy="420.0" r="3.5" fill="#2a6f6a" stroke="#2a6f6a"/>
+<text x="244.0" y="440" fill="#555">v0</text>
+<circle cx="410.0" cy="420.0" r="3.5" fill="#fbfbf8" stroke="#2a6f6a"/>
+<text x="404.0" y="440" fill="#555">v1</text>
+<text x="470" y="316" fill="#1c2b2a" font-weight="600">Portrayal fails</text>
+<line x1="470" y1="420.0" x2="630" y2="420.0" stroke="#ccc"/>
+<text x="444" y="344.0" fill="#888">1</text><text x="444" y="424.0" fill="#888">0</text>
+<polyline fill="none" stroke="#2a6f6a" stroke-width="2" points="470.0,420.0 630.0,420.0"/>
+<circle cx="470.0" cy="420.0" r="3.5" fill="#2a6f6a" stroke="#2a6f6a"/>
+<text x="464.0" y="440" fill="#555">v0</text>
+<circle cx="630.0" cy="420.0" r="3.5" fill="#fbfbf8" stroke="#2a6f6a"/>
+<text x="624.0" y="440" fill="#555">v1</text>
+</svg>
