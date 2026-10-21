@@ -9,7 +9,7 @@ using UnityEngine;
 namespace PsychSim.Editor
 {
     /// <summary>
-    /// PsychSim/Record Demo: enters play mode, adds the DemoDirector and records the game view (1920x1080, 60 fps, audio)
+    /// Rapport/Record Demo: enters play mode, adds the DemoDirector and records the game view (1920x1080, 60 fps, audio)
     /// to demo/raw/PsychSim_take.mp4 until the take finishes. The patient service must run in demo mode (see demo/README.md).
     /// </summary>
     [InitializeOnLoad]
@@ -20,22 +20,22 @@ namespace PsychSim.Editor
 
         static DemoRecorder() { EditorApplication.playModeStateChanged += OnPlayMode; }
 
-        [MenuItem("PsychSim/Record Demo")]
+        [MenuItem("Rapport/Record Demo")]
         static void Record() { SessionState.SetString(VariantFlag, "female"); SessionState.SetBool(RecordFlag, true); Enter(); }
 
-        [MenuItem("PsychSim/Record Demo (Arjun cut)")]
+        [MenuItem("Rapport/Record Demo (Arjun cut)")]
         static void RecordArjun() { SessionState.SetString(VariantFlag, "male"); SessionState.SetBool(RecordFlag, true); Enter(); }
 
         const string VariantFlag = "PsychSim.Demo.Variant", StagedFlag = "PsychSim.Demo.Staged";
 
         /// <summary>Staged concept preview: needs the service started with RAPPORT_STAGED=demo/staged/script.json.</summary>
-        [MenuItem("PsychSim/Record Staged Demo")]
+        [MenuItem("Rapport/Record Staged Demo")]
         static void RecordStaged() { SessionState.SetBool(StagedFlag, true); Record(); }
 
-        [MenuItem("PsychSim/Record Staged Demo (Arjun cut)")]
+        [MenuItem("Rapport/Record Staged Demo (Arjun cut)")]
         static void RecordStagedArjun() { SessionState.SetBool(StagedFlag, true); RecordArjun(); }
 
-        [MenuItem("PsychSim/Play Demo (no recording)")]
+        [MenuItem("Rapport/Play Demo (no recording)")]
         static void Play() { SessionState.SetString(VariantFlag, "female"); SessionState.SetBool(PlayFlag, true); Enter(); }
 
         static void Enter()

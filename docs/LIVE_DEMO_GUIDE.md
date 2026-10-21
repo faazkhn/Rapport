@@ -2,7 +2,7 @@
 
 Everything runs on this Mac: no internet is needed once the models are downloaded. Allow 10 minutes for setup and 10–15 minutes for the demo.
 
-> **Status (2026-10-21, end of Phase G):** the app in `unity/PsychSim/Builds/` is rebuilt with the Digital Twin and the new voice (Option A). To rebuild it, use the Unity menu **PsychSim > Build macOS (Development)**. Clinical content is a draft and not faculty-validated: say so at the start.
+> **Status (2026-10-21, end of Phase G):** the app in `unity/Rapport/Builds/` is rebuilt with the Digital Twin and the new voice (Option A). To rebuild it, use the Unity menu **Rapport > Build macOS (Development)**. Clinical content is a draft and not faculty-validated: say so at the start.
 
 ## 1. The day before
 
@@ -25,7 +25,7 @@ Open Terminal in the project folder (`~/Documents/Med`).
    curl -s http://127.0.0.1:8765/health
    ```
 2. **Open the patient:**
-   - **Option A:** double-click `PsychSim.command` (soon `Rapport.command`). It starts the service if needed and opens the app.
+   - **Option A:** double-click `Rapport.command`. It starts the service if needed and opens the app.
    - **Option B (editor):** open Unity Hub, then the project `unity/PsychSim`, then the scene `Assets/Scenes/Encounter.unity`, and press **Play**. Maximise the Game view (Shift+Space).
 3. **Open the Digital Twin view** on a second screen or projector:
    `http://127.0.0.1:8765/twin/?live=1`

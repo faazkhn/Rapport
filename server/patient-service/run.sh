@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start everything for the PsychSim voice loop: llama-server (local patient LLM) on :8080, then the patient service on 127.0.0.1:8765.
+# Start everything for the Rapport voice loop: llama-server (local patient LLM) on :8080, then the patient service on 127.0.0.1:8765.
 #   ./run.sh            local LLM (default; nothing leaves the Mac)
 #   ./run.sh --mock     keyword mock LLM, no model
 #   PATIENT_LLM=grok ./run.sh   Grok via xAI, only if XAI_API_KEY is set (environment or repo .env); no llama-server
@@ -10,8 +10,10 @@ REPO="$(cd ../.. && pwd)"
 LLM_GGUF="${LLM_GGUF:-$REPO/models/gemma-4-E4B-it-Q4_K_M.gguf}"
 LLAMA_PORT="${LLAMA_PORT:-8080}"
 
-if [ "${1:-}" = "--mock" ]; then export PSYCHSIM_LLM=mock; shift; fi
-if [ "${PSYCHSIM_LLM:-}" != "mock" ] && [ "${PATIENT_LLM:-local}" != "grok" ]; then
+RAPPORT_LLM="${RAPPORT_LLM:-${PSYCHSIM_LLM:-}}"  # PSYCHSIM_* is the deprecated alias, until v0.3
+if [ "${1:-}" = "--mock" ]; then RAPPORT_LLM=mock; shift; fi
+export RAPPORT_LLM
+if [ "$RAPPORT_LLM" != "mock" ] && [ "${PATIENT_LLM:-local}" != "grok" ]; then
   if ! curl -sf "http://127.0.0.1:$LLAMA_PORT/health" >/dev/null; then
     [ -f "$LLM_GGUF" ] || { echo "missing $LLM_GGUF (see models/README.md)"; exit 1; }
     # Gemma 4: a template without the thinking channel, so the JSON grammar applies from the first token (see gemma4-nothink.jinja)

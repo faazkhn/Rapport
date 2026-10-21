@@ -8,7 +8,7 @@ using UnityEngine;
 namespace PsychSim.Editor
 {
     /// <summary>
-    /// PsychSim/Rebuild Patient Animator: applies the import settings from art/Animations/ANIMATIONS.md to every FBX under
+    /// Rapport/Rebuild Patient Animator: applies the import settings from art/Animations/ANIMATIONS.md to every FBX under
     /// Assets/Art/Animations, writes the avatar masks and rebuilds PatientController.controller, wiring clips by name.
     /// Missing clips leave an empty state; runtime code checks which clips exist. Re-run after the artist adds or changes clips.
     /// </summary>
@@ -20,7 +20,7 @@ namespace PsychSim.Editor
 
         static readonly string[] Loops = { "base_sit_neutral", "base_sit_slumped", "cue_fidget_nails_Hands", "gesture_talk_small_01", "gesture_talk_small_02", "stand_idle" };
 
-        [MenuItem("PsychSim/Rebuild Patient Animator")]
+        [MenuItem("Rapport/Rebuild Patient Animator")]
         public static void Rebuild()
         {
             var masks = BuildMasks();

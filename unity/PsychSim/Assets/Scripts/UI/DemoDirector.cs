@@ -13,7 +13,7 @@ namespace PsychSim.UI
     /// Plays the demo take from demo/script.json with a live patient: start screen (both patients shown), prebrief, establishing shot,
     /// entrance, then each doctor line is synthesised in Dr. Faaz's voice and fed into the microphone path (VAD -> STT -> local LLM ->
     /// streamed TTS). Patient replies are generated live; nothing is pre-baked. Then MSE, diagnosis, prescription, disposition and the debrief.
-    /// Variant "male" plays the short Arjun cut. Added at runtime by PsychSim/Record Demo; raises Finished when the take is over.
+    /// Variant "male" plays the short Arjun cut. Added at runtime by Rapport/Record Demo; raises Finished when the take is over.
     /// </summary>
     public class DemoDirector : MonoBehaviour
     {

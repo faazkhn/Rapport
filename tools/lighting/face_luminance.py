@@ -4,7 +4,7 @@
 Usage:
     face_luminance.py STILL.png [--box x0 y0 x1 y1] [--min 0.45 --max 0.60]
 
-The face box defaults to STILL.face.json, written by Unity's PsychSim/Capture Lighting Stills (projected eye/head bones).
+The face box defaults to STILL.face.json, written by Unity's Rapport/Capture Lighting Stills (projected eye/head bones).
 Formula: Rec.709 relative luminance Y = 0.2126 R + 0.7152 G + 0.0722 B on sRGB-decoded (linear) pixel values in 0..1.
 Rec.709 luma on the encoded values (Y') is printed alongside for reference.
 Crushed / blown: % of all frame pixels with Y < 0.02 / Y > 0.98. Exit code 1 if the face mean is out of range.

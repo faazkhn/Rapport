@@ -1,4 +1,4 @@
-"""Deterministic mock patient for Unity development and play-mode tests (PSYCHSIM_LLM=mock). Never used for the LLM eval.
+"""Deterministic mock patient for Unity development and play-mode tests (RAPPORT_LLM=mock). Never used for the LLM eval.
 
 Keyword rules over the doctor's last line pick intents; the reply speaks only the text of allowed facts
 (trust_min met, and must_be_asked facts only when their intent was tagged). Output goes through brain.guard.

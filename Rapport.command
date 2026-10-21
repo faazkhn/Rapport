@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Double-click to play: starts the local patient service (llama-server + STT + TTS) if it is not already up, opens the PsychSim app,
-# and stops the service when the app quits. Service log: ~/Library/Logs/PsychSim/service.log (timings only, no conversation text).
+# Double-click to play: starts the local patient service (llama-server + STT + TTS) if it is not already up, opens the Rapport app,
+# and stops the service when the app quits. Service log: ~/Library/Logs/Rapport/service.log (timings only, no conversation text).
 set -euo pipefail
 cd "$(dirname "$0")"
-APP="unity/PsychSim/Builds/PsychSim.app"
-LOG="$HOME/Library/Logs/PsychSim"; mkdir -p "$LOG"
+APP="unity/PsychSim/Builds/Rapport.app"
+LOG="$HOME/Library/Logs/Rapport"; mkdir -p "$LOG"
 [ -d "$APP" ] || { echo "No build at $APP. Build it in Unity (File > Build Profiles > macOS, Development Build)."; exit 1; }
 
 if ! curl -sf http://127.0.0.1:8765/health >/dev/null; then
@@ -17,5 +17,5 @@ if ! curl -sf http://127.0.0.1:8765/health >/dev/null; then
     sleep 0.5
   done
 fi
-echo "Service ready. Opening PsychSim."
+echo "Service ready. Opening Rapport."
 open -W "$APP"

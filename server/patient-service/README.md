@@ -1,6 +1,6 @@
-# PsychSim patient service
+# Rapport patient service
 
-Local Python service that plays the patient (Grok via xAI) and speaks for it (KittenTTS). It holds the API key; the Unity client never sees it. For education only.
+Local Python service that plays the patient (the Digital Twin, on a local llama-server by default; Grok only with `PATIENT_LLM=grok`) and speaks for it (Qwen3-TTS VoiceDesign, KittenTTS fallback). For education only.
 
 ## Run
 
@@ -18,9 +18,15 @@ The TTS model loads once at startup (about 1 s when cached, about 13 s on the ve
 | Variable | Default | Meaning |
 |---|---|---|
 | `XAI_API_KEY` | read from the environment, else from the repo-root `.env` | xAI key. Never logged or returned. |
-| `PSYCHSIM_MODEL` | `grok-4.20-0309-non-reasoning` | Default model; a request can override it. |
-| `PSYCHSIM_DATA_DIR` | `<repo>/unity/PsychSim/Assets/StreamingAssets/data` | Canonical data folder (shared with Unity). |
-| `PSYCHSIM_SKIP_TTS` | unset | `1` skips loading KittenTTS (`/tts` then returns 503). |
+| `PATIENT_LLM` | `local` | `grok` uses xAI (needs `XAI_API_KEY`); otherwise the local llama-server at `LLAMA_URL`. |
+| `RAPPORT_MODEL` | `local` | Model name sent to llama-server (informational); a request can override it. |
+| `RAPPORT_DATA_DIR` | `<repo>/unity/PsychSim/Assets/StreamingAssets/data` | Canonical data folder (shared with Unity). |
+| `RAPPORT_LLM` | unset | `mock` uses the keyword mock patient (`run.sh --mock`). |
+| `RAPPORT_TTS` | `qwen3-design` | Voice backend; `kitten` forces KittenTTS. |
+| `RAPPORT_SKIP_TTS` / `_STT` / `_WARMUP` | unset | `1` skips loading that part at startup (tests). |
+| `RAPPORT_STAGED` | unset | Path to a staged script (`staged.py`): pre-scripted replies for concept previews. |
+
+`PSYCHSIM_*` names still work as deprecated aliases until v0.3 (ADR 0003).
 | `PORT` | `8765` | Port for `run.sh`. |
 
 ## Endpoints

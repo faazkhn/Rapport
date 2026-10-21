@@ -17,9 +17,16 @@ import jsonschema
 import twin
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DATA_DIR = Path(os.environ.get("PSYCHSIM_DATA_DIR") or REPO_ROOT / "unity/PsychSim/Assets/StreamingAssets/data")
+
+
+def env(name: str, default: str | None = None) -> str | None:
+    """RAPPORT_<name>, falling back to the deprecated PSYCHSIM_<name> (kept for one release, until v0.3)."""
+    return os.environ.get(f"RAPPORT_{name}", os.environ.get(f"PSYCHSIM_{name}", default))
+
+
+DATA_DIR = Path(env("DATA_DIR") or REPO_ROOT / "unity/PsychSim/Assets/StreamingAssets/data")
 LOCAL_URL = os.environ.get("LLAMA_URL", "http://127.0.0.1:8080/v1")
-LOCAL_MODEL = os.environ.get("PSYCHSIM_MODEL", "local")  # llama-server serves one model; the name is informational
+LOCAL_MODEL = env("MODEL", "local")  # llama-server serves one model; the name is informational
 GROK_MODEL = "grok-4.20-0309-non-reasoning"
 XAI_BASE_URL = "https://api.x.ai/v1"
 EMOTIONS = ["neutral", "sad", "anxious", "angry", "ashamed", "happy", "flat", "suspicious", "confused"]
@@ -349,35 +356,37 @@ def recent_patient_lines(messages: list[dict], n: int = 3) -> list[str]:
 
 
 def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_min: float | None = None, recalled: dict | None = None,
-                 recent: list[str] | None = None) -> str:
-    """Small per-turn tail: recall, recent lines to avoid repeating, state, style reminder (A3), next-line framing (A4)."""
-    parts = [b] if recalled and (b := recall_block(case, recalled)) else []
+                 recent: list[str] | None = None) -> tuple[str, str]:
+    """Small per-turn tail, split around the doctor's words. Before: what is known when the patient stops talking (recent lines to
+    avoid repeating, summary, state, style reminder A3), so warm() can prefill it. After: what needs the doctor's line (recall, time,
+    next-line framing A4)."""
+    pre = []
     if recent:
-        parts.append("DON'T REPEAT THESE PHRASES (said already; say it differently or add something new):\n"
-                     + "\n".join(f"- {r}" for r in recent))
+        pre.append("DON'T REPEAT THESE PHRASES (said already; say it differently or add something new):\n"
+                   + "\n".join(f"- {r}" for r in recent))
     if summary:
-        parts.append(f"EARLIER IN THIS CONSULTATION (summary): {summary}")
+        pre.append(f"EARLIER IN THIS CONSULTATION (summary): {summary}")
+    pre += ["PATIENT'S STATE NOW:\n" + describe_state(state), style_reminder(case, state)]
+    post = [b] if recalled and (b := recall_block(case, recalled)) else []
     if elapsed_min is not None:
-        parts.append(f"Minutes since the consultation started: about {elapsed_min:.0f}.")
-    parts += ["PATIENT'S STATE NOW:\n" + describe_state(state), style_reminder(case, state),
-              f"Write {case['patient']['name']}'s next line in this dialogue."]
-    return "\n\n".join(parts)
+        post.append(f"Minutes since the consultation started: about {elapsed_min:.0f}.")
+    post.append(f"Write {case['patient']['name']}'s next line in this dialogue.")
+    return "\n\n".join(pre), "\n\n".join(post)
 
 
 def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None, exam=None) -> list[dict]:
-    """[system: fixed per case+variant] [first user msg: facts block + first doctor line] [history verbatim] [last doctor line + tail]."""
+    """[system: fixed per case+variant] [first user msg: facts block + first doctor line] [history verbatim]
+    [pre-tail + last doctor line + post-tail]."""
     out = [{"role": "system", "content": build_system_prompt(case)}]
     for m in messages[-HISTORY_TURNS:]:
         out.append({"role": "user" if m["role"] == "doctor" else "assistant", "content": m["text"]})
-    ctx = turn_context(case, state, summary, elapsed_min, recalled, recent_patient_lines(messages))
+    pre, post = turn_context(case, state, summary, elapsed_min, recalled, recent_patient_lines(messages))
     if exam and (line := exam_note(case, exam)):
-        ctx += "\n" + line
-    if out[-1]["role"] == "user":
-        out[-1] = {"role": "user", "content": f"Doctor: {out[-1]['content']}\n\n---\n{ctx}"}
-    else:
-        out.append({"role": "user", "content": ctx})
+        post += "\n" + line
+    doctor = f"Doctor: {out.pop()['content']}\n\n---\n" if out[-1]["role"] == "user" else ""
+    out.append({"role": "user", "content": f"{pre}\n\n---\n{doctor}{post}"})
     first = out[1]
-    out[1] = {"role": "user", "content": f"{facts_block(case, state)}\n\n---\n" + (first["content"] if first["content"].startswith("Doctor: ") or first is out[-1]
+    out[1] = {"role": "user", "content": f"{facts_block(case, state)}\n\n---\n" + (first["content"] if first is out[-1]
                                                                                     else f"Doctor: {first['content']}")}
     return out
 

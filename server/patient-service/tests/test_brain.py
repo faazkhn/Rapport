@@ -270,3 +270,21 @@ def test_generate_reply_routes_exam_and_ignores_llm_choice():
     out = brain.generate_reply({"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "How is your sleep?"}],
                                 "state": {**LOW, "trust": 40}}, client=llm, tagger=lambda: [])
     assert out["exam_action"] is None and out["exam"] is None
+
+
+def test_env_prefers_rapport_and_keeps_psychsim_alias(monkeypatch):
+    monkeypatch.delenv("RAPPORT_X_TEST", raising=False)
+    monkeypatch.setenv("PSYCHSIM_X_TEST", "old")
+    assert brain.env("X_TEST") == "old"
+    monkeypatch.setenv("RAPPORT_X_TEST", "new")
+    assert brain.env("X_TEST") == "new"
+    assert brain.env("MISSING_X_TEST", "d") == "d"
+
+
+def test_warm_prompt_is_prefix_of_turn_prompt():
+    hist = [{"role": "doctor", "text": "a"}, {"role": "patient", "text": "I'm just tired."}]
+    warm = brain.build_messages(CASE, LOW, hist + [{"role": "doctor", "text": ""}])[-1]["content"]
+    turn = brain.build_messages(CASE, LOW, hist + [{"role": "doctor", "text": "How do you sleep?"}], elapsed_min=3,
+                                recalled={"open": ["f_sleep"], "locked_hit": [], "discomfort": False})[-1]["content"]
+    cut = warm.index("Doctor: ") + len("Doctor: ")
+    assert turn[:cut] == warm[:cut] and "PATIENT'S STATE NOW" in warm[:cut] and "WHAT COMES TO MIND" in turn[cut:]

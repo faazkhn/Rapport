@@ -27,12 +27,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 VOICES = session.VOICES
 SAMPLE_RATE = session.OUT_SR
 tts = session.TTS
-MOCK = os.environ.get("PSYCHSIM_LLM") == "mock"  # dev/play-mode tests only, never the LLM eval
+MOCK = brain.env("LLM") == "mock"  # dev/play-mode tests only, never the LLM eval
 
 
 @asynccontextmanager
 async def lifespan(app):
-    if os.environ.get("PSYCHSIM_SKIP_TTS") != "1":
+    if brain.env("SKIP_TTS") != "1":
         try:
             from kittenml import KittenTTS
             t = time.perf_counter()
@@ -50,7 +50,7 @@ async def lifespan(app):
                 log.info("TTS backend %s loaded in %.1fs", name, time.perf_counter() - t)
             except Exception as e:  # sessions use KittenTTS
                 log.error("TTS backend %s failed to load (%s); using KittenTTS", name, type(e).__name__)
-    if os.environ.get("PSYCHSIM_SKIP_STT") != "1":
+    if brain.env("SKIP_STT") != "1":
         t = time.perf_counter()
         stt.vad_model()
         await run_in_threadpool(lambda: session.STT_POOL.submit(stt.transcribe, np.zeros(stt.SR, np.float32)).result())
@@ -60,14 +60,14 @@ async def lifespan(app):
             log.info("Smart Turn %s", "loaded" if session.SMART["model"] else f"missing ({stt.SMART_TURN_ONNX}); silence-only endpointing")
         except Exception as e:
             log.error("Smart Turn failed to load (%s); silence-only endpointing", type(e).__name__)
-    if not MOCK and os.environ.get("PSYCHSIM_SKIP_WARMUP") != "1":
+    if not MOCK and brain.env("SKIP_WARMUP") != "1":
         t = time.perf_counter()
         n = await run_in_threadpool(brain.tag_intents, "Hello, how are you?")  # warms slot 1 prefix
         log.info("LLM %s warm in %.1fs (intents ok=%s)", brain.default_model(), time.perf_counter() - t, n is not None)
     yield
 
 
-app = FastAPI(title="PsychSim patient service", lifespan=lifespan)
+app = FastAPI(title="Rapport patient service", lifespan=lifespan)
 
 
 @app.websocket("/twin/ws")  # declared before the /twin static mount, which would otherwise catch it
