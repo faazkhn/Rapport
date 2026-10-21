@@ -2,12 +2,12 @@
 
 Everything runs on this Mac: no internet is needed once the models are downloaded. Allow 10 minutes for setup and 10–15 minutes for the demo.
 
-> **Status (2026-10-21):** the playable app in `unity/PsychSim/Builds/` is **out of date**. It predates the Digital Twin and the voice fixes. Until it is rebuilt (end of Phase G), run the demo from the Unity editor (Option B). Clinical content is a draft and not faculty-validated: say so at the start.
+> **Status (2026-10-21, end of Phase G):** the app in `unity/PsychSim/Builds/` is rebuilt with the Digital Twin and the new voice (Option A). To rebuild it, use the Unity menu **PsychSim > Build macOS (Development)**. Clinical content is a draft and not faculty-validated: say so at the start.
 
 ## 1. The day before
 
 - [ ] Charge the Mac and keep it on power during the demo (the model runs on the GPU).
-- [ ] Close heavy apps (browsers with many tabs, video calls), so the patient answers in about 1.5–2 s.
+- [ ] Close heavy apps (browsers with many tabs, video calls). The patient answers in about 2.3 s (p50), up to about 3 s. The new emotional voice and the language model share the GPU.
 - [ ] Run one full rehearsal using the script in section 4.
 - [ ] Check the microphone: System Settings > Privacy & Security > Microphone, allowed for Unity (or for Rapport/PsychSim once rebuilt).
 - [ ] Use a headset or earphones with a mic if the room echoes. Speakers plus an open mic can make the patient hear herself.
@@ -20,13 +20,13 @@ Open Terminal in the project folder (`~/Documents/Med`).
    ```bash
    server/patient-service/run.sh
    ```
-   Leave this window open. It is ready when this prints `{"ok":true,...}`:
+   Leave this window open. It is ready when this prints `{"ok":true,...}`. In the service window, check for `TTS backend qwen3-design loaded`. If it says `failed to load ... using KittenTTS`, the patient still talks, but in the older, flatter voice. To force the old voice, start with `RAPPORT_TTS=kitten server/patient-service/run.sh`.
    ```bash
    curl -s http://127.0.0.1:8765/health
    ```
 2. **Open the patient:**
-   - **Option A (after the rebuild):** double-click `PsychSim.command` (soon `Rapport.command`). It starts the service if needed and opens the app.
-   - **Option B (today):** open Unity Hub, then the project `unity/PsychSim`, then the scene `Assets/Scenes/Encounter.unity`, and press **Play**. Maximise the Game view (Shift+Space).
+   - **Option A:** double-click `PsychSim.command` (soon `Rapport.command`). It starts the service if needed and opens the app.
+   - **Option B (editor):** open Unity Hub, then the project `unity/PsychSim`, then the scene `Assets/Scenes/Encounter.unity`, and press **Play**. Maximise the Game view (Shift+Space).
 3. **Open the Digital Twin view** on a second screen or projector:
    `http://127.0.0.1:8765/twin/?live=1`
    It fills in when the session starts. This is the examiner's view; position it where the mentors can see it.
@@ -61,7 +61,9 @@ Open Terminal in the project folder (`~/Documents/Med`).
 | Problem | Fix |
 |---|---|
 | The patient doesn't answer | Check the service window for errors and `curl -s http://127.0.0.1:8765/health`. Restart `run.sh`. |
-| Answers take 4 s or more | Close other apps; make sure the Mac is on power. The first answer after start is slower. |
+| Answers take 4 s or more | Close other apps; make sure the Mac is on power. The first answer after start is slower. As a last resort, use the lighter voice: `RAPPORT_TTS=kitten`. |
+| The voice stutters or breaks mid-sentence | The GPU is overloaded: close other apps, or restart with `RAPPORT_TTS=kitten`. |
+| She sounds like a different woman from line to line | Note which lines and tell the developer: this is a known risk of the designed voice. |
 | She hears herself or interrupts | Use a headset, or switch to push-to-talk. |
 | The Twin view is empty | Reload the page after the session starts; it catches up automatically. |
 | Unity shows "Service error" | The service isn't running or crashed: restart `run.sh`, then press Play again. |
@@ -70,5 +72,5 @@ Open Terminal in the project folder (`~/Documents/Med`).
 ## 6. What to say about limits (honest framing)
 
 - The clinical case is a draft written for the simulator and not yet faculty-validated.
-- Voices are synthetic (designed, not cloned); a more natural, emotional voice is in progress.
+- Voices are synthetic: designed from a text description, never cloned from a real person. The tone follows the patient's emotion and the Digital Twin's reaction on each line.
 - Exam commands are limited today; a full set of exam commands with close-ups is the next phase.
