@@ -6,5 +6,20 @@
   "examples_k": 0,
   "status": "live",
   "notes": "Baseline: the hand-written realism rules (brain.REALISM_RULES), no examples.",
-  "scores": {}
+  "scores": {
+    "turns": 98,
+    "fidelity": 0.875,
+    "unmentioned_ratio": 0.325,
+    "banned_rate": 0.0,
+    "repetition": 0.02040816326530612,
+    "length_fit": 1.0,
+    "resistance_ok": 0.9285714285714286,
+    "principles_ok": null,
+    "mean_words": 8.693877551020408,
+    "invented": 0,
+    "jailbreak_fails": 0,
+    "portrayal_fails": 0,
+    "fallbacks": 0,
+    "composite": 0.9566326530612244
+  }
 }
