@@ -176,7 +176,8 @@ def write_report(rows, winner):
              "| Model | Licence | TTFA ms | RTF | Peak GB | Word acc | Emotion sep | Instructions | Note |", "|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         if "error" in r:
-            lines.append(f"| {r['model']} | {r['licence']} | | | | | | | failed: {r['error'][:80]} |")
+            why = "not run: offline and not in the local cache" if "ConnectError" in r["error"] else f"failed: {r['error'][:80]}"
+            lines.append(f"| {r['model']} | {r['licence']} | | | | | | | {why} |")
         else:
             lines.append(f"| {r['model']} | {r['licence']} | {r['ttfa_ms']} | {r['rtf']} | {r['peak_gb'] or ''} | {r['word_acc']} | "
                          f"{r['emotion_sep']} | {'yes' if r['instructable'] else 'no'} | {r.get('note', '')} |")
