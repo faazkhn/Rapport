@@ -183,14 +183,11 @@
     const flick = (f) => .8 + .2 * Math.sin(t * f) * Math.sin(t * f * .37 + 1);
     const cueLvl = Math.max(0, ...M.snaps.flatMap((s) => (s.cues || []).map((c) => (c.intensity ?? .5) * win(t, s.t, s.t + (c.duration_s ?? 4)))));
     const nonv = Math.max(0, ...M.snaps.filter((s) => s.expression?.nonverbal).map((s) => env(t, s.t - .5, .3, .5, .9)));
-    op("g_hip", .12 + .88 * recallE);
-    op("g_hipRed", lockedE);
-    op("g_amy", tween(M.amy, t, GLOW_S, (v) => v) * (.85 + .15 * speakP));
-    op("g_pfc", .1 + .45 * tween(M.pfc, t, GLOW_S, (v) => v) + .45 * think);
-    op("g_broca", .06 + .9 * speakP * flick(11));
-    op("g_wern", .06 + .85 * speakD * flick(9) + .25 * speakP);
-    op("g_ins", .08 + .35 * clamp((mood.a + 1) / 2) + .5 * cueLvl);
-    op("g_stem", .1 + .5 * clamp(S.agitation / 60) + .55 * nonv);
+    const Z = { hip: .12 + .88 * recallE, hipRed: lockedE, amy: tween(M.amy, t, GLOW_S, (v) => v) * (.85 + .15 * speakP),
+      pfc: .1 + .45 * tween(M.pfc, t, GLOW_S, (v) => v) + .45 * think, broca: .06 + .9 * speakP * flick(11),
+      wern: .06 + .85 * speakD * flick(9) + .25 * speakP, ins: .08 + .35 * clamp((mood.a + 1) / 2) + .5 * cueLvl,
+      stem: .1 + .5 * clamp(S.agitation / 60) + .55 * nonv };
+    for (const k in Z) op("g_" + k, Z[k]);
     const lab = { l_pfc: .1 + .9 * think + .4 * tween(M.pfc, t, GLOW_S, (v) => v), l_broca: speakP, l_wern: speakD, l_hip: recallE, l_amy: tween(M.amy, t, GLOW_S, (v) => v), l_ins: cueLvl, l_stem: nonv };
     for (const k in lab) $(k).style.opacity = (.55 + .45 * clamp(lab[k])).toFixed(3);
     const recalling = snap && snap.recalled?.length && recallE > .02 ? snap.recalled.map((id) => M.items.find((m) => m.id === id)?.label || id) : null;
@@ -261,9 +258,12 @@
       const told = m.recalls.some((rt) => rt <= t);
       const cls = told ? "told" : !unlocked ? "locked" : m.gated ? "gated" : "open";
       if (cls !== m.cls) { m.el.className = "chip " + cls; m.ic.innerHTML = { told: TOLD, locked: LOCK, gated: KEY, open: OPEN }[cls]; m.cls = cls; }
-      m.el.style.setProperty("--f", Math.max(0, ...m.recalls.map((rt) => env(t, rt, .3, 1.6, 1.2))).toFixed(3));
-      m.el.style.setProperty("--u", env(t, m.unlockAt, .2, .5, 1.2).toFixed(3));
-      m.el.style.setProperty("--r", Math.max(0, ...m.lockedHits.map((rt) => env(t, rt, .2, .6, .8))).toFixed(3));
+      m.f = Math.max(0, ...m.recalls.map((rt) => env(t, rt, .3, 1.6, 1.2)));
+      m.u = env(t, m.unlockAt, .2, .5, 1.2);
+      m.r = Math.max(0, ...m.lockedHits.map((rt) => env(t, rt, .2, .6, .8)));
+      m.el.style.setProperty("--f", m.f.toFixed(3));
+      m.el.style.setProperty("--u", m.u.toFixed(3));
+      m.el.style.setProperty("--r", m.r.toFixed(3));
     }
     if (M.rows?.length) {
       // Line sits just above row k when trust == th_k and slides to above row k+1 as trust reaches th_{k+1}.
@@ -278,6 +278,8 @@
     const span = Math.max(M.end, 1);
     $("playhead").style.left = clamp(t / span * 100, 0, 100) + "%";
     for (const r of M.turns) if (r.el) { const c = turn === r ? "seg cur" : r.end < t ? "seg past" : "seg"; if (r.el.className !== c) r.el.className = c; }
+
+    window.twin3d?.frame(t, { Z, snap, turn, S, mood, items: M.items });
   }
   const quad = (m) => Math.hypot(m.p, m.a) < .12 ? "neutral" : m.p < 0 ? (m.a >= 0 ? "tense" : "low, withdrawn") : (m.a >= 0 ? "elated" : "calm");
   const sg = (v) => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(2);
