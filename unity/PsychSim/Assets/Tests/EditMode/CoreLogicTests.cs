@@ -330,5 +330,108 @@ namespace PsychSim.Tests
             Assert.AreEqual(0.8f, PsychSim.Cues.SpeechTiming.PreReplyDelay(0.5f), 1e-4f);
             Assert.AreEqual(0.9f, PsychSim.Cues.SpeechTiming.TtsSpeed(1f, 1f), 1e-4f);
         }
+        // ---------- ExamQueue (Phase H) ----------
+
+        static PsychSim.Cues.ExamQueue Queue(out List<string> log)
+        {
+            var q = new PsychSim.Cues.ExamQueue();
+            var l = new List<string>();
+            q.Started += s => l.Add("+" + s.id);
+            q.Ended += s => l.Add("-" + s.id);
+            log = l;
+            return q;
+        }
+
+        static PsychSim.Cues.ExamStep Step(string id) => new PsychSim.Cues.ExamStep { id = id };
+
+        [Test]
+        public void ExamQueue_HoldsUntilRelax()
+        {
+            var q = Queue(out var log);
+            q.Enqueue(new[] { Step("hold_out_hands") });
+            q.Tick(0f, false);
+            q.Tick(1f, true);
+            q.Tick(20f, true);
+            Assert.IsTrue(q.Holding);
+            q.Relax();
+            Assert.IsNull(q.Current);
+            CollectionAssert.AreEqual(new[] { "+hold_out_hands", "-hold_out_hands" }, log);
+        }
+
+        [Test]
+        public void ExamQueue_HoldCapsAt30s()
+        {
+            var q = Queue(out _);
+            q.Enqueue(new[] { Step("hold_out_hands") });
+            q.Tick(0f, false);
+            q.Tick(1f, true);
+            q.Tick(30.9f, true);
+            Assert.IsTrue(q.Holding);
+            q.Tick(31.1f, true);
+            Assert.IsFalse(q.Holding);
+            Assert.IsNull(q.Current);
+        }
+
+        [Test]
+        public void ExamQueue_NewCommandReleasesHold()
+        {
+            var q = Queue(out var log);
+            q.Enqueue(new[] { Step("hold_out_hands") });
+            q.Tick(0f, false);
+            q.Tick(1f, true);
+            q.Enqueue(new[] { Step("open_mouth") });
+            Assert.Contains("-hold_out_hands", log);
+            q.Tick(2f, false);
+            Assert.AreEqual("open_mouth", q.Current.id);
+        }
+
+        [Test]
+        public void ExamQueue_RunsInOrder()
+        {
+            var q = Queue(out var log);
+            q.Enqueue(new[] { Step("stand_up"), Step("walk_few_steps"), Step("sit_down") });
+            q.Tick(0f, false);
+            q.Tick(1f, true);
+            q.Tick(2f, true);
+            q.Tick(3f, true);
+            CollectionAssert.AreEqual(new[] { "+stand_up", "-stand_up", "+walk_few_steps", "-walk_few_steps", "+sit_down", "-sit_down" }, log);
+            Assert.IsFalse(q.Standing);
+        }
+
+        [Test]
+        public void ExamQueue_SeatedOnlyInsertsSitDown()
+        {
+            var q = Queue(out var log);
+            q.Enqueue(new[] { Step("stand_up") });
+            q.Tick(0f, false);
+            q.Tick(1f, true);
+            Assert.IsTrue(q.Standing);
+            q.Enqueue(new[] { Step("roll_up_sleeves") });
+            q.Tick(2f, false);
+            Assert.AreEqual("sit_down", q.Current.id);
+            q.Tick(3f, true);
+            Assert.AreEqual("roll_up_sleeves", q.Current.id);
+        }
+
+        [Test]
+        public void ExamQueue_WalkWhileSeatedStandsFirst()
+        {
+            var q = Queue(out _);
+            q.Enqueue(new[] { Step("walk_few_steps") });
+            q.Tick(0f, false);
+            Assert.AreEqual("stand_up", q.Current.id);
+        }
+
+        [Test]
+        public void ExamQueue_ParsesMessageAndDropsRefused()
+        {
+            var msg = JObject.Parse(@"{""type"":""exam"",""relax"":true,""actions"":[
+                {""id"":""hold_out_hands"",""slots"":{""which"":""left"",""palms"":""up""},""comply"":true},
+                {""id"":""roll_up_sleeves"",""slots"":{""which"":""both""},""comply"":false}]}");
+            var steps = PsychSim.Cues.ExamQueue.Parse(msg, out bool relax);
+            Assert.IsTrue(relax);
+            Assert.AreEqual(1, steps.Count);
+            Assert.AreEqual(("hold_out_hands", "left", "up"), (steps[0].id, steps[0].which, steps[0].palms));
+        }
     }
 }

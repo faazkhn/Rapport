@@ -17,6 +17,7 @@ namespace PsychSim.Cues
         public event Action<string, float> CueChanged;  // live intensity moved by >= 0.1 (for SessionLog)
         public readonly Dictionary<string, float> Live = new();
         public bool Seated;                              // false during the entrance: no seated layers or gaze
+        public bool ExamBusy;                            // an ExamController action is running or held: no talk gestures, nods or tear wipes
 
         CaseFile caseFile;
         PatientState state;
@@ -31,7 +32,7 @@ namespace PsychSim.Cues
         readonly Dictionary<int, float> layerTarget = new();
         int lFidget, lTalk, lArms, lHead;
         float nextWipe, talkingUntil;
-        // shortcut: the shared wipe clip touches the nose on Mégane and sinks into Matt's cheek; off for the staged demo until hand IK lands
+        // ExamController aims the fingertips under the eye with IK (the shared clip alone touched Mégane's nose and sank into Matt's cheek)
         public static bool WipeTears = true;
         HashSet<string> clips;
 
@@ -59,7 +60,7 @@ namespace PsychSim.Cues
             face?.SetEmotion(turn.reply.emotion);
         }
 
-        void Boost(string id, float amount, float seconds)
+        public void Boost(string id, float amount, float seconds)
         {
             if (!Live.ContainsKey(id)) return;
             boosts.Add((id, amount, Time.time + seconds));
@@ -72,7 +73,7 @@ namespace PsychSim.Cues
             talkingUntil = Time.time + seconds;
             if (HasClip("gesture_talk_small_01")) anim.CrossFade(UnityEngine.Random.value < 0.5f ? "gesture_talk_small_01" : "gesture_talk_small_02", 0.3f, lTalk);
             var u = utterance.TrimStart().ToLowerInvariant();
-            if (InExamAction) return;
+            if (InExamAction || ExamBusy) return;
             if (u.StartsWith("yes") || u.StartsWith("yeah") || u.StartsWith("hmm, yes")) PlayOneShot(lHead, "gesture_nod");
             else if (u.StartsWith("no") && !u.StartsWith("not")) PlayOneShot(lHead, "gesture_head_shake");
         }
@@ -123,7 +124,7 @@ namespace PsychSim.Cues
 
             // layer weights: fidget follows intensity, talk while speaking, one-shots until their clip ends
             if (lFidget >= 0) layerTarget[lFidget] = Seated && HasClip("cue_fidget_nails_Hands") ? Get("fidget") : 0f;
-            if (lTalk >= 0) layerTarget[lTalk] = Seated && !InExamAction && now < talkingUntil && HasClip("gesture_talk_small_01") ? 0.8f : 0f;
+            if (lTalk >= 0) layerTarget[lTalk] = Seated && !InExamAction && !ExamBusy && now < talkingUntil && HasClip("gesture_talk_small_01") ? 0.8f : 0f;
             foreach (var l in new[] { lArms, lHead })
                 if (l >= 0 && layerTarget.TryGetValue(l, out var w) && w > 0 && !anim.IsInTransition(l) && anim.GetCurrentAnimatorStateInfo(l).normalizedTime >= 0.95f
                     && !anim.GetCurrentAnimatorStateInfo(l).IsName("Empty"))
@@ -134,7 +135,7 @@ namespace PsychSim.Cues
             if (!Seated) { layerTarget[lArms] = 0; layerTarget[lHead] = 0; }
 
             // tearful: wipe the tears now and then, more often as it rises
-            if (WipeTears && Seated && tearful > 0.45f && now > nextWipe && now > talkingUntil && !InExamAction)
+            if (WipeTears && Seated && tearful > 0.45f && now > nextWipe && now > talkingUntil && !InExamAction && !ExamBusy)
             {
                 PlayOneShot(lArms, "cue_wipe_tears");
                 CueFired?.Invoke("tearful", tearful);
