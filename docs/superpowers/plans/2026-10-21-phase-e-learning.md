@@ -53,7 +53,7 @@
 | `tools/learning/loop.py` (new) | Rounds: self-play → gate → library → GEPA → held-out eval → promote/reject; `eval` and `report` subcommands |
 | `tools/learning/ab_page.py` (new) | `docs/ab/index.html`: 10 blind pairs v0 vs latest |
 | `docs/LEARNING_REPORT.md`, `docs/learning/curves.svg` (new) | Proof |
-| `docs/adr/0002-learning-loop.md` (new) | The learning-loop decision |
+| `docs/adr/0004-learning-loop.md` (new) | The learning-loop decision |
 
 Tests: `server/patient-service/tests/test_learning.py` (new), extend `test_brain.py`, `test_session.py`, `test_api.py`; `tools/learning` metric tests in `server/patient-service/tests/test_learning_metrics.py`. Run: `cd server/patient-service && .venv/bin/python -m pytest -q`.
 
@@ -145,5 +145,5 @@ Tests: `server/patient-service/tests/test_learning.py` (new), extend `test_brain
 - [ ] 5 rounds of `loop.py round` (v1–v5).
 - [ ] Latency: own service `PORT=8775`; `tools/latency/ws_bench.py --runs 1` with `current` = v0 vs the latest (`examples_k=2`); plus `learning.retrieve` timing over 200 calls. Record p50/p90.
 - [ ] `loop.py report` → `docs/LEARNING_REPORT.md` (+ honest notes); `tools/learning/ab_page.py` → `docs/ab/index.html` (10 held-out doctor lines, v0 vs latest replies, randomised A/B with the key folded away; owner result left blank).
-- [ ] `docs/adr/0002-learning-loop.md`; `server/patient-service/README.md` section; `gh issue create --repo faazkhn/Rapport` for L4 fine-tuning.
+- [ ] `docs/adr/0004-learning-loop.md`; `server/patient-service/README.md` section; `gh issue create --repo faazkhn/Rapport` for L4 fine-tuning.
 - [ ] Full test suite; commit `docs(learning): learning report, A/B page, ADR 0002`.

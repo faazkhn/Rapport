@@ -1,4 +1,4 @@
-# 2. Learning loop: experience library, faculty principles, GEPA-gated brain versions
+# 4. Learning loop: experience library, faculty principles, GEPA-gated brain versions
 
 Date: 2026-10-21 · Status: accepted
 
