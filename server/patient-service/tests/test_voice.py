@@ -3,12 +3,12 @@ import voice
 
 
 def test_speakable_caps_ellipses():
-    assert voice.speakable("I... I don't... know...") == "I... I don't, know"
+    assert voice.speakable("I... I don't... know...") == "I... I don't, know."
 
 
 def test_speakable_never_empty():
     assert voice.speakable("...") == ""
-    assert voice.speakable("... hm ...") == "hm"
+    assert voice.speakable("... hm ...") == "hm..."
     assert voice.speakable("Okay.") == "Okay."
 
 
@@ -40,3 +40,14 @@ def test_labels_so_far_reads_partial_json():
     buf = '{"behaviour": "deflects", "emotion": "sad", "utterance": "I'
     assert voice.labels_so_far(buf) == {"behaviour": "deflects", "emotion": "sad"}
     assert voice.labels_so_far('{"behav') == {}
+
+
+def test_speakable_keeps_digits_only_reply():
+    assert voice.speakable("34.") == "34."
+    assert voice.speakable("2019...") == "2019..."
+
+
+def test_speakable_keeps_the_hesitation_at_a_sentence_cut():
+    # the splitter cuts after "..."; that piece's trailing hesitation is the reply's one allowed pause
+    assert voice.speakable("I don't know...") == "I don't know..."
+    assert voice.speakable("I don't know...", keep_first=False) == "I don't know."

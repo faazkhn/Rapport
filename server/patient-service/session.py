@@ -101,6 +101,7 @@ class Session:
             await self.begin_turn(str(msg.get("text", ""))[:4000], {"input": "text", "t_end": time.monotonic()})
         elif t == "ptt_begin":
             self.ptt = True
+            self.drop_held()
             await self.on_speech_start()
             self.speech = list(self.pre_roll)
         elif t == "ptt_end":
@@ -110,7 +111,8 @@ class Session:
                 await self.end_speech(frames, time.monotonic(), time.monotonic())
         elif t == "hands_free":
             self.hands_free = bool(msg.get("on", True))
-            self.speech, self.held = None, None
+            self.speech = None
+            self.drop_held()
             self.vad.reset()
         elif t == "stop":
             await self.stop("client")
@@ -204,7 +206,7 @@ class Session:
             return
         self.speech.append(frame)
         if ev == "start":
-            self.held = None  # the doctor kept talking: the speculative transcript is stale
+            self.drop_held()  # the doctor kept talking: the speculative transcript is stale
         elif ev == "end":
             loop = asyncio.get_running_loop()
             audio = np.concatenate(self.speech)
@@ -220,6 +222,11 @@ class Session:
             cap = TURN_CAP_MS if self.smart_turn else self.silence_ms
             if (self.vad.samples - self.vad.end_sample) * 1000 >= cap * stt.SR:
                 await self.end_held()
+
+    def drop_held(self):
+        if self.held and self.held["spec"]:
+            self.held["spec"].cancel()  # frees the single STT thread if the job hasn't started
+        self.held = None
 
     async def end_held(self):
         held, frames, self.held, self.speech = self.held, self.speech, None, None

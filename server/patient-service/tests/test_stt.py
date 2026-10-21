@@ -80,3 +80,28 @@ def test_without_smart_turn_ends_at_the_silence_setting():
     heard, texts, _ = run("s" + "." * 20 + "e", None, 60)
     extra = -(-(stt.SILENCE_MS - 200) // FRAME_MS)
     assert heard == 21 + extra and texts == ["line 1"]
+
+
+def test_stale_speculative_job_is_cancelled(monkeypatch):
+    import threading
+    gate = threading.Event()
+    session.STT_POOL.submit(gate.wait, 5)  # keeps the STT thread busy so the speculative job is still queued when speech resumes
+    calls = []
+
+    def fake_stt(audio):
+        calls.append(len(audio))
+        return f"line {len(calls)}"
+
+    async def go():
+        s, ev, _ = make(FakeLLM())
+        s.stt_fn = fake_stt
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        s.vad, s.smart_turn = FakeVad("s" + "." * 10 + "e" + "...s" + "." * 10 + "e"), FakeSmartTurn(0.1, 0.9)
+        for i in range(30):
+            if i == 26:  # the last end frame awaits; the loop runs the cancel callback before the STT thread frees
+                threading.Timer(0.2, gate.set).start()
+            await s.on_frame(np.zeros(stt.FRAME, np.float32))
+        await s.turn_task
+        return [m["text"] for _, m in ev if m["type"] == "transcript" and m["text"]]
+    texts = asyncio.run(go())
+    assert texts == ["line 1"] and len(calls) == 1  # the stale job never ran

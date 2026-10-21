@@ -5,14 +5,15 @@ _DOTS = re.compile(r"\s*(?:\.{3,}|…)")
 
 
 def speakable(text: str, keep_first: bool = True) -> str:
-    """At most one hesitation ("...") per reply; later ones become commas, and a leading or trailing one is dropped. Each "..." is
-    a long pause in TTS, so a reply full of them sounds broken rather than sad."""
+    """At most one hesitation ("...") per reply: later ones become commas (a final one a full stop), and a leading one is dropped.
+    Each "..." is a long pause in TTS, so a reply full of them sounds broken rather than sad. The splitter cuts sentences after
+    "...", so a piece's trailing "..." can be the reply's one allowed hesitation and is kept when keep_first."""
     s = _DOTS.sub("...", text.strip())
     s = re.sub(r"^(?:\.\.\.\s*)+", "", s)
-    s = re.sub(r"(?:\s*\.\.\.)+$", "", s).strip()
-    head, sep, tail = s.partition("...")
-    s = head + sep + _DOTS.sub(",", tail) if keep_first else _DOTS.sub(",", s)
-    return s if re.search(r"[A-Za-z]", s) else ""
+    head, sep, tail = s.partition("...") if keep_first else ("", "", s)
+    tail = re.sub(r",\s*$", ".", _DOTS.sub(",", tail))
+    s = (head + sep + tail).strip()
+    return s if re.search(r"\w", s) else ""
 
 
 _LABEL = re.compile(r'"(behaviour|emotion|reaction)"\s*:\s*"([a-z_]+)"')
