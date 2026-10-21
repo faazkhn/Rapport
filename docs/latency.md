@@ -92,3 +92,21 @@ Only worth using if the local model is too slow on a weaker Mac. All of these se
 
 Next levers, in order: Smart Turn (about −0.3 s), moving the recent-phrases block before the doctor's line so it sits in the warmed prefix (about −0.15 s), and a shorter first sentence by prompt ("open with a short phrase"). The no-invented-facts rule is not traded for any of these.
 
+
+## Phase B follow-up (2026-10-21): Smart Turn installed, tail moved before the doctor's words
+
+`ws_bench.py --runs 1`, 26 turns each. Smart Turn v3.2 CPU (`models/smart-turn-v3.onnx`, about 12 ms per call). The second change moves the part of the per-turn tail that is known before the doctor speaks (state, style reminder, recent lines) in front of the doctor's words, so `Session.warm` prefills it (`brain.turn_context` returns before/after parts).
+
+| Stage, p50 (p90) ms | Phase G | + Smart Turn | + tail before doctor, run 1 | run 2 (GPU shared, see below) |
+|---|---|---|---|---|
+| VAD endpoint | 480 | 277 (282) | 278 (288) | 278 (284) |
+| STT wait after endpoint | 0 | 116 (212) | 128 (224) | 119 (358) |
+| LLM first token | 402 | 412 (566) | **273** (393) | 306 (442) |
+| LLM first sentence | 1,150 | 1,204 (1,742) | 1,164 (1,610) | 1,175 (1,624) |
+| TTS first chunk | 585 | 564 (953) | 584 (1,098) | 758 (1,286) |
+| **Lag** | 2,326 (3,018) | 2,318 (3,462) | **2,164** (4,024) | 2,488 (3,648) |
+
+- Smart Turn ends a finished sentence about 200 ms sooner, but speculative STT starts at the same 200 ms point and is not done yet, so the saving moves into STT wait. Net: none.
+- Moving the tail cut first-token time by 100–140 ms in both runs.
+- Run 2 overlapped another local job using llama-server and the GPU (Phase E self-play), which shows in TTS first chunk. The p90 swings between runs (3.6–4.0 s) are larger than the change being measured; one 26-turn run is not enough to compare p90s.
+- **Target p50 ≤ 700 ms is still missed by about 1.5 s.** The big remaining items are the first sentence (about 0.9 s after the first token) and TTS on a GPU shared with the LLM. Next: start speculative STT earlier (100 ms) so it finishes by the Smart Turn endpoint, and a shorter opening phrase.
