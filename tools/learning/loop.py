@@ -1,5 +1,5 @@
 """The learning loop (Phase E). Everything runs against the local llama-server; nothing leaves the Mac.
-  loop.py eval <vid>          held-out evaluation of a version (scripted lines, fixed seed) + judges -> version scores
+  loop.py heldout <vid>       held-out evaluation of a version (scripted lines, fixed seed) + judges -> version scores
   loop.py round [--turns 8] [--budget 40]
                               self-play with the live version -> gate + invented-fact judge -> library (L1) -> GEPA over the realism
                               rules (L3) -> new version -> held-out eval -> promoted only if better and safety-clean
@@ -224,14 +224,14 @@ def svg(vs) -> str:
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("cmd", choices=["eval", "round", "rescore", "decide", "report"])
+    ap.add_argument("cmd", choices=["heldout", "round", "rescore", "decide", "report"])
     ap.add_argument("vid", nargs="?")
     ap.add_argument("--turns", type=int, default=8)
     ap.add_argument("--budget", type=int, default=40)
     ap.add_argument("--url", default="http://127.0.0.1:8080/v1")
     a = ap.parse_args()
     client = OpenAI(base_url=a.url, api_key="local", timeout=180, max_retries=1)
-    {"eval": lambda: cmd_eval(a.vid, client), "round": lambda: cmd_round(client, a.turns, a.budget), "rescore": cmd_rescore,
+    {"heldout": lambda: cmd_eval(a.vid, client), "round": lambda: cmd_round(client, a.turns, a.budget), "rescore": cmd_rescore,
      "decide": lambda: decide(a.vid, client), "report": cmd_report}[a.cmd]()
 
 

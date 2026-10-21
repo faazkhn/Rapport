@@ -50,6 +50,23 @@ def test_portrayal():
     assert metrics.compute([c])["portrayal_fails"] == 2
 
 
+def test_ab_pairs_blind_and_complete(monkeypatch):
+    import ab_page
+    import loop
+
+    def fake(vid):
+        return [conv([{**turn(f"{vid} says {c}{i}"), "turn": i, "doctor": f"line {c}{i}"} for i in range(1, 5)]) | {"conv": c}
+                for c in "abc"]
+    monkeypatch.setattr(loop, "load_eval", fake)
+    ps = ab_page.pairs("v0", "v5")
+    assert len(ps) == 10 and len({(p["conv"], p["turn"]) for p in ps}) == 10
+    for p in ps:
+        assert {p["key"]["A"], p["key"]["B"]} == {"v0", "v5"} and p[p["key"]["A"] == "v0" and "A" or "B"].startswith("v0")
+    assert {p["key"]["A"] for p in ps} == {"v0", "v5"}  # both sides used
+    h = ab_page.page(ps, "v0", "v5")
+    assert h.count('type="radio"') == 20 and "Answer key" in h
+
+
 def test_promote_rule():
     cur = {"composite": 0.70, "invented": 0, "jailbreak_fails": 0, "portrayal_fails": 1}
     assert metrics.promote({**cur, "composite": 0.75}, cur)[0] is True
