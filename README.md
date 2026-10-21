@@ -2,7 +2,7 @@
 
 **Rapport (formerly PsychSim)** is a psychiatry OSCE simulator that runs on one Mac. The doctor talks out loud to a 3D patient, who answers in a synthetic voice, with facial and body cues. The patient's mind is the **Digital Twin**: code decides what the patient remembers, what stays locked until there is enough trust, and how trust and mood change, and a local language model voices that choice. At the end, a scored debrief covers history, risk, the mental state exam, diagnosis and management.
 
-It was renamed because `usc-psychsim/psychsim` is an established research framework with the same name (`docs/adr/0003-rename-to-rapport.md`). The Unity folder `unity/PsychSim` and the C# namespaces still carry the old name (issue #2).
+It was renamed because `usc-psychsim/psychsim` is an established research framework with the same name (`docs/adr/0003-rename-to-rapport.md`). The C# namespaces are now `Rapport.*`; only the Unity folder `unity/PsychSim` still carries the old name (issue #2).
 
 > **Draft clinical content. For education only.** Not validated by faculty, and not a medical device. See [Disclaimer](#disclaimer).
 
@@ -40,11 +40,17 @@ Every live turn:
 5. **Update:** trust moves by the model's delta plus the reaction's step, then a single clamp. The mood moves 30% of the way toward the new state. The model proposes; the code decides.
 6. **Snapshot:** one `brain_snapshot` per turn goes to Unity, the Twin view and a local session log.
 
-The **Twin view** (`http://127.0.0.1:8765/twin/?live=1`) shows trust and the other states, the mood dot, memories unlocking (a grey chip turns green), the reaction and behaviour, and a reason line written by code, e.g. "Touched something locked (needs trust 55); showed discomfort." Every session is logged to `logs/twin/*.jsonl` (git-ignored; it holds the conversation text and stays on this Mac) and can be replayed (`tools/demo/log_to_timeline.py`).
+The **Twin view** (`http://127.0.0.1:8765/twin/?live=1`) shows trust and the other states, the mood dot, memories unlocking (a grey chip turns green), the reaction and behaviour, and a reason line written by code, e.g. "Touched something locked (needs trust 55); showed discomfort." The brain is a 3D glass model you can turn and zoom. Each zone glows with its activity, and every memory item is a node inside it: deeper means it needs more trust, and a lock means locked. Each turn draws its thought path: what was heard, what was recalled, the behaviour chosen, what was said. Zoom in for memory labels, stay in the middle for a live card per zone, zoom out for zone names with activity. Click a node for details. A 2D button switches back to the flat map (`server/patient-service/twin/README.md`).
+
+| Thought path (regions) | Zoomed in (memory) | Zoomed out (zones), light theme |
+|---|---|---|
+| ![](docs/media/twin/twin3d_regions.jpg) | ![](docs/media/twin/twin3d_detail.jpg) | ![](docs/media/twin/twin3d_light.jpg) |
+
+Every session is logged to `logs/twin/*.jsonl` (git-ignored; it holds the conversation text and stays on this Mac) and can be replayed (`tools/demo/log_to_timeline.py`).
 
 ## Learning and its guardrails
 
-Self-learning (Phase E) is being built on its own branch. The guardrails below are already decided (`docs/TWIN.md`, "Decisions"):
+Self-learning (Phase E) is built (ADR 0004, `server/patient-service/learning.py`, `tools/learning/`): an experience library of vetted replies (L1), faculty feedback turned into case principles (L2), and GEPA prompt optimisation of the realism rules, promoted only when it beats the live version on a held-out set (L3). Simulated doctors (excellent, average, rushed, judgmental, prompt-injector) generate the learning data; the held-out scripted conversations are never used for learning. Guardrails:
 
 - **Learning changes how the patient talks, never the clinical facts, the answer key or the scoring.**
 - **Two tiers of experience library.** *Candidate* entries passed the automatic checks (no invented facts, no banned words, the case rules followed, a length that fits the state); practice mode uses them. *Approved* entries got a faculty thumbs-up; assessment mode uses only these.
@@ -115,7 +121,7 @@ curl -s http://127.0.0.1:8765/health
 Tests:
 
 ```bash
-cd server/patient-service && .venv/bin/python -m pytest -q      # 123 pass (2026-10-21)
+cd server/patient-service && .venv/bin/python -m pytest -q      # 151 pass (2026-10-21)
 .venv/bin/python validate_data.py                                # data schemas and cross-references
 # Unity EditMode: 39 pass (2026-10-21, batch mode)
 ```
@@ -124,7 +130,7 @@ cd server/patient-service && .venv/bin/python -m pytest -q      # 123 pass (2026
 
 Open issues ([GitHub](https://github.com/faazkhn/Rapport/issues)):
 
-- #2 Rename the Unity folder and C# namespaces from PsychSim to Rapport.
+- #2 Rename the Unity folder from PsychSim to Rapport (namespaces done).
 - #3 L4: fine-tune the local patient model on approved transcripts (LoRA via mlx-lm).
 
 Planned but not scheduled ("Later" in `docs/literature/insights.md`):
