@@ -22,10 +22,10 @@ def parse(expect: str) -> dict:
     out = {"actions": [], "ask_back": None, "relax": False}
     if expect == "-":
         return out
-    if expect.startswith("ask:"):
-        out["ask_back"] = expect[4:]
-        return out
     for part in expect.split(";"):
+        if part.strip().startswith("ask:"):
+            out["ask_back"] = part.strip()[4:]
+            continue
         m = re.fullmatch(r"\s*(\w+)(?:\((.*)\))?\s*", part)
         if m[1] == "relax":
             out["relax"] = True
@@ -43,7 +43,7 @@ def evaluate(path) -> dict:
     for text, expect in items:
         want = parse(expect)
         t = time.perf_counter()
-        got = exam_router.route(text)
+        got = {k: v for k, v in exam_router.route(text).items() if k != "asked"}
         times.append((time.perf_counter() - t) * 1000)
         if expect == "-":
             neg += 1
@@ -66,6 +66,11 @@ def write_md(r, path):
              f"| Time per call p50 / max | {r['p50_ms']:.2f} / {r['max_ms']:.2f} ms | ≤ 30 ms |", "",
              "Actions: `hold_out_hands{which, palms}`, `show_forearms{which}`, `roll_up_sleeves{which}`, `look_at_light`, `follow_finger`, "
              "`open_mouth`, `stick_out_tongue`, `stand_up`, `sit_down`, `walk_few_steps`, and `relax`.", "",
+             "**Caveat:** the same author wrote the test set and the router, so 100% is an optimistic estimate. The set was written before the "
+             "router, and later additions are marked in the file: doctor announcements of a later exam, and the stock interview phrases the "
+             "Phase H review found (\"walk me through\", \"stand up for yourself\"). A held-out set written by someone else (the owner, "
+             "faculty) is the honest check.", "",
+             "Follow-up: after \"Which hand?\" the doctor's next line (\"The left one\") completes the action (`exam_router.answer`, one turn).", "",
              "## Misses", ""]
     lines += [f"- \"{t}\": expected `{e}`, got `{g}`" for t, e, g in r["misses"]] or ["None."]
     Path(path).write_text("\n".join(lines) + "\n")

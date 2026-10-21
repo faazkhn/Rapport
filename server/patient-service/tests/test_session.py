@@ -448,3 +448,43 @@ def test_llm_exam_action_ignored():
     ev, _ = _exam_turn("How do you sleep?")
     assert "exam" not in types(ev)
     assert next(m for _, m in ev if m["type"] == "reply")["reply"]["exam_action"] is None
+
+
+def test_ask_back_answered_next_turn():
+    async def go():
+        s, ev, _ = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01", "state": {"trust": 40}})
+        await run_text(s, "Hold out your hand")
+        await run_text(s, "The left one.")
+        return ev
+    ev = asyncio.run(go())
+    exams = [m for _, m in ev if m["type"] == "exam"]
+    assert len(exams) == 1 and exams[0]["actions"][0]["id"] == "hold_out_hands" and exams[0]["actions"][0]["slots"]["which"] == "left"
+
+
+def test_ask_back_keeps_other_commands():
+    ev, tail = _exam_turn("Hold out your hand and stand up")
+    exam = next(m for _, m in ev if m["type"] == "exam")
+    assert [a["id"] for a in exam["actions"]] == ["stand_up"] and "Which hand?" in tail and "stand_up" in tail
+
+
+def test_staged_turn_sends_exam(monkeypatch, tmp_path):
+    import staged
+    base = {"emotion": "flat", "nonverbal": None, "brain": {}, "state_delta": {"trust": 0, "distress": 0, "agitation": 0, "engagement": 0},
+            "cues": [], "facts": []}
+    script = {"turns": [{**base, "doctor": "Hold your hands out", "patient": "Like this?", "exam_action": "hold_out_hands"},
+                        {**base, "doctor": "Thank you, you can put them down.", "patient": "Okay.", "exam_action": None}], "arjun_turns": []}
+    (tmp_path / "script.json").write_text(json.dumps(script))
+    monkeypatch.setattr(staged, "PATH", str(tmp_path / "script.json"))
+    monkeypatch.setattr(staged, "GAP_S", 0.0)
+
+    async def go():
+        s, ev, _ = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01", "variant": "female"})
+        for line in ("Hold your hands out", "Thank you, you can put them down."):
+            await s.begin_turn(line, {"input": "voice", "t_end": time.monotonic()})
+            await s.turn_task
+        return ev
+    ev = asyncio.run(go())
+    exams = [m for _, m in ev if m["type"] == "exam"]
+    assert exams[0]["actions"][0]["id"] == "hold_out_hands" and exams[0]["actions"][0]["comply"] and exams[1]["relax"]

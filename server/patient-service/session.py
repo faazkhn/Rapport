@@ -17,6 +17,7 @@ import jsonschema
 import numpy as np
 
 import brain
+import exam_router
 import staged
 import stream
 import stt
@@ -77,6 +78,7 @@ class Session:
         self.pre_roll = []
         self.speech = None  # list of frames while the doctor is talking
         self.held = None  # a pause that may end the turn: {"t_end", "spec": speculative STT future}
+        self.asked = None  # exam action waiting for "which hand?" to be answered (one turn)
         self.smart_turn = SMART["model"]
         self.silence_ms = stt.SILENCE_MS
         self.turn_task = None
@@ -300,7 +302,8 @@ class Session:
         prev = next((m["text"] for m in reversed(self.messages[:-1]) if m["role"] == "patient"), None)
         model = brain.default_model()
         await self.twin({"event": "doctor_end", "turn": self.turn_no})
-        exam = brain.exam_for_turn(case, state, text)
+        exam = brain.exam_for_turn(case, state, text, self.asked)
+        self.asked = exam and exam.get("asked")
         if exam and (exam["actions"] or exam["relax"]):  # before the LLM, so the body moves while the patient thinks
             await self.send_json({"type": "exam", "turn": self.turn_no, "actions": exam["actions"], "relax": exam["relax"]})
         await self.send_json({"type": "thinking"})
@@ -444,6 +447,10 @@ class Session:
         if t is None:
             await self.send_json({"type": "listening"})
             return
+        relax = exam_router.route(t["doctor"])["relax"]  # scripted lines drive the body too ("you can put them down")
+        if t.get("exam_action") or relax:
+            acts = [{"id": t["exam_action"], "slots": {}, "comply": True}] if t.get("exam_action") else []
+            await self.send_json({"type": "exam", "turn": self.turn_no, "actions": acts, "relax": relax})
         if audio is None:
             audio = await loop.run_in_executor(TTS_POOL, self.tts_fn, t["patient"], self.case["patient"]["voice_id"], 1.0)
         pause = staged.HESITATE_S.get(t.get("nonverbal"), 0.0)

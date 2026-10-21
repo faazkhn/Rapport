@@ -2,25 +2,103 @@
  "version": "0.1",
  "status": "draft",
  "note": "Exam action router lexicon (server/patient-service/exam_router.py). Regexes run on one lower-cased clause after filler removal, in `order`; the first match wins.",
- "contractions": {"that's": "that is", "i'll": "i will", "i'd": "i would", "i'm": "i am", "don't": "do not", "you'd": "you would", "let's": "let us", "it's": "it is", "you're": "you are"},
+ "contractions": {
+  "that's": "that is",
+  "i'll": "i will",
+  "i'd": "i would",
+  "i'm": "i am",
+  "don't": "do not",
+  "you'd": "you would",
+  "let's": "let us",
+  "it's": "it is",
+  "you're": "you are"
+ },
  "split": "\\s*(?:[,;.?!]|\\band then\\b|\\bthen\\b|\\band\\b|\\bafter that\\b)\\s*",
- "lead_filler": "^(?:(?:okay|ok|alright|so|now|and|then|well|good|great|thank you|thanks|do one thing|can you|could you|would you mind|would you|will you|you can|i want you to|i would like you to|i need you to|let us)\\b\\s*)+",
+ "lead_filler": "^(?:(?:okay|ok|alright|so|now|and|then|well|good|great|thank you|thanks|do one thing|can you|could you|would you mind|would you|will you|you can|i want you to|i would like you to|i would like to|i will need you to|i need you to|let us)\\b\\s*)+",
  "any_filler": "\\b(?:please|kindly|just|once|for me)\\b",
  "question": "^(?:do|does|did|has|had|is|are|was|were|am|when|how|why|what|who|where|which|tell me|describe)\\b|^have (?:you|your|they|we|i|any|anyone)\\b|^(?:i|we) (?:will|am going to|are going to|might|may|would)\\b",
- "order": ["relax", "stick_out_tongue", "open_mouth", "look_at_light", "follow_finger", "roll_up_sleeves", "show_forearms", "hold_out_hands", "stand_up", "sit_down", "walk_few_steps"],
+ "order": [
+  "relax",
+  "stick_out_tongue",
+  "open_mouth",
+  "look_at_light",
+  "follow_finger",
+  "roll_up_sleeves",
+  "show_forearms",
+  "hold_out_hands",
+  "stand_up",
+  "sit_down",
+  "walk_few_steps"
+ ],
  "patterns": {
-  "relax": ["^relax\\b", "\\brelax\\b", "\\b(?:put|bring|rest)\\b.*\\b(?:hands?|arms?)\\b.*\\bdown\\b", "^(?:hands|arms) down\\b", "\\brest your (?:hands|arms)\\b", "\\bclose your mouth\\b", "^stop\\b", "^that is (?:fine|enough|good|all)\\b"],
-  "stick_out_tongue": ["\\btongue\\b"],
-  "open_mouth": ["\\bopen\\b.*\\b(?:mouth|jaw)\\b", "^open (?:up )?wide\\b", "\\bsay a+h+\\b", "\\binside your mouth\\b", "^mouth open\\b", "^open it\\b"],
-  "look_at_light": ["\\b(?:look\\w*|stare|eyes on|fix your eyes on|watch)\\b.*\\b(?:light|torch|penlight|pen light)\\b", "\\blook\\w* straight\\b"],
-  "follow_finger": ["\\b(?:follow|track|watch\\w*|eyes on|look at)\\b.*\\b(?:finger|pen|hand)\\b", "^follow (?:it|this)\\b"],
-  "roll_up_sleeves": ["\\bsleeves?\\b"],
-  "show_forearms": ["\\b(?:show|see|look at|check|turn|have a look at)\\b.*\\b(?:forearms?|arms?|wrists?)\\b"],
-  "hold_out_hands": ["\\b(?:hold|put|raise|lift|bring)\\b.*\\b(?:hands?|arms?)\\b.*\\b(?:out|forward|front|straight)\\b", "\\b(?:hold|put|stretch|extend)\\b.*\\b(?:out|forward)\\b.*\\b(?:hands?|arms?)\\b", "\\b(?:stretch|extend)\\b.*\\b(?:hands?|arms?)\\b", "^(?:both )?(?:hands?|arms?) out\\b", "\\b(?:show|see)\\b.*\\b(?:hands?|palms?)\\b"],
-  "stand_up": ["\\bstand\\b", "\\bget up\\b", "\\brise\\b", "\\bon your feet\\b"],
-  "sit_down": ["\\bsit\\b", "\\b(?:have|take) (?:a|your) seat\\b", "\\bbe seated\\b", "\\bback to (?:the|your) chair\\b"],
-  "walk_few_steps": ["\\bwalk\\w*\\b", "\\bsteps?\\b"]
+  "relax": [
+   "^relax\\b",
+   "\\brelax\\b",
+   "\\b(?:put|bring|rest)\\b.*\\b(?:hands?|arms?)\\b.*\\bdown\\b",
+   "^(?:hands|arms) down\\b",
+   "\\brest your (?:hands|arms)\\b",
+   "\\bclose your mouth\\b",
+   "^stop\\b",
+   "^that is (?:fine|enough|good)$",
+   "\\b(?:put|bring|rest) (?:them|those) down\\b"
+  ],
+  "stick_out_tongue": [
+   "\\btongue\\b"
+  ],
+  "open_mouth": [
+   "\\bopen\\b.*\\b(?:mouth|jaw)\\b",
+   "^open (?:up )?wide\\b",
+   "\\bsay a+h+\\b",
+   "\\binside your mouth\\b",
+   "^mouth open\\b",
+   "^open it\\b"
+  ],
+  "look_at_light": [
+   "\\b(?:look\\w*|stare|eyes on|fix your eyes on|watch)\\b.*\\b(?:light|torch|penlight|pen light)\\b",
+   "\\blook\\w* straight\\b"
+  ],
+  "follow_finger": [
+   "\\b(?:follow|track|watch\\w*|eyes on|look at)\\b.*\\b(?:finger|pen|hand)\\b",
+   "^follow (?:it|this)\\b"
+  ],
+  "roll_up_sleeves": [
+   "\\bsleeves?\\b"
+  ],
+  "show_forearms": [
+   "\\b(?:show|see|look at|check|turn|have a look at)\\b.*\\b(?:forearms?|arms?|wrists?)\\b"
+  ],
+  "hold_out_hands": [
+   "\\b(?:hold|put|raise|lift|bring)\\b.*\\b(?:hands?|arms?)\\b.*\\b(?:out|forward|front|straight)\\b",
+   "\\b(?:hold|put|stretch|extend)\\b.*\\b(?:out|forward)\\b.*\\b(?:hands?|arms?)\\b",
+   "\\b(?:stretch|extend)\\b.*\\b(?:hands?|arms?)\\b",
+   "^(?:both )?(?:hands?|arms?) out\\b",
+   "\\b(?:show|see)\\b.*\\b(?:hands?|palms?)\\b"
+  ],
+  "stand_up": [
+   "^stand(?: up)?\\b(?! (?:up )?(?:to|for|by)\\b)",
+   "^get up\\b",
+   "^rise\\b",
+   "^on your feet\\b"
+  ],
+  "sit_down": [
+   "\\bsit\\b(?! with\\b)",
+   "\\b(?:have|take) (?:a|your) seat\\b",
+   "\\bbe seated\\b",
+   "\\bback to (?:the|your) chair\\b"
+  ],
+  "walk_few_steps": [
+   "^walk\\b(?! (?:me|away|out)\\b)",
+   "\\bhow you walk\\b",
+   "^take (?:a few|some|two|three|\\d+) steps?\\b(?! back)"
+  ]
  },
- "sided": {"hold_out_hands": "hand", "show_forearms": "arm", "roll_up_sleeves": "arm"},
- "ask_back": {"hand": "Which hand?", "arm": "Which arm?"}
+ "sided": {
+  "hold_out_hands": "hand",
+  "show_forearms": "arm",
+  "roll_up_sleeves": "arm"
+ },
+ "ask_back": {
+  "hand": "Which hand?",
+  "arm": "Which arm?"
+ }
 }

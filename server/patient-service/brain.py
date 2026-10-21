@@ -408,10 +408,13 @@ def exam_gate(case: dict, state: dict, actions: list[dict]) -> list[dict]:
     return out
 
 
-def exam_for_turn(case: dict, state: dict, doctor_text: str) -> dict | None:
-    """Routed and gated exam request for this doctor line: {actions, ask_back, relax}, or None when there is none."""
+def exam_for_turn(case: dict, state: dict, doctor_text: str, asked: dict | None = None) -> dict | None:
+    """Routed and gated exam request for this doctor line: {actions, ask_back, relax, asked}, or None when there is none.
+    asked: the action from the previous turn's ask-back; a bare "the left one" now completes it."""
     import exam_router
     r = exam_router.route(doctor_text)
+    if asked and not (r["actions"] or r["ask_back"] or r["relax"]) and (a := exam_router.answer(doctor_text, asked)):
+        r = {"actions": [a], "ask_back": None, "relax": False, "asked": None}
     if not (r["actions"] or r["ask_back"] or r["relax"]):
         return None
     return {**r, "actions": exam_gate(case, state, r["actions"])}
@@ -419,9 +422,7 @@ def exam_for_turn(case: dict, state: dict, doctor_text: str) -> dict | None:
 
 def exam_note(case: dict, exam: dict) -> str:
     """The turn-note line that lets the Digital Twin acknowledge, refuse or ask back in the patient's own words."""
-    if exam.get("ask_back"):
-        return f"EXAM: the doctor's request was unclear; ask them: \"{exam['ask_back']}\""
-    lines = []
+    lines = [f"EXAM: one request was unclear; ask the doctor: \"{exam['ask_back']}\""] if exam.get("ask_back") else []
     if done := [a["id"] for a in exam["actions"] if a["comply"]]:
         lines.append(f"EXAM: the doctor asked you to: {', '.join(done)}. You are doing it now: acknowledge briefly in your own words.")
     for a in exam["actions"]:
