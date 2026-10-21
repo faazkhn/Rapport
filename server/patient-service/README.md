@@ -64,6 +64,14 @@ Service logs (stdout) hold latency, model and counts only: no conversation text 
 - Each live session is logged to `logs/twin/<time>_<case>.jsonl` (`RAPPORT_TWIN_LOG_DIR` overrides). Local only; contains the conversation text.
 - Reply contract fields (in generation order): `behaviour, emotion, utterance, reaction, intensity, resistance, state_delta, event_cues, revealed_fact_ids, exam_action`.
 
+## Learning (Phase E, docs/adr/0002-learning-loop.md, docs/LEARNING_REPORT.md)
+
+- `learning.py`: brain versions (`learned/versions/`, live one in `learned/current.json`), the quality gate, the experience library (`learned/experience/<case>.jsonl`, MiniLM ONNX embeddings, local) and faculty principles. Learning changes how the patient talks, never facts, the answer key or scoring.
+- `brain_version` (`twin-0.1+v<n>`) is in every `brain_snapshot` and in `/reply` `meta`, with the example ids used (`meta.examples`).
+- WebSocket `start` takes `mode` (`practice` default; `assessment` uses only faculty-approved examples) and `learning_consent` (default false: a learner's turns are never stored).
+- `POST /learning/feedback {case_id, doctor, utterance, rating: up|down|rewrite, rewrite?, comment?, author}` → a principle appended to the case's `principles`; 👍 also stores the line as an approved example. `POST /learning/approve {case_id, entry_id}`.
+- Offline loop: `.venv/bin/python ../../tools/learning/loop.py heldout|round|rescore|decide|report` (see its docstring). Rollback: `.venv/bin/python learning.py rollback v0`; `learning.py list` shows every version.
+
 ## Data and checks
 
 ```bash
