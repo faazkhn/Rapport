@@ -49,7 +49,21 @@
   - **Latency: p50 2,326 / p90 3,018 ms, target 700 missed.** Regression from 1,598 is Task 1's prompt (TTFT 400 vs 224, first sentence 1,150 vs 604), not TTS. Levers in `docs/latency.md`.
   - App rebuilt (`PsychSim > Build macOS (Development)`, `Editor/BuildMac.cs`); start screen checked. Service tests 99, Unity EditMode 29/29.
   - Open risks: Qwen speaker drift between sentences (seed fixed per variant); Qwen ignores speed (pressured speech); possible audio underrun when GPU busy.
-  - Next: Smart Turn download + re-measure, realism eval gate, then Phases H (all common exam commands, owner asked), B leftovers, C, E, I.
+  - Next: Smart Turn download + re-measure, realism eval gate.
+- Phase H done 2026-10-21 (plan `docs/superpowers/plans/2026-10-21-phase-h-camera-exam.md`):
+  - Exam router `server/patient-service/exam_router.py` (rules, lexicon `data/exam_router.json`, no embeddings: offline). 367-utterance set, 100% / 0 false triggers. The author wrote the set, so it is optimistic: `docs/exam-actions.md`.
+  - The service gates trust and agitation (`brain.exam_for_turn`), sends `exam` before `thinking`, and the Twin acknowledges, refuses or asks "Which hand?". The LLM no longer picks `exam_action`.
+  - Unity: `Cues/ExamQueue.cs` (order, hold until relax or 30 s, sits before sleeves, stands before a walk) + `Cues/ExamController.cs`:
+    - hand IK on the clip, palms;
+    - jaw and tongue blendshapes;
+    - follow_finger gaze;
+    - stand, walk and sit;
+    - IK for wipe_tears (not checked live).
+  - New clips `stand_up`, `stand_idle` (`make_clips.py --only`).
+  - Camera: `Platform/CameraDirector.cs` (Cinemachine runtime, 42° FOV, scroll lean-in, close-ups per action), `docs/camera.md` with stills.
+  - Tests: service 118, Unity EditMode 37. App rebuilt.
+  - Known: single-hand pose keeps lap-curled fingers; palms-up has no forearm supination; walk direction tuned for this room only (`ExamController.WalkTurnDeg`).
+- Next: Phases B leftovers, C, E, I.
 - Live demo guide: `docs/LIVE_DEMO_GUIDE.md` (run from the Unity editor until the app is rebuilt).
 
 ## 5. Next steps

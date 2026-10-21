@@ -41,6 +41,12 @@ Open Terminal in the project folder (`~/Documents/Med`).
   - a **memory unlocking** (grey chip turns green),
   - the **why** line ("Touched something locked (needs trust 55)…") when you ask about suicide too early,
   - the patient's **reaction**, **behaviour** and **mood dot** changing.
+- **Exam commands** work in your own words, typed or spoken: "Kindly hold out your hands", "Show me your tongue", "Roll up your sleeves", "Look at the light", "Follow my finger", "Stand up and walk a few steps", then "Sit down".
+  - She does them in order and holds until you say "relax" (or 30 s), and the camera cuts to a close-up.
+  - At low trust or high agitation she refuses in words.
+  - "Hold out your hand" makes her ask "Which hand?".
+  - The full list and accuracy are in `docs/exam-actions.md`.
+- **Lean in:** scroll up over the room. Scroll down to sit back. Right-drag to look around.
 - Finish with the tabs: **MSE**, **Diagnosis**, **Prescription**, **Disposition**, then **Finish** to show the scored debrief.
 
 ## 4. A 6-minute script that shows everything
@@ -54,7 +60,9 @@ Open Terminal in the project folder (`~/Documents/Med`).
 | "Are there things you used to enjoy that you've stopped?" | Stopped singing; more open |
 | "Sometimes when people feel this low, they have thoughts of not wanting to be alive. Have you had thoughts like that?" | Asked early: a locked memory is touched, she is evasive, the Twin shows why |
 | (Later, at higher trust) ask the same question again, gently | She discloses passive death wishes, with no plan |
-| "Can you hold your hands out in front of you for me?" | Exam action with a fine tremor (only works once trust is 10 or more) |
+| "Can you hold your hands out in front of you for me?" | Hands out toward you with a fine tremor; close-up of the hands. She holds them until you say "Okay, you can relax" (trust 10 or more) |
+| "Show me your tongue" | Face close-up, tongue out (trust 15 or more) |
+| "Could you stand up and walk a few steps for me? Then sit down." | Stands, walks out and back, sits; wide shot |
 
 ## 5. If something goes wrong
 
@@ -73,4 +81,4 @@ Open Terminal in the project folder (`~/Documents/Med`).
 
 - The clinical case is a draft written for the simulator and not yet faculty-validated.
 - Voices are synthetic: designed from a text description, never cloned from a real person. The tone follows the patient's emotion and the Digital Twin's reaction on each line.
-- Exam commands are limited today; a full set of exam commands with close-ups is the next phase.
+- Exam commands are matched by rules, not understood by the model. Unusual phrasings may be missed; rephrase plainly. The walk is short because the room is small.
