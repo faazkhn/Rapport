@@ -14,3 +14,6 @@ mlx-whisper==0.4.3
 websockets
 pyyaml
 mlx-audio==0.6.0
+onnxruntime
+tokenizers
+huggingface_hub
