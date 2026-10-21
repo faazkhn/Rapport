@@ -47,3 +47,23 @@ A painful locked hit always ends with a reaction that does not raise trust (`twi
 - At low trust the patient still tends to say "No... not like that" to a direct suicide question; tune in the voice-quality pass (Phase G).
 - Reaction is generated after the words, so it describes the reply rather than steering it; behaviour steers it.
 - Substance-case states (SimPatient, stage of change) and learning are later plans.
+
+## Decisions (supersede `PATIENT_BRAIN.md` §3–6)
+
+- **Name:** the product is Rapport (ADR 0003); the brain is the Digital Twin.
+- **Experience library, two tiers:**
+  - *candidate*: the reply passed the automatic checks (no invented facts, no banned words, the case rules followed, a length that fits the state). Practice mode uses candidates.
+  - *approved*: faculty gave it a thumbs-up. Assessment mode uses approved entries only.
+- **Consent:** learner sessions never feed learning unless that session's consent flag is set. The flag is off by default. A learner's words never become patient facts.
+- **Learning changes how the patient talks, never the clinical facts, the answer key or the scoring.** Every brain change gets a version number (`brain_version`) and can be rolled back.
+- **One LLM call per live turn.** Critique, reflection, adherence checks and prompt optimisation all run offline and reach the patient only through the prompt.
+
+## Literature basis
+
+83 papers were reviewed in Phase C. The notes are in `docs/literature/notes/` and the table is in `docs/literature/matrix.md`. `docs/literature/insights.md` maps each insight to a Twin component, marked built, Phase E, later or rejected. Next steps it points to, outside Phase E:
+
+- a Mental Status Exam block in the case (PSYCHE);
+- a rubric table in code that turns the doctor's last move into a clamped resistance and trust step (Adaptive-VP);
+- explicit rules for when resistance softens;
+- a contradiction check against atomic case facts after the call (Patient-Zero);
+- debrief items backed by verbatim quotes (MedSimAI).
