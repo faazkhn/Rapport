@@ -74,6 +74,15 @@
 - Next: Phases B leftovers, C, E, I.
 - Live demo guide: `docs/LIVE_DEMO_GUIDE.md` (run from the Unity editor until the app is rebuilt).
 
+## 4d. Phase E, the 3D Twin and release v0.2-twin (2026-10-21)
+- Phase E code (versions/rollback, quality gate + MiniLM experience library, faculty principles, metrics/judges, self-play + GEPA, A/B builder, ADR 0004) was stranded mid-rebase in a worktree; rebased onto this branch and pushed.
+- Learning: v0 baseline + one round (v1). v1 rejected for 1 confirmed safety flag; v0 stays live. All judge flags hand-reviewed (`tools/learning/reviewed_flags.json`). Report: `docs/LEARNING_REPORT.md`. Owner stopped after round 1 to release; rounds 2–5 and the blind A/B (Checkpoint 2) are still to do. GEPA's gate-based score saturates at 1.0: give it a harder score first. `gepa==0.1.4` is installed in the service venv for offline use only (not in requirements.txt).
+- Major bug fixed: "life isn't worth living" did not recall the passive death wish (case tags + test).
+- 3D Twin view: `server/patient-service/twin/twin3d.js`, owner's `Brain_Model.obj` decimated to `twin/assets/brain.glb` (licence/source of the model to confirm), three.js + Motion vendored. Render mode and file:// keep the 2D map.
+- Gates (shortened by the owner): `docs/GATES.md`. Skipped: eval ×3, 100-turn latency, STT bench, demo v3.
+- Release `v0.2-twin` tagged on `production-readiness` (not merged to main, owner's call). App rebuilt (`Builds/Rapport.app`, 617 MB) with the fix.
+- Next: merge PR to main; 5 learning rounds + A/B; demo v3; Unity folder rename (#2); bump `bundleVersion` (still 0.1.0); latency.
+
 ## 5. Next steps
 1. Commit §4; rebuild the player; re-measure latency after the send fix.
 2. `KICKOFF_PROMPT_v4.md` Phases A–I: audit, rename (repo, product, bundle id, menus, `PSYCHSIM_*` → `RAPPORT_*` aliases), literature review, Digital Twin brain, self-learning with A/B, Twin live wiring, TTS bake-off (Qwen3-TTS is the lead candidate) + Smart Turn + streaming STT, camera and exam router with IK, gates, demo v3, release `v0.2-twin`.
