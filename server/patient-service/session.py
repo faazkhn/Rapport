@@ -29,6 +29,9 @@ TTS_MODEL = "KittenML/kitten-tts-mini-0.8"
 VOICES = ["Bella", "Luna", "Rosie", "Kiki", "Jasper", "Bruno", "Hugo", "Leo"]
 OUT_SR = 24000
 PRE_ROLL_FRAMES = 10  # ~320 ms of audio kept before VAD start so the first word is not clipped
+TURN_CAP_MS = 1200  # Smart Turn says "not finished": end the turn anyway after this much silence (old 500 ms + 700)
+SMART_TURN_DONE = 0.5
+SMART = {"model": None}  # stt.SmartTurn loaded at startup, or None
 PRESSURED_OVERLAP_S = 1.5  # pressured_speech: keep talking over the doctor for 1-2 s (DESIGN 7.1)
 TTS = {"model": None, "backend": None}  # backend: voice.load(RAPPORT_TTS) at startup; None = KittenTTS
 TWIN_LOG_DIR = Path(os.environ.get("RAPPORT_TWIN_LOG_DIR") or brain.REPO_ROOT / "logs" / "twin")  # local only, git-ignored
@@ -73,6 +76,9 @@ class Session:
         self.pending = b""
         self.pre_roll = []
         self.speech = None  # list of frames while the doctor is talking
+        self.held = None  # a pause that may end the turn: {"t_end", "spec": speculative STT future}
+        self.smart_turn = SMART["model"]
+        self.silence_ms = stt.SILENCE_MS
         self.turn_task = None
         self.cancel = threading.Event()
         self.playing_until = 0.0  # monotonic time the client should finish playing what we sent
@@ -104,7 +110,7 @@ class Session:
                 await self.end_speech(frames, time.monotonic(), time.monotonic())
         elif t == "hands_free":
             self.hands_free = bool(msg.get("on", True))
-            self.speech = None
+            self.speech, self.held = None, None
             self.vad.reset()
         elif t == "stop":
             await self.stop("client")
@@ -123,7 +129,8 @@ class Session:
         self.state = {**self.case["state_start"], **(msg.get("state") or {})}
         self.messages, self.t_start = [], time.monotonic()
         self.hands_free = bool(msg.get("hands_free", True))
-        self.vad = stt.Vad(int(msg.get("vad_silence_ms", stt.SILENCE_MS)))
+        self.silence_ms = int(msg.get("vad_silence_ms", stt.SILENCE_MS))
+        self.vad = stt.Vad(min(stt.SPECULATE_MS, self.silence_ms))  # the end event is a candidate; on_frame decides
         if hasattr(self.tts, "seed"):  # one fixed speaker per variant
             self.tts.seed = voice.QwenDesign.SEEDS.get(self.case["variant"], 1234)
         p = self.case["patient"]
@@ -196,12 +203,27 @@ class Session:
                 await self.on_speech_start()
             return
         self.speech.append(frame)
-        if ev == "end":
-            now = time.monotonic()
+        if ev == "start":
+            self.held = None  # the doctor kept talking: the speculative transcript is stale
+        elif ev == "end":
+            loop = asyncio.get_running_loop()
+            audio = np.concatenate(self.speech)
             # wall time the doctor actually stopped = now minus the trailing silence already received
-            t_end = now - (self.vad.samples - self.vad.end_sample) / stt.SR
-            frames, self.speech = self.speech, None
-            await self.end_speech(frames, t_end, now)
+            t_end = time.monotonic() - (self.vad.samples - self.vad.end_sample) / stt.SR
+            spec = None if self.staged else loop.run_in_executor(STT_POOL, self.stt_fn, audio)
+            self.held = {"t_end": t_end, "spec": spec, "p": None}
+            if self.smart_turn:
+                self.held["p"] = p = await loop.run_in_executor(None, self.smart_turn.complete, audio)
+                if p >= SMART_TURN_DONE:
+                    return await self.end_held()
+        if self.held:
+            cap = TURN_CAP_MS if self.smart_turn else self.silence_ms
+            if (self.vad.samples - self.vad.end_sample) * 1000 >= cap * stt.SR:
+                await self.end_held()
+
+    async def end_held(self):
+        held, frames, self.held, self.speech = self.held, self.speech, None, None
+        await self.end_speech(frames, held["t_end"], time.monotonic(), held["spec"], held["p"])
 
     async def on_speech_start(self):
         await self.send_json({"type": "vad_start"})
@@ -229,13 +251,16 @@ class Session:
         await self.send_json({"type": "stop", "reason": reason})
         log.info("stop reason=%s service_ms=%d", reason, ms(t, time.monotonic()))
 
-    async def end_speech(self, frames, t_end, t_detect):
+    async def end_speech(self, frames, t_end, t_detect, spec=None, p_complete=None):
         audio = np.concatenate(frames) if frames else np.zeros(0, np.float32)
         loop = asyncio.get_running_loop()
         t0 = time.monotonic()
-        text = self.staged.doctor_line() if self.staged else await loop.run_in_executor(STT_POOL, self.stt_fn, audio)
+        if self.staged:
+            text = self.staged.doctor_line()
+        else:  # stt_ms is only the wait left after the endpoint when the speculative transcript was already running
+            text = await (spec or loop.run_in_executor(STT_POOL, self.stt_fn, audio))
         timing = {"input": "voice", "t_end": t_end, "vad_endpoint_ms": ms(t_end, t_detect), "stt_ms": ms(t0, time.monotonic()),
-                  "speech_s": round(len(audio) / stt.SR, 2)}
+                  "speech_s": round(len(audio) / stt.SR, 2), "smart_turn": p_complete, "speculative_stt": spec is not None}
         if not text.strip():
             await self.send_json({"type": "transcript", "text": "", "final": True})
             await self.send_json({"type": "listening"})
@@ -282,7 +307,7 @@ class Session:
         pause = brain.slowed_pause_s(case, state)
         speed = tts_speed(case, state) * self.next_speed
         voice_id = case["patient"]["voice_id"]
-        parser, splitter = stream.UtteranceStream(), stream.SentenceSplitter()
+        parser, splitter = stream.UtteranceStream(), stream.SentenceSplitter(first_clause=True)
         spoken, dropped_banned, idx = [], [], 0
         marks = {"ttft": None, "first_sentence": None, "tts_first_ms": None, "audio_start": None}
         err = None

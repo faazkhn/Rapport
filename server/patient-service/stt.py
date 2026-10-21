@@ -11,6 +11,9 @@ VAD_THRESHOLD = float(os.environ.get("VAD_THRESHOLD", "0.5"))
 STT_MODEL = os.environ.get("STT_MODEL", "mlx-community/parakeet-tdt-0.6b-v2")
 WHISPER = "mlx-community/whisper-large-v3-turbo"
 
+SPECULATE_MS = 200  # silence before Smart Turn is asked and STT starts on the audio so far
+SMART_TURN_ONNX = os.environ.get("SMART_TURN_ONNX", os.path.join(os.path.dirname(__file__), "../../models/smart-turn-v3.onnx"))
+
 _vad_model = None
 _stt = {}
 
@@ -48,6 +51,29 @@ class Vad:
     def reset(self):
         self.it.reset_states()
         self.samples, self.end_sample = 0, None  # the iterator's sample count restarts too
+
+
+class SmartTurn:
+    """Smart Turn v3 (pipecat-ai/smart-turn-v3, BSD-2): probability that the doctor finished their turn, from the last 8 s of audio."""
+
+    def __init__(self, path: str = SMART_TURN_ONNX):
+        import onnxruntime as ort
+        from transformers import WhisperFeatureExtractor
+        self.sess = ort.InferenceSession(path, providers=["CPUExecutionProvider"])
+        self.fe = WhisperFeatureExtractor(chunk_length=8)
+
+    def complete(self, audio16k: np.ndarray) -> float:
+        a = audio16k[-8 * SR:]
+        x = self.fe(a, sampling_rate=SR, return_tensors="np", padding="max_length", max_length=8 * SR, truncation=True,
+                    do_normalize=True).input_features.astype(np.float32)
+        return float(self.sess.run(None, {"input_features": x})[0].reshape(-1)[0])
+
+
+def smart_turn():
+    """The Smart Turn model, or None when its ONNX file is missing (endpointing then falls back to plain silence)."""
+    if not os.path.exists(SMART_TURN_ONNX):
+        return None
+    return SmartTurn()
 
 
 def load(model: str = STT_MODEL):

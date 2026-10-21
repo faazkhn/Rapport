@@ -55,6 +55,11 @@ async def lifespan(app):
         stt.vad_model()
         await run_in_threadpool(lambda: session.STT_POOL.submit(stt.transcribe, np.zeros(stt.SR, np.float32)).result())
         log.info("VAD + STT (%s) loaded in %.1fs", stt.STT_MODEL, time.perf_counter() - t)
+        try:
+            session.SMART["model"] = await run_in_threadpool(stt.smart_turn)
+            log.info("Smart Turn %s", "loaded" if session.SMART["model"] else f"missing ({stt.SMART_TURN_ONNX}); silence-only endpointing")
+        except Exception as e:
+            log.error("Smart Turn failed to load (%s); silence-only endpointing", type(e).__name__)
     if not MOCK and os.environ.get("PSYCHSIM_SKIP_WARMUP") != "1":
         t = time.perf_counter()
         n = await run_in_threadpool(brain.tag_intents, "Hello, how are you?")  # warms slot 1 prefix

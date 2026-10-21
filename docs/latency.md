@@ -69,3 +69,26 @@ Only worth using if the local model is too slow on a weaker Mac. All of these se
 - **Google Gemini API** (AI Studio key, no card): Flash / Flash-Lite are free within per-project limits shown in AI Studio. Free-tier prompts may be used by Google outside the EEA, UK and Switzerland, so it is not suitable for anything real.
 - **Cerebras**: now a card-required trial, not a free tier.
 - The existing path, `PATIENT_LLM=grok` (xAI, paid key), already works.
+
+## Phase G (2026-10-21): Qwen3-TTS backend, speculative STT, first-clause split
+
+`ws_bench.py --runs 1`, 26 turns, Gemma 4 E4B, M5 Pro 24 GB. Smart Turn was not installed (the Mac was offline), so endpointing is silence only.
+
+| Stage | Kitten, after Task 1 prompt | Qwen3-TTS | + speculative STT + first clause |
+|---|---|---|---|
+| VAD endpoint | 512 | 512 | 480 |
+| STT (wait after endpoint) | 88 | 227 | **0** |
+| LLM first token | 390 | 400 | 402 |
+| LLM first sentence | 1,110 | 1,224 | 1,150 |
+| TTS first chunk | 746 | 574 | 585 |
+| **Lag p50 / p90** | 2,676 / 3,166 | 2,560 / 3,134 | **2,326 / 3,018** |
+| Barge-in stop p50 | 31 | 55 | 47 |
+
+**Target p50 ≤ 700 ms is missed by about 1.6 s.** Breakdown of the p50:
+- VAD silence, 0.48 s. Smart Turn would end a finished sentence at 0.2 s. Install `models/smart-turn-v3.onnx` (see `models/README.md`) and re-measure.
+- LLM first token, 0.40 s (was 0.22 s on 2026-10-20). The Task 1 prompt (new realism rules plus the recent-phrases block after the doctor's line) adds prefill after the cached prefix.
+- LLM first sentence, about 0.75 s after the first token (was 0.38 s). `behaviour` and `emotion` come first, then the reply's opening words. Task 1 widened the length bands, so first sentences got longer. Splitting at the first comma (30+ characters) did not help much because most first sentences have no early comma.
+- TTS first chunk, 0.58 s, against 0.17 s in the bake-off with an idle GPU. Qwen3-TTS shares the GPU with Gemma, and the LLM is still generating the rest of the reply while the first chunk is made.
+
+Next levers, in order: Smart Turn (about −0.3 s), moving the recent-phrases block before the doctor's line so it sits in the warmed prefix (about −0.15 s), and a shorter first sentence by prompt ("open with a short phrase"). The no-invented-facts rule is not traded for any of these.
+
