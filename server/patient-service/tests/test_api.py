@@ -66,7 +66,7 @@ def test_feedback_endpoint(monkeypatch, tmp_path):
 
     import brain
     import learning
-    shutil.copytree(learning.DIR, tmp_path / "learned")
+    shutil.copytree(learning.DIR, tmp_path / "learned", ignore=shutil.ignore_patterns("experience"))  # tests start with an empty library
     shutil.copytree(brain.DATA_DIR, tmp_path / "data")
     monkeypatch.setattr(learning, "DIR", tmp_path / "learned")
     monkeypatch.setattr(brain, "DATA_DIR", tmp_path / "data")

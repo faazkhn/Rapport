@@ -12,7 +12,7 @@ import learning
 
 @pytest.fixture(autouse=True)
 def _fresh(monkeypatch, tmp_path):
-    shutil.copytree(learning.DIR, tmp_path / "learned")
+    shutil.copytree(learning.DIR, tmp_path / "learned", ignore=shutil.ignore_patterns("experience"))  # tests start with an empty library
     monkeypatch.setattr(learning, "DIR", tmp_path / "learned")
     learning._cache.clear()
     yield
