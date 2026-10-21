@@ -10,7 +10,7 @@ It was renamed because `usc-psychsim/psychsim` is an established research framew
 
 [`docs/media/teaser.mp4`](docs/media/teaser.mp4): 18 s, 1280×720, from an earlier take (the UI still reads "PsychSim"). That take predates the Digital Twin and the new voice.
 
-> **PLACEHOLDER: demo v3.** `demo/Rapport_demo_v3.mp4` (2–3 min, live replies, both patients, exam close-up, Twin view, learning curve) is recorded at release. Link it here, with its 10 MB teaser and 6 stills.
+Demo v3 is not recorded yet. The latest live take is `demo/PsychSim_demo_v2.mp4` (4:00, unedited, live replies). It is attached to the release, not kept in git.
 
 The older demos are not in git (LFS budget). In `demo/Rapport_demo_staged.mp4` the patient's replies are **pre-scripted** (staged mode, `RAPPORT_STAGED`). Say so whenever you show it.
 
@@ -58,7 +58,7 @@ Self-learning (Phase E) is built (ADR 0004, `server/patient-service/learning.py`
 - **Versioned and reversible.** Every brain change gets a `brain_version` and can be rolled back.
 - **One LLM call per live turn.** Critique, reflection, adherence checks and prompt optimisation all run offline. They reach the patient only through the prompt.
 
-> **PLACEHOLDER: learning curve.** Insert the Phase E numbers (before/after on the evaluation set, the A/B result) from `docs/LEARNING_REPORT.md` once that branch merges.
+**Result so far** ([`docs/LEARNING_REPORT.md`](docs/LEARNING_REPORT.md)): one learning round. v1 (v0 plus 36 self-play examples; GEPA found no better rules) scored 0.952 against v0's 0.957 on the held-out set and had one confirmed safety flag (it denied a passive death wish), so the gate rejected it and **v0 stays live**. The flag exposed a recall bug, now fixed. The 5-round curve and the blind A/B test are still to do.
 
 ## Voice stack and licences
 
@@ -118,10 +118,12 @@ curl -s http://127.0.0.1:8765/health
 
 [`docs/LIVE_DEMO_GUIDE.md`](docs/LIVE_DEMO_GUIDE.md) has the full checklist, a 6-minute demo script and troubleshooting. The service's endpoints and environment variables are in [`server/patient-service/README.md`](server/patient-service/README.md). `PSYCHSIM_*` variables still work as deprecated aliases for `RAPPORT_*` until v0.3.
 
+Release gates and what was skipped: [`docs/GATES.md`](docs/GATES.md).
+
 Tests:
 
 ```bash
-cd server/patient-service && .venv/bin/python -m pytest -q      # 151 pass (2026-10-21)
+cd server/patient-service && .venv/bin/python -m pytest -q      # 152 pass (2026-10-21)
 .venv/bin/python validate_data.py                                # data schemas and cross-references
 # Unity EditMode: 39 pass (2026-10-21, batch mode)
 ```
