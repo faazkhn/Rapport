@@ -10,6 +10,8 @@ All clips use the CC3 skeleton (101 `CC_Base_*` bones, the same on Mégane `fema
 |---|---|---|---|---|---|---|
 | `walk_in` | 0–135 | 4.50 s | one-shot | Full body | **Yes.** Hips travel 3.75 m forward (+Z in Unity) | Tired, slightly slow gait (~1.1 m/s, head a little low). Starts standing with feet together, takes a step-off, 7 steps, a closing step, and ends standing with feet together. Hips end 5 mm lower than they start. |
 | `sit_down` | 0–87 | 2.90 s | one-shot | Full body | No (in place) | The feet stay planted while she lowers. The hips go 0.40 m back and 0.48 m down onto the seat, then the feet slide 0.15–0.19 m forward. The last frame is identical to frame 0 of `base_sit_neutral`. |
+| `stand_up` | 0–87 | 2.90 s | one-shot | Full body | No (in place) | Phase H. `sit_down` played backwards in time: from `base_sit_neutral` frame 0 to standing with the feet together. |
+| `stand_idle` | 0–240 | 8.0 s | loop | Full body | No | Phase H. Standing, feet together, breathing every 4 s with a slow 8 s weight shift. Exam actions done on the feet hold over it. |
 | `base_sit_neutral` | 0–240 | 8.0 s | loop | Full body | No | Upright and relaxed, hands loosely together in the lap. Breathing every 4 s, slow weight shift and twist, a small settle forward, the head drifting slightly, a right-hand slide and finger drift. |
 | `base_sit_slumped` | 0–300 | 10.0 s | loop | Full body | No | Pelvis rolled back, spine rounded, shoulders forward, head low, hands in the lap. Slow 5 s breathing with one sigh (5–9 s). |
 | `cue_fidget_nails_Hands` | 0–180 | 6.0 s | loop | Hands (fingers) | No | Each thumb works at the index and middle nails of the same hand, in irregular strokes, and the two hands are out of phase. Only the fingers move, so it works over either seated base. |
@@ -38,7 +40,7 @@ Face presets are in `Face/`: `face_neutral`, `face_sad`, `face_flat`, `face_anxi
 |---|---|---|---|---|
 | `walk_in` | off | Bake Into Pose ✔, Based Upon *Body Orientation* | Bake Into Pose ✔, Based Upon *Feet* | **Bake Into Pose ✘** (this is the root motion; turn on *Apply Root Motion*) |
 | `sit_down` | off | Bake ✔, *Original* | Bake ✔, *Original* | Bake ✔, *Original* |
-| `base_sit_neutral`, `base_sit_slumped` | **on** (Loop Pose off; the curves already match) | Bake ✔, *Original* | Bake ✔, *Original* | Bake ✔, *Original* |
+| `base_sit_neutral`, `base_sit_slumped`, `stand_idle` | **on** (Loop Pose off; the curves already match) | Bake ✔, *Original* | Bake ✔, *Original* | Bake ✔, *Original* |
 | `cue_fidget_nails_Hands`, `gesture_talk_small_01/02` | **on** | Bake ✔, *Original* | Bake ✔, *Original* | Bake ✔, *Original* |
 | `cue_wipe_tears`, `gesture_nod`, `gesture_head_shake`, `action_*` | off | Bake ✔, *Original* | Bake ✔, *Original* | Bake ✔, *Original* |
 
