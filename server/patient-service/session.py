@@ -18,6 +18,7 @@ import numpy as np
 
 import brain
 import exam_router
+import learning
 import staged
 import stream
 import stt
@@ -90,6 +91,8 @@ class Session:
         self.mood = None  # Digital Twin PAD mood, set at start
         self.next_speed = 1.0  # expression-map speed factor from the last reply, applied to the next one
         self.twin_log = None  # this session's Twin event log (JSONL)
+        self.mode = "practice"  # assessment: only faculty-approved examples
+        self.consent = False  # a learner's turns feed learning only with this per-session consent
 
     # ---------- incoming ----------
 
@@ -137,6 +140,8 @@ class Session:
         self.vad = stt.Vad(min(stt.SPECULATE_MS, self.silence_ms))  # the end event is a candidate; on_frame decides
         if hasattr(self.tts, "seed"):  # one fixed speaker per variant
             self.tts.seed = voice.QwenDesign.SEEDS.get(self.case["variant"], 1234)
+        self.mode = "assessment" if msg.get("mode") == "assessment" else "practice"
+        self.consent = msg.get("learning_consent") is True
         p = self.case["patient"]
         await self.send_json({"type": "session", "case_id": self.case["id"], "variant": self.case["variant"], "name": p["name"],
                               "model_id": p["model_id"], "voice_id": p["voice_id"], "state": self.state,
@@ -174,6 +179,8 @@ class Session:
         """Prefill slot 0's KV cache with the next turn's prompt up to the doctor's words (system, facts block for the current trust,
         history), so only the doctor's line and the small tail are left when they stop talking. Run at start and after every reply:
         a trust change rewrites the facts block near the start, and Gemma's sliding-window cache cannot reuse what follows it."""
+        with contextlib.suppress(Exception):  # loads the embedder and the library index off the voice path
+            learning.retrieve(self.case["id"], "hello", self.mode, learning.current().get("examples_k", 0))
         if brain.use_grok():
             return
         with contextlib.suppress(Exception):
@@ -309,9 +316,11 @@ class Session:
         await self.send_json({"type": "thinking"})
 
         recalled = twin.recall(case, state["trust"], text)
+        examples = learning.retrieve(case["id"], text, self.mode, learning.current().get("examples_k", 0))
         allowed = [f["id"] for f in brain.allowed_facts(case, state["trust"])]
         schema = brain.build_reply_schema(case, allowed, [])
-        kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed, recalled=recalled, exam=exam),
+        kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed, recalled=recalled, exam=exam,
+                                                         examples=examples),
                               schema, "patient_reply", 0)
         q: asyncio.Queue = asyncio.Queue()
         t_llm = time.monotonic()
@@ -422,6 +431,13 @@ class Session:
         await self.twin(twin.snapshot(self.turn_no, text, reply, recalled, self.state, self.mood,
                                       twin.why(recalled, reply, state["trust"], case), self.next_speed))
         await self.twin({"event": "patient_end", "turn": self.turn_no})
+        if self.consent and not cancel.is_set():
+            history = [m["text"] for m in self.messages[:-1] if m["role"] == "patient"]
+            if not learning.gate(reply["utterance"], meta, case, state, history):
+                with contextlib.suppress(OSError):  # learning never stops the voice
+                    learning.add_experience(case["id"], {"doctor": text, "utterance": reply["utterance"], "engagement": state["engagement"],
+                                                         "trust": state["trust"], "behaviour": reply["behaviour"], "source": "live"},
+                                            consent=True)
 
         t_end = timing.pop("t_end")
         timing.update({

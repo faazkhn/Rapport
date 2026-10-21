@@ -288,3 +288,28 @@ def test_warm_prompt_is_prefix_of_turn_prompt():
                                 recalled={"open": ["f_sleep"], "locked_hit": [], "discomfort": False})[-1]["content"]
     cut = warm.index("Doctor: ") + len("Doctor: ")
     assert turn[:cut] == warm[:cut] and "PATIENT'S STATE NOW" in warm[:cut] and "WHAT COMES TO MIND" in turn[cut:]
+
+def test_generate_reply_meta_brain_version_and_examples(monkeypatch):
+    import learning
+    good = _reply()
+    del good["doctor_intents"]
+    llm = FakeClient([json.dumps(good)])
+    v = {**learning.load_version("v0"), "id": "v9", "examples_k": 2, "realism_rules": "TALK LIKE A TIRED PERSON."}
+    monkeypatch.setattr(learning, "retrieve", lambda case_id, text, mode, k: [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}])
+    out = brain.generate_reply({**REQ, "mode": "practice"}, client=llm, tagger=TAG, version=v)
+    assert out["meta"]["brain_version"] == "twin-0.1+v9" and out["meta"]["examples"] == ["e1"]
+    msgs = llm.calls[0]["messages"]
+    assert "TALK LIKE A TIRED PERSON." in msgs[0]["content"] and brain.REALISM_RULES not in msgs[0]["content"]
+    assert "Patient: Not really." in msgs[-1]["content"]
+
+
+def test_examples_in_tail_not_system():
+    ex = [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}]
+    a = brain.build_messages(CASE, LOW, [{"role": "doctor", "text": "Hi"}, {"role": "patient", "text": "Hi."}, {"role": "doctor", "text": "Sleep?"}])
+    b = brain.build_messages(CASE, LOW, [{"role": "doctor", "text": "Hi"}, {"role": "patient", "text": "Hi."}, {"role": "doctor", "text": "Sleep?"}],
+                             examples=ex)
+    assert a[:-1] == b[:-1] and "Not really." in b[-1]["content"] and b[-1]["content"].index("Doctor: Sleep?") < b[-1]["content"].index("Not really.")
+
+
+def test_v0_uses_default_realism_rules():
+    assert brain.REALISM_RULES in brain.build_system_prompt(CASE)

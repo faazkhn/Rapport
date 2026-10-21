@@ -14,6 +14,7 @@ from pathlib import Path
 
 import jsonschema
 
+import learning
 import twin
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -279,8 +280,8 @@ def _behavior_text(b: dict) -> str:
     return "\n".join(lines)
 
 
-def build_system_prompt(case: dict) -> str:
-    """Fixed prefix for a case+variant: identical on every turn, so llama-server reuses its KV cache."""
+def build_system_prompt(case: dict, version: dict | None = None) -> str:
+    """Fixed prefix for a case+variant+brain version: identical on every turn, so llama-server reuses its KV cache."""
     p = case["patient"]
     cue_ids = ", ".join(c["id"] for c in case["cues"])
     name = p["name"]
@@ -295,7 +296,7 @@ def build_system_prompt(case: dict) -> str:
         *([f"Deep down {name} believes: {case['core_belief']}"] if case.get("core_belief") else []),
         *([f"With people {name} is: {case['attachment_style']}"] if case.get("attachment_style") else []),
         f"HOW {name.upper()} PRESENTS (mental state; show it, never describe it in these terms):\n" + _behavior_text(case["behavior"]),
-        REALISM_RULES,
+        (version or learning.current()).get("realism_rules") or REALISM_RULES,
         *(["PRINCIPLES FROM FACULTY (follow them):\n" + "\n".join(f"- {p}" for p in case["principles"])] if case.get("principles") else []),
         f"WORDS {name.upper()} NEVER SAYS: {', '.join(case['banned_words'])}.",
         HARD_RULES,
@@ -357,10 +358,10 @@ def recent_patient_lines(messages: list[dict], n: int = 3) -> list[str]:
 
 
 def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_min: float | None = None, recalled: dict | None = None,
-                 recent: list[str] | None = None) -> tuple[str, str]:
+                 recent: list[str] | None = None, examples: list[dict] | None = None) -> tuple[str, str]:
     """Small per-turn tail, split around the doctor's words. Before: what is known when the patient stops talking (recent lines to
     avoid repeating, summary, state, style reminder A3), so warm() can prefill it. After: what needs the doctor's line (recall, time,
-    next-line framing A4)."""
+    next-line framing A4; L1 examples, chosen by the doctor's line)."""
     pre = []
     if recent:
         pre.append("DON'T REPEAT THESE PHRASES (said already; say it differently or add something new):\n"
@@ -368,20 +369,21 @@ def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_mi
     if summary:
         pre.append(f"EARLIER IN THIS CONSULTATION (summary): {summary}")
     pre += ["PATIENT'S STATE NOW:\n" + describe_state(state), style_reminder(case, state)]
-    post = [b] if recalled and (b := recall_block(case, recalled)) else []
+    post = [b] if examples and (b := learning.examples_block(examples)) else []
+    post += [b] if recalled and (b := recall_block(case, recalled)) else []
     if elapsed_min is not None:
         post.append(f"Minutes since the consultation started: about {elapsed_min:.0f}.")
     post.append(f"Write {case['patient']['name']}'s next line in this dialogue.")
     return "\n\n".join(pre), "\n\n".join(post)
 
 
-def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None, exam=None) -> list[dict]:
+def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None, exam=None, examples=None, version=None) -> list[dict]:
     """[system: fixed per case+variant] [first user msg: facts block + first doctor line] [history verbatim]
     [pre-tail + last doctor line + post-tail]."""
-    out = [{"role": "system", "content": build_system_prompt(case)}]
+    out = [{"role": "system", "content": build_system_prompt(case, version)}]
     for m in messages[-HISTORY_TURNS:]:
         out.append({"role": "user" if m["role"] == "doctor" else "assistant", "content": m["text"]})
-    pre, post = turn_context(case, state, summary, elapsed_min, recalled, recent_patient_lines(messages))
+    pre, post = turn_context(case, state, summary, elapsed_min, recalled, recent_patient_lines(messages), examples)
     if exam and (line := exam_note(case, exam)):
         post += "\n" + line
     doctor = f"Doctor: {out.pop()['content']}\n\n---\n" if out[-1]["role"] == "user" else ""
@@ -601,8 +603,9 @@ def fallback_reply(case: dict) -> dict:
             "state_delta": {k: 0 for k in STATE_KEYS}, "event_cues": [], "revealed_fact_ids": [], "exam_action": None, "doctor_intents": []}
 
 
-def generate_reply(req: dict, client=None, tagger=None) -> dict:
-    """req: {case_id, variant?, messages, state, elapsed_min?, model?, reasoning_effort?, summary?}. Never raises on LLM failure.
+def generate_reply(req: dict, client=None, tagger=None, version: dict | None = None) -> dict:
+    """req: {case_id, variant?, messages, state, elapsed_min?, model?, reasoning_effort?, summary?, mode?}. Never raises on LLM failure.
+    version: the brain version to speak with (default the live one; evaluation passes candidates).
     The patient reply and intent tagging run in parallel; the guard runs when both are done."""
     case = load_case(req["case_id"], req.get("variant") or "female")
     state = req["state"]
@@ -612,8 +615,10 @@ def generate_reply(req: dict, client=None, tagger=None) -> dict:
     doctor_now = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
     recalled = twin.recall(case, state["trust"], doctor_now)
     exam = exam_for_turn(case, state, doctor_now)
-    kwargs = llm_kwargs(model, build_messages(case, state, req["messages"], req.get("summary"), req.get("elapsed_min"), recalled, exam),
-                        schema, "patient_reply", 0)
+    version = version or learning.current()
+    examples = learning.retrieve(case["id"], doctor_now, req.get("mode") or "practice", version.get("examples_k", 0))
+    kwargs = llm_kwargs(model, build_messages(case, state, req["messages"], req.get("summary"), req.get("elapsed_min"), recalled, exam,
+                                              examples, version), schema, "patient_reply", 0)
     if req.get("reasoning_effort"):
         kwargs["reasoning_effort"] = req["reasoning_effort"]
     doctor = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
@@ -633,7 +638,8 @@ def generate_reply(req: dict, client=None, tagger=None) -> dict:
                 errors.append(type(e).__name__)
         tagged = fut.result()
     meta = {"model": model, "latency_ms": round((time.perf_counter() - t0) * 1000), "allowed_fact_ids": allowed,
-            "guard_dropped": [], "fallback": reply is None, "attempts": len(errors) + (reply is not None)}
+            "guard_dropped": [], "fallback": reply is None, "attempts": len(errors) + (reply is not None),
+            "brain_version": learning.brain_version(version), "examples": [e["id"] for e in examples]}
     if errors:
         meta["errors"] = errors
     if reply is None:

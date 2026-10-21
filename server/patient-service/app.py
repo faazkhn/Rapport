@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 import brain
+import learning
 import mock
 import session
 import stt
@@ -107,6 +108,7 @@ class ReplyReq(BaseModel):
     model: str | None = None
     reasoning_effort: Literal["low", "medium", "high", "xhigh"] | None = None
     summary: str | None = Field(default=None, max_length=4000)
+    mode: Literal["practice", "assessment"] = "practice"
 
 
 class TtsReq(BaseModel):
@@ -132,6 +134,54 @@ async def reply(req: ReplyReq):
     log.info("reply case=%s model=%s latency_ms=%s fallback=%s dropped=%d",
              req.case_id, m["model"], m["latency_ms"], m["fallback"], len(m["guard_dropped"]))
     return out
+
+
+class FeedbackReq(BaseModel):
+    case_id: str
+    variant: Literal["female", "male"] = "female"
+    doctor: str = Field(max_length=4000)
+    utterance: str = Field(min_length=1, max_length=4000)
+    rating: Literal["up", "down", "rewrite"]
+    rewrite: str | None = Field(default=None, max_length=4000)
+    comment: str | None = Field(default=None, max_length=2000)
+    author: str = Field(min_length=1, max_length=100)
+    engagement: float = Field(default=35, ge=0, le=100)
+    trust: float = Field(default=30, ge=0, le=100)
+
+
+class ApproveReq(BaseModel):
+    case_id: str
+    entry_id: str = Field(max_length=64)
+
+
+def _case_or_404(case_id: str, variant: str = "female"):
+    try:
+        return brain.load_case(case_id, variant)
+    except (FileNotFoundError, KeyError):
+        raise HTTPException(404, f"unknown case_id {case_id!r}")
+
+
+@app.post("/learning/feedback")
+async def feedback(req: FeedbackReq):
+    """L2 faculty tuning: 👍 / 👎 / rewrite → a principle in the case; 👍 also stores the line as an approved example (L1)."""
+    _case_or_404(req.case_id, req.variant)
+    text = await run_in_threadpool(learning.distill_principle, req.doctor, req.utterance, req.rating, req.rewrite, req.comment,
+                                   brain.get_client())
+    principle = learning.add_principle(req.case_id, text, req.author)
+    entry = None
+    if req.rating == "up":
+        entry = learning.add_experience(req.case_id, {"doctor": req.doctor, "utterance": req.utterance, "engagement": req.engagement,
+                                                      "trust": req.trust, "behaviour": None, "source": "faculty", "tier": "approved",
+                                                      "judged": True, "author": req.author}, consent=False)
+    return {"principle": principle, "entry_id": entry and entry["id"]}
+
+
+@app.post("/learning/approve")
+def approve(req: ApproveReq):
+    _case_or_404(req.case_id)
+    if not learning.approve(req.case_id, req.entry_id):
+        raise HTTPException(404, f"unknown entry {req.entry_id!r}")
+    return {"ok": True}
 
 
 @app.post("/tts")

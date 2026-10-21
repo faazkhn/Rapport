@@ -59,3 +59,30 @@ def test_twin_ws_replays_history():
     with c.websocket_connect("/twin/ws") as ws:
         assert ws.receive_json()["type"] == "init"
         assert ws.receive_json() == {"type": "doctor_end", "turn": 1, "t": 1.0}
+
+
+def test_feedback_endpoint(monkeypatch, tmp_path):
+    import shutil
+
+    import brain
+    import learning
+    shutil.copytree(learning.DIR, tmp_path / "learned")
+    shutil.copytree(brain.DATA_DIR, tmp_path / "data")
+    monkeypatch.setattr(learning, "DIR", tmp_path / "learned")
+    monkeypatch.setattr(brain, "DATA_DIR", tmp_path / "data")
+    brain.load_json.cache_clear(), brain._resolved.cache_clear()
+    monkeypatch.setattr(learning, "distill_principle", lambda *a, **k: "Keep it short.")
+    c = TestClient(service.app)
+    body = {"case_id": "mdd_01", "doctor": "How do you sleep?", "utterance": "Badly.", "rating": "up", "author": "Dr A"}
+    r = c.post("/learning/feedback", json=body).json()
+    assert r["principle"].startswith("Keep it short. (faculty: Dr A, ")
+    [e] = learning.library("mdd_01")
+    assert e["id"] == r["entry_id"] and e["tier"] == "approved" and e["judged"] is True and e["source"] == "faculty"
+    assert r["principle"] in brain.load_case("mdd_01")["principles"]
+    r2 = c.post("/learning/feedback", json={**body, "rating": "down"}).json()
+    assert r2.get("entry_id") is None and len(learning.library("mdd_01")) == 1
+    assert c.post("/learning/feedback", json={**body, "rating": "meh"}).status_code == 422
+    assert c.post("/learning/feedback", json={**body, "case_id": "../x"}).status_code == 404
+    assert c.post("/learning/approve", json={"case_id": "mdd_01", "entry_id": "nope"}).status_code == 404
+    brain.load_json.cache_clear(), brain._resolved.cache_clear()
+    learning._cache.clear()

@@ -4,6 +4,7 @@ the slow-path state and mood update, the expression map, and the brain_snapshot.
 import re
 
 import brain
+import learning
 
 VERSION = "twin-0.1"
 
@@ -128,7 +129,7 @@ def snapshot(turn: int, doctor: str, reply: dict, recalled: dict, state: dict, m
     return {"type": "brain_snapshot", "turn": turn, "doctor": doctor, "utterance": reply["utterance"], "state": state, "mood": mood,
             "reaction": reply["reaction"], "intensity": reply["intensity"], "behaviour": reply["behaviour"],
             "resistance": reply["resistance"], "why": why_text, "recalled": recalled["open"], "locked_hit": recalled["locked_hit"],
-            "cues": reply["event_cues"], "exam_action": reply["exam_action"], "emotion": reply["emotion"], "brain_version": VERSION,
+            "cues": reply["event_cues"], "exam_action": reply["exam_action"], "emotion": reply["emotion"], "brain_version": learning.brain_version(),
             # face preset name as Unity's FacePresets builds it; body = the cues this reply fired
             "expression": {"face": f"face_{reply['emotion']}", "body": [c["id"] for c in reply["event_cues"]],
                            "voice": f"{reply['emotion']}, speed ×{speed:.2f} next turn", "nonverbal": None}}

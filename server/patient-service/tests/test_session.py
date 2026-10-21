@@ -220,10 +220,10 @@ SNAP_KEYS = {"type", "turn", "doctor", "utterance", "state", "mood", "reaction",
              "recalled", "locked_hit", "cues", "exam_action", "emotion", "brain_version", "expression"}
 
 
-def _one_turn(text="How do you sleep?", llm=None):
+def _one_turn(text="How do you sleep?", llm=None, **start):
     async def go():
         s, ev, audio = make(llm or FakeLLM())
-        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        await s.on_json({"type": "start", "case_id": "mdd_01", **start})
         await run_text(s, text)
         return s, ev
     return asyncio.run(go())
@@ -234,7 +234,7 @@ def test_turn_emits_snapshot():
     t = types(ev)
     assert t.count("brain_snapshot") == 1 and t.index("brain_snapshot") > t.index("reply")
     snap = next(m for _, m in ev if m["type"] == "brain_snapshot")
-    assert set(snap) == SNAP_KEYS and "f_sleep" in snap["recalled"] and snap["brain_version"] == "twin-0.1"
+    assert set(snap) == SNAP_KEYS and "f_sleep" in snap["recalled"] and snap["brain_version"] == "twin-0.1+v0"
     assert snap["expression"]["face"] == "face_sad" and snap["expression"]["body"] == [c["id"] for c in snap["cues"]]
     tw = [m["event"] for _, m in ev if m["type"] == "twin_event"]
     assert tw == ["init", "doctor_end", "patient_start", "patient_end"]
@@ -488,3 +488,40 @@ def test_staged_turn_sends_exam(monkeypatch, tmp_path):
     ev = asyncio.run(go())
     exams = [m for _, m in ev if m["type"] == "exam"]
     assert exams[0]["actions"][0]["id"] == "hold_out_hands" and exams[0]["actions"][0]["comply"] and exams[1]["relax"]
+
+CLEAN = FakeLLM(reply={**REPLY, "utterance": "I wake at four. Then I just lie there."})
+
+
+@pytest.fixture
+def lib(monkeypatch, tmp_path):
+    import learning
+    import shutil
+    shutil.copytree(learning.DIR, tmp_path / "learned")
+    monkeypatch.setattr(learning, "DIR", tmp_path / "learned")
+    learning._cache.clear()
+    yield learning
+    learning._cache.clear()
+
+
+def test_session_no_consent_no_writes(lib):
+    s, ev = _one_turn(llm=CLEAN)
+    assert lib.library("mdd_01") == []
+
+
+def test_session_consent_writes_candidate(lib):
+    s, ev = _one_turn(llm=CLEAN, learning_consent=True)
+    [e] = lib.library("mdd_01")
+    assert e["tier"] == "candidate" and e["source"] == "live" and e["judged"] is False
+    assert e["doctor"] == "How do you sleep?" and e["utterance"] == "I wake at four. Then I just lie there."
+
+
+def test_session_uses_retrieved_examples_in_tail(lib, monkeypatch):
+    monkeypatch.setattr(lib, "current", lambda: {**lib.load_version("v0"), "examples_k": 2})
+    seen = []
+    monkeypatch.setattr(lib, "retrieve", lambda case_id, text, mode, k: seen.append((mode, k)) or
+                        [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}])
+    llm = FakeLLM()
+    _one_turn(llm=llm, mode="assessment")
+    msgs = next(c for c in llm.calls if c.get("stream") is None and "patient_reply" in json.dumps(c.get("response_format")))["messages"]
+    assert seen and set(seen) == {("assessment", 2)}
+    assert "Patient: Not really." in msgs[-1]["content"] and "Not really." not in msgs[0]["content"]
