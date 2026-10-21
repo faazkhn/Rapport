@@ -11,7 +11,7 @@ VAD_THRESHOLD = float(os.environ.get("VAD_THRESHOLD", "0.5"))
 STT_MODEL = os.environ.get("STT_MODEL", "mlx-community/parakeet-tdt-0.6b-v2")
 WHISPER = "mlx-community/whisper-large-v3-turbo"
 
-SPECULATE_MS = 200  # silence before Smart Turn is asked and STT starts on the audio so far
+SPECULATE_MS = int(os.environ.get("SPECULATE_MS", "200"))  # silence before Smart Turn is asked and STT starts on the audio so far
 SMART_TURN_ONNX = os.environ.get("SMART_TURN_ONNX", os.path.join(os.path.dirname(__file__), "../../models/smart-turn-v3.onnx"))
 
 _vad_model = None

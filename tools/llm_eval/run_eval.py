@@ -70,11 +70,13 @@ def main():
     ap.add_argument("--case", default="mdd_01")
     ap.add_argument("--url", default="http://127.0.0.1:8080/v1")
     ap.add_argument("--only", default="", help="comma list of yaml stems")
+    ap.add_argument("--no-probe", action="store_true", help="skip the speed probe (meaningless on a shared llama-server)")
+    ap.add_argument("--timeout", type=float, default=120, help="seconds per request; raise it when llama-server is shared")
     a = ap.parse_args()
-    client = OpenAI(base_url=a.url, api_key="local", timeout=120, max_retries=0)
+    client = OpenAI(base_url=a.url, api_key="local", timeout=a.timeout, max_retries=0)
     out_dir = REPO / "tests/llm-eval/results"
     out_dir.mkdir(parents=True, exist_ok=True)
-    perf = probe(a.url)
+    perf = {} if a.no_probe else probe(a.url)
     print("probe", perf, flush=True)
     convs = sorted((REPO / "tests/llm-eval" / a.case).glob("*.yaml"))
     if a.only:
