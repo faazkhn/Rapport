@@ -3,7 +3,7 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace PsychSim.Platform
+namespace Rapport.Platform
 {
     /// <summary>
     /// The doctor's view through Cinemachine (Phase H), built at runtime so the scene needs no rebuild:

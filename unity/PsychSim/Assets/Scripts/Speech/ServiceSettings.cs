@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace PsychSim.Speech
+namespace Rapport.Speech
 {
     [CreateAssetMenu(menuName = "PsychSim/Service Settings")]
     public class ServiceSettings : ScriptableObject

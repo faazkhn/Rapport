@@ -2,7 +2,7 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 
-namespace PsychSim.Speech
+namespace Rapport.Speech
 {
     /// <summary>
     /// Puts the patient's voice AudioSource on the head with uLipSync, maps uLipSync phonemes (A I U E O N) to the CC3 visemes

@@ -1,7 +1,7 @@
 {
-    "name": "PsychSim.Data",
-    "rootNamespace": "PsychSim.Data",
-    "references": [],
+    "name": "Rapport.Cues",
+    "rootNamespace": "Rapport.Cues",
+    "references": ["Rapport.Data","Rapport.Patient","Unity.Animation.Rigging"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -10,5 +10,5 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": true
+    "noEngineReferences": false
 }

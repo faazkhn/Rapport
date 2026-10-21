@@ -1,14 +1,14 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using PsychSim.Core;
-using PsychSim.Scoring;
-using PsychSim.Speech;
+using Rapport.Core;
+using Rapport.Scoring;
+using Rapport.Speech;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-namespace PsychSim.UI
+namespace Rapport.UI
 {
     /// <summary>
     /// Desktop view (UI Toolkit, built in code): brief card, side-panel tablet (chat, MSE, diagnosis, prescription, disposition, finish),

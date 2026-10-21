@@ -1,0 +1,14 @@
+{
+    "name": "Rapport.Editor",
+    "rootNamespace": "Rapport.Editor",
+    "references": ["Rapport.Data","Unity.Animation.Rigging","Rapport.Core","Rapport.UI","Rapport.Speech","Rapport.Platform","Unity.InputSystem","UnityEngine.UI","uLipSync.Runtime","Unity.Recorder","Unity.Recorder.Base","Unity.Recorder.Editor","Unity.RenderPipelines.Universal.Runtime","Unity.RenderPipelines.Core.Runtime"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

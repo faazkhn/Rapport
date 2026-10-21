@@ -11,7 +11,7 @@ Date: 2026-10-21 · Status: accepted
 - GitHub repo `faazkhn/PsychSim` → `faazkhn/Rapport` (GitHub redirects the old URL).
 - User-facing names change: Unity product name `Rapport`, bundle id `com.faazkhn.rapport`, build `Builds/Rapport.app`, launcher `Rapport.command`, editor menus `Rapport/…`, service title, logs `~/Library/Logs/Rapport`.
 - Environment variables are `RAPPORT_*`. The old `PSYCHSIM_*` names still work as deprecated aliases until v0.3 (`brain.env`, `run.sh`).
-- Not renamed: the Unity project folder `unity/PsychSim`, the `PsychSim.*` C# namespaces and asmdefs. Renaming them touches every script, scene reference and test assembly for no user-visible gain; tracked as a follow-up issue.
+- Not renamed: the Unity project folder `unity/PsychSim`, the `PsychSim.*` C# namespaces and asmdefs. Renaming them touches every script, scene reference and test assembly for no user-visible gain; tracked as a follow-up issue. Update 2026-10-21 (issue #2): namespaces and asmdefs are now `Rapport.*` (batch build `-executeMethod Rapport.Editor.BuildMac.Build`); only the folder remains.
 
 ## Consequences
 

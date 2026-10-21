@@ -1,7 +1,7 @@
 {
-    "name": "PsychSim.Logging",
-    "rootNamespace": "PsychSim.Logging",
-    "references": [],
+    "name": "Rapport.Platform",
+    "rootNamespace": "Rapport.Platform",
+    "references": ["Unity.InputSystem", "Unity.Cinemachine"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -10,5 +10,5 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": true
+    "noEngineReferences": false
 }

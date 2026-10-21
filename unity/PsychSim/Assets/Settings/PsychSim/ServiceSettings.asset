@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 003a47c978aed434bada9384005d56d5, type: 3}
   m_Name: ServiceSettings
-  m_EditorClassIdentifier: PsychSim.Speech::PsychSim.Speech.ServiceSettings
+  m_EditorClassIdentifier: Rapport.Speech::Rapport.Speech.ServiceSettings
   baseUrl: http://127.0.0.1:8765
   model: 
   vadSilenceMs: 500

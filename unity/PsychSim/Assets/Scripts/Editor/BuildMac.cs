@@ -3,10 +3,10 @@ using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>Development macOS build to Builds/Rapport.app (draft content ships only in Development builds).
-    /// Batch: Unity -batchmode -quit -projectPath unity/PsychSim -executeMethod PsychSim.Editor.BuildMac.Build</summary>
+    /// Batch: Unity -batchmode -quit -projectPath unity/PsychSim -executeMethod Rapport.Editor.BuildMac.Build</summary>
     public static class BuildMac
     {
         [MenuItem("Rapport/Build macOS (Development)")]

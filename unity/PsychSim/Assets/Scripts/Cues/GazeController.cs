@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
-namespace PsychSim.Cues
+namespace Rapport.Cues
 {
     /// <summary>
     /// Head + eye gaze with Animation Rigging Multi-Aim (built at runtime so any CC3 patient works).

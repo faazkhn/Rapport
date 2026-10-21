@@ -1,7 +1,7 @@
 {
-    "name": "PsychSim.Platform",
-    "rootNamespace": "PsychSim.Platform",
-    "references": ["Unity.InputSystem", "Unity.Cinemachine"],
+    "name": "Rapport.Data",
+    "rootNamespace": "Rapport.Data",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -10,5 +10,5 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": false
+    "noEngineReferences": true
 }

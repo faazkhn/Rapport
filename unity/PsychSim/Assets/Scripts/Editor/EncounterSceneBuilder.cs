@@ -1,9 +1,9 @@
 using System.IO;
 using System.Linq;
-using PsychSim.Core;
-using PsychSim.Platform;
-using PsychSim.Speech;
-using PsychSim.UI;
+using Rapport.Core;
+using Rapport.Platform;
+using Rapport.Speech;
+using Rapport.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -12,7 +12,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UIElements;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>
     /// Rapport/Build Placeholder Encounter Scene: patient prefabs, settings assets and Assets/Scenes/Encounter.unity with a box room

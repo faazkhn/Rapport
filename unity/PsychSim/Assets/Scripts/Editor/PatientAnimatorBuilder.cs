@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>
     /// Rapport/Rebuild Patient Animator: applies the import settings from art/Animations/ANIMATIONS.md to every FBX under

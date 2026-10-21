@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace PsychSim.Data
+namespace Rapport.Data
 {
     public class CaseFile
     {

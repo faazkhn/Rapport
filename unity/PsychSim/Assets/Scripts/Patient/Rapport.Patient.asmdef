@@ -1,7 +1,7 @@
 {
-    "name": "PsychSim.Speech",
-    "rootNamespace": "PsychSim.Speech",
-    "references": ["PsychSim.Data","PsychSim.Patient","uLipSync.Runtime"],
+    "name": "Rapport.Patient",
+    "rootNamespace": "Rapport.Patient",
+    "references": ["Rapport.Data"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -10,5 +10,5 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": false
+    "noEngineReferences": true
 }

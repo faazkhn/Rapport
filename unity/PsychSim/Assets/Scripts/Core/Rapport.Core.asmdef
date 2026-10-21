@@ -1,7 +1,7 @@
 {
-    "name": "PsychSim.Cues",
-    "rootNamespace": "PsychSim.Cues",
-    "references": ["PsychSim.Data","PsychSim.Patient","Unity.Animation.Rigging"],
+    "name": "Rapport.Core",
+    "rootNamespace": "Rapport.Core",
+    "references": ["Rapport.Data","Rapport.Patient","Rapport.Scoring","Rapport.Logging","Rapport.Tools","Rapport.Speech","Rapport.Cues","uLipSync.Runtime","Rapport.Platform"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

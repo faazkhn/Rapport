@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PsychSim.Cues
+namespace Rapport.Cues
 {
     /// <summary>
     /// _Tearfulness through a MaterialPropertyBlock (no material copies): wetter tear line and eyes, slight red rim on the eye occlusion.

@@ -1,7 +1,7 @@
 {
-    "name": "PsychSim.Tests.EditMode",
-    "rootNamespace": "PsychSim.Tests",
-    "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "PsychSim.Data", "PsychSim.Patient", "PsychSim.Scoring", "PsychSim.Tools", "PsychSim.Cues", "PsychSim.Platform"],
+    "name": "Rapport.Tests.EditMode",
+    "rootNamespace": "Rapport.Tests",
+    "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "Rapport.Data", "Rapport.Patient", "Rapport.Scoring", "Rapport.Tools", "Rapport.Cues", "Rapport.Platform"],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using PsychSim.Data;
+using Rapport.Data;
 
-namespace PsychSim.Patient
+namespace Rapport.Patient
 {
     /// <summary>Trust, distress, agitation, engagement (0..100). Mirrors server brain.apply_turn: LLM delta + state_rules nudges, clamped per turn, then to range.</summary>
     public class PatientState

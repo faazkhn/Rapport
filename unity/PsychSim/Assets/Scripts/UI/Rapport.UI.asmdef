@@ -1,0 +1,15 @@
+{
+    "name": "Rapport.UI",
+    "rootNamespace": "Rapport.UI",
+    "references": ["Rapport.Data","Rapport.Patient","Rapport.Scoring","Rapport.Tools","Rapport.Core",
+        "Rapport.Cues","Rapport.Speech","Unity.InputSystem","Unity.RenderPipelines.Universal.Runtime","Unity.RenderPipelines.Core.Runtime"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

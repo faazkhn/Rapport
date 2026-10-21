@@ -3,7 +3,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace PsychSim.Logging
+namespace Rapport.Logging
 {
     /// <summary>Append-only JSON lines per session in &lt;persistentDataPath&gt;/sessions/. Turns, state, cues, tool actions, score, latency. Never audio.</summary>
     public class SessionLog

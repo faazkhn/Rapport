@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace PsychSim.Speech
+namespace Rapport.Speech
 {
     public enum VoiceState { Off, Listening, Hearing, Thinking, Speaking }
 

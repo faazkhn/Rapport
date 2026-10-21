@@ -2,12 +2,12 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
-using PsychSim.Core;
-using PsychSim.Scoring;
+using Rapport.Core;
+using Rapport.Scoring;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace PsychSim.UI
+namespace Rapport.UI
 {
     /// <summary>
     /// Plays the demo take from demo/script.json with a live patient: start screen (both patients shown), prebrief, establishing shot,
@@ -36,7 +36,7 @@ namespace PsychSim.UI
         {
             var script = JsonUtility.FromJson<Script>(File.ReadAllText(Path.Combine(Application.dataPath, "../../../" + ScriptPath)));
             bool arjun = Variant == "male";
-            PsychSim.Cues.CueDriver.WipeTears = !ScriptPath.Contains("staged");
+            Rapport.Cues.CueDriver.WipeTears = !ScriptPath.Contains("staged");
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;   // uncapped editor rendering halves the local LLM's speed on the shared GPU
             em = FindAnyObjectByType<EncounterManager>();

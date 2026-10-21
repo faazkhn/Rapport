@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PsychSim.Cues
+namespace Rapport.Cues
 {
     /// <summary>
     /// Procedural bone noise applied after the Animator and the gaze rig (LateUpdate):

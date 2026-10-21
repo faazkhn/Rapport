@@ -2,7 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>
     /// Rapport/Capture Lighting Stills: seats each patient at the PatientAnchor (base_sit_neutral, frame 0), renders the

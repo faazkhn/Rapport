@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace PsychSim.Platform
+namespace Rapport.Platform
 {
     /// <summary>
     /// Desktop doctor camera at DoctorAnchor. Hold the right mouse button to look around (limited), via InputSystem_Actions only.

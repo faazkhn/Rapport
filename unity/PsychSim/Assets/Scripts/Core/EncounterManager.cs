@@ -5,16 +5,16 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using PsychSim.Cues;
-using PsychSim.Data;
-using PsychSim.Logging;
-using PsychSim.Patient;
-using PsychSim.Scoring;
-using PsychSim.Speech;
-using PsychSim.Tools;
+using Rapport.Cues;
+using Rapport.Data;
+using Rapport.Logging;
+using Rapport.Patient;
+using Rapport.Scoring;
+using Rapport.Speech;
+using Rapport.Tools;
 using UnityEngine;
 
-namespace PsychSim.Core
+namespace Rapport.Core
 {
     public enum Phase { Start, Brief, Enter, Active, Debrief }
     public enum Mode { Practice, Assessment }
@@ -32,7 +32,7 @@ namespace PsychSim.Core
         [SerializeField] TextAsset[] facePresets;
         [SerializeField] uLipSync.Profile lipSyncProfile;
         [SerializeField] AudioSource doctorVoice;
-        [SerializeField] PsychSim.Platform.DesktopRig desktopRig;
+        [SerializeField] Rapport.Platform.DesktopRig desktopRig;
 
         public Phase Phase { get; private set; }
         public Mode Mode { get; private set; }

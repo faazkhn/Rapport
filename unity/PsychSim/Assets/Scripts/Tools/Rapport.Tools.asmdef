@@ -1,7 +1,7 @@
 {
-    "name": "PsychSim.Patient",
-    "rootNamespace": "PsychSim.Patient",
-    "references": ["PsychSim.Data"],
+    "name": "Rapport.Tools",
+    "rootNamespace": "Rapport.Tools",
+    "references": ["Rapport.Data","Rapport.Scoring"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

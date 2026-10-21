@@ -4,13 +4,13 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using PsychSim.Data;
-using PsychSim.Patient;
-using PsychSim.Scoring;
-using PsychSim.Tools;
+using Rapport.Data;
+using Rapport.Patient;
+using Rapport.Scoring;
+using Rapport.Tools;
 using UnityEngine;
 
-namespace PsychSim.Tests
+namespace Rapport.Tests
 {
     public class CoreLogicTests
     {
@@ -325,16 +325,16 @@ namespace PsychSim.Tests
         [Test]
         public void SlowedPauseAndSpeedMatchTheService()
         {
-            Assert.AreEqual(0f, PsychSim.Cues.SpeechTiming.PreReplyDelay(0.05f));
-            Assert.AreEqual(1.2f, PsychSim.Cues.SpeechTiming.PreReplyDelay(1f), 1e-4f);
-            Assert.AreEqual(0.8f, PsychSim.Cues.SpeechTiming.PreReplyDelay(0.5f), 1e-4f);
-            Assert.AreEqual(0.9f, PsychSim.Cues.SpeechTiming.TtsSpeed(1f, 1f), 1e-4f);
+            Assert.AreEqual(0f, Rapport.Cues.SpeechTiming.PreReplyDelay(0.05f));
+            Assert.AreEqual(1.2f, Rapport.Cues.SpeechTiming.PreReplyDelay(1f), 1e-4f);
+            Assert.AreEqual(0.8f, Rapport.Cues.SpeechTiming.PreReplyDelay(0.5f), 1e-4f);
+            Assert.AreEqual(0.9f, Rapport.Cues.SpeechTiming.TtsSpeed(1f, 1f), 1e-4f);
         }
         // ---------- ExamQueue (Phase H) ----------
 
-        static PsychSim.Cues.ExamQueue Queue(out List<string> log)
+        static Rapport.Cues.ExamQueue Queue(out List<string> log)
         {
-            var q = new PsychSim.Cues.ExamQueue();
+            var q = new Rapport.Cues.ExamQueue();
             var l = new List<string>();
             q.Started += s => l.Add("+" + s.id);
             q.Ended += s => l.Add("-" + s.id);
@@ -342,7 +342,7 @@ namespace PsychSim.Tests
             return q;
         }
 
-        static PsychSim.Cues.ExamStep Step(string id) => new PsychSim.Cues.ExamStep { id = id };
+        static Rapport.Cues.ExamStep Step(string id) => new Rapport.Cues.ExamStep { id = id };
 
         [Test]
         public void ExamQueue_HoldsUntilRelax()
@@ -394,7 +394,7 @@ namespace PsychSim.Tests
             q.Enqueue(new[] { Step("open_mouth") });  // arrives while the hands are still rising
             q.Tick(1f, true);
             Assert.IsTrue(q.Holding);
-            q.Tick(1f + PsychSim.Cues.ExamQueue.MinHoldS + 0.01f, true);
+            q.Tick(1f + Rapport.Cues.ExamQueue.MinHoldS + 0.01f, true);
             Assert.AreEqual("open_mouth", q.Current.id);
         }
 
@@ -452,7 +452,7 @@ namespace PsychSim.Tests
             var msg = JObject.Parse(@"{""type"":""exam"",""relax"":true,""actions"":[
                 {""id"":""hold_out_hands"",""slots"":{""which"":""left"",""palms"":""up""},""comply"":true},
                 {""id"":""roll_up_sleeves"",""slots"":{""which"":""both""},""comply"":false}]}");
-            var steps = PsychSim.Cues.ExamQueue.Parse(msg, out bool relax);
+            var steps = Rapport.Cues.ExamQueue.Parse(msg, out bool relax);
             Assert.IsTrue(relax);
             Assert.AreEqual(1, steps.Count);
             Assert.AreEqual(("hold_out_hands", "left", "up"), (steps[0].id, steps[0].which, steps[0].palms));
@@ -462,7 +462,7 @@ namespace PsychSim.Tests
         [Test]
         public void CameraDirector_MapsActionsToCloseUps()
         {
-            System.Func<string, PsychSim.Platform.CameraDirector.Shot> d = PsychSim.Platform.CameraDirector.ShotFor;
+            System.Func<string, Rapport.Platform.CameraDirector.Shot> d = Rapport.Platform.CameraDirector.ShotFor;
             Assert.AreEqual(32f, d("hold_out_hands").fov);
             Assert.AreSame(d("roll_up_sleeves"), d("show_forearms"));
             Assert.AreSame(d("look_at_light"), d("follow_finger"));

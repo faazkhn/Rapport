@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using PsychSim.Data;
-using PsychSim.Patient;
+using Rapport.Data;
+using Rapport.Patient;
 using UnityEngine;
 
-namespace PsychSim.Cues
+namespace Rapport.Cues
 {
     /// <summary>
     /// Live cue intensities (brief 3.5): live = clamp01(base + gains·state/100 + time_gain·minutes) + active event boosts,

@@ -1,7 +1,7 @@
 {
-    "name": "PsychSim.Tools",
-    "rootNamespace": "PsychSim.Tools",
-    "references": ["PsychSim.Data","PsychSim.Scoring"],
+    "name": "Rapport.Logging",
+    "rootNamespace": "Rapport.Logging",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

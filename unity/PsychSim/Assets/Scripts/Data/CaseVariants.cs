@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 
-namespace PsychSim.Data
+namespace Rapport.Data
 {
     /// <summary>
     /// Sex variants (DESIGN 6.1), mirror of the service's brain.load_case: fills {name} {they} {them} {their} (capitalised

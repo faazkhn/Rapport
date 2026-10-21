@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using PsychSim.Data;
-using PsychSim.Scoring;
+using Rapport.Data;
+using Rapport.Scoring;
 
-namespace PsychSim.Tools
+namespace Rapport.Tools
 {
     /// <summary>MSE notes (DESIGN 5.2): tick boxes are cue ids grouped by cues.json mse_section, plus free text per section.</summary>
     public class MsePanel

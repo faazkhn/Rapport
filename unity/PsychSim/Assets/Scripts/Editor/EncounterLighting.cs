@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>
     /// Office lighting (brief §2, DESIGN v0.3): bright, warm, clinical but humane. Called by EncounterSceneBuilder.

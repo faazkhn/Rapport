@@ -3,7 +3,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace PsychSim.Cues
+namespace Rapport.Cues
 {
     /// <summary>
     /// Blends face_&lt;emotion&gt; blendshape presets (art/Animations/Face/*.json, weights 0-100 on CC_Base_Body).

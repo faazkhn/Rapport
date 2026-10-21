@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 
-namespace PsychSim.Data
+namespace Rapport.Data
 {
     /// <summary>
     /// Validates JSON against the subset of JSON Schema 2020-12 our schemas in data/schemas use

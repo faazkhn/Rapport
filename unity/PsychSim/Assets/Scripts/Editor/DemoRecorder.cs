@@ -1,12 +1,12 @@
 using System.IO;
-using PsychSim.UI;
+using Rapport.UI;
 using UnityEditor;
 using UnityEditor.Recorder;
 using UnityEditor.Recorder.Encoder;
 using UnityEditor.Recorder.Input;
 using UnityEngine;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>
     /// Rapport/Record Demo: enters play mode, adds the DemoDirector and records the game view (1920x1080, 60 fps, audio)

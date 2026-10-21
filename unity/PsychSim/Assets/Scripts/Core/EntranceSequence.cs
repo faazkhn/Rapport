@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Linq;
-using PsychSim.Cues;
+using Rapport.Cues;
 using UnityEngine;
 
-namespace PsychSim.Core
+namespace Rapport.Core
 {
     /// <summary>
     /// Enter phase: door opens, patient walks in from PatientSpawn to ChairApproach (walk_in root motion, steered), turns,

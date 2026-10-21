@@ -1,7 +1,7 @@
 {
-    "name": "PsychSim.Tests.PlayMode",
-    "rootNamespace": "PsychSim.Tests",
-    "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "PsychSim.Data", "PsychSim.Patient", "PsychSim.Scoring", "PsychSim.Tools", "PsychSim.Speech", "PsychSim.Core", "PsychSim.UI"],
+    "name": "Rapport.Tests.PlayMode",
+    "rootNamespace": "Rapport.Tests",
+    "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "Rapport.Data", "Rapport.Patient", "Rapport.Scoring", "Rapport.Tools", "Rapport.Speech", "Rapport.Core", "Rapport.UI"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
