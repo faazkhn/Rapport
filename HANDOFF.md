@@ -63,6 +63,14 @@
   - Camera: `Platform/CameraDirector.cs` (Cinemachine runtime, 42° FOV, scroll lean-in, close-ups per action), `docs/camera.md` with stills.
   - Tests: service 118, Unity EditMode 37. App rebuilt.
   - Known: single-hand pose keeps lap-curled fingers; palms-up has no forearm supination; walk direction tuned for this room only (`ExamController.WalkTurnDeg`).
+  - Final review (fresh reviewer) fixed:
+    - interview phrases ("walk me through", "stand up for yourself") no longer trigger stand or walk;
+    - "I'd like to see your hands" works;
+    - "Which hand?" can be answered next turn;
+    - chained commands no longer wait 30 s;
+    - hands come down at once on relax;
+    - the staged demo sends exam messages.
+    Router set is now 385 items. Deferred minors are in the ledger rulings in the final report.
 - Next: Phases B leftovers, C, E, I.
 - Live demo guide: `docs/LIVE_DEMO_GUIDE.md` (run from the Unity editor until the app is rebuilt).
 
