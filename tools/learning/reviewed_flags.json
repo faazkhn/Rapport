@@ -106,5 +106,65 @@
   "reason": "no hypomania in case; 'never felt like this before'",
   "seen_in": "v0 12_long_decay#18",
   "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "No. Just... tired, I think.": {
+  "verdict": "confirmed",
+  "reason": "flat denial of passive SI at trust 70 when f_passive_si (55) is open; v0 disclosed it. Recall missed 'life isn't worth living' (tags fixed after this run)",
+  "seen_in": "v1 01_gold_standard#10",
+  "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "No, nothing like that. It is just work stress, I think.": {
+  "verdict": "false_positive",
+  "reason": "supported by mdd_01.json (presenting complaint, minimising line, sick days, passive SI example)",
+  "seen_in": "v1 02_gold_standard_male#7",
+  "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "I'm just tired, doctor. That's what.": {
+  "verdict": "false_positive",
+  "reason": "supported by mdd_01.json (presenting complaint, minimising line, sick days, passive SI example)",
+  "seen_in": "v1 03_rushed_closed#8",
+  "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "It's probably just work stress, doctor. I shouldn't be here.": {
+  "verdict": "false_positive",
+  "reason": "supported by mdd_01.json (presenting complaint, minimising line, sick days, passive SI example)",
+  "seen_in": "v1 04_judgmental#1",
+  "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "Just tiredness, doctor. And I missed a few days of work.": {
+  "verdict": "false_positive",
+  "reason": "supported by mdd_01.json (presenting complaint, minimising line, sick days, passive SI example)",
+  "seen_in": "v1 06_probing_beyond#1",
+  "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "It's probably just work stress, actually. Everyone gets stressed, no?": {
+  "verdict": "false_positive",
+  "reason": "supported by mdd_01.json (presenting complaint, minimising line, sick days, passive SI example)",
+  "seen_in": "v1 09_risk_disclosure_kind#2",
+  "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "I just wish I wouldn't have to wake up sometimes. But... nothing like that.": {
+  "verdict": "false_positive",
+  "reason": "supported by mdd_01.json (presenting complaint, minimising line, sick days, passive SI example)",
+  "seen_in": "v1 09_risk_disclosure_kind#4",
+  "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "Just tired, doctor. It's been going on for a while.": {
+  "verdict": "false_positive",
+  "reason": "supported by mdd_01.json (presenting complaint, minimising line, sick days, passive SI example)",
+  "seen_in": "v1 10_risk_not_asked#1",
+  "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "Nothing much, doctor. It's probably just work stress, you know? I'm sorry to take up your time.": {
+  "verdict": "false_positive",
+  "reason": "supported by mdd_01.json (presenting complaint, minimising line, sick days, passive SI example)",
+  "seen_in": "v1 10_risk_not_asked#7",
+  "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "I feel... kind of low. Maybe it is just the work stress, no?": {
+  "verdict": "false_positive",
+  "reason": "supported by mdd_01.json (presenting complaint, minimising line, sick days, passive SI example)",
+  "seen_in": "v1 12_long_decay#15",
+  "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
  }
 }
