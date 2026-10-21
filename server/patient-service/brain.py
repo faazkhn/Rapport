@@ -296,6 +296,7 @@ def build_system_prompt(case: dict) -> str:
         *([f"With people {name} is: {case['attachment_style']}"] if case.get("attachment_style") else []),
         f"HOW {name.upper()} PRESENTS (mental state; show it, never describe it in these terms):\n" + _behavior_text(case["behavior"]),
         REALISM_RULES,
+        *(["PRINCIPLES FROM FACULTY (follow them):\n" + "\n".join(f"- {p}" for p in case["principles"])] if case.get("principles") else []),
         f"WORDS {name.upper()} NEVER SAYS: {', '.join(case['banned_words'])}.",
         HARD_RULES,
         _menu(),

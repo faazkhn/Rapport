@@ -1,5 +1,7 @@
 """Phase E learning: versions, gate, experience library, principles. No models loaded."""
+import json
 import shutil
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -97,6 +99,49 @@ def test_retrieve_skips_unjudged(monkeypatch):
     monkeypatch.setattr(learning, "_embedder", _fake_embed)
     learning.add_experience("mdd_01", _entry("How do you sleep?", "Badly.", judged=False), consent=False)
     assert learning.retrieve("mdd_01", "How do you sleep?", "practice", 2) == []
+
+
+@pytest.fixture
+def data_copy(monkeypatch, tmp_path):
+    shutil.copytree(brain.DATA_DIR, tmp_path / "data")
+    monkeypatch.setattr(brain, "DATA_DIR", tmp_path / "data")
+    brain.load_json.cache_clear(), brain._resolved.cache_clear()
+    yield tmp_path / "data"
+    brain.load_json.cache_clear(), brain._resolved.cache_clear()
+
+
+def test_add_principle_only_touches_principles(data_copy):
+    path = data_copy / "cases" / "mdd_01.json"
+    before = json.loads(path.read_text())
+    s = learning.add_principle("mdd_01", "Answer sleep questions with one concrete detail.", "Dr A", today="2026-10-21")
+    assert s == "Answer sleep questions with one concrete detail. (faculty: Dr A, 2026-10-21)"
+    after = json.loads(path.read_text())
+    assert after["principles"] == before["principles"] + [s]
+    assert {k: v for k, v in after.items() if k != "principles"} == {k: v for k, v in before.items() if k != "principles"}
+    assert s in brain.build_system_prompt(brain.load_case("mdd_01"))
+
+
+class _Client:
+    def __init__(self, content):
+        self.calls = []
+        self.chat = SimpleNamespace(completions=SimpleNamespace(create=self._create))
+        self.content = content
+
+    def _create(self, **kw):
+        self.calls.append(kw)
+        return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=self.content))])
+
+
+def test_distill_principle_fake_client():
+    c = _Client('{"principle": "Keep answers about work short and flat."}')
+    p = learning.distill_principle("How is work?", "Work is a wonderful journey!", "rewrite", "It's... a lot.", None, c)
+    assert p == "Keep answers about work short and flat."
+    sent = json.dumps(c.calls[0]["messages"])
+    assert "It's... a lot." in sent and "never" in sent.lower()
+
+
+def test_prompt_without_principles_has_no_header():
+    assert "PRINCIPLES FROM FACULTY" not in brain.build_system_prompt(brain.load_case("mdd_01"))
 
 
 def test_examples_block():

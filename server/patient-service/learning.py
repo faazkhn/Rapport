@@ -213,6 +213,39 @@ def examples_block(examples: list[dict]) -> str:
             + "\n".join(f"- Doctor: {e['doctor']} / Patient: {e['utterance']}" for e in examples))
 
 
+# ---------- faculty principles (L2) ----------
+
+PRINCIPLE_SYSTEM = """A psychiatry teacher reviewed one line spoken by a simulated patient. Turn the feedback into ONE short, general principle
+(at most 30 words) about HOW this patient should talk: tone, length, wording, hesitation, what to hold back. Never add clinical facts,
+symptoms, history, diagnoses or treatment; never change what the patient knows. Answer with the JSON only."""
+PRINCIPLE_SCHEMA = {"type": "object", "additionalProperties": False, "required": ["principle"], "properties": {"principle": {"type": "string"}}}
+
+
+def distill_principle(doctor: str, utterance: str, rating: str, rewrite: str | None, comment: str | None, client) -> str:
+    """Roleplay-doh: kudos, critique or a rewrite → one principle. One LLM call, slot 1 (never the voice slot)."""
+    fb = {"up": "The teacher liked this line (thumbs up).", "down": "The teacher disliked this line (thumbs down).",
+          "rewrite": f"The teacher rewrote it as: {rewrite}"}.get(rating, "")
+    user = f"Doctor said: {doctor}\nPatient said: {utterance}\n{fb}" + (f"\nTeacher's comment: {comment}" if comment else "")
+    r = client.chat.completions.create(
+        model="local", temperature=0, max_tokens=120, messages=[{"role": "system", "content": PRINCIPLE_SYSTEM}, {"role": "user", "content": user}],
+        response_format={"type": "json_schema", "json_schema": {"name": "principle", "strict": True, "schema": PRINCIPLE_SCHEMA}},
+        extra_body={"id_slot": 1, "chat_template_kwargs": {"enable_thinking": False}})
+    return " ".join(json.loads(r.choices[0].message.content)["principle"].split()[:40])
+
+
+def add_principle(case_id: str, text: str, author: str, today: str | None = None) -> str:
+    """Append to the case's `principles` (strings, as Unity reads them); author and date travel inside the string."""
+    import brain
+    s = f"{text.strip()} (faculty: {author.strip()}, {today or time.strftime('%Y-%m-%d')})"
+    brain.load_raw_case(case_id)  # validates the id
+    path = brain.DATA_DIR / "cases" / f"{case_id}.json"
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    raw["principles"] = raw.get("principles", []) + [s]
+    path.write_text(json.dumps(raw, indent=1, ensure_ascii=False), encoding="utf-8")  # the file's own formatting
+    brain.load_json.cache_clear(), brain._resolved.cache_clear()
+    return s
+
+
 def main(argv: list[str]) -> int:
     if argv[:1] == ["list"]:
         cur = current()["id"]
