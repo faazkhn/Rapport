@@ -433,5 +433,20 @@ namespace PsychSim.Tests
             Assert.AreEqual(1, steps.Count);
             Assert.AreEqual(("hold_out_hands", "left", "up"), (steps[0].id, steps[0].which, steps[0].palms));
         }
+        // ---------- CameraDirector (Phase H) ----------
+
+        [Test]
+        public void CameraDirector_MapsActionsToCloseUps()
+        {
+            System.Func<string, PsychSim.Platform.CameraDirector.Shot> d = PsychSim.Platform.CameraDirector.ShotFor;
+            Assert.AreEqual(32f, d("hold_out_hands").fov);
+            Assert.AreSame(d("roll_up_sleeves"), d("show_forearms"));
+            Assert.AreSame(d("look_at_light"), d("follow_finger"));
+            Assert.AreSame(d("open_mouth"), d("stick_out_tongue"));
+            Assert.AreSame(d("stand_up"), d("walk_few_steps"));
+            Assert.AreEqual(0f, d("walk_few_steps").distance);  // full body from the doctor's seat: the room is too small to back off
+            Assert.IsNull(d("juggle"));
+            Assert.IsNull(d(null));
+        }
     }
 }

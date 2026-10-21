@@ -61,6 +61,7 @@ namespace PsychSim.Core
         public bool Busy => Voice != null && (Voice.State == VoiceState.Thinking || Voice.State == VoiceState.Speaking);
         public Animator Patient { get; private set; }
         public ExamController Exam { get; private set; }
+        Platform.CameraDirector cameraDirector;
         public CueDriver Cues { get; private set; }
         public long LastLatencyMs { get; private set; } = -1;
         [field: NonSerialized] public string ServiceError { get; private set; }
@@ -87,6 +88,11 @@ namespace PsychSim.Core
             Disposition = new DispositionSelector(Data.dispositions);
             http = new PatientServiceClient(settings);
             room = Room.Find();
+            if (desktopRig)
+            {
+                cameraDirector = desktopRig.gameObject.AddComponent<Platform.CameraDirector>();
+                cameraDirector.Setup(desktopRig.GetComponent<Camera>(), desktopRig);
+            }
         }
 
         void Start() => SetPhase(Phase.Start);
@@ -180,8 +186,8 @@ namespace PsychSim.Core
             Cues.CueChanged += (id, v) => Log.Write("cue", new { id, intensity = Math.Round(v, 2) });
             Exam = go.AddComponent<ExamController>();
             Exam.Setup(Patient, Cues, gaze, face, room.DoctorAnchor);
-            Exam.ExamStarted += id => Log.Write("exam_started", new { id });
-            Exam.ExamEnded += id => Log.Write("exam_ended", new { id });
+            Exam.ExamStarted += id => { Log.Write("exam_started", new { id }); if (cameraDirector) cameraDirector.OnExamStarted(id, Patient); };
+            Exam.ExamEnded += id => { Log.Write("exam_ended", new { id }); if (cameraDirector) cameraDirector.OnExamEnded(id); };
         }
 
         void Update()
