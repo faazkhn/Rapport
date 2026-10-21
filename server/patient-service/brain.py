@@ -302,7 +302,7 @@ def build_system_prompt(case: dict) -> str:
         "Kindness, listening and open questions raise trust and engagement; judgment, rushing or insults lower them and raise distress or agitation.\n"
         f"- event_cues: optional short physical reactions to this line, from: {cue_ids}. intensity 0-1, duration_s 1-8. Usually empty.\n"
         "- revealed_fact_ids: ids of listed facts that this utterance actually reveals. Empty if none.\n"
-        "- exam_action: if the doctor asks the patient to do one of the allowed exam actions and the patient does it, its id; otherwise null.",
+        "- exam_action: always null (the clinic system decides exam actions).",
     ])
 
 
@@ -332,19 +332,15 @@ def style_reminder(case: dict, state: dict) -> str:
 
 
 def facts_block(case: dict, state: dict) -> str:
-    """Unlocked facts + exam actions. Changes only when trust crosses a threshold, so it sits at the start of the conversation
+    """Unlocked facts + the exam-request rule. Changes only when trust crosses a threshold, so it sits at the start of the conversation
     (cached by llama-server) instead of in the per-turn tail. Locked facts are never in it."""
     facts = allowed_facts(case, state["trust"])
-    acts = allowed_actions(case, state["trust"])
-    refusals = [f"- {a}: hesitates or refuses" + (f", e.g. {r['refusal_line']!r}" if r.get("refusal_line") else "")
-                for a, r in case.get("exam_actions", {}).items() if a not in acts]
     return "\n\n".join([
         "WHAT THE PATIENT CAN SHARE NOW (keep the meaning, use the patient's own words):\n"
         + "\n".join(_fact_line(f) for f in facts)
         + "\nThere may be other things the patient is not ready to talk about yet: be evasive and vague about them; do not deny and do not make anything up.",
-        "EXAM ACTIONS the patient does when the doctor asks (maybe a little reluctantly, but does it, with a short line like 'Like this?'), "
-        "setting exam_action to the id: " + (", ".join(acts) or "none")
-        + ("\nIf asked for these, the patient does not do them (exam_action null):\n" + "\n".join(refusals) if refusals else ""),
+        "EXAM REQUESTS: when the doctor asks for a physical exam action, the turn notes say whether the patient does it. "
+        "Acknowledge it briefly in your own words ('Like this?') or refuse as the notes say. exam_action is always null.",
     ])
 
 
@@ -368,12 +364,14 @@ def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_mi
     return "\n\n".join(parts)
 
 
-def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None) -> list[dict]:
+def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None, exam=None) -> list[dict]:
     """[system: fixed per case+variant] [first user msg: facts block + first doctor line] [history verbatim] [last doctor line + tail]."""
     out = [{"role": "system", "content": build_system_prompt(case)}]
     for m in messages[-HISTORY_TURNS:]:
         out.append({"role": "user" if m["role"] == "doctor" else "assistant", "content": m["text"]})
     ctx = turn_context(case, state, summary, elapsed_min, recalled, recent_patient_lines(messages))
+    if exam and (line := exam_note(case, exam)):
+        ctx += "\n" + line
     if out[-1]["role"] == "user":
         out[-1] = {"role": "user", "content": f"Doctor: {out[-1]['content']}\n\n---\n{ctx}"}
     else:
@@ -394,6 +392,47 @@ def intent_messages(doctor_line: str, last_patient_line: str | None = None) -> l
                          "from this list only (empty list if none):\n" + "\n".join(f"- {i['id']}: {i['description']}" for i in intents()))
     ctx = f"Patient's previous line: {last_patient_line}\n" if last_patient_line else ""
     return [{"role": "system", "content": INTENT_SYSTEM}, {"role": "user", "content": f"{ctx}Doctor's line to label: {doctor_line}"}]
+
+
+# ---------- exam actions (decided by exam_router + this gate, never by the LLM) ----------
+
+def exam_gate(case: dict, state: dict, actions: list[dict]) -> list[dict]:
+    """Each routed action plus comply, and reason (trust | agitation | unknown) when the patient refuses."""
+    limit = load_json("state_rules.json").get("exam_refuse_agitation", 70)
+    out = []
+    for a in actions:
+        rule = case.get("exam_actions", {}).get(a["id"])
+        reason = ("unknown" if rule is None else "trust" if rule["trust_min"] > state["trust"]
+                  else "agitation" if state.get("agitation", 0) >= limit else None)
+        out.append({**a, "comply": reason is None, **({"reason": reason} if reason else {})})
+    return out
+
+
+def exam_for_turn(case: dict, state: dict, doctor_text: str) -> dict | None:
+    """Routed and gated exam request for this doctor line: {actions, ask_back, relax}, or None when there is none."""
+    import exam_router
+    r = exam_router.route(doctor_text)
+    if not (r["actions"] or r["ask_back"] or r["relax"]):
+        return None
+    return {**r, "actions": exam_gate(case, state, r["actions"])}
+
+
+def exam_note(case: dict, exam: dict) -> str:
+    """The turn-note line that lets the Digital Twin acknowledge, refuse or ask back in the patient's own words."""
+    if exam.get("ask_back"):
+        return f"EXAM: the doctor's request was unclear; ask them: \"{exam['ask_back']}\""
+    lines = []
+    if done := [a["id"] for a in exam["actions"] if a["comply"]]:
+        lines.append(f"EXAM: the doctor asked you to: {', '.join(done)}. You are doing it now: acknowledge briefly in your own words.")
+    for a in exam["actions"]:
+        if not a["comply"]:
+            ex = case.get("exam_actions", {}).get(a["id"], {}).get("refusal_line")
+            lines.append(f"EXAM: you will not do {a['id']}: refuse in your own words" + (f", e.g. {ex!r}." if ex else "."))
+    return "\n".join(lines)
+
+
+def first_complied(exam: dict | None) -> str | None:
+    return next((a["id"] for a in exam["actions"] if a["comply"]), None) if exam else None
 
 
 # ---------- guard ----------
@@ -558,10 +597,11 @@ def generate_reply(req: dict, client=None, tagger=None) -> dict:
     state = req["state"]
     model = req.get("model") or default_model()
     allowed = [f["id"] for f in allowed_facts(case, state["trust"])]
-    schema = build_reply_schema(case, allowed, allowed_actions(case, state["trust"]))
+    schema = build_reply_schema(case, allowed, [])
     doctor_now = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
     recalled = twin.recall(case, state["trust"], doctor_now)
-    kwargs = llm_kwargs(model, build_messages(case, state, req["messages"], req.get("summary"), req.get("elapsed_min"), recalled),
+    exam = exam_for_turn(case, state, doctor_now)
+    kwargs = llm_kwargs(model, build_messages(case, state, req["messages"], req.get("summary"), req.get("elapsed_min"), recalled, exam),
                         schema, "patient_reply", 0)
     if req.get("reasoning_effort"):
         kwargs["reasoning_effort"] = req["reasoning_effort"]
@@ -593,5 +633,6 @@ def generate_reply(req: dict, client=None, tagger=None) -> dict:
         if not out["utterance"].strip():  # every sentence had a banned word
             out["utterance"] = random.choice(case["fallback_lines"])
             meta["fallback"] = True
+    out["exam_action"], out["exam"] = first_complied(exam), exam
     out["meta"] = meta
     return out

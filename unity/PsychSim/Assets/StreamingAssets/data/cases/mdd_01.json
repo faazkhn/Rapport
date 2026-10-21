@@ -131,11 +131,33 @@
   "hold_out_hands": {
    "trust_min": 10
   },
+  "look_at_light": {
+   "trust_min": 10
+  },
+  "follow_finger": {
+   "trust_min": 10
+  },
+  "open_mouth": {
+   "trust_min": 15
+  },
+  "stick_out_tongue": {
+   "trust_min": 15
+  },
+  "show_forearms": {
+   "trust_min": 30,
+   "refusal_line": "Why? There's nothing there... do I have to?"
+  },
   "roll_up_sleeves": {
    "trust_min": 30,
    "refusal_line": "Why? There's nothing there... do I have to?"
   },
-  "look_at_light": {
+  "stand_up": {
+   "trust_min": 5
+  },
+  "sit_down": {
+   "trust_min": 0
+  },
+  "walk_few_steps": {
    "trust_min": 10
   }
  },

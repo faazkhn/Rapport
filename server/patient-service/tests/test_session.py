@@ -398,3 +398,53 @@ def test_backend_failure_mid_sentence_drops_rest_and_switches():
     s, ev, audio = _turn_with(b)
     assert s.tts is s.fallback and b.n == 1
     assert len([m for _, m in ev if m["type"] == "sentence"]) == 2 and len(audio) == 2
+
+
+def _exam_turn(text, **state):
+    llm = FakeLLM()
+
+    async def go():
+        s, ev, _ = make(llm)
+        await s.on_json({"type": "start", "case_id": "mdd_01", "state": {"trust": 40, "agitation": 10, **state}})
+        await run_text(s, text)
+        return ev
+    ev = asyncio.run(go())
+    patient = [c for c in llm.calls if c.get("response_format") and c["response_format"]["json_schema"]["name"] == "patient_reply"]
+    return ev, patient[0]["messages"][-1]["content"]
+
+
+def test_exam_message_precedes_thinking():
+    ev, _ = _exam_turn("Hold out your hands")
+    t = types(ev)
+    assert t.index("transcript") < t.index("exam") < t.index("thinking")
+    exam = next(m for _, m in ev if m["type"] == "exam")
+    assert exam["actions"] == [{"id": "hold_out_hands", "slots": {"which": "both", "palms": "down"}, "comply": True}] and not exam["relax"]
+    assert next(m for _, m in ev if m["type"] == "reply")["reply"]["exam_action"] == "hold_out_hands"
+
+
+def test_exam_refused_low_trust():
+    ev, tail = _exam_turn("Roll up your sleeves", trust=5)
+    exam = next(m for _, m in ev if m["type"] == "exam")
+    assert exam["actions"][0]["comply"] is False and exam["actions"][0]["reason"] == "trust"
+    assert "will not do roll_up_sleeves" in tail
+
+
+def test_exam_refused_agitated():
+    ev, _ = _exam_turn("Hold out your hands", agitation=80)
+    assert next(m for _, m in ev if m["type"] == "exam")["actions"][0]["reason"] == "agitation"
+
+
+def test_ask_back_goes_to_twin():
+    ev, tail = _exam_turn("Hold out your hand")
+    assert "exam" not in types(ev) and "Which hand?" in tail
+
+
+def test_relax_message():
+    ev, _ = _exam_turn("You can relax")
+    assert next(m for _, m in ev if m["type"] == "exam")["relax"] is True
+
+
+def test_llm_exam_action_ignored():
+    ev, _ = _exam_turn("How do you sleep?")
+    assert "exam" not in types(ev)
+    assert next(m for _, m in ev if m["type"] == "reply")["reply"]["exam_action"] is None

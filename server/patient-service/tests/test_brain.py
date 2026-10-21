@@ -30,7 +30,7 @@ def test_schema_enums_order_and_strictness():
     assert p["revealed_fact_ids"]["items"]["enum"] == allowed and SI not in allowed
     assert set(p["event_cues"]["items"]["properties"]["id"]["enum"]) == {c["id"] for c in CASE["cues"]}
     assert p["emotion"]["enum"] == brain.EMOTIONS
-    assert p["exam_action"]["anyOf"][1]["enum"] == ["hold_out_hands", "roll_up_sleeves", "look_at_light"]
+    assert p["exam_action"]["anyOf"][1]["enum"] == list(CASE["exam_actions"])
     assert brain.build_reply_schema(CASE, allowed, [])["properties"]["exam_action"] == {"type": "null"}
     assert "ask_suicidal_ideation" in brain.build_intent_schema()["properties"]["doctor_intents"]["items"]["enum"]
     # the published contract has the same order and the merged fields
@@ -76,14 +76,12 @@ def test_style_reminder_is_transient():
 
 
 def test_exam_actions_follow_trust():
-    assert brain.allowed_actions(CASE, 20) == ["hold_out_hands", "look_at_light"]
-    ctx = brain.facts_block(CASE, {**LOW, "trust": 20})
-    assert "roll_up_sleeves: hesitates or refuses" in ctx and "do I have to?" in ctx
+    assert brain.allowed_actions(CASE, 20) == [a for a in CASE["exam_actions"] if a not in ("show_forearms", "roll_up_sleeves")]
     r, d = brain.guard(_reply(exam_action="roll_up_sleeves"), CASE, trust=20)
     assert r["exam_action"] is None and d == [{"kind": "exam_action", "id": "roll_up_sleeves", "reason": "trust"}]
     r, d = brain.guard(_reply(exam_action="roll_up_sleeves"), CASE, trust=40)
     assert r["exam_action"] == "roll_up_sleeves" and d == []
-    r, d = brain.guard(_reply(exam_action="stand_up"), CASE, trust=90)  # not listed in this case
+    r, d = brain.guard(_reply(exam_action="juggle"), CASE, trust=90)  # not listed in this case
     assert r["exam_action"] is None and d[0]["reason"] == "unknown"
 
 
@@ -243,3 +241,32 @@ def test_recent_lines_in_context():
     assert "DON'T REPEAT THESE PHRASES" in out[-1]["content"] and "Not myself, really." in out[-1]["content"]
     assert "DON'T REPEAT" not in out[0]["content"]
     assert brain.recent_patient_lines(msgs, 1) == ["Not myself, really."]
+
+
+def test_exam_gate_trust_agitation_unknown():
+    acts = [{"id": "roll_up_sleeves", "slots": {"which": "both"}}, {"id": "hold_out_hands", "slots": {}}, {"id": "juggle", "slots": {}}]
+    g = brain.exam_gate(CASE, {**LOW, "trust": 20, "agitation": 10}, acts)
+    assert [(a["id"], a["comply"], a.get("reason")) for a in g] == [
+        ("roll_up_sleeves", False, "trust"), ("hold_out_hands", True, None), ("juggle", False, "unknown")]
+    g = brain.exam_gate(CASE, {**LOW, "trust": 90, "agitation": 80}, acts[1:2])
+    assert g[0]["comply"] is False and g[0]["reason"] == "agitation"
+
+
+def test_every_router_action_is_in_the_case():
+    import exam_router
+    ids = {a for a, _ in exam_router.load()["patterns"]} - {"relax"}
+    assert ids <= set(CASE["exam_actions"])
+
+
+def test_generate_reply_routes_exam_and_ignores_llm_choice():
+    good = _reply(exam_action="roll_up_sleeves")
+    del good["doctor_intents"]
+    llm = FakeClient([json.dumps(good)])
+    out = brain.generate_reply({"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "Kindly hold out your hands"}],
+                                "state": {**LOW, "trust": 40}}, client=llm, tagger=lambda: [])
+    assert out["exam_action"] == "hold_out_hands" and out["exam"]["actions"][0]["comply"] is True
+    assert "You are doing it now" in llm.calls[0]["messages"][-1]["content"]
+    llm = FakeClient([json.dumps(good)])
+    out = brain.generate_reply({"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "How is your sleep?"}],
+                                "state": {**LOW, "trust": 40}}, client=llm, tagger=lambda: [])
+    assert out["exam_action"] is None and out["exam"] is None

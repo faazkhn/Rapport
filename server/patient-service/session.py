@@ -300,12 +300,15 @@ class Session:
         prev = next((m["text"] for m in reversed(self.messages[:-1]) if m["role"] == "patient"), None)
         model = brain.default_model()
         await self.twin({"event": "doctor_end", "turn": self.turn_no})
+        exam = brain.exam_for_turn(case, state, text)
+        if exam and (exam["actions"] or exam["relax"]):  # before the LLM, so the body moves while the patient thinks
+            await self.send_json({"type": "exam", "turn": self.turn_no, "actions": exam["actions"], "relax": exam["relax"]})
         await self.send_json({"type": "thinking"})
 
         recalled = twin.recall(case, state["trust"], text)
         allowed = [f["id"] for f in brain.allowed_facts(case, state["trust"])]
-        schema = brain.build_reply_schema(case, allowed, brain.allowed_actions(case, state["trust"]))
-        kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed, recalled=recalled),
+        schema = brain.build_reply_schema(case, allowed, [])
+        kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed, recalled=recalled, exam=exam),
                               schema, "patient_reply", 0)
         q: asyncio.Queue = asyncio.Queue()
         t_llm = time.monotonic()
@@ -398,6 +401,7 @@ class Session:
             reply = {**brain.fallback_reply(case), "doctor_intents": tagged}
             if not spoken and not cancel.is_set():
                 await speak(reply["utterance"])
+        reply["exam_action"] = brain.first_complied(exam)
         reply["utterance"] = " ".join(spoken) if spoken else reply["utterance"]
         if cancel.is_set():
             meta["barge_in"] = True
