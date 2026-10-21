@@ -1,0 +1,10 @@
+{
+  "id": "v0",
+  "parent": null,
+  "created": "2026-10-21",
+  "realism_rules": null,
+  "examples_k": 0,
+  "status": "live",
+  "notes": "Baseline: the hand-written realism rules (brain.REALISM_RULES), no examples.",
+  "scores": {}
+}
