@@ -20,6 +20,7 @@ namespace Rapport.UI
         public static event Action Finished;
         public static string Variant = "female";
         public static string ScriptPath = "demo/script.json";   // demo/staged/script.json for the staged concept preview
+        public static int? Seed;   // a seeded patient (service brain.load_case); null = the authored one
 
         [Serializable] class Turn { public string doctor, shot; }
         [Serializable] class Rx { public string drug, route, frequency, duration, reason; }
@@ -60,7 +61,8 @@ namespace Rapport.UI
             yield return new WaitForSeconds(cut ? 0.5f : 1.3f);
             ui.SelectVariant(arjun ? "male" : "female");
             yield return new WaitForSeconds(cut ? 1.0f : 1.5f);
-            em.Configure(script.case_id, Variant, Mode.Practice);
+            if (Seed is int seed) yield return Wait(em.ConfigureSeeded(script.case_id, Variant, Mode.Practice, seed));
+            else em.Configure(script.case_id, Variant, Mode.Practice);
             yield return new WaitForSeconds(cut ? 1.0f : 3.5f);      // prebrief
 
             // shot 3: establishing; shot 4: door opens, the patient walks in and sits

@@ -26,7 +26,7 @@ namespace Rapport.Editor
         [MenuItem("Rapport/Record Demo (Arjun cut)")]
         static void RecordArjun() { SessionState.SetString(VariantFlag, "male"); SessionState.SetBool(RecordFlag, true); Enter(); }
 
-        const string VariantFlag = "PsychSim.Demo.Variant", StagedFlag = "PsychSim.Demo.Staged", ScriptFlag = "PsychSim.Demo.Script";
+        const string VariantFlag = "PsychSim.Demo.Variant", StagedFlag = "PsychSim.Demo.Staged", ScriptFlag = "PsychSim.Demo.Script", SeedFlag = "PsychSim.Demo.Seed";
 
         /// <summary>Staged concept preview: needs the service started with RAPPORT_STAGED=demo/staged/script.json.</summary>
         [MenuItem("Rapport/Record Staged Demo")]
@@ -41,6 +41,10 @@ namespace Rapport.Editor
 
         [MenuItem("Rapport/Play Demo v3 (no recording)")]
         static void PlayV3() { SessionState.SetString(ScriptFlag, "demo/v3/script.json"); SessionState.SetString(VariantFlag, "male"); SessionState.SetBool(PlayFlag, true); Enter(); }
+
+        /// <summary>Demo v3 script with a seeded Arjun whose conversation style is upset (seed 2; see brain/styles.json).</summary>
+        [MenuItem("Rapport/Record Demo v3 (Arjun, upset, seed 2)")]
+        static void RecordV3Upset() { SessionState.SetInt(SeedFlag, 2); RecordV3(); }
 
         [MenuItem("Rapport/Play Demo (no recording)")]
         static void Play() { SessionState.SetString(VariantFlag, "female"); SessionState.SetBool(PlayFlag, true); Enter(); }
@@ -62,11 +66,14 @@ namespace Rapport.Editor
             DemoDirector.Variant = SessionState.GetString(VariantFlag, "female");
             bool staged = SessionState.GetBool(StagedFlag, false);
             SessionState.SetBool(StagedFlag, false);
+            int seed = SessionState.GetInt(SeedFlag, -1);
+            SessionState.EraseInt(SeedFlag);
+            DemoDirector.Seed = seed >= 0 ? seed : null;
             var script = SessionState.GetString(ScriptFlag, "");
             SessionState.EraseString(ScriptFlag);
             DemoDirector.ScriptPath = staged ? "demo/staged/script.json" : script != "" ? script : "demo/script.json";
             new GameObject("DemoDirector").AddComponent<DemoDirector>();
-            if (record) StartRecording(staged ? "Rapport_staged" : script != "" ? "Rapport_take_v3" : "Rapport_take");
+            if (record) StartRecording(staged ? "Rapport_staged" : script != "" ? "Rapport_take_v3" + (seed >= 0 ? "_seed" + seed : "") : "Rapport_take");
             DemoDirector.Finished -= OnFinished;
             DemoDirector.Finished += OnFinished;
         }
