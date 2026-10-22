@@ -117,6 +117,62 @@ The new intents (`explain_rights_status`, `assess_capacity`, `offer_choice`, `ex
 
 `tools/ward/ws_text_session.py <case> <script>` plays a typed doctor script over the live `/session` and prints each reply with state, events and body actions. Two scripts are included: `tools/ward/coercive_doctor.txt` (what not to do) and `tools/ward/good_doctor.txt`.
 
-## Measured
+## Measured (2026-10-22, Gemma 4 E4B, local)
 
-See the results section below.
+### Are the styles distinguishable, and do they stay safe?
+
+`run_eval.py --style <id>` ran 5 held-out conversations × 2 runs per style (gold standard ×2, rushed, judgmental, risk disclosure; 80 turns each), scored by `tools/llm_eval/style_report.py`. The markers are lexical proxies, not a judge.
+
+| Style | Mean words | Short replies (≤ 5 words) | Apologises / agrees | Pushes back | Final trust (mean) | SI disclosed when asked kindly | Locked facts leaked |
+|---|---|---|---|---|---|---|---|
+| plain | 9.8 | 9% | 0% | 0% | 50 | 2/2 | 0 |
+| pleasing | 9.7 | 10% | 8% | 0% | 55 | 2/2 | 0 |
+| reserved | 6.0 | 55% | 2% | 0% | 36 | 2/2 | 0 |
+| upset (first version) | 9.3 | 14% | 1% | 1% | 32 | 2/2 | 0 |
+| upset (style re-stated each turn) | 8.8 | 11% | 2% | 9% | 25 | 2/2 | 0 |
+
+- **Distinguishable:**
+  - **Reserved** clearly stands out: replies are 40% shorter, and more than half are five words or fewer.
+  - **Pleasing** stands out modestly: "Yes, doctor", "Okay, doctor, I understand", and trust starts and stays higher.
+  - **Upset** was barely audible at first, with 1% push-back. The model softens hostility, as the research predicted for small aligned models. Re-stating the style every turn, with an example and the behaviours it leans towards, raised push-back to 9% and lowered trust. It still reads as guarded and deflecting rather than angry, and a faculty listening test should decide whether that is enough.
+- **Safe across all four styles:** suicidal ideation was disclosed when asked kindly, no locked fact was leaked, and there was 1 fallback in 400 turns. That fallback was one reserved conversation slowed by a concurrent live session.
+- **Not done:** a judge-based check that replies stay consistent with the persona and with each other, and the faculty blind style test (R10).
+
+### Ward station, live (`tools/ward/ws_text_session.py`, `ward_01`)
+
+The same patient was played against two typed doctors:
+
+| Doctor | Trust | Agitation | What happened |
+|---|---|---|---|
+| Coercive ("You can't go home", "we will stop you", "calm down") | 25 → 0 | 45 → 92 | Asked to leave, then stood up ("I am not a prisoner here"); suicidal thoughts stayed hidden |
+| Good (explore reasons, empathy, honest rights, choices) | 25 → 70 | 45 → 25 | "A quieter place to sleep, and maybe a call home would help" |
+
+Bugs found by these runs and fixed (with tests):
+
+- **The persona coloured the model's own judgement.** The upset patient reacted "wary" to everything, and the trust and agitation multipliers amplified it, so even a good doctor drove trust from 25 to 3. A turn with a kind move can no longer lower trust or raise agitation. Styles soften past `softens_at_trust`.
+- **The patient read a stage direction aloud** ("Someone shouts in the corridor. Ananya Rao flinches…"). Event text is now marked as a stage direction, and any sentence that copies it or names the patient in full is dropped before speech.
+- **Draft numbers retuned:**
+  - validation lowers agitation (NICE NG10);
+  - `ward_01` no longer drifts upwards in agitation;
+  - upset's loss and agitation multipliers are softer;
+  - sitting back down happens below agitation 55.
+
+### Ward demo (`demo/Rapport_ward_demo.mp4`, 2:47, one take, not in git)
+
+The take is recorded with **Rapport/Record Ward Demo (Ananya)** from `demo/ward/script.json`:
+
+1. The doctor starts badly ("rules are rules").
+2. Ananya stands up: "I am not a prisoner here."
+3. The doctor apologises and de-escalates.
+4. She sits back down at turn 8 and ends with "I think I can just... rest here for now".
+
+Over the take, trust went 22 → 12 → 51 and agitation 57 → 67 → 29. Getting there took four takes. The earlier three showed the bugs above, and that a three-sentence doctor line can be split into two turns by end-of-turn detection, so demo lines are single sentences.
+
+## Open
+
+- Faculty review of everything here: the slot lists, the style numbers, both ward cases and their teaching points (the MHCA sections in particular).
+- The hostile end of the styles (R6): Gemma still softens. Options are a guard that swaps out over-apologetic lines when code state says hostile, or authored example lines per case.
+- Attachment and defence styles as trigger rules (R5) are not built.
+- Typed `/reply` does not run events.
+- Unity does not show ward events beyond the body action. The patient's line carries the event.
+- `ward_02` reuses Ananya's and Arjun's bodies and voice seeds with new voice descriptions; it would need its own avatars.

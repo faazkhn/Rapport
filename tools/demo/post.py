@@ -53,6 +53,7 @@ def main():
     ap.add_argument("--trim-start", type=float, default=0.0)
     ap.add_argument("--trim-end", type=float, default=TRIM_END)
     ap.add_argument("--out", default=str(DEMO / "Rapport_demo_v3.mp4"))
+    ap.add_argument("--extras", action=argparse.BooleanOptionalAction, default=True, help="also write the teaser, check frames and stills")
     ap.add_argument("--latency", default="", help="measured median, e.g. '1.4 s'")
     a = ap.parse_args()
     take, work = Path(a.take), DEMO / "raw"
@@ -102,6 +103,15 @@ def main():
          "-c:v", "libx264", "-profile:v", "high", "-preset", "medium", "-crf", "18", "-r", str(FPS), "-pix_fmt", "yuv420p",
          "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out])
 
+    info = probe(out)
+    v = next(s for s in info["streams"] if s["codec_type"] == "video")
+    dur = float(info["format"]["duration"])
+    has_audio = any(s["codec_type"] == "audio" for s in info["streams"])
+    print(f"OUT {out} {v['width']}x{v['height']} {v['r_frame_rate']} fps audio={has_audio} {dur:.1f} s")
+    assert (v["width"], v["height"]) == (W, H) and has_audio and v["r_frame_rate"] == f"{FPS}/1"
+    if not a.extras:
+        return
+
     # teaser: <= 20 s, <= 10 MB, from the interview
     teaser = ROOT / "docs" / "media" / "teaser.mp4"
     teaser.parent.mkdir(parents=True, exist_ok=True)
@@ -109,13 +119,6 @@ def main():
     run(["ffmpeg", "-y", "-v", "error", "-ss", f"{tstart:.2f}", "-t", "18", "-i", out, "-vf", "scale=1280:-2", "-c:v", "libx264", "-crf", "28",
          "-preset", "slow", "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", teaser])
     print("teaser", teaser, round(teaser.stat().st_size / 1e6, 1), "MB")
-
-    info = probe(out)
-    v = next(s for s in info["streams"] if s["codec_type"] == "video")
-    dur = float(info["format"]["duration"])
-    has_audio = any(s["codec_type"] == "audio" for s in info["streams"])
-    print(f"OUT {out} {v['width']}x{v['height']} {v['r_frame_rate']} fps audio={has_audio} {dur:.1f} s")
-    assert (v["width"], v["height"]) == (W, H) and has_audio and v["r_frame_rate"] == f"{FPS}/1"
 
     checks = work / "check"
     checks.mkdir(exist_ok=True)
