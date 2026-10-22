@@ -88,6 +88,14 @@
 - The new script found three recall gaps (plan/means with "tablets or anything at home", "wouldn't wake up", support/hobbies); case tags fixed with tests. Demo opening shots fixed (establishing was outside the room, entrance camera overhead).
 - `bundleVersion` 0.2.0; takes now named `Rapport_take*`. Gates: `docs/GATES.md` § v0.2.1.
 
+## 4f. Personalities, seeded patients and ward stations (branch `personalities`, 2026-10-22, not merged)
+- Research: `docs/literature/personalities-and-randomized-patients.md`. Design, results and open items: `docs/PATIENTS.md`.
+- Seeded patients (slots + one of six conversation styles; answer key never changes), "Surprise me" in Unity, `GET /patient`.
+- Styles are code parameters; a kind move never lowers trust or raises agitation; styles soften past `softens_at_trust`.
+- Ward events engine plus two draft stations: `ward_01` "I want to go home", `ward_02` "I'm not taking those tablets".
+- Ward demo `demo/Rapport_ward_demo.mp4` (not in git). Takes: `demo/raw/Rapport_take_ward*.mp4`.
+- Owner and faculty: review the draft numbers and the cases; decide whether to merge to main.
+
 ## 5. Next steps
 1. Commit §4; rebuild the player; re-measure latency after the send fix.
 2. `KICKOFF_PROMPT_v4.md` Phases A–I: audit, rename (repo, product, bundle id, menus, `PSYCHSIM_*` → `RAPPORT_*` aliases), literature review, Digital Twin brain, self-learning with A/B, Twin live wiring, TTS bake-off (Qwen3-TTS is the lead candidate) + Smart Turn + streaming STT, camera and exam router with IK, gates, demo v3, release `v0.2-twin`.
