@@ -386,17 +386,21 @@ def style_reminder(case: dict, state: dict) -> str:
     band = 0 if e < 30 or cap <= 25 else 1 if e < 60 or cap <= 45 else 2
     length = ("one short sentence", "one or two sentences", "two or three sentences")[band]
     return (f"Reminder: {case['patient']['name']} speaks {b['speech']['rate']} and {b['speech']['volume']}, mood {b['mood']['description'].split('.')[0].lower()}; "
-            f"{length}; everyday words, not too polite, answer only what was asked; style: {style(case)['label']}." + _style_nudge(case))
+            f"{length}; everyday words, not too polite, answer only what was asked; style: {style(case)['label']}." + _style_nudge(case, state))
 
 
-def _style_nudge(case: dict) -> str:
+def _style_nudge(case: dict, state: dict) -> str:
     """Small models drift back to their default manner within a few turns (and soften hostility), so a non-plain style is
-    re-stated every turn: description, one example line, the behaviours it leans towards."""
+    re-stated every turn: description, one example line, the behaviours it leans towards. Past the style's softens_at_trust
+    the patient has started to feel heard and the lean is dropped."""
     st = style(case)
     if st["id"] == "plain":
         return ""
+    name = case["patient"]["name"].split()[0]
+    if state["trust"] >= st.get("softens_at_trust", 101):
+        return f" {name} has started to feel heard: less {st['label']} now, more open."
     lean = f" Lean towards: {', '.join(st['behaviours'])}." if st["behaviours"] else ""
-    return f" {case['patient']['name'].split()[0]} is {st['description']} e.g. \"{st['examples'][0]}\"{lean}"
+    return f" {name} is {st['description']} e.g. \"{st['examples'][0]}\"{lean}"
 
 
 def facts_block(case: dict, state: dict) -> str:

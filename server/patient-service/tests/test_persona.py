@@ -154,3 +154,20 @@ def test_medication_refusal_station_recall():
                           ("Have you used cannabis or any other drugs?", "f_substances", 40),
                           ("Is there another option that would help, maybe something from home?", "f_alternatives", 50)):
         assert fid in twin.recall(c, trust, q)["open"], (q, fid)
+
+
+def test_a_kind_move_never_lowers_trust_whatever_the_style():
+    up = _with_style("upset")
+    st = {"trust": 30, "distress": 60, "agitation": 50, "engagement": 35}
+    bad_mood = {"reaction": "afraid", "state_delta": {"trust": -6, "distress": 3, "agitation": 2, "engagement": 0}}
+    kind, _ = twin.update(st, twin.pad_from(st), {**bad_mood, "doctor_intents": ["empathy_statement", "ask_suicidal_ideation"]}, up)
+    neutral, _ = twin.update(st, twin.pad_from(st), {**bad_mood, "doctor_intents": ["ask_sleep"]}, up)
+    assert kind["trust"] >= st["trust"] + 4  # the empathy nudge counts in full
+    assert neutral["trust"] < st["trust"]    # without a kind move the patient's own reaction still lowers trust
+
+
+def test_style_softens_once_trust_is_high():
+    up = _with_style("upset")
+    assert "Lean towards" in brain.style_reminder(up, {**up["state_start"], "trust": 20})
+    soft = brain.style_reminder(up, {**up["state_start"], "trust": 50})
+    assert "Lean towards" not in soft and "feel heard" in soft

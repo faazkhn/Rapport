@@ -95,6 +95,10 @@ def update(state: dict, mood: dict, reply: dict, case: dict) -> tuple[dict, dict
     step = next((r["trust_step"] for r in brain.catalogue()["reactions"] if r["id"] == reply.get("reaction")), 0)
     st, d = brain.style(case), reply["state_delta"]
     trust = d["trust"] + step * rules["reaction_trust_unit"]
+    # a kind move (an intent with a positive trust nudge) cannot lower trust: the persona's mood colours the model's own
+    # judgement (an upset patient reacts 'wary' to everything), so what the doctor did decides the direction
+    kind = any(rules["intent_nudges"].get(i, {}).get("trust", 0) > 0 for i in reply.get("doctor_intents", []))
+    trust = max(0, trust) if kind else trust
     delta = {**d, "trust": round(trust * (st["trust_gain"] if trust > 0 else st["trust_loss"])),
              "agitation": round(d["agitation"] * st["agitation_gain"]) if d["agitation"] > 0 else d["agitation"]}
     new = brain.apply_turn(state, {**reply, "state_delta": delta}, rules)
