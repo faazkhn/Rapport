@@ -99,8 +99,9 @@ def update(state: dict, mood: dict, reply: dict, case: dict) -> tuple[dict, dict
     # judgement (an upset patient reacts 'wary' to everything), so what the doctor did decides the direction
     kind = any(rules["intent_nudges"].get(i, {}).get("trust", 0) > 0 for i in reply.get("doctor_intents", []))
     trust = max(0, trust) if kind else trust
+    agitation = min(0, d["agitation"]) if kind else d["agitation"]  # nor raise agitation: de-escalation must be able to work
     delta = {**d, "trust": round(trust * (st["trust_gain"] if trust > 0 else st["trust_loss"])),
-             "agitation": round(d["agitation"] * st["agitation_gain"]) if d["agitation"] > 0 else d["agitation"]}
+             "agitation": round(agitation * st["agitation_gain"]) if agitation > 0 else agitation}
     new = brain.apply_turn(state, {**reply, "state_delta": delta}, rules)
     target, rate = pad_from(new), rules["mood_rate"]
     return new, {k: _clamp(mood[k] + (target[k] - mood[k]) * rate) for k in "pad"}

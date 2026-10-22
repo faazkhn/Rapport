@@ -46,6 +46,10 @@ namespace Rapport.Editor
         [MenuItem("Rapport/Record Demo v3 (Arjun, upset, seed 2)")]
         static void RecordV3Upset() { SessionState.SetInt(SeedFlag, 2); RecordV3(); }
 
+        /// <summary>Ward station demo (demo/ward/script.json, case ward_01) with Ananya.</summary>
+        [MenuItem("Rapport/Record Ward Demo (Ananya)")]
+        static void RecordWard() { SessionState.SetString(ScriptFlag, "demo/ward/script.json"); SessionState.SetString(VariantFlag, "female"); SessionState.SetBool(RecordFlag, true); Enter(); }
+
         [MenuItem("Rapport/Play Demo (no recording)")]
         static void Play() { SessionState.SetString(VariantFlag, "female"); SessionState.SetBool(PlayFlag, true); Enter(); }
 
@@ -73,7 +77,7 @@ namespace Rapport.Editor
             SessionState.EraseString(ScriptFlag);
             DemoDirector.ScriptPath = staged ? "demo/staged/script.json" : script != "" ? script : "demo/script.json";
             new GameObject("DemoDirector").AddComponent<DemoDirector>();
-            if (record) StartRecording(staged ? "Rapport_staged" : script != "" ? "Rapport_take_v3" + (seed >= 0 ? "_seed" + seed : "") : "Rapport_take");
+            if (record) StartRecording(staged ? "Rapport_staged" : script.Contains("ward") ? "Rapport_take_ward" : script != "" ? "Rapport_take_v3" + (seed >= 0 ? "_seed" + seed : "") : "Rapport_take");
             DemoDirector.Finished -= OnFinished;
             DemoDirector.Finished += OnFinished;
         }

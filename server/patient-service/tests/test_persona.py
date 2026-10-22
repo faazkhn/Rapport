@@ -171,3 +171,12 @@ def test_style_softens_once_trust_is_high():
     assert "Lean towards" in brain.style_reminder(up, {**up["state_start"], "trust": 20})
     soft = brain.style_reminder(up, {**up["state_start"], "trust": 50})
     assert "Lean towards" not in soft and "feel heard" in soft
+
+
+def test_a_kind_move_never_raises_agitation():
+    up = _with_style("upset")
+    st = {"trust": 20, "distress": 60, "agitation": 70, "engagement": 35}
+    r = {"reaction": "challenged", "state_delta": {"trust": 0, "distress": 2, "agitation": 6, "engagement": 0}}
+    kind, _ = twin.update(st, twin.pad_from(st), {**r, "doctor_intents": ["offer_choice"]}, up)
+    rude, _ = twin.update(st, twin.pad_from(st), {**r, "doctor_intents": ["threaten_coerce"]}, up)
+    assert kind["agitation"] <= st["agitation"] - 5 and rude["agitation"] >= st["agitation"] + 10

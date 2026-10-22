@@ -144,6 +144,7 @@ namespace Rapport.UI
                 case "close": CloseUp(); break;
                 case "hands": Hands(); break;
                 case "pov": Pov(); break;
+                case "wide": Wide(); break;
                 default: OverShoulder(); break;
             }
         }
@@ -194,6 +195,15 @@ namespace Rapport.UI
             var pos = doctorCam.transform.position + ToDoctor * 0.35f - right * 0.3f + Vector3.up * 0.05f;
             Cut(pos, Head + Vector3.down * 0.15f, 34f);
             demoCam.transform.Rotate(0f, 6f, 0f, Space.World);   // patient left of centre, clear of the side panel
+            ShowUi(true);
+        }
+
+        /// <summary>Wider shot from behind the doctor, high enough to keep a standing patient's head in frame (ward events).</summary>
+        void Wide()
+        {
+            var right = Vector3.Cross(Vector3.up, -ToDoctor);
+            var pos = doctorCam.transform.position + ToDoctor * 0.1f - right * 0.35f + Vector3.up * 0.35f;
+            Cut(pos, room.PatientAnchor.position + Vector3.up * 1.1f, 52f);
             ShowUi(true);
         }
 
