@@ -337,7 +337,8 @@ def build_system_prompt(case: dict, version: dict | None = None) -> str:
         f"Background: {p.get('background', '')}",
         f"Personality: {p['personality']}",
         f"Way of speaking: {p.get('speech_style', 'natural, everyday English')}. Conversation style: {style(case)['label']}: "
-        f"{style(case)['description']} For example: " + " / ".join(f'"{e}"' for e in style(case)["examples"]) + "."
+        f"{style(case)['description']} For example: " + " / ".join(f'"{e}"' for e in style(case)["examples"]) + ". "
+        "Where this style and the personality above differ, the style wins today."
         + (f" Dialect: {case['dialect']}." if case.get("dialect") else ""),
         *([f"Deep down {name} believes: {case['core_belief']}"] if case.get("core_belief") else []),
         *([f"With people {name} is: {case['attachment_style']}"] if case.get("attachment_style") else []),
@@ -385,7 +386,17 @@ def style_reminder(case: dict, state: dict) -> str:
     band = 0 if e < 30 or cap <= 25 else 1 if e < 60 or cap <= 45 else 2
     length = ("one short sentence", "one or two sentences", "two or three sentences")[band]
     return (f"Reminder: {case['patient']['name']} speaks {b['speech']['rate']} and {b['speech']['volume']}, mood {b['mood']['description'].split('.')[0].lower()}; "
-            f"{length}; everyday words, not too polite, answer only what was asked; style: {style(case)['label']}.")
+            f"{length}; everyday words, not too polite, answer only what was asked; style: {style(case)['label']}." + _style_nudge(case))
+
+
+def _style_nudge(case: dict) -> str:
+    """Small models drift back to their default manner within a few turns (and soften hostility), so a non-plain style is
+    re-stated every turn: description, one example line, the behaviours it leans towards."""
+    st = style(case)
+    if st["id"] == "plain":
+        return ""
+    lean = f" Lean towards: {', '.join(st['behaviours'])}." if st["behaviours"] else ""
+    return f" {case['patient']['name'].split()[0]} is {st['description']} e.g. \"{st['examples'][0]}\"{lean}"
 
 
 def facts_block(case: dict, state: dict) -> str:

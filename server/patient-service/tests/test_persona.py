@@ -100,7 +100,7 @@ def test_word_cap_keeps_whole_sentences():
     assert brain.cap_words("One very long sentence without any stop at all here", 3) == "One very long sentence without any stop at all here"
 
 
-@pytest.mark.parametrize("case_id", ["mdd_01", "ward_01"])
+@pytest.mark.parametrize("case_id", ["mdd_01", "ward_01", "ward_02"])
 def test_every_allowed_style_can_reach_every_required_fact_in_time(case_id):
     """Answer-key replay in code: a kind doctor (trust +6 a turn before the style's gain) every 30 s reaches the highest
     trust_min among the facts within the time limit, for every style the case allows."""
@@ -136,3 +136,21 @@ def test_authored_case_starts_where_its_author_wrote():
         assert brain.load_case(cid, "female")["state_start"] == raw["state_start"], cid
     w = brain.load_case("ward_01", "female", seed=next(s for s in range(500) if brain.load_case("ward_01", "female", seed=s)["style"] == "plain"))
     assert w["state_start"]["trust"] == 35 and w["state_start"]["agitation"] == 30  # plain is 10 trust up, 15 agitation down from upset
+
+
+def test_non_plain_style_is_restated_every_turn():
+    up = _with_style("upset")
+    r = brain.style_reminder(up, up["state_start"])
+    assert "frustrated and defensive" in r and "Why do you need to know that?" in r and "asks_back" in r
+    assert "Lean towards" not in brain.style_reminder(brain.load_case("mdd_01"), brain.load_case("mdd_01")["state_start"])
+
+
+def test_medication_refusal_station_recall():
+    c = brain.load_case("ward_02", "female")
+    for q, fid, trust in (("Can you tell me why you don't want the tablets?", "f_pc", 25),
+                          ("How did they make you feel when you took them?", "f_side_effects", 25),
+                          ("Are you worried something is in the tablets? Do you think they're safe?", "f_poison", 45),
+                          ("Do you ever hear voices when nobody is there?", "f_voices", 40),
+                          ("Have you used cannabis or any other drugs?", "f_substances", 40),
+                          ("Is there another option that would help, maybe something from home?", "f_alternatives", 50)):
+        assert fid in twin.recall(c, trust, q)["open"], (q, fid)

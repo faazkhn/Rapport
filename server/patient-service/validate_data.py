@@ -127,6 +127,8 @@ def validate_all() -> list[str]:
             for t in (t for o in opts for t in o.values()):
                 if any(w in t.lower() for w in clinical):
                     errors.append(f"{label} slot {name}: clinical word in {t!r}")
+        for st in data["styles"]["styles"]:
+            _refs(errors, st["behaviours"], set(brain.label_ids("behaviours")), f"styles.json {st['id']} behaviours")
         if case["style"] not in case.get("styles_allowed", [case["style"]]):
             errors.append(f"{label}: style {case['style']!r} not in styles_allowed")
         for variant in case["variants"]:

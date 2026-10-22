@@ -13,12 +13,13 @@
    "items": {
     "type": "object",
     "additionalProperties": false,
-    "required": ["id", "label", "description", "examples", "word_cap", "start", "trust_gain", "trust_loss", "agitation_gain"],
+    "required": ["id", "label", "description", "examples", "behaviours", "word_cap", "start", "trust_gain", "trust_loss", "agitation_gain"],
     "properties": {
      "id": {"enum": ["plain", "upset", "verbose", "reserved", "tangent", "pleasing"]},
      "label": {"type": "string", "minLength": 1, "maxLength": 30},
      "description": {"type": "string", "minLength": 1, "maxLength": 200},
      "examples": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"type": "string", "minLength": 1, "maxLength": 120}},
+     "behaviours": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
      "word_cap": {"type": "integer", "minimum": 10, "maximum": 120},
      "start": {"type": "object", "additionalProperties": false,
                "properties": {"trust": {"type": "number", "minimum": -20, "maximum": 20}, "distress": {"type": "number", "minimum": -20, "maximum": 20},
