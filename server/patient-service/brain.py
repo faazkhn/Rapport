@@ -114,6 +114,8 @@ def _resolved(case_id: str, variant: str, seed: int | None = None, mode: str = "
     chosen = {k: raw["slots"][k][i] for k, i in p["slots"].items()}
     case = _fill_all({k: x for k, x in raw.items() if k not in ("variants", "slots")}, v, {k: t for o in chosen.values() for k, t in o.items()})
     case["style"] = p["style"]
+    st = style(case)
+    case["state_start"] = {k: min(100, max(0, v + st["start"].get(k, 0))) for k, v in case["state_start"].items()}
     if seed is not None:
         case["generated"] = {"seed": seed, "generator_version": GENERATOR_VERSION, "style": p["style"], "slots": chosen}
     case["facts"] = [f for f in case["facts"] if f.get("variant", variant) == variant]
@@ -122,6 +124,23 @@ def _resolved(case_id: str, variant: str, seed: int | None = None, mode: str = "
     case["patient"] = {**case["patient"], "name": v["name"], "sex": v["sex"], "model_id": v["model_id"], "voice_id": v["voice_id"],
                        "voice_description": v.get("voice_description", "")}
     return json.dumps(case)
+
+
+def style(case: dict) -> dict:
+    """The case's conversation style from brain/styles.json: prompt text plus the code parameters that carry it."""
+    return next(x for x in load_json("brain/styles.json")["styles"] if x["id"] == case["style"])
+
+
+def cap_words(text: str, cap: int) -> str:
+    """Whole sentences up to `cap` words; the first sentence always stays (a hard cut mid-sentence sounds broken)."""
+    out, n = [], 0
+    for sent in re.split(r"(?<=[.!?])\s+", text.strip()):
+        w = len(sent.split())
+        if out and n + w > cap:
+            break
+        out.append(sent)
+        n += w
+    return " ".join(out)
 
 
 def load_case(case_id: str, variant: str = "female", seed: int | None = None, mode: str = "practice") -> dict:
@@ -316,7 +335,8 @@ def build_system_prompt(case: dict, version: dict | None = None) -> str:
         f"Referral note the doctor has: {case['referral_note']}",
         f"Background: {p.get('background', '')}",
         f"Personality: {p['personality']}",
-        f"Way of speaking: {p.get('speech_style', 'natural, everyday English')}. Conversation style: {case['style']}."
+        f"Way of speaking: {p.get('speech_style', 'natural, everyday English')}. Conversation style: {style(case)['label']}: "
+        f"{style(case)['description']} For example: " + " / ".join(f'"{e}"' for e in style(case)["examples"]) + "."
         + (f" Dialect: {case['dialect']}." if case.get("dialect") else ""),
         *([f"Deep down {name} believes: {case['core_belief']}"] if case.get("core_belief") else []),
         *([f"With people {name} is: {case['attachment_style']}"] if case.get("attachment_style") else []),
@@ -360,9 +380,11 @@ def recall_block(case: dict, recalled: dict) -> str:
 def style_reminder(case: dict, state: dict) -> str:
     """A3: one short transient line from behavior + style + engagement; appended to the latest turn only."""
     b, e = case["behavior"], state["engagement"]
-    length = "one short sentence" if e < 30 else "one or two sentences" if e < 60 else "two or three sentences"
+    cap = style(case)["word_cap"]
+    band = 0 if e < 30 or cap <= 25 else 1 if e < 60 or cap <= 45 else 2
+    length = ("one short sentence", "one or two sentences", "two or three sentences")[band]
     return (f"Reminder: {case['patient']['name']} speaks {b['speech']['rate']} and {b['speech']['volume']}, mood {b['mood']['description'].split('.')[0].lower()}; "
-            f"{length}; everyday words, not too polite, answer only what was asked; style {case['style']}.")
+            f"{length}; everyday words, not too polite, answer only what was asked; style: {style(case)['label']}.")
 
 
 def facts_block(case: dict, state: dict) -> str:
@@ -648,7 +670,7 @@ def generate_reply(req: dict, client=None, tagger=None, version: dict | None = N
     """req: {case_id, variant?, messages, state, elapsed_min?, model?, reasoning_effort?, summary?, mode?}. Never raises on LLM failure.
     version: the brain version to speak with (default the live one; evaluation passes candidates).
     The patient reply and intent tagging run in parallel; the guard runs when both are done."""
-    case = load_case(req["case_id"], req.get("variant") or "female")
+    case = load_case(req["case_id"], req.get("variant") or "female", req.get("seed"), req.get("mode") or "practice")
     state = req["state"]
     model = req.get("model") or default_model()
     allowed = [f["id"] for f in allowed_facts(case, state["trust"])]
@@ -692,6 +714,7 @@ def generate_reply(req: dict, client=None, tagger=None, version: dict | None = N
         if not out["utterance"].strip():  # every sentence had a banned word
             out["utterance"] = random.choice(case["fallback_lines"])
             meta["fallback"] = True
+        out["utterance"] = cap_words(out["utterance"], style(case)["word_cap"])
     out["exam_action"], out["exam"] = first_complied(exam), exam
     out["meta"] = meta
     return out

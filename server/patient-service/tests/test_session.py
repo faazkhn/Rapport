@@ -525,3 +525,26 @@ def test_session_uses_retrieved_examples_in_tail(lib, monkeypatch):
     msgs = next(c for c in llm.calls if c.get("stream") is None and "patient_reply" in json.dumps(c.get("response_format")))["messages"]
     assert seen and set(seen) == {("assessment", 2)}
     assert "Patient: Not really." in msgs[-1]["content"] and "Not really." not in msgs[0]["content"]
+
+
+def test_seeded_session_reports_style_and_slots_and_caps_words():
+    async def go():
+        s, ev, audio = make(FakeLLM())
+        seed = next(x for x in range(200) if brain.load_case("mdd_01", "female", seed=x)["style"] == "reserved")
+        await s.on_json({"type": "start", "case_id": "mdd_01", "seed": seed})
+        sess = next(m for _, m in ev if m["type"] == "session")
+        await run_text(s)
+        return s, ev, sess
+    s, ev, sess = asyncio.run(go())
+    assert sess["style"] == "reserved" and set(sess["generated"]["slots"]) == {"hobby", "sibling", "hometown"}
+    assert s.case["state_start"]["trust"] == 25  # reserved starts 5 below the authored 30
+    words = sum(len(m["text"].split()) for _, m in ev if m["type"] == "sentence")
+    assert words <= brain.style(s.case)["word_cap"] + 10
+
+
+def test_bad_seed_is_an_error():
+    async def go():
+        s, ev, _ = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01", "seed": "abc"})
+        return ev
+    assert asyncio.run(go())[0][1]["type"] == "error"

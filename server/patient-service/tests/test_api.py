@@ -86,3 +86,15 @@ def test_feedback_endpoint(monkeypatch, tmp_path):
     assert c.post("/learning/approve", json={"case_id": "mdd_01", "entry_id": "nope"}).status_code == 404
     brain.load_json.cache_clear(), brain._resolved.cache_clear()
     learning._cache.clear()
+
+
+def test_patient_endpoint_previews_a_seeded_patient():
+    c = TestClient(service.app)
+    a = c.get("/patient", params={"case_id": "mdd_01", "variant": "male", "seed": 11}).json()
+    assert a == c.get("/patient", params={"case_id": "mdd_01", "variant": "male", "seed": 11}).json()
+    assert a["name"] == "Arjun Rao" and set(a["slots"]) == {"hobby", "hobby_short", "sibling", "hometown"}
+    base = c.get("/patient", params={"case_id": "mdd_01"}).json()
+    assert base["slots"] == {} and base["style"] == "plain"
+    assert c.get("/patient", params={"case_id": "mdd_01", "seed": 11, "mode": "assessment"}).json()["style"] == "plain"
+    assert c.get("/patient", params={"case_id": "nope"}).status_code == 404
+    assert c.get("/patient", params={"case_id": "mdd_01", "seed": -1}).status_code == 422

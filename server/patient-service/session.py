@@ -129,7 +129,11 @@ class Session:
 
     async def start(self, msg):
         try:
-            self.case = brain.load_case(msg["case_id"], msg.get("variant", "female"))
+            seed = msg.get("seed")
+            if seed is not None and not (isinstance(seed, int) and 0 <= seed < 2**31):
+                raise KeyError(f"bad seed {seed!r}")
+            self.case = brain.load_case(msg["case_id"], msg.get("variant", "female"), seed,
+                                        "assessment" if msg.get("mode") == "assessment" else "practice")
         except (KeyError, FileNotFoundError) as e:
             await self.send_json({"type": "error", "error": f"bad case_id/variant: {e}"})
             return
@@ -145,7 +149,8 @@ class Session:
         p = self.case["patient"]
         await self.send_json({"type": "session", "case_id": self.case["id"], "variant": self.case["variant"], "name": p["name"],
                               "model_id": p["model_id"], "voice_id": p["voice_id"], "state": self.state,
-                              "in_rate": stt.SR, "out_rate": OUT_SR, "llm": brain.default_model(), "staged": staged.enabled()})
+                              "in_rate": stt.SR, "out_rate": OUT_SR, "llm": brain.default_model(), "staged": staged.enabled(),
+                              "style": self.case["style"], "generated": self.case.get("generated")})
         self.mood, self.next_speed = twin.pad_from(self.state), 1.0
         if staged.enabled():
             self.staged = staged.Script(self.case["variant"], OUT_SR)
@@ -332,6 +337,7 @@ class Session:
         voice_id = case["patient"]["voice_id"]
         parser, splitter = stream.UtteranceStream(), stream.SentenceSplitter(first_clause=True)
         spoken, dropped_banned, idx = [], [], 0
+        word_cap = brain.style(case)["word_cap"]
         marks = {"ttft": None, "first_sentence": None, "tts_first_ms": None, "audio_start": None}
         err = None
         flushed = False
@@ -341,7 +347,7 @@ class Session:
             sentence, hits = brain.strip_banned(sentence, case["banned_words"])
             dropped_banned.extend(hits)
             sentence = voice.speakable(sentence, keep_first=not any("..." in x for x in spoken))
-            if not sentence or cancel.is_set():
+            if not sentence or cancel.is_set() or sum(len(x.split()) for x in spoken) >= word_cap:  # style word cap
                 return
             t = time.monotonic()
             first = await self._first_chunk(loop, sentence, voice_id, speed, voice.instruction(case, voice.labels_so_far(parser.buf)))

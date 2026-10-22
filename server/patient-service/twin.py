@@ -93,7 +93,10 @@ def update(state: dict, mood: dict, reply: dict, case: dict) -> tuple[dict, dict
     drifts part of the way toward the PAD of the new state."""
     rules = brain.load_json("state_rules.json")
     step = next((r["trust_step"] for r in brain.catalogue()["reactions"] if r["id"] == reply.get("reaction")), 0)
-    delta = {**reply["state_delta"], "trust": reply["state_delta"]["trust"] + step * rules["reaction_trust_unit"]}
+    st, d = brain.style(case), reply["state_delta"]
+    trust = d["trust"] + step * rules["reaction_trust_unit"]
+    delta = {**d, "trust": round(trust * (st["trust_gain"] if trust > 0 else st["trust_loss"])),
+             "agitation": round(d["agitation"] * st["agitation_gain"]) if d["agitation"] > 0 else d["agitation"]}
     new = brain.apply_turn(state, {**reply, "state_delta": delta}, rules)
     target, rate = pad_from(new), rules["mood_rate"]
     return new, {k: _clamp(mood[k] + (target[k] - mood[k]) * rate) for k in "pad"}
@@ -118,7 +121,8 @@ def init_event(case: dict, state: dict) -> dict:
     """What the Twin view needs before the first turn. Memory labels are short; full fact text never leaves the service."""
     p = case["patient"]
     return {"event": "init", "meta": {"case_id": case["id"], "patient": p["name"], "age": p["age"], "variant": case["variant"],
-                                      "title": case.get("title")},
+                                      "title": case.get("title"), "style": brain.style(case)["label"],
+                                      "seed": case.get("generated", {}).get("seed")},
             "memory_items": [{"id": f["id"], "label": f.get("label") or _topic(f["id"]).capitalize(), "trust_min": f["trust_min"],
                               "gated": bool(f.get("must_be_asked"))} for f in case["facts"]],
             "formulation": case.get("formulation", {}), "state_start": {k: state[k] for k in brain.STATE_KEYS}}

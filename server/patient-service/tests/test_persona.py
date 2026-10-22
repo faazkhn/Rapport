@@ -59,3 +59,56 @@ def test_recall_follows_the_slot_values():
         sib = c["generated"]["slots"]["sibling"]["sibling"]
         assert "f_anhedonia" in twin.recall(c, 50, f"Do you still have time for {hobby}?")["open"], (s, hobby)
         assert sib in next(f["text"] for f in c["facts"] if f["id"] == "f_protective")
+
+
+def _with_style(style, variant="female"):
+    s = next(s for s in range(200) if brain.load_case("mdd_01", variant, seed=s)["style"] == style)
+    return brain.load_case("mdd_01", variant, seed=s)
+
+
+def test_style_offsets_start_state_and_plain_changes_nothing():
+    base = brain.load_case("mdd_01", "female")
+    assert _with_style("plain")["state_start"] == base["state_start"]
+    up = _with_style("upset")
+    assert up["state_start"]["trust"] == base["state_start"]["trust"] - 10
+    assert up["state_start"]["agitation"] == base["state_start"]["agitation"] + 15
+
+
+def test_style_shows_in_prompt_and_reminder():
+    c = _with_style("reserved")
+    sp = brain.build_system_prompt(c)
+    assert "reserved" in sp and "Fine." in sp
+    assert "one short sentence" in brain.style_reminder(c, {**c["state_start"], "engagement": 90})
+
+
+def test_style_scales_trust_change():
+    up, pl = _with_style("upset"), _with_style("plain")
+    state = {"trust": 40, "distress": 50, "agitation": 20, "engagement": 40}
+    mood = twin.pad_from(state)
+    reply = {"reaction": "none", "state_delta": {"trust": -6, "distress": 0, "agitation": 4, "engagement": 0}, "doctor_intents": []}
+    s_up, _ = twin.update(state, mood, reply, up)
+    s_pl, _ = twin.update(state, mood, reply, pl)
+    assert s_up["trust"] < s_pl["trust"] and s_up["agitation"] > s_pl["agitation"]
+
+
+def test_word_cap_keeps_whole_sentences():
+    text = "I don't know. Maybe it is work. Maybe it is everything, doctor, all of it together at once."
+    assert brain.cap_words(text, 5) == "I don't know."
+    assert brain.cap_words(text, 100) == text
+    assert brain.cap_words("One very long sentence without any stop at all here", 3) == "One very long sentence without any stop at all here"
+
+
+def test_every_allowed_style_can_reach_every_required_fact_in_time():
+    """Answer-key replay in code: a kind doctor (trust +6 a turn before the style's gain) every 30 s reaches the highest
+    trust_min among the facts within the time limit, for every style the case allows."""
+    raw = brain.load_raw_case("mdd_01")
+    need = max(f["trust_min"] for f in brain.load_case("mdd_01")["facts"])
+    for style in raw["styles_allowed"]:
+        c = _with_style(style)
+        st = dict(c["state_start"])
+        for turn in range(raw["time_limit_min"] * 2):
+            st, _ = twin.update(st, twin.pad_from(st), {"reaction": "none", "doctor_intents": [],
+                                "state_delta": {"trust": 6, "distress": 0, "agitation": 0, "engagement": 0}}, c)
+            if st["trust"] >= need:
+                break
+        assert st["trust"] >= need, (style, turn, st["trust"])

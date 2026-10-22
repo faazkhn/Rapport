@@ -8,7 +8,7 @@ from typing import Literal
 
 import numpy as np
 import soundfile as sf
-from fastapi import FastAPI, HTTPException, WebSocket
+from fastapi import FastAPI, HTTPException, Query, WebSocket
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
@@ -109,6 +109,7 @@ class ReplyReq(BaseModel):
     reasoning_effort: Literal["low", "medium", "high", "xhigh"] | None = None
     summary: str | None = Field(default=None, max_length=4000)
     mode: Literal["practice", "assessment"] = "practice"
+    seed: int | None = Field(default=None, ge=0, le=2**31 - 1)
 
 
 class TtsReq(BaseModel):
@@ -134,6 +135,21 @@ async def reply(req: ReplyReq):
     log.info("reply case=%s model=%s latency_ms=%s fallback=%s dropped=%d",
              req.case_id, m["model"], m["latency_ms"], m["fallback"], len(m["guard_dropped"]))
     return out
+
+
+@app.get("/patient")
+def patient(case_id: str, variant: Literal["female", "male"] = "female", seed: int | None = Query(default=None, ge=0, le=2**31 - 1),
+            mode: Literal["practice", "assessment"] = "practice"):
+    """Who the doctor will meet, before the session starts (the prebrief needs it): name, style and the slot values a seed picked.
+    The client fills its own copy of the case's {slot} placeholders with `slots`."""
+    try:
+        c = brain.load_case(case_id, variant, seed, mode)
+    except (FileNotFoundError, KeyError):
+        raise HTTPException(404, f"unknown case_id {case_id!r}")
+    g = c.get("generated", {})
+    return {"case_id": c["id"], "variant": c["variant"], "name": c["patient"]["name"], "style": c["style"],
+            "style_label": brain.style(c)["label"], "seed": seed, "generator_version": brain.GENERATOR_VERSION,
+            "slots": {k: v for o in g.get("slots", {}).values() for k, v in o.items()}, "state_start": c["state_start"]}
 
 
 class FeedbackReq(BaseModel):

@@ -12,7 +12,8 @@ import brain
 from brain import DATA_DIR
 
 CATALOGS = {"cues.json": "cues", "intents.json": "intents", "diagnoses.json": "diagnoses",
-            "dispositions.json": "dispositions", "formulary.json": "formulary", "state_rules.json": "state_rules"}
+            "dispositions.json": "dispositions", "formulary.json": "formulary", "state_rules.json": "state_rules",
+            "brain/styles.json": "styles"}
 
 
 def _load(path):
