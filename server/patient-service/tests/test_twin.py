@@ -174,3 +174,11 @@ def test_recall_common_si_screening_phrasings():
     for q in ("Sometimes when people feel this low, they have thoughts that life isn't worth living. Have you had thoughts like that?",
               "Do you ever feel life is not worth living?", "Do you ever feel you'd be better off dead?"):
         assert "f_passive_si" in twin.recall(CASE, 70, q)["open"], q
+
+
+def test_recall_alternative_phrasings_from_demo_v3():
+    for fact, q in (("f_no_plan_no_attempt", "Have you made any plans, or do you have tablets or anything at home you might use?"),
+                    ("f_no_means", "Have you made any plans, or do you have tablets or anything at home you might use?"),
+                    ("f_protective", "Who would you turn to if things got worse?"),
+                    ("f_anhedonia", "What do you normally do to relax, and are you still doing it?")):
+        assert fact in twin.recall(CASE, 70, q)["open"], (fact, q)
