@@ -118,7 +118,8 @@ namespace Rapport.Core
         /// clinical story and the answer key stay the case's. Falls back to the authored patient if the service cannot be reached.</summary>
         public async Task ConfigureSeeded(string caseId, string variant, Mode mode, int seed)
         {
-            if (Phase != Phase.Start) return;
+            if (Phase != Phase.Start || configuring) return;
+            configuring = true;   // a double click on Continue must not draw two patients
             try
             {
                 var p = await http.Patient(caseId, variant, seed, mode == Mode.Assessment ? "assessment" : "practice");
@@ -135,9 +136,12 @@ namespace Rapport.Core
                 Case = CaseVariants.Resolve(Data.cases[caseId], variant);
                 StyleLabel = null;
             }
+            finally { configuring = false; }
             Mode = mode;
             SetPhase(Phase.Brief);
         }
+
+        bool configuring;
 
         /// <summary>Conversation style label of a seeded patient (shown in the debrief); null for the authored patient.</summary>
         public string StyleLabel { get; private set; }

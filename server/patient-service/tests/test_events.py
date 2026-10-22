@@ -36,3 +36,10 @@ def test_no_events_in_a_case_without_them():
 def test_apply_event_deltas_clamped():
     s = twin.apply_event_deltas({**CALM, "distress": 98}, [{"id": "x", "state_delta": {"distress": 5, "trust": -3}}])
     assert s["distress"] == 100 and s["trust"] == 27
+
+
+def test_after_event_waits_for_a_later_turn():
+    case = {"events": [{"id": "a", "when": {"turn": 1}, "say": "a"}, {"id": "b", "when": {"after_event": "a"}, "say": "b"}]}
+    fired = set()
+    assert ids(twin.due_events(case, CALM, 1, 0, fired)) == ["a"]
+    assert ids(twin.due_events(case, CALM, 2, 0, fired)) == ["b"]

@@ -129,6 +129,15 @@ def validate_all() -> list[str]:
                     errors.append(f"{label} slot {name}: clinical word in {t!r}")
         for st in data["styles"]["styles"]:
             _refs(errors, st["behaviours"], set(brain.label_ids("behaviours")), f"styles.json {st['id']} behaviours")
+        slot_keys_each = [set(k for o in opts for k in o) for opts in case.get("slots", {}).values()]
+        if sum(map(len, slot_keys_each)) != len(set().union(*slot_keys_each)):
+            errors.append(f"{label} slots: the same placeholder in two slots")
+        for k in set().union(*slot_keys_each) & {"name", "they", "them", "their"}:
+            errors.append(f"{label} slots: placeholder {k!r} is reserved")
+        event_ids = _dupes(errors, case.get("events", []), f"{label} events")
+        for e in case.get("events", []):
+            _refs(errors, [e["when"]["after_event"]] if "after_event" in e["when"] else [], event_ids, f"{label} event {e['id']} after_event")
+            _refs(errors, [e["action"]] if "action" in e else [], set(case["exam_actions"]), f"{label} event {e['id']} action")
         if case["style"] not in case.get("styles_allowed", [case["style"]]):
             errors.append(f"{label}: style {case['style']!r} not in styles_allowed")
         for variant in case["variants"]:

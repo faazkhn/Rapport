@@ -325,14 +325,16 @@ def test_meta_doctor_line_gets_stay_in_character_note():
     assert "does not understand" not in plain
 
 
-def test_a_sentence_naming_the_patient_in_full_is_never_spoken():
+def test_the_patient_can_say_their_own_full_name():
     case = brain.load_case("mdd_01")
-    text = "Someone shouts in the corridor. Ananya Rao flinches and says she cannot sleep here. I can't sleep here, doctor."
-    out, hits = brain.strip_banned(text, brain.unspeakable(case))
-    assert out == "Someone shouts in the corridor. I can't sleep here, doctor." and hits == ["Ananya Rao"]
+    assert brain.strip_banned("I am Ananya Rao. I am 24.", case["banned_words"])[0] == "I am Ananya Rao. I am 24."
+    reply, _ = brain.guard({"utterance": "Ananya Rao. Twenty-four.", "state_delta": {k: 0 for k in brain.STATE_KEYS}}, case, 30)
+    assert reply["utterance"] == "Ananya Rao. Twenty-four."
 
 
 def test_stage_direction_read_out_is_detected():
     ev = [{"id": "x", "say": "Someone shouts in the corridor; Ananya flinches and says this is exactly why she cannot sleep here."}]
-    assert brain.is_stage_direction("Someone shouts in the corridor.", ev)
-    assert not brain.is_stage_direction("I can't sleep here, doctor.", ev) and not brain.is_stage_direction("Yes.", ev)
+    assert brain.is_stage_direction("Someone shouts in the corridor.", ev, "Ananya Rao")
+    assert brain.is_stage_direction("Ananya Rao flinches and looks at the door.", ev, "Ananya Rao")  # third-person narration
+    assert not brain.is_stage_direction("I can't sleep here, doctor.", ev, "Ananya Rao")
+    assert not brain.is_stage_direction("Yes.", ev, "Ananya Rao")

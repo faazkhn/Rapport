@@ -5,7 +5,7 @@
  "styles": [
   {"id": "plain", "label": "plain", "description": "answers directly and simply, without drama.",
    "examples": ["Yes, mostly.", "Not really, no."],
-   "behaviours": [], "word_cap": 60, "start": {}, "trust_gain": 1.0, "trust_loss": 1.0, "agitation_gain": 1.0},
+   "behaviours": [], "word_cap": 120, "start": {}, "trust_gain": 1.0, "trust_loss": 1.0, "agitation_gain": 1.0},
   {"id": "reserved", "label": "reserved", "description": "says as little as possible; brief, vague answers, needs gentle prompting, a little sceptical of the doctor.",
    "examples": ["Fine.", "I don't know... it's okay."],
    "behaviours": ["guarded_short", "vague_timeline"], "softens_at_trust": 45, "word_cap": 20, "start": {"trust": -5, "engagement": -10}, "trust_gain": 0.8, "trust_loss": 1.2, "agitation_gain": 1.0},

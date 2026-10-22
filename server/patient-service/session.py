@@ -130,7 +130,7 @@ class Session:
     async def start(self, msg):
         try:
             seed = msg.get("seed")
-            if seed is not None and not (isinstance(seed, int) and 0 <= seed < 2**31):
+            if seed is not None and (isinstance(seed, bool) or not (isinstance(seed, int) and 0 <= seed < 2**31)):
                 raise KeyError(f"bad seed {seed!r}")
             self.case = brain.load_case(msg["case_id"], msg.get("variant", "female"), seed,
                                         "assessment" if msg.get("mode") == "assessment" else "practice")
@@ -320,9 +320,10 @@ class Session:
             await self.send_json({"type": "exam", "turn": self.turn_no, "actions": exam["actions"], "relax": exam["relax"]})
         await self.send_json({"type": "thinking"})
 
+        pre_event = state
         events = twin.due_events(case, state, self.turn_no, elapsed, self.fired)
         if events:  # code decides when a ward event happens; the model only plays it
-            state = self.state = twin.apply_event_deltas(state, events)
+            state = twin.apply_event_deltas(state, events)
             acts = [{"id": e["action"], "comply": True} for e in events if e.get("action")]
             if acts:
                 await self.send_json({"type": "exam", "turn": self.turn_no, "actions": acts, "relax": False})
@@ -345,19 +346,22 @@ class Session:
         voice_id = case["patient"]["voice_id"]
         parser, splitter = stream.UtteranceStream(), stream.SentenceSplitter(first_clause=True)
         spoken, dropped_banned, idx = [], [], 0
-        word_cap = brain.style(case)["word_cap"]
+        word_cap, capped = brain.style(case)["word_cap"], False
         marks = {"ttft": None, "first_sentence": None, "tts_first_ms": None, "audio_start": None}
         err = None
         flushed = False
 
         async def speak(sentence):
-            nonlocal idx
-            sentence, hits = brain.strip_banned(sentence, brain.unspeakable(case))
-            if events and brain.is_stage_direction(sentence, events):
+            nonlocal idx, capped
+            sentence, hits = brain.strip_banned(sentence, case["banned_words"])
+            if events and brain.is_stage_direction(sentence, events, case["patient"]["name"]):
                 return
             dropped_banned.extend(hits)
             sentence = voice.speakable(sentence, keep_first=not any("..." in x for x in spoken))
-            if not sentence or cancel.is_set() or sum(len(x.split()) for x in spoken) >= word_cap:  # style word cap
+            if not sentence or cancel.is_set():
+                return
+            if capped or spoken and sum(len(x.split()) for x in spoken) + len(sentence.split()) > word_cap:  # style word cap, as brain.cap_words
+                capped = True
                 return
             t = time.monotonic()
             first = await self._first_chunk(loop, sentence, voice_id, speed, voice.instruction(case, voice.labels_so_far(parser.buf)))
@@ -431,6 +435,12 @@ class Session:
             if not spoken and not cancel.is_set():
                 await speak(reply["utterance"])
         reply["exam_action"] = brain.first_complied(exam)
+        if capped:  # facts in the unspoken tail are not credited
+            meta["guard_dropped"] += [{"kind": "fact", "id": i, "reason": "word_cap"} for i in reply["revealed_fact_ids"]]
+            reply["revealed_fact_ids"] = []
+        if events and not spoken:  # the event never reached the doctor: it may fire again, its nudge is undone, no narration leaks
+            self.fired -= {e["id"] for e in events}
+            state, reply["utterance"] = pre_event, ""
         reply["utterance"] = " ".join(spoken) if spoken else reply["utterance"]
         if cancel.is_set():
             meta["barge_in"] = True

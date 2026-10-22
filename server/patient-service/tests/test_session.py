@@ -566,3 +566,32 @@ def test_ward_event_fires_moves_the_body_and_reaches_the_prompt():
     assert any(m["type"] == "exam" and m["actions"] == [{"id": "stand_up", "comply": True}] for _, m in ev)
     prompts = [c["messages"][-1]["content"] for c in llm.calls if "How do you sleep" in c["messages"][-1]["content"]]  # not the warm-up prefill
     assert "STAGE DIRECTION" in prompts[0] and "Ananya stands up" in prompts[0] and "STAGE DIRECTION" not in prompts[1]
+
+
+def test_an_unvoiced_event_is_not_used_up_and_narration_never_reaches_history():
+    narrated = {**REPLY, "utterance": "Ananya Rao stands up, upset."}
+    async def go():
+        s, ev, _ = make(FakeLLM(reply=narrated))
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        s.case["events"] = [{"id": "stands", "when": {"turn": 1}, "say": "Ananya Rao stands up, upset.", "state_delta": {"agitation": 20}}]
+        await run_text(s)
+        return s, ev
+    s, ev = asyncio.run(go())
+    rep = next(m for _, m in ev if m["type"] == "reply")
+    assert rep["reply"]["utterance"] == "" and "stands" not in s.fired
+    assert rep["state"]["agitation"] < 15 + 20  # the event's nudge was undone
+    assert all(m["role"] != "patient" for m in s.messages)
+
+
+def test_a_capped_reply_credits_no_facts():
+    long = {**REPLY, "utterance": "I wake up at four every day. Then I just lie there and think about everything that went wrong this year."}
+    async def go():
+        s, ev, _ = make(FakeLLM(reply=long))
+        seed = next(x for x in range(200) if brain.load_case("mdd_01", "female", seed=x)["style"] == "reserved")
+        await s.on_json({"type": "start", "case_id": "mdd_01", "seed": seed})
+        await run_text(s)
+        return ev
+    ev = asyncio.run(go())
+    rep = next(m for _, m in ev if m["type"] == "reply")
+    assert rep["reply"]["utterance"] == "I wake up at four every day." and rep["reply"]["revealed_fact_ids"] == []
+    assert any(d["reason"] == "word_cap" for d in rep["meta"]["guard_dropped"])

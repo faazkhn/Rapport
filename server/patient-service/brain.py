@@ -104,7 +104,7 @@ def pick(raw: dict, seed: int | None, mode: str = "practice") -> dict:
     return {"slots": slots, "style": raw["style"] if mode == "assessment" else style}
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=256)  # seeds come from clients: bounded
 def _resolved(case_id: str, variant: str, seed: int | None = None, mode: str = "practice") -> str:
     raw = load_raw_case(case_id)
     if variant not in raw["variants"]:
@@ -147,7 +147,7 @@ def cap_words(text: str, cap: int) -> str:
 def load_case(case_id: str, variant: str = "female", seed: int | None = None, mode: str = "practice") -> dict:
     """The case as one variant sees it: templates filled, other-variant facts dropped. With a seed, a generated patient: neutral
     slots and the conversation style vary, the answer key, risk facts and exam never do. Returns a fresh copy."""
-    return json.loads(_resolved(case_id, variant, seed, mode))
+    return json.loads(_resolved(case_id, variant, seed, mode if seed is not None else "practice"))
 
 
 def catalogue() -> dict:
@@ -336,9 +336,9 @@ def build_system_prompt(case: dict, version: dict | None = None) -> str:
         f"Referral note the doctor has: {case['referral_note']}",
         f"Background: {p.get('background', '')}",
         f"Personality: {p['personality']}",
-        f"Way of speaking: {p.get('speech_style', 'natural, everyday English')}. Conversation style: {style(case)['label']}: "
-        f"{style(case)['description']} For example: " + " / ".join(f'"{e}"' for e in style(case)["examples"]) + ". "
-        "Where this style and the personality above differ, the style wins today."
+        f"Way of speaking: {p.get('speech_style', 'natural, everyday English')}. Conversation style: "
+        + (f"{case['style']}." if case["style"] == "plain" else f"{style(case)['label']}: {style(case)['description']} For example: "
+           + " / ".join(f'"{e}"' for e in style(case)["examples"]) + ". Where this style and the personality above differ, the style wins today.")
         + (f" Dialect: {case['dialect']}." if case.get("dialect") else ""),
         *([f"Deep down {name} believes: {case['core_belief']}"] if case.get("core_belief") else []),
         *([f"With people {name} is: {case['attachment_style']}"] if case.get("attachment_style") else []),
@@ -538,17 +538,22 @@ def banned_hits(text: str, banned: list[str]) -> list[str]:
     return [w for w in banned if re.search(rf"\b{re.escape(w)}\b", text, re.I)]
 
 
-def unspeakable(case: dict) -> list[str]:
-    """Words a reply sentence may not contain: the case's banned words, and the patient's own full name (a sentence with it is
-    narration, e.g. a ward event's stage direction read out, never something the patient says)."""
-    return case["banned_words"] + [case["patient"]["name"]]
-
-
-def is_stage_direction(sentence: str, events: list[dict]) -> bool:
-    """True when a reply sentence copies this turn's event text (the model read the stage direction out)."""
+def is_stage_direction(sentence: str, events: list[dict], full_name: str) -> bool:
+    """On a turn where an event fired: True when a reply sentence copies the event text, or narrates the patient in the third
+    person by full name (the model read the stage direction out). Never used on other turns: a patient may say their name."""
     norm = lambda t: re.sub(r"[^a-z ]", "", t.lower()).strip()  # noqa: E731
     s = norm(sentence)
-    return len(s) > 8 and any(s in norm(e["say"]) for e in events)
+    third_person = full_name.lower() in sentence.lower() and not re.search(r"\b(i am|i'm|my name|it's|this is)\b", sentence, re.I)
+    return len(s) > 8 and (third_person or any(s in norm(e["say"]) for e in events))
+
+
+def apply_word_cap(reply: dict, cap: int) -> tuple[dict, list[dict]]:
+    """Cut the utterance at the style's word cap; a cut reply credits no facts (they may sit in the unspoken tail; the patient
+    can reveal them again next turn)."""
+    text = cap_words(reply["utterance"], cap)
+    if text == reply["utterance"]:
+        return reply, []
+    return {**reply, "utterance": text, "revealed_fact_ids": []}, [{"kind": "fact", "id": i, "reason": "word_cap"} for i in reply["revealed_fact_ids"]]
 
 
 def strip_banned(utterance: str, banned: list[str]) -> tuple[str, list[str]]:
@@ -605,7 +610,7 @@ def guard(reply: dict, case: dict, trust: float) -> tuple[dict, list[dict]]:
         if delta[k] != v:
             dropped.append({"kind": "state_delta", "id": k, "reason": f"clamped {v} -> {delta[k]}"})
 
-    utterance, hits = strip_banned(reply.get("utterance", ""), unspeakable(case))
+    utterance, hits = strip_banned(reply.get("utterance", ""), case.get("banned_words", []))
     dropped += [{"kind": "banned_word", "id": w, "reason": "sentence removed"} for w in hits]
 
     labels = {}
@@ -748,7 +753,8 @@ def generate_reply(req: dict, client=None, tagger=None, version: dict | None = N
         if not out["utterance"].strip():  # every sentence had a banned word
             out["utterance"] = random.choice(case["fallback_lines"])
             meta["fallback"] = True
-        out["utterance"] = cap_words(out["utterance"], style(case)["word_cap"])
+        out, capped = apply_word_cap(out, style(case)["word_cap"])
+        meta["guard_dropped"] += capped
     out["exam_action"], out["exam"] = first_complied(exam), exam
     out["meta"] = meta
     return out

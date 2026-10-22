@@ -8,7 +8,7 @@ Branch `personalities`, 2026-10-22. The research behind it is `docs/literature/p
 
 `brain.load_case(case_id, variant, seed=None, mode="practice")` is a pure function.
 
-- **No seed.** You get the authored case, exactly as before.
+- **No seed.** You get the authored case: the same text and start state as before. Three global rules from this branch do apply to it: a kind turn cannot lower trust or raise agitation, empathy lowers agitation by 3, and a reply cut at the word cap credits no facts. The plain style's cap is 120 words, so it rarely binds.
 - **With a seed.** `random.Random("<case>:<seed>:<GENERATOR_VERSION>")` picks:
   - one option for each entry in the case's `slots`;
   - one conversation style from `styles_allowed`.
@@ -48,7 +48,7 @@ The six PATIENT-Ψ styles (Wang 2024, MIT): plain, reserved, pleasing ("eager to
 
 | Style | Start offsets | Trust gain / loss | Agitation gain | Word cap |
 |---|---|---|---|---|
-| plain | none | 1.0 / 1.0 | 1.0 | 60 |
+| plain | none | 1.0 / 1.0 | 1.0 | 120 |
 | reserved | trust −5, engagement −10 | 0.8 / 1.2 | 1.0 | 20 |
 | pleasing | trust +5 | 1.2 / 0.8 | 0.8 | 35 |
 | upset | trust −10, agitation +15 | 0.7 / 1.2 | 1.3 | 35 |
@@ -56,8 +56,8 @@ The six PATIENT-Ψ styles (Wang 2024, MIT): plain, reserved, pleasing ("eager to
 | tangent | none | 1.0 / 1.0 | 1.0 | 70 |
 
 - **Start offsets** are relative to the case's authored style. The authored case starts exactly where its author wrote.
-- **Gains** scale the model's trust change after the reaction step (`twin.update`).
-- **The word cap** stops speech at the first sentence end past the cap, in both the stream and HTTP paths. It also caps the length band in the reminder.
+- **Gains** scale the model's trust change after the reaction step (`twin.update`). A turn with a kind move (an intent whose state nudge raises trust) and no negative intent cannot lower trust or raise agitation; the loss and agitation multipliers apply only to other turns.
+- **The word cap** keeps whole sentences up to the cap (the first sentence always stays) in both the stream and HTTP paths. A cut reply credits no facts, because they may sit in the unspoken tail. The cap also limits the length band in the reminder.
 - **`styles_allowed`** keeps unsuitable styles out of a case. `mdd_01` allows plain, reserved, pleasing and upset. A slowed, depressed patient is not verbose or tangential.
 
 ## Ward events (`events[]` in a case)
@@ -73,11 +73,13 @@ Code decides **when** an event happens; the model only plays it. An event fires 
 On the turn it fires (`session.run_turn`), before the reply:
 
 1. Its `state_delta` is applied.
-2. Its `say` line goes into the turn as "WHAT HAPPENS NOW".
+2. Its `say` line goes into the turn as a STAGE DIRECTION that is never to be read out.
 3. An optional body `action` (`stand_up`, `sit_down`) goes to Unity through the exam channel.
 4. The Twin log records a `ward_event`.
 
-Typed `/reply` does not run events yet, because it is stateless.
+If the patient voices nothing on that turn (barge-in, or every sentence dropped as narration), the event is not used up and its nudge is undone. Sentences that copy the event text, or narrate the patient by full name in the third person, are dropped on event turns only; a patient can still say their own name.
+
+Typed `/reply` (Unity's text path) does not run events, and Unity applies state there with `PatientState.ApplyTurn`, so the style's gains, the kind-turn rule and agitation gain are voice-path only. Seeds, slots, start offsets and the word cap do apply.
 
 ## Station `ward_01`: "I want to go home" (draft)
 

@@ -97,7 +97,9 @@ def update(state: dict, mood: dict, reply: dict, case: dict) -> tuple[dict, dict
     trust = d["trust"] + step * rules["reaction_trust_unit"]
     # a kind move (an intent with a positive trust nudge) cannot lower trust: the persona's mood colours the model's own
     # judgement (an upset patient reacts 'wary' to everything), so what the doctor did decides the direction
-    kind = any(rules["intent_nudges"].get(i, {}).get("trust", 0) > 0 for i in reply.get("doctor_intents", []))
+    intents = reply.get("doctor_intents", [])
+    negative = {i["id"] for i in brain.intents() if i.get("negative")}
+    kind = any(rules["intent_nudges"].get(i, {}).get("trust", 0) > 0 for i in intents) and not negative & set(intents)
     trust = max(0, trust) if kind else trust
     agitation = min(0, d["agitation"]) if kind else d["agitation"]  # nor raise agitation: de-escalation must be able to work
     delta = {**d, "trust": round(trust * (st["trust_gain"] if trust > 0 else st["trust_loss"])),
@@ -113,13 +115,13 @@ def due_events(case: dict, state: dict, turn: int, elapsed_min: float, fired: se
     """Case events whose trigger holds now, each at most once per session (adds their ids to `fired`). Triggers, all of
     which must hold: turn (this turn number or later), after_min, trust_at_least, agitation_at_least, agitation_below,
     after_event (another event already fired). Code decides when; the model only plays it."""
-    due = []
+    due, before = [], set(fired)  # after_event needs the earlier event on a previous turn
     for e in case.get("events", []):
         w = e["when"]
         if e["id"] in fired or not all((
                 turn >= w.get("turn", 0), elapsed_min >= w.get("after_min", 0),
                 state["trust"] >= w.get("trust_at_least", 0), state["agitation"] >= w.get("agitation_at_least", 0),
-                state["agitation"] < w.get("agitation_below", 101), w.get("after_event") in fired | {None})):
+                state["agitation"] < w.get("agitation_below", 101), w.get("after_event") in before | {None})):
             continue
         fired.add(e["id"])
         due.append(e)

@@ -180,3 +180,26 @@ def test_a_kind_move_never_raises_agitation():
     kind, _ = twin.update(st, twin.pad_from(st), {**r, "doctor_intents": ["offer_choice"]}, up)
     rude, _ = twin.update(st, twin.pad_from(st), {**r, "doctor_intents": ["threaten_coerce"]}, up)
     assert kind["agitation"] <= st["agitation"] - 5 and rude["agitation"] >= st["agitation"] + 10
+
+
+def test_a_rude_line_with_an_open_question_tacked_on_is_not_kind():
+    up = _with_style("upset")
+    st = {"trust": 30, "distress": 60, "agitation": 50, "engagement": 35}
+    r = {"reaction": "challenged", "state_delta": {"trust": -5, "distress": 2, "agitation": 5, "engagement": 0}}
+    mixed, _ = twin.update(st, twin.pad_from(st), {**r, "doctor_intents": ["threaten_coerce", "open_question"]}, up)
+    assert mixed["trust"] == st["trust"] - 10 and mixed["agitation"] == st["agitation"] + 10  # full per-turn clamp both ways
+
+
+def test_word_cap_drops_credit_for_unspoken_facts():
+    reply = {"utterance": "Fine. I sleep badly. Some nights I wish I would not wake up, honestly, it is hard to say.",
+             "revealed_fact_ids": ["f_sleep", "f_passive_si"]}
+    out, dropped = brain.apply_word_cap(reply, 4)
+    assert out["utterance"] == "Fine. I sleep badly." and out["revealed_fact_ids"] == [] and dropped
+    same, none = brain.apply_word_cap(reply, 100)
+    assert same == reply and none == []
+
+
+def test_authored_plain_case_prompt_has_no_style_block():
+    c = brain.load_case("mdd_01")
+    sp = brain.build_system_prompt(c)
+    assert "Conversation style: plain." in sp and "the style wins today" not in sp

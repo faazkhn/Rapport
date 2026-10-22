@@ -20,7 +20,9 @@ from openai import OpenAI  # noqa: E402
 
 def run_conv(conv, case_id, client, model, style=None):
     """style: play a seeded patient with that conversation style; state then moves as in a live session (twin.update)."""
-    seed = next(s for s in range(1000) if brain.load_case(case_id, conv["variant"], seed=s)["style"] == style) if style else None
+    seed = next((s for s in range(1000) if brain.load_case(case_id, conv["variant"], seed=s)["style"] == style), "none") if style else None
+    if seed == "none":
+        raise SystemExit(f"style {style!r} is not in {case_id}'s styles_allowed")
     case = brain.load_case(case_id, conv["variant"], seed)
     state = {**case["state_start"], **conv.get("start_state", {})}
     msgs, out = [], []
