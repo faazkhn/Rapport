@@ -13,6 +13,11 @@ namespace Rapport.Data
     {
         static readonly Regex Tpl = new(@"\{(name|they|them|their|They|Them|Their)\}");
 
+        static readonly Regex Slot = new(@"\{([a-z_]+)\}");
+
+        public static string Fill(string text, CaseVariant v, IDictionary<string, string> slots)
+            => Fill(slots == null ? text : Slot.Replace(text, m => slots.TryGetValue(m.Groups[1].Value, out var s) ? s : m.Value), v);
+
         public static string Fill(string text, CaseVariant v) => Tpl.Replace(text, m =>
         {
             var key = m.Groups[1].Value;
@@ -20,13 +25,15 @@ namespace Rapport.Data
             return char.IsUpper(key[0]) ? char.ToUpperInvariant(word[0]) + word.Substring(1) : word;
         });
 
-        public static CaseFile Resolve(CaseFile c, string variant)
+        /// <param name="slots">Slot values the service picked for a seeded patient (GET /patient); null = the authored case (option 0).</param>
+        public static CaseFile Resolve(CaseFile c, string variant, IDictionary<string, string> slots = null)
         {
             if (!c.variants.TryGetValue(variant, out var v)) throw new ContentException($"{c.id}: unknown variant '{variant}'");
+            slots ??= c.slots.Values.Where(o => o.Count > 0).SelectMany(o => o[0]).ToDictionary(kv => kv.Key, kv => kv.Value);
             var j = JObject.FromObject(c);
             j.Remove("variants");
             foreach (var s in j.Descendants().OfType<JValue>().Where(x => x.Type == JTokenType.String).ToList())
-                s.Value = Fill((string)s.Value, v);
+                s.Value = Fill((string)s.Value, v, slots);
             var r = j.ToObject<CaseFile>();
             r.variants = new Dictionary<string, CaseVariant> { [variant] = v };
             r.variant = variant;

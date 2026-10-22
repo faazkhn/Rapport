@@ -51,7 +51,7 @@ namespace Rapport.Patient
             var turn = new PatientTurn { doctorLine = doctorLine };
             var req = new JObject
             {
-                ["case_id"] = caseFile.id,
+                ["case_id"] = caseFile.id, ["variant"] = caseFile.variant ?? "female", ["seed"] = caseFile.seed, ["mode"] = caseFile.seed_mode ?? "practice",
                 ["messages"] = new JArray(History.Skip(Math.Max(0, History.Count - HistoryMessages)).Select(m => new JObject { ["role"] = m.role, ["text"] = m.text })),
                 ["state"] = JObject.FromObject(State.Snapshot()),
                 ["elapsed_min"] = Math.Round(elapsedMin, 1),

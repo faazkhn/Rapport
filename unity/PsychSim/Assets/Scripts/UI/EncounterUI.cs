@@ -231,6 +231,7 @@ namespace Rapport.UI
 
         // ---------------------------------------------------------------- start screen and prebrief (plan C6)
 
+        const string Surprise = "random";   // start-screen choice for a seeded patient
         string startCase, startVariant = "female";
         Mode startMode = Mode.Practice;
 
@@ -252,15 +253,24 @@ namespace Rapport.UI
                 var key = kv.Key;
                 vRow.Add(Choice($"{char.ToUpper(key[0]) + key.Substring(1)} · {kv.Value.name}", startVariant == key, () => SelectVariant(key)));
             }
+            if (encounter.Data.cases[startCase].slots.Count > 0 || encounter.Data.cases[startCase].styles_allowed.Count > 1)
+                vRow.Add(Choice("Surprise me", startVariant == Surprise, () => SelectVariant(Surprise)));
             card.Add(vRow);
-            card.Add(Para("Same clinical story for both; only the name, pronouns, body and voice change."));
+            card.Add(Para(startVariant == Surprise
+                ? "A random patient: the same clinical story, but family details and the way they talk change each time. The debrief says who you met."
+                : "Same clinical story for both; only the name, pronouns, body and voice change."));
             card.Add(Heading("3. Mode"));
             var mRow = Row();
             mRow.Add(Choice("Practice", startMode == Mode.Practice, () => { startMode = Mode.Practice; ShowStart(); }));
             mRow.Add(Choice("Assessment", startMode == Mode.Assessment, () => { startMode = Mode.Assessment; ShowStart(); }));
             card.Add(mRow);
             card.Add(Para(startMode == Mode.Practice ? "Practice: the 15-minute clock is a guide; you can run over." : "Assessment: a strict 15-minute station; it ends and scores itself at 15:00."));
-            var go = Button("Continue", () => encounter.Configure(startCase, startVariant, startMode), 20);
+            var go = Button("Continue", () =>
+            {
+                if (startVariant != Surprise) { encounter.Configure(startCase, startVariant, startMode); return; }
+                var keys = encounter.Data.cases[startCase].variants.Keys.ToList();
+                _ = encounter.ConfigureSeeded(startCase, keys[UnityEngine.Random.Range(0, keys.Count)], startMode, UnityEngine.Random.Range(0, int.MaxValue));
+            }, 20);
             go.style.marginTop = 16;
             card.Add(go);
         }
@@ -322,6 +332,8 @@ namespace Rapport.UI
             sv.Add(Text(s.verdict, 34, s.critical_errors.Count > 0 ? Bad : Good, true));
             foreach (var e in s.critical_errors) sv.Add(Para("Critical error: " + e, Bad));
             sv.Add(Text($"Score {s.total:0.#} / 100 (formative)", 26, Color.white, true));
+            if (encounter.Case.seed is int seed)
+                sv.Add(Para($"You met {encounter.Case.patient.name}, conversation style: {encounter.StyleLabel ?? encounter.Case.style} (patient seed {seed}; same seed, same patient)."));
             sv.Add(Heading("Your conclusions vs the case"));
             var grid = new VisualElement();
             var hdr = Row();

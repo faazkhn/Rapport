@@ -23,6 +23,11 @@ namespace Rapport.Data
         public JToken rubric;
         public Dictionary<string, CaseVariant> variants = new();
         public Dictionary<string, ExamActionRule> exam_actions = new();
+        // seeded patients: neutral details and conversation styles a session may vary (service brain.load_case)
+        public List<string> styles_allowed = new();
+        public Dictionary<string, List<Dictionary<string, string>>> slots = new();
+        public int? seed;          // set when the service generated this patient
+        public string seed_mode;   // "practice" or "assessment": the mode the seed was drawn for (assessment keeps the authored style)
     }
 
     public class CaseVariant

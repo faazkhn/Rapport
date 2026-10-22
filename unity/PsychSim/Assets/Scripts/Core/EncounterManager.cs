@@ -109,9 +109,38 @@ namespace Rapport.Core
         {
             if (Phase != Phase.Start) return;
             Case = CaseVariants.Resolve(Data.cases[caseId], variant);
+            StyleLabel = null;
             Mode = mode;
             SetPhase(Phase.Brief);
         }
+
+        /// <summary>A seeded patient (start screen "Surprise me"): the service picks neutral details and a conversation style; the
+        /// clinical story and the answer key stay the case's. Falls back to the authored patient if the service cannot be reached.</summary>
+        public async Task ConfigureSeeded(string caseId, string variant, Mode mode, int seed)
+        {
+            if (Phase != Phase.Start) return;
+            try
+            {
+                var p = await http.Patient(caseId, variant, seed, mode == Mode.Assessment ? "assessment" : "practice");
+                Case = CaseVariants.Resolve(Data.cases[caseId], variant, p["slots"].ToObject<Dictionary<string, string>>());
+                Case.state_start = p["state_start"].ToObject<Dictionary<string, float>>();
+                Case.style = (string)p["style"];
+                Case.seed = seed;
+                Case.seed_mode = mode == Mode.Assessment ? "assessment" : "practice";
+                StyleLabel = (string)p["style_label"];
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("Rapport: no seeded patient (" + e.GetBaseException().Message + "); using the authored one");
+                Case = CaseVariants.Resolve(Data.cases[caseId], variant);
+                StyleLabel = null;
+            }
+            Mode = mode;
+            SetPhase(Phase.Brief);
+        }
+
+        /// <summary>Conversation style label of a seeded patient (shown in the debrief); null for the authored patient.</summary>
+        public string StyleLabel { get; private set; }
 
         /// <summary>Brief -> Enter: starts the session, spawns the patient, connects the voice loop and plays the entrance; Active follows.</summary>
         public void BeginEncounter()
@@ -120,7 +149,7 @@ namespace Rapport.Core
             State = new PatientState(Case.state_start);
             Ledger = new IntentLedger();
             Log = new SessionLog(Application.persistentDataPath, Case.id, () => SessionSeconds);
-            Log.Write("session_start", new { case_id = Case.id, case_version = Case.version, case_status = Case.status, variant = Case.variant, mode = Mode.ToString(), state = State.Snapshot() });
+            Log.Write("session_start", new { case_id = Case.id, case_version = Case.version, case_status = Case.status, variant = Case.variant, mode = Mode.ToString(), seed = Case.seed, style = Case.style, state = State.Snapshot() });
             Action<string, string> logTool = (kind, id) => Log.Write("tool", new { action = kind, id });
             Mse.Changed += logTool; Dx.Changed += logTool; Rx.Changed += logTool; Disposition.Changed += logTool;
             SetPhase(Phase.Enter);
@@ -151,6 +180,7 @@ namespace Rapport.Core
                 await Voice.Connect(settings.baseUrl, new JObject
                 {
                     ["case_id"] = Case.id, ["variant"] = Case.variant, ["state"] = JObject.FromObject(State.Snapshot()), ["hands_free"] = false, ["vad_silence_ms"] = settings.vadSilenceMs,
+                    ["seed"] = Case.seed, ["mode"] = Mode == Mode.Assessment ? "assessment" : "practice",
                 });
             }
             catch (Exception e)

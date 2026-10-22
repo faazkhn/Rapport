@@ -221,6 +221,18 @@ namespace Rapport.Tests
         }
 
         [Test]
+        public void SlotsFillWithTheAuthoredOptionOrTheServicePicks()
+        {
+            var authored = CaseVariants.Resolve(mdd, "female");
+            StringAssert.Contains("Rohan", authored.patient.background);
+            Assert.IsFalse(authored.facts.Any(f => f.text.Contains("{")));
+            var seeded = CaseVariants.Resolve(mdd, "male", new Dictionary<string, string>
+                { ["hobby"] = "guitar", ["hobby_short"] = "guitar", ["sibling"] = "Varun", ["hometown"] = "Hubballi" });
+            StringAssert.Contains("Varun", seeded.patient.background); StringAssert.Contains("Hubballi", seeded.patient.background);
+            Assert.IsTrue(seeded.facts.Any(f => f.text.Contains("guitar practice")));
+        }
+
+        [Test]
         public void CriticalErrorIsNotPassedWhateverTheScore()
         {
             var i = Perfect();
