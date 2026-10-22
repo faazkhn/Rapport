@@ -1,9 +1,9 @@
-"""Post-process the recorded demo take into demo/PsychSim_demo_v1.mp4.
+"""Post-process the recorded demo take into demo/Rapport_demo_v3.mp4 (or --out).
 
 Adds a title card and an end card (crossfaded), soft room tone under the dialogue, loudness normalised to -16 LUFS,
 H.264 high profile 1920x1080 60 fps with AAC 192k. Also writes check frames (one every 10 s) and 6 stills.
 
-Usage (from Med/): server/patient-service/.venv/bin/python tools/demo/post.py [demo/raw/PsychSim_take.mp4]
+Usage (from Med/): server/patient-service/.venv/bin/python tools/demo/post.py [demo/raw/Rapport_take.mp4] [--out demo/Rapport_demo_v3.mp4]
 """
 import json
 import subprocess
@@ -47,32 +47,33 @@ def probe(path):
 def main():
     import argparse
     ap = argparse.ArgumentParser()
-    ap.add_argument("take", nargs="?", default=str(DEMO / "raw" / "PsychSim_take.mp4"))
-    ap.add_argument("--arjun", default=str(DEMO / "raw" / "PsychSim_take_arjun.mp4"), help="male-variant take; a 10 s cut is inserted")
+    ap.add_argument("take", nargs="?", default=str(DEMO / "raw" / "Rapport_take.mp4"))
+    ap.add_argument("--arjun", default=str(DEMO / "raw" / "Rapport_take_arjun.mp4"), help="male-variant take; a 10 s cut is inserted ('' for none)")
     ap.add_argument("--arjun-start", type=float, default=None, help="start of the Arjun cut in its take (default: 10 s before its end)")
     ap.add_argument("--trim-start", type=float, default=0.0)
     ap.add_argument("--trim-end", type=float, default=TRIM_END)
+    ap.add_argument("--out", default=str(DEMO / "Rapport_demo_v3.mp4"))
     ap.add_argument("--latency", default="", help="measured median, e.g. '1.4 s'")
     a = ap.parse_args()
     take, work = Path(a.take), DEMO / "raw"
     white, grey, amber = (240, 240, 240), (170, 178, 190), (240, 170, 60)
-    card(work / "title.png", [("PsychSim", 110, white, True), ("Embodied psychiatry & addiction OSCE simulator", 48, grey, False),
+    card(work / "title.png", [("Rapport", 110, white, True), ("Psychiatry OSCE simulator with a Digital Twin patient", 48, grey, False),
                               ("For education only", 40, amber, False)])
     card(work / "end.png", [("Measured voice latency (doctor stops to patient speaks): " + (a.latency or "see docs/latency.md"), 36, white, True),
-                            ("Everything runs on one Mac: Parakeet STT · local Gemma LLM · KittenTTS", 32, grey, False),
-                            ("Next: faster replies · 10 cases · faculty review · VR on Quest 3S", 32, grey, False),
+                            ("Everything runs on one Mac: Parakeet STT · local Gemma 4 E4B · Qwen3-TTS", 32, grey, False),
+                            ("Next: faculty review · blind A/B of the learning loop · more cases · VR on Quest 3S", 32, grey, False),
                             ("", 20, grey, False), ("Draft clinical content, not yet faculty-validated", 40, amber, False),
                             ("Dr. Faaz's lines are synthesised (KittenTTS Hugo) and fed through the live microphone path.", 26, grey, False),
-                            ("Patient replies are generated live by the local model.", 26, grey, False)])
+                            ("Patient replies are generated live by the local model. One continuous take, no cuts.", 26, grey, False)])
     take_s = float(probe(take)["format"]["duration"]) - a.trim_end - a.trim_start
     segs = [("img", work / "title.png", TITLE_S), ("vid", take, take_s, a.trim_start)]
     arjun = Path(a.arjun)
-    if arjun.exists():
+    if a.arjun and arjun.exists():
         ad = float(probe(arjun)["format"]["duration"])
         card(work / "arjun.png", [("Same case, male variant", 56, white, True), ("Arjun Rao · same clinical facts, different body and voice", 36, grey, False)])
         segs += [("img", work / "arjun.png", 2.0), ("vid", arjun, 10.0, a.arjun_start if a.arjun_start is not None else max(0.0, ad - 10.5))]
     segs.append(("img", work / "end.png", END_S))
-    out = DEMO / "PsychSim_demo_v1.mp4"
+    out = Path(a.out)
     inputs, vf, af = [], [], []
     for i, sg in enumerate(segs):
         if sg[0] == "img":

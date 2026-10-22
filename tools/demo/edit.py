@@ -1,6 +1,6 @@
 """Cut the raw take down to the kept exchanges (demo/edit.json: [[start, end], ...] in seconds) with short crossfades.
 The cuts only remove waiting time between a doctor line and the reply, and whole exchanges; nothing inside a line is changed.
-Usage: .venv/bin/python tools/demo/edit.py demo/raw/PsychSim_take.mp4 demo/edit.json demo/raw/PsychSim_take_edit.mp4
+Usage: .venv/bin/python tools/demo/edit.py demo/raw/Rapport_take.mp4 demo/edit.json demo/raw/Rapport_take_edit.mp4
 """
 import json
 import subprocess
