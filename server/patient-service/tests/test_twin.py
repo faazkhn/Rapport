@@ -172,7 +172,8 @@ def test_enforce_discomfort_on_locked_hit():
 
 def test_recall_common_si_screening_phrasings():
     for q in ("Sometimes when people feel this low, they have thoughts that life isn't worth living. Have you had thoughts like that?",
-              "Do you ever feel life is not worth living?", "Do you ever feel you'd be better off dead?"):
+              "Do you ever feel life is not worth living?", "Do you ever feel you'd be better off dead?",
+              "Even fleeting thoughts, like wishing you wouldn't wake up in the morning?"):
         assert "f_passive_si" in twin.recall(CASE, 70, q)["open"], q
 
 
