@@ -138,7 +138,7 @@ class Session:
             await self.send_json({"type": "error", "error": f"bad case_id/variant: {e}"})
             return
         self.state = {**self.case["state_start"], **(msg.get("state") or {})}
-        self.messages, self.t_start = [], time.monotonic()
+        self.messages, self.t_start, self.fired = [], time.monotonic(), set()
         self.hands_free = bool(msg.get("hands_free", True))
         self.silence_ms = int(msg.get("vad_silence_ms", stt.SILENCE_MS))
         self.vad = stt.Vad(min(stt.SPECULATE_MS, self.silence_ms))  # the end event is a candidate; on_frame decides
@@ -320,13 +320,21 @@ class Session:
             await self.send_json({"type": "exam", "turn": self.turn_no, "actions": exam["actions"], "relax": exam["relax"]})
         await self.send_json({"type": "thinking"})
 
+        events = twin.due_events(case, state, self.turn_no, elapsed, self.fired)
+        if events:  # code decides when a ward event happens; the model only plays it
+            state = self.state = twin.apply_event_deltas(state, events)
+            acts = [{"id": e["action"], "comply": True} for e in events if e.get("action")]
+            if acts:
+                await self.send_json({"type": "exam", "turn": self.turn_no, "actions": acts, "relax": False})
+            for e in events:
+                await self.twin({"event": "ward_event", "turn": self.turn_no, "id": e["id"], "say": e["say"]})
         recalled = twin.recall(case, state["trust"], text)
         v = learning.current()
         examples = learning.retrieve(case["id"], text, self.mode, v.get("examples_k", 0), v.get("library_upto"))
         allowed = [f["id"] for f in brain.allowed_facts(case, state["trust"])]
         schema = brain.build_reply_schema(case, allowed, [])
         kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed, recalled=recalled, exam=exam,
-                                                         examples=examples),
+                                                         examples=examples, events=events),
                               schema, "patient_reply", 0)
         q: asyncio.Queue = asyncio.Queue()
         t_llm = time.monotonic()

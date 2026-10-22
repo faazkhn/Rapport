@@ -1,6 +1,8 @@
 import json
 import re
 
+import pytest
+
 import brain
 import twin
 
@@ -98,13 +100,14 @@ def test_word_cap_keeps_whole_sentences():
     assert brain.cap_words("One very long sentence without any stop at all here", 3) == "One very long sentence without any stop at all here"
 
 
-def test_every_allowed_style_can_reach_every_required_fact_in_time():
+@pytest.mark.parametrize("case_id", ["mdd_01", "ward_01"])
+def test_every_allowed_style_can_reach_every_required_fact_in_time(case_id):
     """Answer-key replay in code: a kind doctor (trust +6 a turn before the style's gain) every 30 s reaches the highest
     trust_min among the facts within the time limit, for every style the case allows."""
-    raw = brain.load_raw_case("mdd_01")
-    need = max(f["trust_min"] for f in brain.load_case("mdd_01")["facts"])
+    raw = brain.load_raw_case(case_id)
+    need = max(f["trust_min"] for f in brain.load_case(case_id)["facts"])
     for style in raw["styles_allowed"]:
-        c = _with_style(style)
+        c = brain.load_case(case_id, "female", seed=next(s for s in range(500) if brain.load_case(case_id, "female", seed=s)["style"] == style))
         st = dict(c["state_start"])
         for turn in range(raw["time_limit_min"] * 2):
             st, _ = twin.update(st, twin.pad_from(st), {"reaction": "none", "doctor_intents": [],
@@ -112,3 +115,16 @@ def test_every_allowed_style_can_reach_every_required_fact_in_time():
             if st["trust"] >= need:
                 break
         assert st["trust"] >= need, (style, turn, st["trust"])
+
+
+def test_ward_station_recall_and_events():
+    c = brain.load_case("ward_01", "male")
+    for q, fid, trust in (("Why do you want to leave today?", "f_pc", 25), ("What is it about the ward that's hard?", "f_reasons_ward", 25),
+                          ("Can you tell me what happened on the night you came in?", "f_terrace", 45),
+                          ("Are you still having thoughts of ending your life?", "f_current_si", 60),
+                          ("Who is at home with you at the moment?", "f_means", 60),
+                          ("What would help you stay one more night?", "f_protective", 50)):
+        assert fid in twin.recall(c, trust, q)["open"], (q, fid)
+    fired = set()
+    assert [e["id"] for e in twin.due_events(c, c["state_start"], 1, 0.2, fired)] == ["asks_to_leave"]
+    assert "Arjun" in next(e["say"] for e in c["events"] if e["id"] == "stands_up")

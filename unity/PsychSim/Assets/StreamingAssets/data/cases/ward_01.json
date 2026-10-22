@@ -1,0 +1,714 @@
+{
+ "id": "ward_01",
+ "title": "I want to go home",
+ "version": "0.1.0",
+ "status": "draft",
+ "authors": [
+  "AI draft (PsychSim dev agent)"
+ ],
+ "reviewed_by": [],
+ "verified_by": null,
+ "setting": "acute_ward",
+ "time_limit_min": 10,
+ "content_note": "This case includes thoughts of suicide, a recent suicidal crisis and a patient asking to leave hospital.",
+ "referral_note": "Nurse's handover: {name}, 24, day 3 of an independent admission (Mental Healthcare Act 2017, s.86) to the acute ward after a friend found {them} on the terrace of {their} building at night, crying. Moderate to severe depressive episode. This morning {they} asked to be discharged today and has packed {their} bag. Please see {them}.",
+ "variants": {
+  "female": {
+   "name": "Ananya Rao",
+   "sex": "female",
+   "pronouns": {
+    "they": "she",
+    "them": "her",
+    "their": "her"
+   },
+   "model_id": "female_20s_a",
+   "voice_id": "Luna",
+   "voice_description": "A 24-year-old Indian woman from Bengaluru with a soft, natural Indian-English accent. Young, warm but tired voice, mid-low pitch, quiet. Natural and human, not a narrator."
+  },
+  "male": {
+   "name": "Arjun Rao",
+   "sex": "male",
+   "pronouns": {
+    "they": "he",
+    "them": "him",
+    "their": "his"
+   },
+   "model_id": "male_20s_a",
+   "voice_id": "Leo",
+   "voice_description": "A 24-year-old Indian man from Bengaluru with a natural Indian-English accent. Young, low and soft male voice, tired and quiet. Natural and human, not a narrator."
+  }
+ },
+ "patient": {
+  "age": 24,
+  "variant": "office_casual",
+  "voice_speed": 1.0,
+  "background": "Grew up in {hometown}; moved to Bengaluru two years ago for {their} first job as a software test engineer at an IT services company. Shares a rented flat in HSR Layout with a colleague. Father is a retired government school teacher, mother looks after the home; younger brother {sibling} (19) is in second-year engineering. Sends part of {their} salary home towards {sibling}'s college fees. Speaks English at work and Kannada at home.",
+  "personality": "Usually quiet, polite and apologetic, but today frustrated and on edge: tired of the ward, ashamed to be here, and worried about {their} job. Wants to be treated like an adult. Softens when the doctor listens, explains honestly and gives {them} real choices; pushes back hard against orders or threats. Never dramatic for its own sake.",
+  "speech_style": "Soft and a little slow, plain short sentences. Natural Indian English; occasional 'actually', 'no?', 'what to do'. No caricature."
+ },
+ "behavior": {
+  "appearance": {
+   "description": "Thin, neatly but plainly dressed, looks tired; dark circles under the eyes."
+  },
+  "behaviour": {
+   "description": "Sits on the edge of the seat with {their} bag beside {them}, restless, picks at nails; looks at the door; looks down when talking about the night on the terrace."
+  },
+  "speech": {
+   "rate": "normal",
+   "volume": "normal",
+   "latency": "short",
+   "description": "Clipped, a little sharp at first; quieter and slower when talking about feelings.",
+   "example_lines": [
+    "I just want to go home, doctor. Today.",
+    "I'm fine now. Really."
+   ]
+  },
+  "mood": {
+   "description": "Low and irritable; frustrated rather than tearful at the start. Uses everyday words, never clinical ones.",
+   "example_lines": [
+    "Nobody here even sleeps properly.",
+    "I don't need to be locked up."
+   ]
+  },
+  "affect": {
+   "description": "Constricted, sad; tearful when talking about family or feeling a burden; a brief polite smile that does not reach the eyes."
+  },
+  "thought_form": {
+   "description": "Logical and coherent but slowed; no flight of ideas."
+  },
+  "thought_content": {
+   "description": "Worthlessness and guilt about failing parents; passive wishes not to wake up, no plan or intent. Does not raise these unless asked kindly.",
+   "example_lines": [
+    "I feel like I'm just a burden to everyone.",
+    "Sometimes I think... it would be easier if I just didn't wake up. But I wouldn't do anything."
+   ]
+  },
+  "perception": {
+   "description": "No abnormal perceptions."
+  },
+  "cognition": {
+   "description": "Alert and oriented; complains of poor concentration."
+  },
+  "insight": {
+   "description": "Partial and intellectual: says 'maybe it's stress' and accepts there is a problem, but feels it is personal weakness rather than an illness; open to help.",
+   "example_lines": [
+    "Maybe it's just work stress. Everyone has stress, no?",
+    "I should be able to handle this myself."
+   ]
+  },
+  "judgment": {
+   "description": "Intact: came when advised, would accept help."
+  },
+  "cooperation": {
+   "description": "Polite and compliant on the surface but gives little unless asked open, kind questions; goes quiet when rushed or judged."
+  }
+ },
+ "style": "upset",
+ "styles_allowed": [
+  "upset",
+  "reserved",
+  "plain"
+ ],
+ "slots": {
+  "hobby": [
+   {
+    "hobby": "Carnatic singing",
+    "hobby_short": "singing"
+   },
+   {
+    "hobby": "badminton",
+    "hobby_short": "badminton"
+   },
+   {
+    "hobby": "guitar",
+    "hobby_short": "guitar"
+   },
+   {
+    "hobby": "drawing",
+    "hobby_short": "drawing"
+   }
+  ],
+  "sibling": [
+   {
+    "sibling": "Rohan"
+   },
+   {
+    "sibling": "Karthik"
+   },
+   {
+    "sibling": "Varun"
+   }
+  ],
+  "hometown": [
+   {
+    "hometown": "Mysuru"
+   },
+   {
+    "hometown": "Hubballi"
+   },
+   {
+    "hometown": "Mangaluru"
+   },
+   {
+    "hometown": "Davangere"
+   }
+  ]
+ },
+ "events": [
+  {
+   "id": "asks_to_leave",
+   "when": {
+    "turn": 1
+   },
+   "say": "Before anything else, {name} says {they} wants to be discharged today and go home; the bag is packed.",
+   "state_delta": {
+    "agitation": 5
+   }
+  },
+  {
+   "id": "corridor_shout",
+   "when": {
+    "after_min": 3
+   },
+   "say": "Someone shouts in the corridor; {name} flinches and says this is exactly why {they} cannot sleep here.",
+   "state_delta": {
+    "distress": 5,
+    "agitation": 5
+   }
+  },
+  {
+   "id": "stands_up",
+   "when": {
+    "agitation_at_least": 65
+   },
+   "say": "{name} stands up, raises {their} voice and says {they} is not a prisoner here.",
+   "action": "stand_up",
+   "state_delta": {
+    "agitation": 5
+   }
+  },
+  {
+   "id": "sits_down",
+   "when": {
+    "agitation_below": 45,
+    "after_event": "stands_up"
+   },
+   "say": "{name} sits back down, a little calmer.",
+   "action": "sit_down"
+  },
+  {
+   "id": "mother_message",
+   "when": {
+    "after_min": 7
+   },
+   "say": "{name}'s phone buzzes: {their} mother says she is coming tomorrow morning. {name} goes quiet for a moment.",
+   "state_delta": {
+    "distress": -3,
+    "trust": 2
+   }
+  }
+ ],
+ "banned_words": [
+  "depressed",
+  "depression",
+  "depressive",
+  "anhedonia",
+  "anhedonic",
+  "dysthymia",
+  "ideation",
+  "psychomotor",
+  "dysphoric",
+  "euthymic",
+  "SSRI",
+  "antidepressant",
+  "serotonin",
+  "diagnosis",
+  "DSM",
+  "comorbid",
+  "suicidal ideation",
+  "MDD",
+  "section",
+  "sectioned",
+  "involuntary"
+ ],
+ "principles": [],
+ "rubric": "MIRS",
+ "exam_actions": {
+  "hold_out_hands": {
+   "trust_min": 10
+  },
+  "look_at_light": {
+   "trust_min": 10
+  },
+  "follow_finger": {
+   "trust_min": 10
+  },
+  "open_mouth": {
+   "trust_min": 15
+  },
+  "stick_out_tongue": {
+   "trust_min": 15
+  },
+  "show_forearms": {
+   "trust_min": 30,
+   "refusal_line": "Why? There's nothing there... do I have to?"
+  },
+  "roll_up_sleeves": {
+   "trust_min": 30,
+   "refusal_line": "Why? There's nothing there... do I have to?"
+  },
+  "stand_up": {
+   "trust_min": 5
+  },
+  "sit_down": {
+   "trust_min": 0
+  },
+  "walk_few_steps": {
+   "trust_min": 10
+  }
+ },
+ "state_start": {
+  "trust": 25,
+  "distress": 65,
+  "agitation": 45,
+  "engagement": 35
+ },
+ "state_drift_per_min": {
+  "agitation": 0.5
+ },
+ "facts": [
+  {
+   "id": "f_pc",
+   "text": "Wants to be discharged today. Has been on the ward three days as an independent patient and feels {they} is 'fine now'.",
+   "trust_min": 0,
+   "activation_tags": [
+    "why",
+    "what brings",
+    "how are you",
+    "today",
+    "leave",
+    "go home",
+    "discharge"
+   ],
+   "kind": "symptom",
+   "label": "Wants to go home",
+   "volunteered": true
+  },
+  {
+   "id": "f_reasons_ward",
+   "text": "Cannot sleep on the ward: a patient shouts at night and the lights stay on. Feels watched and treated like a child; hates asking for everything.",
+   "trust_min": 5,
+   "activation_tags": [
+    "sleep",
+    "ward",
+    "night",
+    "noise",
+    "why",
+    "staying",
+    "here",
+    "treated"
+   ],
+   "kind": "trigger",
+   "label": "Hates the ward"
+  },
+  {
+   "id": "f_reasons_job",
+   "text": "Afraid of losing {their} job: the appraisal is next week and {they} told the manager it was a 'fever'. Thinks every day here makes it worse.",
+   "trust_min": 15,
+   "activation_tags": [
+    "job",
+    "work",
+    "manager",
+    "office",
+    "appraisal",
+    "worried",
+    "worry"
+   ],
+   "kind": "trigger",
+   "label": "Job at risk"
+  },
+  {
+   "id": "f_shame",
+   "text": "Ashamed to be in a 'mental hospital'; worried relatives and colleagues will find out.",
+   "trust_min": 20,
+   "activation_tags": [
+    "feel about",
+    "ashamed",
+    "embarrass",
+    "people know",
+    "family know",
+    "stigma"
+   ],
+   "kind": "formative",
+   "label": "Ashamed to be here"
+  },
+  {
+   "id": "f_mood",
+   "text": "Mood is still low most of the day, especially in the evenings; less tearful than before admission, more numb. Sleep is 3 to 4 hours, eating a little more.",
+   "trust_min": 20,
+   "activation_tags": [
+    "mood",
+    "feeling",
+    "low",
+    "sad",
+    "eat",
+    "appetite",
+    "sleep"
+   ],
+   "kind": "symptom",
+   "label": "Still low"
+  },
+  {
+   "id": "f_terrace",
+   "text": "Three nights before admission {they} went up to the terrace of {their} building at night and stood near the edge, thinking about jumping, until {their} friend found {them}.",
+   "trust_min": 40,
+   "activation_tags": [
+    "terrace",
+    "that night",
+    "what happened",
+    "before you came",
+    "admission",
+    "brought you",
+    "roof",
+    "edge",
+    "jump"
+   ],
+   "kind": "risk",
+   "label": "The terrace night",
+   "generates_discomfort": true
+  },
+  {
+   "id": "f_current_si",
+   "text": "Still has thoughts of ending {their} life when alone at night, and has thought about the terrace again; has not decided to act. Yesterday told a nurse 'I'd rather be dead than stay here'.",
+   "trust_min": 55,
+   "activation_tags": [
+    "suicide",
+    "kill yourself",
+    "end your life",
+    "ending your life",
+    "die",
+    "dead",
+    "not wake up",
+    "wouldn't wake up",
+    "hurt yourself",
+    "harm yourself",
+    "worth living",
+    "better off dead",
+    "now",
+    "still",
+    "thoughts",
+    "end it all"
+   ],
+   "kind": "risk",
+   "label": "Still has thoughts",
+   "generates_discomfort": true,
+   "must_be_asked": true,
+   "unlock_intents": [
+    "ask_suicidal_ideation"
+   ]
+  },
+  {
+   "id": "f_means",
+   "text": "The terrace door at {their} building is never locked. Lives alone this month because the flatmate is travelling.",
+   "trust_min": 55,
+   "activation_tags": [
+    "terrace",
+    "access",
+    "at home",
+    "home alone",
+    "live with",
+    "alone",
+    "means",
+    "anything at home",
+    "flatmate"
+   ],
+   "kind": "risk",
+   "label": "Alone, terrace open",
+   "must_be_asked": true,
+   "unlock_intents": [
+    "ask_suicide_means",
+    "ask_social_history"
+   ]
+  },
+  {
+   "id": "f_protective",
+   "text": "Would not want {their} mother and brother {sibling} to go through that. {Their} mother is coming tomorrow morning. Would stay one more night if {they} could have a quieter bed and call home.",
+   "trust_min": 45,
+   "activation_tags": [
+    "keeps you going",
+    "stops you",
+    "reasons to live",
+    "mother",
+    "amma",
+    "family",
+    "brother",
+    "help",
+    "what would",
+    "choice",
+    "option"
+   ],
+   "kind": "history",
+   "label": "Amma and {sibling}"
+  },
+  {
+   "id": "f_capacity",
+   "text": "Understands that {they} is unwell and that the team is worried; can say what could happen if {they} went home alone (that {they} might go back to the terrace) but says 'I'll manage'.",
+   "trust_min": 30,
+   "activation_tags": [
+    "understand",
+    "what happens if",
+    "risk",
+    "worried",
+    "if you go home",
+    "consequences",
+    "what do you think"
+   ],
+   "kind": "history",
+   "label": "Understands the risk"
+  },
+  {
+   "id": "f_substances",
+   "text": "No alcohol or drugs; a glass of wine at office parties two or three times a year.",
+   "trust_min": 15,
+   "activation_tags": [
+    "alcohol",
+    "drink",
+    "drugs",
+    "smoke",
+    "substance"
+   ],
+   "kind": "history",
+   "label": "No substances"
+  },
+  {
+   "id": "f_meds",
+   "text": "Started on sertraline two days ago; feels nothing yet and worries it will make {them} 'different'.",
+   "trust_min": 20,
+   "activation_tags": [
+    "medicine",
+    "tablet",
+    "medication",
+    "sertraline",
+    "side effect",
+    "treatment"
+   ],
+   "kind": "history",
+   "label": "New tablets"
+  }
+ ],
+ "cues": [
+  {
+   "id": "restless",
+   "base": 0.35,
+   "agitation_gain": 0.4
+  },
+  {
+   "id": "fidget",
+   "base": 0.3,
+   "distress_gain": 0.2,
+   "agitation_gain": 0.2
+  },
+  {
+   "id": "gaze_avoid",
+   "base": 0.35,
+   "distress_gain": 0.3,
+   "trust_gain": -0.3,
+   "on_facts": [
+    "f_terrace",
+    "f_current_si"
+   ]
+  },
+  {
+   "id": "tearful",
+   "base": 0.05,
+   "distress_gain": 0.3,
+   "on_facts": [
+    "f_terrace",
+    "f_current_si",
+    "f_protective"
+   ],
+   "event_boost": 0.5,
+   "event_duration_s": 6
+  },
+  {
+   "id": "slumped",
+   "base": 0.2,
+   "distress_gain": 0.2,
+   "engagement_gain": -0.2
+  }
+ ],
+ "exam": {
+  "vitals": {
+   "hr_bpm": 88,
+   "bp_mmhg": "112/74",
+   "rr_per_min": 16,
+   "temp_c": 36.8,
+   "spo2_pct": 99
+  },
+  "findings": {
+   "hands": "Mild fine tremor of outstretched hands. Nails bitten.",
+   "arms": "No scars or marks.",
+   "pupils": "Normal size, equal and reactive.",
+   "general": "Thin, neatly but plainly dressed, looks tired."
+  }
+ },
+ "scales": {
+  "PHQ-9": {
+   "item_scores": {
+    "interest": 2,
+    "mood": 2,
+    "sleep": 2,
+    "energy": 3,
+    "appetite": 2,
+    "worthlessness": 2,
+    "concentration": 2,
+    "psychomotor": 1,
+    "self_harm_thoughts": 1
+   }
+  },
+  "GAD-7": {
+   "item_scores": {
+    "nervous": 2,
+    "uncontrolled_worry": 2,
+    "worry_too_much": 2,
+    "trouble_relaxing": 1,
+    "restless": 1,
+    "irritable": 1,
+    "afraid": 1
+   }
+  }
+ },
+ "fallback_lines": [
+  "I just want to go home, doctor.",
+  "Sorry... can you say that again?",
+  "I don't know. I'm tired of all this.",
+  "Can I just have a minute?"
+ ],
+ "answer_key": {
+  "primary_dx": [
+   "mdd_single_episode"
+  ],
+  "specifiers_note": "Severe, with a recent suicidal crisis (draft).",
+  "acceptable_differentials": [
+   "adjustment_disorder_depressed",
+   "generalized_anxiety_disorder",
+   "persistent_depressive_disorder",
+   "bipolar_ii",
+   "depressive_disorder_due_to_medical_condition"
+  ],
+  "required_intents": [
+   "greet_introduce",
+   "explore_reasons",
+   "ask_mood",
+   "ask_suicidal_ideation",
+   "ask_suicide_plan",
+   "ask_suicide_means",
+   "ask_protective_factors",
+   "explain_rights_status",
+   "assess_capacity",
+   "offer_choice"
+  ],
+  "required_cues_noted": [
+   "restless",
+   "gaze_avoid"
+  ],
+  "acceptable_rx": [
+   {
+    "drug": "sertraline",
+    "note": "Draft: SSRI first line. Dose for faculty to fill."
+   },
+   {
+    "drug": "escitalopram",
+    "note": "Draft: SSRI first line. Dose for faculty to fill."
+   },
+   {
+    "drug": "fluoxetine",
+    "note": "Draft: SSRI first line. Dose for faculty to fill."
+   },
+   {
+    "drug": "mirtazapine",
+    "note": "Draft: alternative when insomnia and poor appetite are prominent; faculty to confirm."
+   }
+  ],
+  "unsafe_rx": [
+   {
+    "drug": "amitriptyline",
+    "rule": "tca_overdose_risk_with_suicidality",
+    "why": "Passive suicidal ideation; tricyclics are highly toxic in overdose."
+   },
+   {
+    "drug_class": "benzodiazepine",
+    "rule": "benzo_monotherapy_for_depression",
+    "why": "A benzodiazepine alone does not treat depression and risks dependence."
+   }
+  ],
+  "acceptable_disposition": [
+   "independent_admission",
+   "supported_admission"
+  ],
+  "required_disposition": [
+   "safety_plan"
+  ],
+  "teaching_points": {
+   "status": "draft",
+   "verified_by": null,
+   "items": [
+    "An independent patient may ask to leave. Under the Mental Healthcare Act 2017 s.88(3) a mental health professional may hold them for up to 24 hours to assess for supported admission only if there is a recent risk such as a suicide attempt or threat; say this honestly, never as a threat.",
+    "Explore why the patient wants to leave before anything else: many reasons (noise, shame, job) can be fixed.",
+    "A recent suicidal crisis with continuing thoughts and easy access to the means is high concern whatever the patient says about feeling 'fine'.",
+    "Capacity (s.4): can the patient understand the information, appreciate the consequences and communicate a choice? A decision others think unwise is not by itself incapacity.",
+    "De-escalate (NICE NG10): one calm voice, name the grievance, offer real choices, avoid orders and threats.",
+    "Least restrictive option first: a quieter bed, a call to the family, a review with the family tomorrow; involve the nominated representative (s.14)."
+   ]
+  },
+  "mse_expected": {
+   "appearance": {
+    "cues": [],
+    "note": "Dressed, bag packed beside {them}."
+   },
+   "behaviour": {
+    "cues": [
+     "restless",
+     "gaze_avoid"
+    ],
+    "note": "Restless, looks at the door, avoids eye contact about the terrace."
+   },
+   "speech": {
+    "cues": [],
+    "note": "Clipped and sharp at first, normal rate."
+   },
+   "mood": {
+    "cues": [],
+    "note": "Low and irritable."
+   },
+   "affect": {
+    "cues": [
+     "tearful"
+    ],
+    "note": "Irritable, briefly tearful about family."
+   },
+   "thought_content": {
+    "cues": [],
+    "note": "Wish to leave; continuing suicidal thoughts with a recent crisis and access to means; no plan to act now."
+   },
+   "perception": {
+    "cues": [],
+    "note": "No abnormal perceptions."
+   },
+   "insight": {
+    "cues": [],
+    "note": "Partial: understands the team's worry but minimises it."
+   }
+  }
+ },
+ "formulation": {
+  "presenting": "Day 3 of an independent admission after a suicidal crisis on a terrace; now asking to leave; continuing night-time suicidal thoughts.",
+  "predisposing": "Maternal aunt treated for 'nerves'; self-critical, minimising temperament; first move away from home.",
+  "precipitating": "Noise and loss of control on the ward; fear for the job; shame.",
+  "perpetuating": "Lives alone this month, terrace always open, appraisal next week, early in antidepressant treatment.",
+  "protective": "Mother arriving tomorrow; close to brother {sibling}; would stay with a quieter bed and a call home."
+ },
+ "core_belief": "I am a burden and a failure to my family.",
+ "attachment_style": "Anxious: seeks reassurance but hides need, afraid of disappointing people.",
+ "dialect": "natural Indian English"
+}

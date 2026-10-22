@@ -203,7 +203,8 @@
     "outpatient_consult",
     "emergency_bay",
     "detox_ward",
-    "community_clinic"
+    "community_clinic",
+    "acute_ward"
    ]
   },
   "time_limit_min": {
@@ -728,6 +729,89 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 60
+     }
+    }
+   }
+  },
+  "events": {
+   "description": "Ward events: code decides when (all listed triggers must hold), the model plays the 'say' line in the next reply; each fires once per session.",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "when",
+     "say"
+    ],
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+     },
+     "when": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+       "turn": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "after_min": {
+        "type": "number",
+        "minimum": 0
+       },
+       "trust_at_least": {
+        "$ref": "#/$defs/pct"
+       },
+       "agitation_at_least": {
+        "$ref": "#/$defs/pct"
+       },
+       "agitation_below": {
+        "$ref": "#/$defs/pct"
+       },
+       "after_event": {
+        "type": "string"
+       }
+      }
+     },
+     "say": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+     },
+     "state_delta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+       "trust": {
+        "type": "number",
+        "minimum": -30,
+        "maximum": 30
+       },
+       "distress": {
+        "type": "number",
+        "minimum": -30,
+        "maximum": 30
+       },
+       "agitation": {
+        "type": "number",
+        "minimum": -30,
+        "maximum": 30
+       },
+       "engagement": {
+        "type": "number",
+        "minimum": -30,
+        "maximum": 30
+       }
+      }
+     },
+     "action": {
+      "type": "string"
+     },
+     "note": {
+      "type": "string"
      }
     }
    }

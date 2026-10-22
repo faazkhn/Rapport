@@ -548,3 +548,21 @@ def test_bad_seed_is_an_error():
         await s.on_json({"type": "start", "case_id": "mdd_01", "seed": "abc"})
         return ev
     assert asyncio.run(go())[0][1]["type"] == "error"
+
+
+def test_ward_event_fires_moves_the_body_and_reaches_the_prompt():
+    async def go():
+        llm = FakeLLM()
+        s, ev, _ = make(llm)
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        s.case["events"] = [{"id": "stands", "when": {"turn": 1}, "say": "Ananya stands up, upset.", "action": "stand_up",
+                             "state_delta": {"agitation": 20}}]
+        await run_text(s)
+        await run_text(s)
+        return s, ev, llm
+    s, ev, llm = asyncio.run(go())
+    fired = [m for _, m in ev if m.get("type") == "twin_event" and m.get("event") == "ward_event"]
+    assert [m["id"] for m in fired] == ["stands"]  # once, not again on turn 2
+    assert any(m["type"] == "exam" and m["actions"] == [{"id": "stand_up", "comply": True}] for _, m in ev)
+    prompts = [c["messages"][-1]["content"] for c in llm.calls if "How do you sleep" in c["messages"][-1]["content"]]  # not the warm-up prefill
+    assert "WHAT HAPPENS NOW" in prompts[0] and "Ananya stands up" in prompts[0] and "WHAT HAPPENS NOW" not in prompts[1]

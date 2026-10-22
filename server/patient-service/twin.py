@@ -102,6 +102,33 @@ def update(state: dict, mood: dict, reply: dict, case: dict) -> tuple[dict, dict
     return new, {k: _clamp(mood[k] + (target[k] - mood[k]) * rate) for k in "pad"}
 
 
+# ---------- ward events (docs/literature/personalities-and-randomized-patients.md, R9) ----------
+
+def due_events(case: dict, state: dict, turn: int, elapsed_min: float, fired: set) -> list[dict]:
+    """Case events whose trigger holds now, each at most once per session (adds their ids to `fired`). Triggers, all of
+    which must hold: turn (this turn number or later), after_min, trust_at_least, agitation_at_least, agitation_below,
+    after_event (another event already fired). Code decides when; the model only plays it."""
+    due = []
+    for e in case.get("events", []):
+        w = e["when"]
+        if e["id"] in fired or not all((
+                turn >= w.get("turn", 0), elapsed_min >= w.get("after_min", 0),
+                state["trust"] >= w.get("trust_at_least", 0), state["agitation"] >= w.get("agitation_at_least", 0),
+                state["agitation"] < w.get("agitation_below", 101), w.get("after_event") in fired | {None})):
+            continue
+        fired.add(e["id"])
+        due.append(e)
+    return due
+
+
+def apply_event_deltas(state: dict, events: list[dict]) -> dict:
+    out = dict(state)
+    for e in events:
+        for k, v in e.get("state_delta", {}).items():
+            out[k] = min(100, max(0, out[k] + v))
+    return out
+
+
 def expression(reply: dict, case: dict) -> dict:
     """Extra cues and a TTS speed factor for this reaction and behaviour; only cues the case has."""
     m = brain.load_json("brain/expression_map.json")

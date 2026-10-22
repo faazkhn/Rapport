@@ -438,7 +438,8 @@ def meta_note(case: dict, doctor_line: str) -> str | None:
             f"a short, puzzled reply in character, then back to why {name} came.")
 
 
-def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None, exam=None, examples=None, version=None) -> list[dict]:
+def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None, exam=None, examples=None, version=None,
+                   events=None) -> list[dict]:
     """[system: fixed per case+variant] [first user msg: facts block + first doctor line] [history verbatim]
     [pre-tail + last doctor line + post-tail]."""
     out = [{"role": "system", "content": build_system_prompt(case, version)}]
@@ -449,6 +450,8 @@ def build_messages(case, state, messages, summary=None, elapsed_min=None, recall
         post += "\n" + line
     if messages and messages[-1]["role"] == "doctor" and (line := meta_note(case, messages[-1]["text"])):
         post += "\n" + line
+    if events:
+        post += "\nWHAT HAPPENS NOW (play it in this line, in character, then answer the doctor if it fits):\n" + "\n".join(f"- {e['say']}" for e in events)
     doctor = f"Doctor: {out.pop()['content']}\n\n---\n" if out[-1]["role"] == "user" else ""
     out.append({"role": "user", "content": f"{pre}\n\n---\n{doctor}{post}"})
     first = out[1]
