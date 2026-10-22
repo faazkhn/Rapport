@@ -11,7 +11,7 @@
     "greet_introduce": { "trust": 2, "engagement": 2 },
     "explain_confidentiality": { "trust": 5 },
     "open_question": { "trust": 2, "engagement": 2 },
-    "empathy_statement": { "trust": 4, "distress": -3, "engagement": 2 },
+    "empathy_statement": { "trust": 4, "distress": -3, "agitation": -3, "engagement": 2 },
     "summarise": { "trust": 3, "engagement": 2 },
     "check_understanding": { "trust": 2 },
     "ask_suicidal_ideation": { "distress": 3 },

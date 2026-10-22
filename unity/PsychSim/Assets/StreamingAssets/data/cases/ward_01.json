@@ -274,7 +274,7 @@
   "engagement": 35
  },
  "state_drift_per_min": {
-  "agitation": 0.5
+  "agitation": 0
  },
  "facts": [
   {

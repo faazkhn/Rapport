@@ -3,11 +3,11 @@
   "note": "Ward demo (draft station ward_01, 'I want to go home'). The doctor starts badly (orders and a threat), the patient stands up; the doctor apologises and de-escalates, the patient sits back down and agrees to stay one more night. Events (asks to leave, stands up, sits down, corridor shout, mother's message) are fired by code from the patient's state; replies are generated live.",
   "turns": [
     {
-      "doctor": "Good morning. I hear you want to go home. You know you can't just leave, right?",
+      "doctor": "Good morning, I hear you want to go home, but you know you can't just leave, right?",
       "shot": "ots"
     },
     {
-      "doctor": "Look, rules are rules. If you try to leave, we'll have to stop you.",
+      "doctor": "Look, rules are rules, and if you try to leave we'll have to stop you.",
       "shot": "ots"
     },
     {
@@ -15,15 +15,15 @@
       "shot": "wide"
     },
     {
-      "doctor": "Three nights of no sleep with someone shouting. That would wear anyone down. What else is worrying you?",
+      "doctor": "Three nights of no sleep with someone shouting would wear anyone down, so what else is worrying you?",
       "shot": "wide"
     },
     {
-      "doctor": "I can see how much your job matters. Would you sit with me for a minute and tell me about the night you came in?",
+      "doctor": "I can see how much your job matters, so would you sit with me for a minute and tell me about the night you came in?",
       "shot": "close"
     },
     {
-      "doctor": "Thank you for telling me. Are you still having thoughts of ending your life, especially at night?",
+      "doctor": "Thank you for telling me, and are you still having thoughts of ending your life, especially at night?",
       "shot": "close"
     },
     {
@@ -31,15 +31,15 @@
       "shot": "ots"
     },
     {
-      "doctor": "You came in as an independent patient, so you can ask to leave. Because of the terrace and these thoughts, the law lets us ask you to stay up to a day while we assess things properly. I'd much rather we decide this together.",
+      "doctor": "You came in as an independent patient, so you can ask to leave, but because of the terrace and these thoughts the law lets us ask you to stay up to a day while we assess things, and I'd much rather we decide this together.",
       "shot": "ots"
     },
     {
-      "doctor": "What would make one more night here bearable? A quieter bed, a call to your mother?",
+      "doctor": "What would make one more night here bearable, maybe a quieter bed, or a call to your mother?",
       "shot": "close"
     },
     {
-      "doctor": "Let's do that. I'll ask for the side room, you can call your mother now, and we'll review it together with her tomorrow morning.",
+      "doctor": "Let's do that: I'll ask for the side room, you can call your mother now, and we'll review it together with her tomorrow morning.",
       "shot": "ots"
     }
   ],

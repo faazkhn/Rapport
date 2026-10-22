@@ -51,7 +51,7 @@ The six PATIENT-Ψ styles (Wang 2024, MIT): plain, reserved, pleasing ("eager to
 | plain | none | 1.0 / 1.0 | 1.0 | 60 |
 | reserved | trust −5, engagement −10 | 0.8 / 1.2 | 1.0 | 20 |
 | pleasing | trust +5 | 1.2 / 0.8 | 0.8 | 35 |
-| upset | trust −10, agitation +15 | 0.7 / 1.5 | 1.5 | 35 |
+| upset | trust −10, agitation +15 | 0.7 / 1.2 | 1.3 | 35 |
 | verbose | engagement +10 | 1.0 / 1.0 | 1.0 | 70 |
 | tangent | none | 1.0 / 1.0 | 1.0 | 70 |
 
