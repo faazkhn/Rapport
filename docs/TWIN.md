@@ -30,6 +30,7 @@ A painful locked hit always ends with a reaction that does not raise trust (`twi
 - `data/brain/expression_map.json`: reaction/behaviour → cues + speed.
 - Case facts (key stays `facts`; code calls them memory items) gain `activation_tags`, `kind`, `generates_discomfort` and an optional examiner-facing `label` (≤ 40 chars). Cases gain `formulation` (5Ps), `core_belief`, `attachment_style`, `dialect`. Migrate a case with `server/patient-service/scripts/migrate_memory.py <case.json>`, then hand-write the tags.
 - `state_rules.json` gains `reaction_trust_unit` (2) and `mood_rate` (0.3), both draft.
+- Seeded patients (`slots`, `styles_allowed`), conversation styles (`data/brain/styles.json`) and ward `events`: `docs/PATIENTS.md`.
 
 ## Twin view
 
