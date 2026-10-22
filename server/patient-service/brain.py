@@ -66,8 +66,11 @@ def load_raw_case(case_id: str) -> dict:
 _TPL = re.compile(r"\{(name|they|them|their|They|Them|Their)\}")
 
 
-def fill(text: str, v: dict) -> str:
-    """Substitute {name} {they} {them} {their}; a capitalised placeholder gives a capitalised word."""
+def fill(text: str, v: dict, slots: dict | None = None) -> str:
+    """Substitute {name} {they} {them} {their} (a capitalised placeholder gives a capitalised word), and any {slot} value."""
+    if slots:
+        text = re.sub(r"\{([a-z_]+)\}", lambda m: slots.get(m.group(1), m.group(0)), text)
+
     def sub(m):
         key = m.group(1)
         word = v["name"] if key == "name" else v["pronouns"][key.lower()]
@@ -75,23 +78,44 @@ def fill(text: str, v: dict) -> str:
     return _TPL.sub(sub, text)
 
 
-def _fill_all(node, v):
+def _fill_all(node, v, slots=None):
     if isinstance(node, str):
-        return fill(node, v)
+        return fill(node, v, slots)
     if isinstance(node, list):
-        return [_fill_all(x, v) for x in node]
+        return [_fill_all(x, v, slots) for x in node]
     if isinstance(node, dict):
-        return {k: _fill_all(x, v) for k, x in node.items()}
+        return {k: _fill_all(x, v, slots) for k, x in node.items()}
     return node
 
 
+# ---------- seeded patients (docs/literature/personalities-and-randomized-patients.md, R8) ----------
+
+GENERATOR_VERSION = 1
+
+
+def pick(raw: dict, seed: int | None, mode: str = "practice") -> dict:
+    """Which option of each slot, and which conversation style. Pure: the same (case, seed, version) always gives the same
+    picks. No seed = the authored case. Assessment keeps the authored style, so every candidate meets the same difficulty."""
+    if seed is None:
+        return {"slots": {k: 0 for k in raw.get("slots", {})}, "style": raw["style"]}
+    rng = random.Random(f"{raw['id']}:{seed}:{GENERATOR_VERSION}")
+    slots = {k: rng.randrange(len(opts)) for k, opts in sorted(raw.get("slots", {}).items())}
+    style = rng.choice(raw.get("styles_allowed", [raw["style"]]))
+    return {"slots": slots, "style": raw["style"] if mode == "assessment" else style}
+
+
 @lru_cache(maxsize=None)
-def _resolved(case_id: str, variant: str) -> str:
+def _resolved(case_id: str, variant: str, seed: int | None = None, mode: str = "practice") -> str:
     raw = load_raw_case(case_id)
     if variant not in raw["variants"]:
         raise KeyError(f"unknown variant {variant!r}")
     v = raw["variants"][variant]
-    case = _fill_all({k: x for k, x in raw.items() if k != "variants"}, v)
+    p = pick(raw, seed, mode)
+    chosen = {k: raw["slots"][k][i] for k, i in p["slots"].items()}
+    case = _fill_all({k: x for k, x in raw.items() if k not in ("variants", "slots")}, v, {k: t for o in chosen.values() for k, t in o.items()})
+    case["style"] = p["style"]
+    if seed is not None:
+        case["generated"] = {"seed": seed, "generator_version": GENERATOR_VERSION, "style": p["style"], "slots": chosen}
     case["facts"] = [f for f in case["facts"] if f.get("variant", variant) == variant]
     case["variant"] = variant
     # legacy flat fields, so code that reads patient.name/model_id/voice_id keeps working
@@ -100,9 +124,10 @@ def _resolved(case_id: str, variant: str) -> str:
     return json.dumps(case)
 
 
-def load_case(case_id: str, variant: str = "female") -> dict:
-    """The case as one variant sees it: templates filled, other-variant facts dropped. Returns a fresh copy."""
-    return json.loads(_resolved(case_id, variant))
+def load_case(case_id: str, variant: str = "female", seed: int | None = None, mode: str = "practice") -> dict:
+    """The case as one variant sees it: templates filled, other-variant facts dropped. With a seed, a generated patient: neutral
+    slots and the conversation style vary, the answer key, risk facts and exam never do. Returns a fresh copy."""
+    return json.loads(_resolved(case_id, variant, seed, mode))
 
 
 def catalogue() -> dict:

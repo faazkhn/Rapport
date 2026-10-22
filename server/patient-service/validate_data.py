@@ -114,9 +114,20 @@ def validate_all() -> list[str]:
             _refs(errors, c.get("on_facts", []), fact_ids, f"{label} cue {c['id']} on_facts")
         # templates: only known placeholders, none left after resolving either variant; no banned word in facts or example lines
         strings = [x for x in _strings({k: v for k, v in case.items() if k != "variants"})]
+        slot_keys = {k for opts in case.get("slots", {}).values() for o in opts for k in o}
         for ph in {p for t in strings for p in re.findall(r"\{[^{}]*\}", t)}:
-            if not brain._TPL.fullmatch(ph):
+            if not brain._TPL.fullmatch(ph) and ph[1:-1] not in slot_keys:
                 errors.append(f"{label}: unknown template {ph}")
+        # slots: every option fills the same placeholders; slot text is clinically neutral (no banned word, diagnosis or drug)
+        clinical = [w.lower() for w in case["banned_words"]] + [i.replace("_", " ") for i in dx_ids | drug_ids]
+        for name, opts in case.get("slots", {}).items():
+            if len({frozenset(o) for o in opts}) > 1:
+                errors.append(f"{label} slot {name}: options fill different placeholders")
+            for t in (t for o in opts for t in o.values()):
+                if any(w in t.lower() for w in clinical):
+                    errors.append(f"{label} slot {name}: clinical word in {t!r}")
+        if case["style"] not in case.get("styles_allowed", [case["style"]]):
+            errors.append(f"{label}: style {case['style']!r} not in styles_allowed")
         for variant in case["variants"]:
             r = brain.load_case(case["id"], variant)
             texts = [f["text"] for f in r["facts"]] + [x for b in r["behavior"].values() for x in b.get("example_lines", [])]

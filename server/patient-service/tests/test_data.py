@@ -14,7 +14,8 @@ def test_validator_catches_bad_template_and_banned_word(tmp_path, monkeypatch):
     shutil.copytree(brain.DATA_DIR, d, ignore=shutil.ignore_patterns("*.meta"))
     p = d / "cases/mdd_01.json"
     c = json.loads(p.read_text())
-    c["facts"][0]["text"] += " {sibling} feels depressed."
+    c["facts"][0]["text"] += " {cousin} feels depressed."
+    c["slots"]["hobby"].append({"hobby": "sertraline club", "hobby_short": "chess"})
     p.write_text(json.dumps(c))
     for mod in (brain, validate_data):
         monkeypatch.setattr(mod, "DATA_DIR", d)
@@ -25,7 +26,8 @@ def test_validator_catches_bad_template_and_banned_word(tmp_path, monkeypatch):
     finally:
         brain.load_json.cache_clear()
         brain._resolved.cache_clear()
-    assert any("unknown template {sibling}" in e for e in errs)
+    assert any("unknown template {cousin}" in e for e in errs)
+    assert any("slot hobby: clinical word" in e for e in errs)
     assert any("banned word ['depressed']" in e for e in errs)
 
 

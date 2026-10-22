@@ -42,7 +42,7 @@
   "age": 24,
   "variant": "office_casual",
   "voice_speed": 1.0,
-  "background": "Grew up in Mysuru; moved to Bengaluru two years ago for {their} first job as a software test engineer at an IT services company. Shares a rented flat in HSR Layout with a colleague. Father is a retired government school teacher, mother looks after the home; younger brother Rohan (19) is in second-year engineering. Sends part of {their} salary home towards Rohan's college fees. Speaks English at work and Kannada at home.",
+  "background": "Grew up in {hometown}; moved to Bengaluru two years ago for {their} first job as a software test engineer at an IT services company. Shares a rented flat in HSR Layout with a colleague. Father is a retired government school teacher, mother looks after the home; younger brother {sibling} (19) is in second-year engineering. Sends part of {their} salary home towards {sibling}'s college fees. Speaks English at work and Kannada at home.",
   "personality": "Quiet, polite and apologetic. Minimises {their} problems ('it's probably just work stress'), says sorry for wasting the doctor's time, and is ashamed of 'being weak'. Answers briefly at first and opens up when {they} feels listened to and not judged. Does not like to complain about {their} family. Never dramatic.",
   "speech_style": "Soft and a little slow, plain short sentences. Natural Indian English; occasional 'actually', 'no?', 'what to do'. No caricature."
  },
@@ -105,6 +105,57 @@
   }
  },
  "style": "plain",
+ "styles_allowed": [
+  "plain",
+  "reserved",
+  "pleasing",
+  "upset"
+ ],
+ "slots": {
+  "hobby": [
+   {
+    "hobby": "Carnatic singing",
+    "hobby_short": "singing"
+   },
+   {
+    "hobby": "badminton",
+    "hobby_short": "badminton"
+   },
+   {
+    "hobby": "guitar",
+    "hobby_short": "guitar"
+   },
+   {
+    "hobby": "drawing",
+    "hobby_short": "drawing"
+   }
+  ],
+  "sibling": [
+   {
+    "sibling": "Rohan"
+   },
+   {
+    "sibling": "Karthik"
+   },
+   {
+    "sibling": "Varun"
+   }
+  ],
+  "hometown": [
+   {
+    "hometown": "Mysuru"
+   },
+   {
+    "hometown": "Hubballi"
+   },
+   {
+    "hometown": "Mangaluru"
+   },
+   {
+    "hometown": "Davangere"
+   }
+  ]
+ },
  "banned_words": [
   "depressed",
   "depression",
@@ -233,7 +284,7 @@
   },
   {
    "id": "f_anhedonia",
-   "text": "Has stopped {their} Carnatic singing practice and stopped calling college friends at weekends. Nothing feels enjoyable any more, not even watching films with {their} flatmate.",
+   "text": "Has stopped {their} {hobby} practice and stopped calling college friends at weekends. Nothing feels enjoyable any more, not even watching films with {their} flatmate.",
    "trust_min": 25,
    "unlock_intents": [
     "ask_anhedonia",
@@ -244,13 +295,17 @@
     "interest",
     "hobby",
     "fun",
-    "singing",
+    "{hobby_short}",
     "friends",
-    "pleasure", "relax", "used to do", "still doing", "for fun"
+    "pleasure",
+    "relax",
+    "used to do",
+    "still doing",
+    "for fun"
    ],
    "kind": "symptom",
    "generates_discomfort": false,
-   "label": "Stopped singing"
+   "label": "Stopped {hobby_short}"
   },
   {
    "id": "f_sleep",
@@ -355,7 +410,7 @@
   },
   {
    "id": "f_work_family",
-   "text": "New manager criticises {them} in front of the team and {their} appraisal is next month; {they} fears losing the job. Sends about Rs 15,000 a month home for {their} brother Rohan's college fees. {Their} mother keeps bringing up marriage proposals on the phone, which adds pressure. {Their} family does not know how bad {they} feels.",
+   "text": "New manager criticises {them} in front of the team and {their} appraisal is next month; {they} fears losing the job. Sends about Rs 15,000 a month home for {their} brother {sibling}'s college fees. {Their} mother keeps bringing up marriage proposals on the phone, which adds pressure. {Their} family does not know how bad {they} feels.",
    "trust_min": 20,
    "unlock_intents": [
     "ask_social_history",
@@ -441,7 +496,10 @@
     "tried to kill",
     "tried to hurt",
     "attempted",
-    "made an attempt", "made any plans", "made plans", "thought about how"
+    "made an attempt",
+    "made any plans",
+    "made plans",
+    "thought about how"
    ],
    "kind": "risk",
    "generates_discomfort": true,
@@ -463,7 +521,10 @@
     "stored up",
     "stockpiled",
     "rope",
-    "weapon", "anything at home", "anything you might use", "something to hurt"
+    "weapon",
+    "anything at home",
+    "anything you might use",
+    "something to hurt"
    ],
    "kind": "risk",
    "generates_discomfort": true,
@@ -471,7 +532,7 @@
   },
   {
    "id": "f_protective",
-   "text": "{They} could never do that to {their} mother and {their} brother Rohan, who looks up to {them}. {Their} flatmate is kind to {them}. {They} wants to feel better and would accept help.",
+   "text": "{They} could never do that to {their} mother and {their} brother {sibling}, who looks up to {them}. {Their} flatmate is kind to {them}. {They} wants to feel better and would accept help.",
    "trust_min": 45,
    "unlock_intents": [
     "ask_protective_factors"
@@ -482,11 +543,16 @@
     "stopped you",
     "reasons to live",
     "reason to live",
-    "holds you back from", "turn to", "supports you", "support you", "someone to talk to", "anyone to talk to"
+    "holds you back from",
+    "turn to",
+    "supports you",
+    "support you",
+    "someone to talk to",
+    "anyone to talk to"
    ],
    "kind": "history",
    "generates_discomfort": false,
-   "label": "Amma and Rohan"
+   "label": "Amma and {sibling}"
   },
   {
    "id": "f_substances",
@@ -830,8 +896,8 @@
   "presenting": "Two months of low, empty mood, early waking, poor appetite (−4 kg), loss of interest and concentration; passive wishes not to wake, no plan or intent.",
   "predisposing": "Maternal aunt treated for 'nerves'; self-critical, minimising temperament; first move away from home.",
   "precipitating": "New project with a demanding manager who criticises {them} in front of the team.",
-  "perpetuating": "Guilt and shame at 'being weak', isolation from friends and singing, money pressure for Rohan's fees, appraisal next month, marriage talk at home.",
-  "protective": "Close to {their} mother and brother Rohan; kind flatmate; came when advised; wants help."
+  "perpetuating": "Guilt and shame at 'being weak', isolation from friends and {hobby_short}, money pressure for {sibling}'s fees, appraisal next month, marriage talk at home.",
+  "protective": "Close to {their} mother and brother {sibling}; kind flatmate; came when advised; wants help."
  },
  "core_belief": "I am a burden and a failure to my family.",
  "attachment_style": "Anxious: seeks reassurance but hides need, afraid of disappointing people.",
