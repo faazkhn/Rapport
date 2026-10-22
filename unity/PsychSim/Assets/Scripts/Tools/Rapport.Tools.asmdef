@@ -1,0 +1,14 @@
+{
+    "name": "Rapport.Tools",
+    "rootNamespace": "Rapport.Tools",
+    "references": ["Rapport.Data","Rapport.Scoring"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

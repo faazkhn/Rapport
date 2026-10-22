@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using PsychSim.Data;
+using Rapport.Data;
 
-namespace PsychSim.Patient
+namespace Rapport.Patient
 {
     public class EventCue { public string id; public float intensity, duration_s; }
 

@@ -171,8 +171,8 @@ def test_slowed_pause_formula_matches_unity():
     c = brain.load_case("mdd_01")
     st = c["state_start"]
     live = 0.5 - 0.2 * st["engagement"] / 100
-    assert ORIG_PAUSE(c, st) == pytest.approx(1 + 2 * live)
-    assert session.tts_speed(c, st) == pytest.approx(0.9 + (0.85 - 0.9) * live)
+    assert ORIG_PAUSE(c, st) == pytest.approx(0.4 + 0.8 * live) and ORIG_PAUSE(c, st) <= 1.2
+    assert session.tts_speed(c, st) == pytest.approx(1.0 + (0.9 - 1.0) * live)
 
 
 def test_client_state_drift_unlocks_facts_and_is_clamped():
@@ -220,10 +220,10 @@ SNAP_KEYS = {"type", "turn", "doctor", "utterance", "state", "mood", "reaction",
              "recalled", "locked_hit", "cues", "exam_action", "emotion", "brain_version", "expression"}
 
 
-def _one_turn(text="How do you sleep?", llm=None):
+def _one_turn(text="How do you sleep?", llm=None, **start):
     async def go():
         s, ev, audio = make(llm or FakeLLM())
-        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        await s.on_json({"type": "start", "case_id": "mdd_01", **start})
         await run_text(s, text)
         return s, ev
     return asyncio.run(go())
@@ -234,7 +234,7 @@ def test_turn_emits_snapshot():
     t = types(ev)
     assert t.count("brain_snapshot") == 1 and t.index("brain_snapshot") > t.index("reply")
     snap = next(m for _, m in ev if m["type"] == "brain_snapshot")
-    assert set(snap) == SNAP_KEYS and "f_sleep" in snap["recalled"] and snap["brain_version"] == "twin-0.1"
+    assert set(snap) == SNAP_KEYS and "f_sleep" in snap["recalled"] and snap["brain_version"] == "twin-0.1+v0"
     assert snap["expression"]["face"] == "face_sad" and snap["expression"]["body"] == [c["id"] for c in snap["cues"]]
     tw = [m["event"] for _, m in ev if m["type"] == "twin_event"]
     assert tw == ["init", "doctor_end", "patient_start", "patient_end"]
@@ -337,3 +337,191 @@ def test_unwritable_twin_log_never_breaks_voice(tmp_path, monkeypatch):
     monkeypatch.setattr(session, "TWIN_LOG_DIR", blocker / "twin")
     s, ev = _one_turn()
     assert "reply" in types(ev) and "brain_snapshot" in types(ev)
+
+
+def test_one_hesitation_per_reply_across_sentences():
+    reply = {**REPLY, "utterance": "I... wake up at four. Then... I just lie there. It's... hard."}
+    s, ev = _one_turn(llm=FakeLLM(reply=reply))
+    said = " ".join(m["text"] for _, m in ev if m["type"] == "sentence")
+    assert said.count("...") == 1
+
+
+class ChunkBackend:
+    """Two chunks per sentence; raises on the sentence number in `fail_on` (0-based) before its first chunk."""
+    def __init__(self, fail_on=None):
+        self.fail_on, self.n, self.instructions = fail_on, 0, []
+
+    def stream(self, text, voice_id, speed, instruction=""):
+        n, self.n = self.n, self.n + 1
+        self.instructions.append(instruction)
+        if n == self.fail_on:
+            raise RuntimeError("out of memory")
+        yield np.zeros(1200, np.float32)
+        yield np.zeros(1200, np.float32)
+
+
+def _turn_with(backend):
+    async def go():
+        s, ev, audio = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        s.tts = backend
+        await run_text(s)
+        return s, ev, audio
+    return asyncio.run(go())
+
+
+def test_streaming_backend_sends_chunks_and_instruction():
+    b = ChunkBackend()
+    s, ev, audio = _turn_with(b)
+    sentences = [m for _, m in ev if m["type"] == "sentence"]
+    assert len(sentences) == 2 and len(audio) == 4  # the third sentence is guard-stripped; first chunk with its sentence message, the second as bare PCM
+    assert all(i.startswith(s.case["patient"]["voice_description"]) for i in b.instructions)
+
+
+def test_backend_failure_falls_back_for_the_session():
+    b = ChunkBackend(fail_on=1)
+    s, ev, audio = _turn_with(b)
+    sentences = [m for _, m in ev if m["type"] == "sentence"]
+    assert len(sentences) == 2 and sentences[1]["samples"] == 2400  # the failed sentence is re-spoken by the fallback (fake: 2400)
+    assert s.tts is s.fallback and b.n == 2
+    rep = next(m for _, m in ev if m["type"] == "reply")
+    assert rep["meta"]["fallback"] is False
+
+
+def test_backend_failure_mid_sentence_drops_rest_and_switches():
+    class MidFail(ChunkBackend):
+        def stream(self, text, voice_id, speed, instruction=""):
+            self.n += 1
+            yield np.zeros(1200, np.float32)
+            raise RuntimeError("metal crash")
+    b = MidFail()
+    s, ev, audio = _turn_with(b)
+    assert s.tts is s.fallback and b.n == 1
+    assert len([m for _, m in ev if m["type"] == "sentence"]) == 2 and len(audio) == 2
+
+
+def _exam_turn(text, **state):
+    llm = FakeLLM()
+
+    async def go():
+        s, ev, _ = make(llm)
+        await s.on_json({"type": "start", "case_id": "mdd_01", "state": {"trust": 40, "agitation": 10, **state}})
+        await run_text(s, text)
+        return ev
+    ev = asyncio.run(go())
+    patient = [c for c in llm.calls if c.get("response_format") and c["response_format"]["json_schema"]["name"] == "patient_reply"]
+    return ev, patient[0]["messages"][-1]["content"]
+
+
+def test_exam_message_precedes_thinking():
+    ev, _ = _exam_turn("Hold out your hands")
+    t = types(ev)
+    assert t.index("transcript") < t.index("exam") < t.index("thinking")
+    exam = next(m for _, m in ev if m["type"] == "exam")
+    assert exam["actions"] == [{"id": "hold_out_hands", "slots": {"which": "both", "palms": "down"}, "comply": True}] and not exam["relax"]
+    assert next(m for _, m in ev if m["type"] == "reply")["reply"]["exam_action"] == "hold_out_hands"
+
+
+def test_exam_refused_low_trust():
+    ev, tail = _exam_turn("Roll up your sleeves", trust=5)
+    exam = next(m for _, m in ev if m["type"] == "exam")
+    assert exam["actions"][0]["comply"] is False and exam["actions"][0]["reason"] == "trust"
+    assert "will not do roll_up_sleeves" in tail
+
+
+def test_exam_refused_agitated():
+    ev, _ = _exam_turn("Hold out your hands", agitation=80)
+    assert next(m for _, m in ev if m["type"] == "exam")["actions"][0]["reason"] == "agitation"
+
+
+def test_ask_back_goes_to_twin():
+    ev, tail = _exam_turn("Hold out your hand")
+    assert "exam" not in types(ev) and "Which hand?" in tail
+
+
+def test_relax_message():
+    ev, _ = _exam_turn("You can relax")
+    assert next(m for _, m in ev if m["type"] == "exam")["relax"] is True
+
+
+def test_llm_exam_action_ignored():
+    ev, _ = _exam_turn("How do you sleep?")
+    assert "exam" not in types(ev)
+    assert next(m for _, m in ev if m["type"] == "reply")["reply"]["exam_action"] is None
+
+
+def test_ask_back_answered_next_turn():
+    async def go():
+        s, ev, _ = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01", "state": {"trust": 40}})
+        await run_text(s, "Hold out your hand")
+        await run_text(s, "The left one.")
+        return ev
+    ev = asyncio.run(go())
+    exams = [m for _, m in ev if m["type"] == "exam"]
+    assert len(exams) == 1 and exams[0]["actions"][0]["id"] == "hold_out_hands" and exams[0]["actions"][0]["slots"]["which"] == "left"
+
+
+def test_ask_back_keeps_other_commands():
+    ev, tail = _exam_turn("Hold out your hand and stand up")
+    exam = next(m for _, m in ev if m["type"] == "exam")
+    assert [a["id"] for a in exam["actions"]] == ["stand_up"] and "Which hand?" in tail and "stand_up" in tail
+
+
+def test_staged_turn_sends_exam(monkeypatch, tmp_path):
+    import staged
+    base = {"emotion": "flat", "nonverbal": None, "brain": {}, "state_delta": {"trust": 0, "distress": 0, "agitation": 0, "engagement": 0},
+            "cues": [], "facts": []}
+    script = {"turns": [{**base, "doctor": "Hold your hands out", "patient": "Like this?", "exam_action": "hold_out_hands"},
+                        {**base, "doctor": "Thank you, you can put them down.", "patient": "Okay.", "exam_action": None}], "arjun_turns": []}
+    (tmp_path / "script.json").write_text(json.dumps(script))
+    monkeypatch.setattr(staged, "PATH", str(tmp_path / "script.json"))
+    monkeypatch.setattr(staged, "GAP_S", 0.0)
+
+    async def go():
+        s, ev, _ = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01", "variant": "female"})
+        for line in ("Hold your hands out", "Thank you, you can put them down."):
+            await s.begin_turn(line, {"input": "voice", "t_end": time.monotonic()})
+            await s.turn_task
+        return ev
+    ev = asyncio.run(go())
+    exams = [m for _, m in ev if m["type"] == "exam"]
+    assert exams[0]["actions"][0]["id"] == "hold_out_hands" and exams[0]["actions"][0]["comply"] and exams[1]["relax"]
+
+CLEAN = FakeLLM(reply={**REPLY, "utterance": "I wake at four. Then I just lie there."})
+
+
+@pytest.fixture
+def lib(monkeypatch, tmp_path):
+    import learning
+    import shutil
+    shutil.copytree(learning.DIR, tmp_path / "learned", ignore=shutil.ignore_patterns("experience"))  # tests start with an empty library
+    monkeypatch.setattr(learning, "DIR", tmp_path / "learned")
+    learning._cache.clear()
+    yield learning
+    learning._cache.clear()
+
+
+def test_session_no_consent_no_writes(lib):
+    s, ev = _one_turn(llm=CLEAN)
+    assert lib.library("mdd_01") == []
+
+
+def test_session_consent_writes_candidate(lib):
+    s, ev = _one_turn(llm=CLEAN, learning_consent=True)
+    [e] = lib.library("mdd_01")
+    assert e["tier"] == "candidate" and e["source"] == "live" and e["judged"] is False
+    assert e["doctor"] == "How do you sleep?" and e["utterance"] == "I wake at four. Then I just lie there."
+
+
+def test_session_uses_retrieved_examples_in_tail(lib, monkeypatch):
+    monkeypatch.setattr(lib, "current", lambda: {**lib.load_version("v0"), "examples_k": 2})
+    seen = []
+    monkeypatch.setattr(lib, "retrieve", lambda case_id, text, mode, k, upto=None: seen.append((mode, k)) or
+                        [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}])
+    llm = FakeLLM()
+    _one_turn(llm=llm, mode="assessment")
+    msgs = next(c for c in llm.calls if c.get("stream") is None and "patient_reply" in json.dumps(c.get("response_format")))["messages"]
+    assert seen and set(seen) == {("assessment", 2)}
+    assert "Patient: Not really." in msgs[-1]["content"] and "Not really." not in msgs[0]["content"]

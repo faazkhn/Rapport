@@ -276,3 +276,68 @@ main { display: grid; grid-template-columns: 23rem minmax(0, 1fr) 27rem; gap: .9
   .seg .lbn { display: none; }
   .lbl text { font-size: 30px; }
 }
+
+/* 3D brain (twin3d.js). UI motion only (Motion springs); brain state still moves as a function of t. */
+.b3, .b3-to3d { display: none; }
+.brain.b3-on #brain { display: none; }
+.brain.b3-on .b3 { display: flex; }
+.brain:not(.b3-on) .b3-to3d { display: inline-flex; position: absolute; top: .6rem; right: .8rem; }
+.c2 .brain { position: relative; }
+.b3 { flex-direction: column; gap: .45rem; flex: 1; min-height: 0; }
+.b3-view { position: relative; flex: 1; min-height: 0; border-radius: .7rem; overflow: hidden;
+  background: radial-gradient(70% 70% at 50% 45%, color-mix(in srgb, var(--pfc) 7%, transparent), transparent 70%); }
+.b3-stage, .b3-stage canvas, .b3-labels { position: absolute; inset: 0; width: 100%; height: 100%; }
+.b3-labels { cursor: grab; touch-action: none; }
+.b3-labels:active { cursor: grabbing; }
+.b3 button, .b3-to3d { font: 500 .78rem/1 inherit; font-family: inherit; color: var(--text); background: color-mix(in srgb, var(--panel) 82%, transparent);
+  border: 1px solid var(--line2); border-radius: 99px; padding: .45rem .8rem; min-height: 2rem; cursor: pointer; backdrop-filter: blur(6px); }
+.b3 button:hover, .b3-to3d:hover { border-color: var(--muted); }
+.b3 button:focus-visible, .b3-to3d:focus-visible { outline: 2px solid var(--engage); outline-offset: 2px; }
+.b3 button[aria-pressed="true"] { border-color: var(--trust); color: var(--trust); }
+.b3-tools { display: flex; gap: .4rem; align-items: center; justify-content: flex-end; }
+.b3-lod { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin-right: .3rem; }
+.b3-zones { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: center; }
+.b3-zones button { display: grid; grid-template-columns: .45rem auto 1.4rem; align-items: center; gap: .35rem; text-align: left; border-radius: .55rem; padding: .28rem .45rem; }
+.b3-zones small { display: none; }
+.b3-zones button i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--c); box-shadow: 0 0 .5rem var(--c); }
+.b3-zones b { display: block; font-size: .78rem; font-weight: 600; }
+.b3-zones em, .b3-zl i, .b3-meter { display: block; height: .28rem; border-radius: 99px; background: var(--line); overflow: hidden; }
+.b3-zones em s, .b3-zl i s, .b3-meter s { display: block; height: 100%; width: 0; background: var(--c); border-radius: inherit; text-decoration: none; }
+.b3-hint { margin-right: auto; font-size: .72rem; color: var(--faint); }
+
+/* labels in the scene; which ones show depends on zoom (data-lod) */
+.b3-zl, .b3-card, .b3-mem { pointer-events: none; white-space: nowrap; transition: opacity .25s ease; }
+.b3-zl { --c: var(--text); text-align: center; transform: translateY(-.4rem); }
+.b3-zl b { display: block; font-size: .82rem; color: var(--c); text-shadow: 0 0 .6rem color-mix(in srgb, var(--bg) 80%, transparent); }
+.b3-zl span { display: block; font-size: .66rem; color: var(--muted); }
+.b3-zl i { width: 3.4rem; margin: .25rem auto 0; }
+.b3-zl.hot b { text-shadow: 0 0 .8rem var(--c); }
+.b3-card { --a: 0; max-width: 11rem; padding: .3rem .55rem; border-radius: .5rem; font-size: .74rem;
+  background: color-mix(in srgb, var(--panel) 86%, transparent); border: 1px solid color-mix(in srgb, var(--c) calc(25% + 55% * var(--a)), var(--line));
+  box-shadow: 0 0 calc(1.2rem * var(--a)) color-mix(in srgb, var(--c) 35%, transparent); white-space: normal; }
+.b3-card small { display: block; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; color: var(--c); }
+.b3-card span { color: var(--text); }
+.b3-mem { --f: 0; display: flex; align-items: center; gap: .3rem; font-size: .7rem; color: var(--muted); padding: .12rem .4rem; border-radius: .4rem;
+  background: color-mix(in srgb, var(--panel) calc(40% + 50% * var(--f)), transparent); }
+.b3-mem i svg { width: .7rem; height: .7rem; fill: none; stroke: currentColor; stroke-width: 1.3; display: block; }
+.b3-mem em { font-style: normal; font-size: .62rem; color: var(--faint); }
+.b3-mem.b3-open, .b3-mem.b3-told { color: var(--mem); } .b3-mem.b3-told { font-weight: 600; } .b3-mem.b3-gated { color: var(--agit); }
+.b3[data-lod="zones"] .b3-card, .b3[data-lod="zones"] .b3-mem, .b3[data-lod="regions"] .b3-mem, .b3[data-lod="regions"] .b3-zl, .b3[data-lod="detail"] .b3-zl { opacity: 0; }
+.b3[data-lod="zones"] .b3-zl b { font-size: 1rem; }
+
+/* detail panel */
+.b3-detail { position: absolute; left: .6rem; top: .6rem; width: min(22rem, 60%); z-index: 4; padding: .8rem .9rem; border-radius: .7rem;
+  background: color-mix(in srgb, var(--panel) 92%, transparent); border: 1px solid var(--line2); box-shadow: var(--shadow); backdrop-filter: blur(10px); }
+.b3-detail small { font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+.b3-detail h3 { margin: .2rem 0 .4rem; font-size: 1rem; }
+.b3-detail p { margin: .3rem 0; font-size: .82rem; line-height: 1.45; }
+.b3-detail dl { display: grid; grid-template-columns: auto 1fr; gap: .2rem .8rem; margin: .5rem 0 0; font-size: .8rem; }
+.b3-detail dt { color: var(--muted); } .b3-detail dd { margin: 0; font-variant-numeric: tabular-nums; }
+.b3-detail .dim { color: var(--muted); }
+.b3 .b3-x { position: absolute; top: .4rem; right: .4rem; width: 2rem; height: 2rem; padding: 0; min-height: 0; font-size: 1.1rem; }
+.b3-st { font-weight: 600; } .b3-told, .b3-open { color: var(--mem); } .b3-gated { color: var(--agit); } .b3-locked { color: var(--faint); }
+.b3-meter { height: .4rem; margin: .5rem 0 .2rem; }
+
+/* expanded */
+.brain.b3-expanded { position: fixed; inset: 1rem; z-index: 50; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+@media (prefers-reduced-motion: reduce) { .b3-zl, .b3-card, .b3-mem { transition: none; } }

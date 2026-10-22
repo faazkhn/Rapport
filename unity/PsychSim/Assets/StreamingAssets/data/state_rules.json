@@ -5,6 +5,7 @@
   "clamp_per_turn": 10,
   "reaction_trust_unit": 2,
   "mood_rate": 0.3,
+  "exam_refuse_agitation": 70,
   "range": { "min": 0, "max": 100 },
   "intent_nudges": {
     "greet_introduce": { "trust": 2, "engagement": 2 },

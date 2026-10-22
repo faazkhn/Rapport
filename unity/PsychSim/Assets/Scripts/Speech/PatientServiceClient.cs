@@ -3,11 +3,11 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using PsychSim.Patient;
+using Rapport.Patient;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace PsychSim.Speech
+namespace Rapport.Speech
 {
     /// <summary>Text to speech. PatientServiceClient implements it over /tts; tests use a silent fake.</summary>
     public interface IVoice

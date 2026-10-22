@@ -2,10 +2,10 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>
-    /// PsychSim/Capture Lighting Stills: seats each patient at the PatientAnchor (base_sit_neutral, frame 0), renders the
+    /// Rapport/Capture Lighting Stills: seats each patient at the PatientAnchor (base_sit_neutral, frame 0), renders the
     /// DoctorCamera at 1920x1080 and writes &lt;name&gt;.png plus &lt;name&gt;.face.json, the face box projected from the eye and head bones.
     /// tools/lighting/face_luminance.py measures the result.
     /// </summary>
@@ -13,7 +13,7 @@ namespace PsychSim.Editor
     {
         const string ClipPath = "Assets/Art/Animations/Base/base_sit_neutral.fbx";
 
-        [MenuItem("PsychSim/Capture Lighting Stills")]
+        [MenuItem("Rapport/Capture Lighting Stills")]
         static void CaptureAll()
         {
             var dir = Path.GetFullPath(Path.Combine(Application.dataPath, "../../../docs/media"));

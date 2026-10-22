@@ -747,6 +747,20 @@ def sit_down(t):
     return P
 
 
+def stand_up(t):
+    """sit_down in reverse: from base_sit_neutral frame 0 up to standing with the feet together (stand_pose)."""
+    return sit_down(SIT_END - t)
+
+
+def stand_idle(t):
+    """Standing loop for exam actions done on the feet: stand_pose breathing plus a slow weight shift (8 s period)."""
+    P = stand_pose(t)
+    w = math.sin(2 * math.pi * t / 8.0)
+    P['hip'] = add(P['hip'], (0.010 * w, 0, 0))
+    addrot(P, {'Hip': (0, 1.0 * w, 0), 'Spine02': (0, -0.7 * w, 0)})
+    return P
+
+
 # ---------------------------------------------------------------- gestures on top of the neutral seated pose
 
 
@@ -1111,6 +1125,8 @@ def look_at_light(t):
 CLIPS = {
     'walk_in': (walk_in, WALK_END, False, 'Full body', 'yes (hips travel -Y)'),
     'sit_down': (sit_down, SIT_END, False, 'Full body', 'no'),
+    'stand_up': (stand_up, SIT_END, False, 'Full body', 'no'),
+    'stand_idle': (stand_idle, 8.0, True, 'Full body', 'no'),
     'base_sit_neutral': (seated_neutral, 8.0, True, 'Full body', 'no'),
     'base_sit_slumped': (seated_slumped, 10.0, True, 'Full body', 'no'),
     'cue_fidget_nails_Hands': (fidget_nails, 6.0, True, 'Hands', 'no'),
@@ -1210,7 +1226,7 @@ def load(fbx, clear_action=True):
 def preview_frames(name, frames):
     if name == 'walk_in':
         return [0, 20, 40, 60, 80, 110, frames]
-    if name == 'sit_down':
+    if name in ('sit_down', 'stand_up'):
         return [0, 24, 36, 48, 66, frames]
     if name in ACTION_PREVIEW_FRAMES:
         return ACTION_PREVIEW_FRAMES[name]
@@ -1361,4 +1377,5 @@ if __name__ == '__main__':
     elif argv and argv[0] == 'model':  # model <character.fbx> <out_dir> <prefix> [clip ...]
         print(check_on_model(argv[1], argv[2], argv[3], argv[4:] or None))
     else:
-        print(make_all(argv[0], argv[1], previews='--previews' in argv))
+        only = argv[argv.index('--only') + 1].split(',') if '--only' in argv else None  # rebuild just these clips
+        print(make_all(argv[0], argv[1], previews='--previews' in argv, only=only))

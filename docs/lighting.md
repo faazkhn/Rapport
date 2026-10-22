@@ -1,6 +1,6 @@
 # Office lighting (DESIGN v0.3, brief §2)
 
-Bright, warm, clinical but humane. Built in code, so `PsychSim/Build Placeholder Encounter Scene` reproduces it and bakes it:
+Bright, warm, clinical but humane. Built in code, so `Rapport/Build Placeholder Encounter Scene` reproduces it and bakes it:
 `EncounterSceneBuilder.cs` (room extras) calls `EncounterLighting.cs` (lights, probes, post, bake settings).
 
 ## Spec and what was used
@@ -24,7 +24,7 @@ first pass came out far too orange: 3,200 K looked like about 2,000 K.
 
 `tools/lighting/face_luminance.py STILL.png` (numpy + PIL, for example with `server/patient-service/.venv/bin/python`).
 - **Face mean** is Rec.709 relative luminance, Y = 0.2126 R + 0.7152 G + 0.0722 B, on sRGB-decoded (linear) pixel values. Luma on the encoded values is printed too, for reference.
-- **Face box:** the `*.face.json` next to each still, projected from the eye bones by `PsychSim/Capture Lighting Stills` (`LightingStills.cs`). It covers brow to chin and cheek to cheek. `--box x0 y0 x1 y1` overrides it.
+- **Face box:** the `*.face.json` next to each still, projected from the eye bones by `Rapport/Capture Lighting Stills` (`LightingStills.cs`). It covers brow to chin and cheek to cheek. `--box x0 y0 x1 y1` overrides it.
 - **Crushed / blown:** % of all frame pixels with Y < 0.02 / Y > 0.98.
 - **Setup:** `DoctorCamera` at the DoctorAnchor, 1920×1080, 4× MSAA, patient seated at the PatientAnchor on `base_sit_neutral` frame 0.
 
@@ -56,6 +56,6 @@ by less than 0.005.
 - Triangles: the room is about 14.1k (the pack's 13,960 plus primitives for the window and tissues). The patients are 83.8k (Mégane) and 79.5k (Matt), both under 90k.
 
 ## Reproduce
-1. `PsychSim/Build Placeholder Encounter Scene`. It rebuilds the scene and starts the bake, then saves again when the bake is done (about 30 s).
-2. `PsychSim/Capture Lighting Stills`. It writes `docs/media/lighting_after_{female,male}.png` and `.face.json`. The PNGs are full quality, about 2 MB each, so posterise them to 7 bits before you commit them.
+1. `Rapport/Build Placeholder Encounter Scene`. It rebuilds the scene and starts the bake, then saves again when the bake is done (about 30 s).
+2. `Rapport/Capture Lighting Stills`. It writes `docs/media/lighting_after_{female,male}.png` and `.face.json`. The PNGs are full quality, about 2 MB each, so posterise them to 7 bits before you commit them.
 3. `python tools/lighting/face_luminance.py docs/media/lighting_after_female.png` (exit code 1 on a fail).

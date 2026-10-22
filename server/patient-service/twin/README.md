@@ -2,7 +2,13 @@
 
 A visual "digital twin" of the simulated patient's brain state: regions that glow with recall, reaction, choice, speech and arousal; state gauges; a PAD mood dot; the memory ladder (items unlock as trust rises); the 5Ps formulation; and the expression output. **Metaphor, not neuroscience.** Concept preview; the formulation is a draft that faculty have not validated.
 
-Static and offline: `index.html`, `twin.css`, `twin.js`, plus `demo_timeline.js` / `demo_timeline.json` (the staged mdd_01 demo with invented times). There are no CDNs, external fonts or libraries.
+Static and offline: `index.html`, `twin.css`, `twin.js`, plus `demo_timeline.js` / `demo_timeline.json` (the staged mdd_01 demo with invented times). There are no CDNs or external fonts.
+
+## 3D brain
+
+`twin3d.js` replaces the 2D map with a glass 3D brain (the owner's `Brain_Model.obj`, decimated in Blender to 51k faces: `assets/brain.glb`). Zones glow with the same activity values as the 2D map. Inside: every memory item as a node (deeper toward the midline = needs more trust; grey with a lock = locked, amber = must ask, teal = open, bright = told), live cards per zone (heard, reaction, behaviour, resistance, says, body, arousal, mood) and each turn's thought path (heard → recalled memory → behaviour → says; locked hits route to the amygdala in red). Zoom sets the detail: close = memory labels, middle = live cards, far = zone names with activity. Click a node or a zone chip for details; Expand, Rotate, Reset and 2D are in the toolbar; Esc closes.
+
+Vendored in `vendor/` (MIT): three.js 0.170 (core, OrbitControls, CSS2DRenderer, GLTFLoader, BufferGeometryUtils) and Motion 11.18 (the framework-free build of Framer Motion) for the UI springs. ES modules do not load over `file://`, and `&render=1` (video capture) keeps the deterministic 2D map, so both fall back to the 2D view.
 
 ## Modes (query string)
 

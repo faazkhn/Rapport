@@ -47,3 +47,11 @@ def test_utterance_stream_after_twin_labels():
     for i in range(0, len(raw), 3):
         got += p.feed(raw[i:i + 3])
     assert got == reply["utterance"] and p.full() == reply
+
+
+def test_first_clause_goes_out_early():
+    s = stream.SentenceSplitter(first_clause=True)
+    assert s.feed("Honestly, I don't know, ") == []  # too short to stand alone
+    assert s.feed("it started after the project changed, and then") == ["Honestly, I don't know, it started after the project changed,"]
+    assert s.feed(" I stopped sleeping well, really. Then more") == ["and then I stopped sleeping well, really."]  # commas only for the first piece
+    assert s.flush() == ["Then more"]

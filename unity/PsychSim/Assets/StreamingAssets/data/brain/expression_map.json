@@ -14,7 +14,8 @@
      "intensity": 0.5
     }
    ],
-   "speed": 1.1
+   "speed": 1.1,
+   "voice": "frightened, breath a little quick"
   },
   "startled": {
    "cues": [
@@ -23,7 +24,8 @@
      "intensity": 0.7
     }
    ],
-   "speed": 1.05
+   "speed": 1.05,
+   "voice": "caught off guard, a short surprised start"
   },
   "ashamed": {
    "cues": [
@@ -32,7 +34,8 @@
      "intensity": 0.8
     }
    ],
-   "speed": 0.9
+   "speed": 0.9,
+   "voice": "embarrassed and quiet, trailing off"
   },
   "sad": {
    "cues": [
@@ -41,7 +44,8 @@
      "intensity": 0.6
     }
    ],
-   "speed": 0.9
+   "speed": 0.9,
+   "voice": "sad, voice heavy and close to tears"
   },
   "numb": {
    "cues": [
@@ -50,7 +54,8 @@
      "intensity": 0.6
     }
    ],
-   "speed": 0.9
+   "speed": 0.9,
+   "voice": "flat and empty, little expression"
   },
   "resigned": {
    "cues": [
@@ -59,7 +64,8 @@
      "intensity": 0.5
     }
    ],
-   "speed": 0.9
+   "speed": 0.9,
+   "voice": "resigned, low energy, a small sigh in the voice"
   },
   "challenged": {
    "cues": [
@@ -68,7 +74,8 @@
      "intensity": 0.4
     }
    ],
-   "speed": 1.05
+   "speed": 1.05,
+   "voice": "defensive, slightly firmer"
   },
   "misunderstood": {
    "cues": [
@@ -77,15 +84,18 @@
      "intensity": 0.5
     }
    ],
-   "speed": 1.0
+   "speed": 1.0,
+   "voice": "a little hurt, trying to explain"
   },
   "relieved": {
    "cues": [],
-   "speed": 1.0
+   "speed": 1.0,
+   "voice": "relieved, voice softening"
   },
   "warm": {
    "cues": [],
-   "speed": 1.05
+   "speed": 1.05,
+   "voice": "warmer and more open"
   }
  },
  "behaviours": {
@@ -96,7 +106,8 @@
      "intensity": 0.9
     }
    ],
-   "speed": 0.85
+   "speed": 0.85,
+   "voice": "voice wobbling and wet with tears, slower"
   },
   "guarded_short": {
    "cues": [
@@ -105,7 +116,8 @@
      "intensity": 0.5
     }
    ],
-   "speed": 1.0
+   "speed": 1.0,
+   "voice": "brief and guarded, clipped"
   },
   "hostile": {
    "cues": [
@@ -114,7 +126,8 @@
      "intensity": 0.7
     }
    ],
-   "speed": 1.15
+   "speed": 1.15,
+   "voice": "irritated and sharp"
   },
   "deflects": {
    "cues": [
@@ -123,7 +136,19 @@
      "intensity": 0.4
     }
    ],
-   "speed": 1.0
+   "speed": 1.0,
+   "voice": "brushing it off lightly"
   }
+ },
+ "emotions": {
+  "neutral": "calm, plain delivery",
+  "sad": "sad and tired",
+  "anxious": "anxious and tense, a bit faster",
+  "angry": "irritated, harder edge",
+  "ashamed": "ashamed, quiet",
+  "happy": "lighter, a small smile in the voice",
+  "flat": "flat and monotone",
+  "suspicious": "wary and guarded",
+  "confused": "unsure, hesitant"
  }
 }

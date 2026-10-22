@@ -1,0 +1,14 @@
+{
+    "name": "Rapport.Core",
+    "rootNamespace": "Rapport.Core",
+    "references": ["Rapport.Data","Rapport.Patient","Rapport.Scoring","Rapport.Logging","Rapport.Tools","Rapport.Speech","Rapport.Cues","uLipSync.Runtime","Rapport.Platform"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

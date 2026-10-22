@@ -5,10 +5,10 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>
-    /// PsychSim/Rebuild Patient Animator: applies the import settings from art/Animations/ANIMATIONS.md to every FBX under
+    /// Rapport/Rebuild Patient Animator: applies the import settings from art/Animations/ANIMATIONS.md to every FBX under
     /// Assets/Art/Animations, writes the avatar masks and rebuilds PatientController.controller, wiring clips by name.
     /// Missing clips leave an empty state; runtime code checks which clips exist. Re-run after the artist adds or changes clips.
     /// </summary>
@@ -18,9 +18,9 @@ namespace PsychSim.Editor
         public const string ControllerPath = AnimDir + "/PatientController.controller";
         public const string MaskDir = "Assets/Art/Masks";
 
-        static readonly string[] Loops = { "base_sit_neutral", "base_sit_slumped", "cue_fidget_nails_Hands", "gesture_talk_small_01", "gesture_talk_small_02" };
+        static readonly string[] Loops = { "base_sit_neutral", "base_sit_slumped", "cue_fidget_nails_Hands", "gesture_talk_small_01", "gesture_talk_small_02", "stand_idle" };
 
-        [MenuItem("PsychSim/Rebuild Patient Animator")]
+        [MenuItem("Rapport/Rebuild Patient Animator")]
         public static void Rebuild()
         {
             var masks = BuildMasks();
@@ -46,6 +46,12 @@ namespace PsychSim.Editor
             sit.iKOnFeet = true;
             var t = sit.AddTransition(seated);
             t.hasExitTime = true; t.exitTime = 1f; t.duration = 0.1f;
+            // exam: stand_up -> stand_idle (held while standing); sit_down above returns to Seated
+            var standUp = AddState(sm, "stand_up", clips);
+            var standIdle = AddState(sm, "stand_idle", clips);
+            standUp.iKOnFeet = standIdle.iKOnFeet = true;
+            t = standUp.AddTransition(standIdle);
+            t.hasExitTime = true; t.exitTime = 1f; t.duration = 0.15f;
 
             // Talk gestures and the fidget are additive (exact over neutral, stay on the lap over slumped); wipe tears and head gestures override.
             AddLayer(ac, "Fidget", masks["Hands"], AnimatorLayerBlendingMode.Additive, clips, "cue_fidget_nails_Hands");
@@ -53,9 +59,14 @@ namespace PsychSim.Editor
             AddLayer(ac, "ArmsOneShot", masks["Arms"], AnimatorLayerBlendingMode.Override, clips, "Empty", "cue_wipe_tears", "action_hold_out_hands", "action_roll_up_sleeves");
             AddLayer(ac, "Head", masks["Head"], AnimatorLayerBlendingMode.Override, clips, "Empty", "gesture_nod", "gesture_head_shake", "action_look_at_light");
 
+            // IK pass: base (exam hand presentation while standing) and ArmsOneShot (hands, wipe tears); ExamController.OnAnimatorIK
+            var ls = ac.layers;
+            foreach (var i in new[] { 0, System.Array.FindIndex(ls, l => l.name == "ArmsOneShot") }) ls[i].iKPass = true;
+            ac.layers = ls;
+
             EditorUtility.SetDirty(ac);
             AssetDatabase.SaveAssets();
-            var missing = new[] { "walk_in", "sit_down", "base_sit_neutral", "base_sit_slumped", "cue_fidget_nails_Hands", "cue_wipe_tears",
+            var missing = new[] { "walk_in", "sit_down", "stand_up", "stand_idle", "base_sit_neutral", "base_sit_slumped", "cue_fidget_nails_Hands", "cue_wipe_tears",
                 "gesture_talk_small_01", "gesture_talk_small_02", "gesture_nod", "gesture_head_shake",
                 "action_hold_out_hands", "action_roll_up_sleeves", "action_look_at_light" }.Where(n => !clips.ContainsKey(n)).ToList();
             Debug.Log($"PsychSim: rebuilt {ControllerPath} with {clips.Count} clips" + (missing.Count > 0 ? $"; missing (empty states): {string.Join(", ", missing)}" : ""));

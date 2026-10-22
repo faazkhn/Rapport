@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PsychSim.Data;
+using Rapport.Data;
 
-namespace PsychSim.Patient
+namespace Rapport.Patient
 {
     /// <summary>Transport for /reply. PatientServiceClient implements it over HTTP; tests use an in-process fake.</summary>
     public interface IPatientService

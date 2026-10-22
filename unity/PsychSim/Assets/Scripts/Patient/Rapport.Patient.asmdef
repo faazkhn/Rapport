@@ -1,0 +1,14 @@
+{
+    "name": "Rapport.Patient",
+    "rootNamespace": "Rapport.Patient",
+    "references": ["Rapport.Data"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

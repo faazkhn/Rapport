@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using PsychSim.Data;
+using Rapport.Data;
 
-namespace PsychSim.Scoring
+namespace Rapport.Scoring
 {
     public class RxItem
     {

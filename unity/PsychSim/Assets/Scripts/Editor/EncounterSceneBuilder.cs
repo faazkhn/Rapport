@@ -1,9 +1,9 @@
 using System.IO;
 using System.Linq;
-using PsychSim.Core;
-using PsychSim.Platform;
-using PsychSim.Speech;
-using PsychSim.UI;
+using Rapport.Core;
+using Rapport.Platform;
+using Rapport.Speech;
+using Rapport.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -12,10 +12,10 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UIElements;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>
-    /// PsychSim/Build Placeholder Encounter Scene: patient prefabs, settings assets and Assets/Scenes/Encounter.unity with a box room
+    /// Rapport/Build Placeholder Encounter Scene: patient prefabs, settings assets and Assets/Scenes/Encounter.unity with a box room
     /// that follows the room contract (see Core/Room.cs). The artist's Room_OutpatientConsult replaces the "PlaceholderRoom" object.
     /// </summary>
     public static class EncounterSceneBuilder
@@ -29,7 +29,7 @@ namespace PsychSim.Editor
         static readonly Vector3 PatientHips = new(-1.1f, 0f, 1.05f);
         const float WallZ = 3.8f;
 
-        [MenuItem("PsychSim/Build Placeholder Encounter Scene")]
+        [MenuItem("Rapport/Build Placeholder Encounter Scene")]
         public static void Build()
         {
             // NewScene unloads unused assets, so load/create the assets after it

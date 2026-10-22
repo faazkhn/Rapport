@@ -1,0 +1,14 @@
+{
+    "name": "Rapport.Tests.PlayMode",
+    "rootNamespace": "Rapport.Tests",
+    "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "Rapport.Data", "Rapport.Patient", "Rapport.Scoring", "Rapport.Tools", "Rapport.Speech", "Rapport.Core", "Rapport.UI"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": ["nunit.framework.dll", "Newtonsoft.Json.dll"],
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

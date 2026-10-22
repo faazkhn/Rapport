@@ -139,6 +139,25 @@
     },
     "voice_id": {
      "$ref": "#/$defs/voice"
+    },
+    "voice_description": {
+     "type": "string",
+     "description": "Text-only voice design for instructable TTS (never a real person's voice)."
+    }
+   }
+  },
+  "exam_rule": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "trust_min"
+   ],
+   "properties": {
+    "trust_min": {
+     "$ref": "#/$defs/pct"
+    },
+    "refusal_line": {
+     "type": "string"
     }
    }
   }
@@ -703,79 +722,34 @@
    "additionalProperties": false,
    "properties": {
     "hold_out_hands": {
-     "type": "object",
-     "additionalProperties": false,
-     "required": [
-      "trust_min"
-     ],
-     "properties": {
-      "trust_min": {
-       "$ref": "#/$defs/pct"
-      },
-      "refusal_line": {
-       "type": "string"
-      }
-     }
-    },
-    "roll_up_sleeves": {
-     "type": "object",
-     "additionalProperties": false,
-     "required": [
-      "trust_min"
-     ],
-     "properties": {
-      "trust_min": {
-       "$ref": "#/$defs/pct"
-      },
-      "refusal_line": {
-       "type": "string"
-      }
-     }
+     "$ref": "#/$defs/exam_rule"
     },
     "look_at_light": {
-     "type": "object",
-     "additionalProperties": false,
-     "required": [
-      "trust_min"
-     ],
-     "properties": {
-      "trust_min": {
-       "$ref": "#/$defs/pct"
-      },
-      "refusal_line": {
-       "type": "string"
-      }
-     }
+     "$ref": "#/$defs/exam_rule"
+    },
+    "follow_finger": {
+     "$ref": "#/$defs/exam_rule"
+    },
+    "open_mouth": {
+     "$ref": "#/$defs/exam_rule"
+    },
+    "stick_out_tongue": {
+     "$ref": "#/$defs/exam_rule"
+    },
+    "show_forearms": {
+     "$ref": "#/$defs/exam_rule"
+    },
+    "roll_up_sleeves": {
+     "$ref": "#/$defs/exam_rule"
     },
     "stand_up": {
-     "type": "object",
-     "additionalProperties": false,
-     "required": [
-      "trust_min"
-     ],
-     "properties": {
-      "trust_min": {
-       "$ref": "#/$defs/pct"
-      },
-      "refusal_line": {
-       "type": "string"
-      }
-     }
+     "$ref": "#/$defs/exam_rule"
     },
-    "walk_to_door": {
-     "type": "object",
-     "additionalProperties": false,
-     "required": [
-      "trust_min"
-     ],
-     "properties": {
-      "trust_min": {
-       "$ref": "#/$defs/pct"
-      },
-      "refusal_line": {
-       "type": "string"
-      }
-     }
+    "sit_down": {
+     "$ref": "#/$defs/exam_rule"
+    },
+    "walk_few_steps": {
+     "$ref": "#/$defs/exam_rule"
     }
    }
   },

@@ -5,16 +5,16 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using PsychSim.Cues;
-using PsychSim.Data;
-using PsychSim.Logging;
-using PsychSim.Patient;
-using PsychSim.Scoring;
-using PsychSim.Speech;
-using PsychSim.Tools;
+using Rapport.Cues;
+using Rapport.Data;
+using Rapport.Logging;
+using Rapport.Patient;
+using Rapport.Scoring;
+using Rapport.Speech;
+using Rapport.Tools;
 using UnityEngine;
 
-namespace PsychSim.Core
+namespace Rapport.Core
 {
     public enum Phase { Start, Brief, Enter, Active, Debrief }
     public enum Mode { Practice, Assessment }
@@ -32,7 +32,7 @@ namespace PsychSim.Core
         [SerializeField] TextAsset[] facePresets;
         [SerializeField] uLipSync.Profile lipSyncProfile;
         [SerializeField] AudioSource doctorVoice;
-        [SerializeField] PsychSim.Platform.DesktopRig desktopRig;
+        [SerializeField] Rapport.Platform.DesktopRig desktopRig;
 
         public Phase Phase { get; private set; }
         public Mode Mode { get; private set; }
@@ -60,6 +60,8 @@ namespace PsychSim.Core
         public float TimeLimitSeconds => (Case.time_limit_min ?? 15f) * 60f;
         public bool Busy => Voice != null && (Voice.State == VoiceState.Thinking || Voice.State == VoiceState.Speaking);
         public Animator Patient { get; private set; }
+        public ExamController Exam { get; private set; }
+        Platform.CameraDirector cameraDirector;
         public CueDriver Cues { get; private set; }
         public long LastLatencyMs { get; private set; } = -1;
         [field: NonSerialized] public string ServiceError { get; private set; }
@@ -86,6 +88,11 @@ namespace PsychSim.Core
             Disposition = new DispositionSelector(Data.dispositions);
             http = new PatientServiceClient(settings);
             room = Room.Find();
+            if (desktopRig)
+            {
+                cameraDirector = desktopRig.gameObject.AddComponent<Platform.CameraDirector>();
+                cameraDirector.Setup(desktopRig.GetComponent<Camera>(), desktopRig);
+            }
         }
 
         void Start() => SetPhase(Phase.Start);
@@ -177,6 +184,10 @@ namespace PsychSim.Core
             Cues.Init(Case, State, () => SessionSeconds / 60f, Patient, gaze, tremor, mats, face);
             Cues.CueFired += (id, v) => { Log.Write("cue_fired", new { id, intensity = Math.Round(v, 2) }); CueFired?.Invoke(id, v); };
             Cues.CueChanged += (id, v) => Log.Write("cue", new { id, intensity = Math.Round(v, 2) });
+            Exam = go.AddComponent<ExamController>();
+            Exam.Setup(Patient, Cues, gaze, face, room.DoctorAnchor);
+            Exam.ExamStarted += id => { Log.Write("exam_started", new { id }); if (cameraDirector) cameraDirector.OnExamStarted(id, Patient); };
+            Exam.ExamEnded += id => { Log.Write("exam_ended", new { id }); if (cameraDirector) cameraDirector.OnExamEnded(id); };
         }
 
         void Update()
@@ -211,6 +222,7 @@ namespace PsychSim.Core
                     gaze.LookAtDoctor(1.5f);
                     break;
                 case "reply": OnReply(o); break;
+                case "exam": Exam.Receive(o); Log.Write("exam", o); break;
                 case "brain_snapshot": Log.Write("brain_snapshot", o); break;
                 case "timing":
                     if (o["audio_start_ms"]?.Type == JTokenType.Integer) LastLatencyMs = (long)o["audio_start_ms"];
@@ -252,7 +264,6 @@ namespace PsychSim.Core
                 FactRevealed?.Invoke(f);
             }
             Cues.OnPatientReplied(turn);
-            if (reply.exam_action != null) { Cues.PlayExamAction(reply.exam_action); Log.Write("exam_action", new { id = reply.exam_action }); }
             Log.Write("turn", new
             {
                 doctor = pendingDoctor, patient = reply.utterance, reply.emotion, reply.doctor_intents, reply.revealed_fact_ids, reply.event_cues, reply.exam_action,

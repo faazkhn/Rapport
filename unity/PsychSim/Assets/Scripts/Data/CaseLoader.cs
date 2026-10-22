@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace PsychSim.Data
+namespace Rapport.Data
 {
     public class ContentException : Exception
     {

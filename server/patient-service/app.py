@@ -15,10 +15,12 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 import brain
+import learning
 import mock
 import session
 import stt
 import twin_bus
+import voice
 
 log = logging.getLogger("patient-service")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -26,12 +28,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 VOICES = session.VOICES
 SAMPLE_RATE = session.OUT_SR
 tts = session.TTS
-MOCK = os.environ.get("PSYCHSIM_LLM") == "mock"  # dev/play-mode tests only, never the LLM eval
+MOCK = brain.env("LLM") == "mock"  # dev/play-mode tests only, never the LLM eval
 
 
 @asynccontextmanager
 async def lifespan(app):
-    if os.environ.get("PSYCHSIM_SKIP_TTS") != "1":
+    if brain.env("SKIP_TTS") != "1":
         try:
             from kittenml import KittenTTS
             t = time.perf_counter()
@@ -40,19 +42,33 @@ async def lifespan(app):
             log.info("TTS loaded in %.1fs", time.perf_counter() - t)
         except Exception as e:  # /reply still works without TTS
             log.error("TTS failed to load: %s", type(e).__name__)
-    if os.environ.get("PSYCHSIM_SKIP_STT") != "1":
+        name = os.environ.get("RAPPORT_TTS", "qwen3-design")
+        if name != "kitten":
+            try:
+                t = time.perf_counter()
+                tts["backend"] = await run_in_threadpool(voice.load, name, session.synth)
+                await run_in_threadpool(lambda: session.TTS_POOL.submit(lambda: list(tts["backend"].stream("Hello, doctor.", "", 1.0, ""))).result())
+                log.info("TTS backend %s loaded in %.1fs", name, time.perf_counter() - t)
+            except Exception as e:  # sessions use KittenTTS
+                log.error("TTS backend %s failed to load (%s); using KittenTTS", name, type(e).__name__)
+    if brain.env("SKIP_STT") != "1":
         t = time.perf_counter()
         stt.vad_model()
         await run_in_threadpool(lambda: session.STT_POOL.submit(stt.transcribe, np.zeros(stt.SR, np.float32)).result())
         log.info("VAD + STT (%s) loaded in %.1fs", stt.STT_MODEL, time.perf_counter() - t)
-    if not MOCK and os.environ.get("PSYCHSIM_SKIP_WARMUP") != "1":
+        try:
+            session.SMART["model"] = await run_in_threadpool(stt.smart_turn)
+            log.info("Smart Turn %s", "loaded" if session.SMART["model"] else f"missing ({stt.SMART_TURN_ONNX}); silence-only endpointing")
+        except Exception as e:
+            log.error("Smart Turn failed to load (%s); silence-only endpointing", type(e).__name__)
+    if not MOCK and brain.env("SKIP_WARMUP") != "1":
         t = time.perf_counter()
         n = await run_in_threadpool(brain.tag_intents, "Hello, how are you?")  # warms slot 1 prefix
         log.info("LLM %s warm in %.1fs (intents ok=%s)", brain.default_model(), time.perf_counter() - t, n is not None)
     yield
 
 
-app = FastAPI(title="PsychSim patient service", lifespan=lifespan)
+app = FastAPI(title="Rapport patient service", lifespan=lifespan)
 
 
 @app.websocket("/twin/ws")  # declared before the /twin static mount, which would otherwise catch it
@@ -92,6 +108,7 @@ class ReplyReq(BaseModel):
     model: str | None = None
     reasoning_effort: Literal["low", "medium", "high", "xhigh"] | None = None
     summary: str | None = Field(default=None, max_length=4000)
+    mode: Literal["practice", "assessment"] = "practice"
 
 
 class TtsReq(BaseModel):
@@ -117,6 +134,54 @@ async def reply(req: ReplyReq):
     log.info("reply case=%s model=%s latency_ms=%s fallback=%s dropped=%d",
              req.case_id, m["model"], m["latency_ms"], m["fallback"], len(m["guard_dropped"]))
     return out
+
+
+class FeedbackReq(BaseModel):
+    case_id: str
+    variant: Literal["female", "male"] = "female"
+    doctor: str = Field(max_length=4000)
+    utterance: str = Field(min_length=1, max_length=4000)
+    rating: Literal["up", "down", "rewrite"]
+    rewrite: str | None = Field(default=None, max_length=4000)
+    comment: str | None = Field(default=None, max_length=2000)
+    author: str = Field(min_length=1, max_length=100)
+    engagement: float = Field(default=35, ge=0, le=100)
+    trust: float = Field(default=30, ge=0, le=100)
+
+
+class ApproveReq(BaseModel):
+    case_id: str
+    entry_id: str = Field(max_length=64)
+
+
+def _case_or_404(case_id: str, variant: str = "female"):
+    try:
+        return brain.load_case(case_id, variant)
+    except (FileNotFoundError, KeyError):
+        raise HTTPException(404, f"unknown case_id {case_id!r}")
+
+
+@app.post("/learning/feedback")
+async def feedback(req: FeedbackReq):
+    """L2 faculty tuning: 👍 / 👎 / rewrite → a principle in the case; 👍 also stores the line as an approved example (L1)."""
+    _case_or_404(req.case_id, req.variant)
+    text = await run_in_threadpool(learning.distill_principle, req.doctor, req.utterance, req.rating, req.rewrite, req.comment,
+                                   brain.get_client())
+    principle = learning.add_principle(req.case_id, text, req.author)
+    entry = None
+    if req.rating == "up":
+        entry = learning.add_experience(req.case_id, {"doctor": req.doctor, "utterance": req.utterance, "engagement": req.engagement,
+                                                      "trust": req.trust, "behaviour": None, "source": "faculty", "tier": "approved",
+                                                      "judged": True, "author": req.author}, consent=False)
+    return {"principle": principle, "entry_id": entry and entry["id"]}
+
+
+@app.post("/learning/approve")
+def approve(req: ApproveReq):
+    _case_or_404(req.case_id)
+    if not learning.approve(req.case_id, req.entry_id):
+        raise HTTPException(404, f"unknown entry {req.entry_id!r}")
+    return {"ok": True}
 
 
 @app.post("/tts")

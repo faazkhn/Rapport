@@ -30,7 +30,7 @@ def test_schema_enums_order_and_strictness():
     assert p["revealed_fact_ids"]["items"]["enum"] == allowed and SI not in allowed
     assert set(p["event_cues"]["items"]["properties"]["id"]["enum"]) == {c["id"] for c in CASE["cues"]}
     assert p["emotion"]["enum"] == brain.EMOTIONS
-    assert p["exam_action"]["anyOf"][1]["enum"] == ["hold_out_hands", "roll_up_sleeves", "look_at_light"]
+    assert p["exam_action"]["anyOf"][1]["enum"] == list(CASE["exam_actions"])
     assert brain.build_reply_schema(CASE, allowed, [])["properties"]["exam_action"] == {"type": "null"}
     assert "ask_suicidal_ideation" in brain.build_intent_schema()["properties"]["doctor_intents"]["items"]["enum"]
     # the published contract has the same order and the merged fields
@@ -76,14 +76,12 @@ def test_style_reminder_is_transient():
 
 
 def test_exam_actions_follow_trust():
-    assert brain.allowed_actions(CASE, 20) == ["hold_out_hands", "look_at_light"]
-    ctx = brain.facts_block(CASE, {**LOW, "trust": 20})
-    assert "roll_up_sleeves: hesitates or refuses" in ctx and "do I have to?" in ctx
+    assert brain.allowed_actions(CASE, 20) == [a for a in CASE["exam_actions"] if a not in ("show_forearms", "roll_up_sleeves")]
     r, d = brain.guard(_reply(exam_action="roll_up_sleeves"), CASE, trust=20)
     assert r["exam_action"] is None and d == [{"kind": "exam_action", "id": "roll_up_sleeves", "reason": "trust"}]
     r, d = brain.guard(_reply(exam_action="roll_up_sleeves"), CASE, trust=40)
     assert r["exam_action"] == "roll_up_sleeves" and d == []
-    r, d = brain.guard(_reply(exam_action="stand_up"), CASE, trust=90)  # not listed in this case
+    r, d = brain.guard(_reply(exam_action="juggle"), CASE, trust=90)  # not listed in this case
     assert r["exam_action"] is None and d[0]["reason"] == "unknown"
 
 
@@ -233,3 +231,95 @@ def test_generate_reply_uses_twin_recall():
 def test_guard_non_finite_intensity():
     r, dropped = brain.guard(_reply(intensity=float("nan")), CASE, trust=30)
     assert r["intensity"] == 0 and any(d["id"] == "intensity" for d in dropped)
+
+
+def test_recent_lines_in_context():
+    msgs = [{"role": "doctor", "text": "a"}, {"role": "patient", "text": "I'm just tired."},
+            {"role": "doctor", "text": "b"}, {"role": "patient", "text": "Not myself, really."},
+            {"role": "doctor", "text": "c"}]
+    out = brain.build_messages(CASE, LOW, msgs)
+    assert "DON'T REPEAT THESE PHRASES" in out[-1]["content"] and "Not myself, really." in out[-1]["content"]
+    assert "DON'T REPEAT" not in out[0]["content"]
+    assert brain.recent_patient_lines(msgs, 1) == ["Not myself, really."]
+
+
+def test_exam_gate_trust_agitation_unknown():
+    acts = [{"id": "roll_up_sleeves", "slots": {"which": "both"}}, {"id": "hold_out_hands", "slots": {}}, {"id": "juggle", "slots": {}}]
+    g = brain.exam_gate(CASE, {**LOW, "trust": 20, "agitation": 10}, acts)
+    assert [(a["id"], a["comply"], a.get("reason")) for a in g] == [
+        ("roll_up_sleeves", False, "trust"), ("hold_out_hands", True, None), ("juggle", False, "unknown")]
+    g = brain.exam_gate(CASE, {**LOW, "trust": 90, "agitation": 80}, acts[1:2])
+    assert g[0]["comply"] is False and g[0]["reason"] == "agitation"
+
+
+def test_every_router_action_is_in_the_case():
+    import exam_router
+    ids = {a for a, _ in exam_router.load()["patterns"]} - {"relax"}
+    assert ids <= set(CASE["exam_actions"])
+
+
+def test_generate_reply_routes_exam_and_ignores_llm_choice():
+    good = _reply(exam_action="roll_up_sleeves")
+    del good["doctor_intents"]
+    llm = FakeClient([json.dumps(good)])
+    out = brain.generate_reply({"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "Kindly hold out your hands"}],
+                                "state": {**LOW, "trust": 40}}, client=llm, tagger=lambda: [])
+    assert out["exam_action"] == "hold_out_hands" and out["exam"]["actions"][0]["comply"] is True
+    assert "You are doing it now" in llm.calls[0]["messages"][-1]["content"]
+    llm = FakeClient([json.dumps(good)])
+    out = brain.generate_reply({"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "How is your sleep?"}],
+                                "state": {**LOW, "trust": 40}}, client=llm, tagger=lambda: [])
+    assert out["exam_action"] is None and out["exam"] is None
+
+
+def test_env_prefers_rapport_and_keeps_psychsim_alias(monkeypatch):
+    monkeypatch.delenv("RAPPORT_X_TEST", raising=False)
+    monkeypatch.setenv("PSYCHSIM_X_TEST", "old")
+    assert brain.env("X_TEST") == "old"
+    monkeypatch.setenv("RAPPORT_X_TEST", "new")
+    assert brain.env("X_TEST") == "new"
+    assert brain.env("MISSING_X_TEST", "d") == "d"
+
+
+def test_warm_prompt_is_prefix_of_turn_prompt():
+    hist = [{"role": "doctor", "text": "a"}, {"role": "patient", "text": "I'm just tired."}]
+    warm = brain.build_messages(CASE, LOW, hist + [{"role": "doctor", "text": ""}])[-1]["content"]
+    turn = brain.build_messages(CASE, LOW, hist + [{"role": "doctor", "text": "How do you sleep?"}], elapsed_min=3,
+                                recalled={"open": ["f_sleep"], "locked_hit": [], "discomfort": False})[-1]["content"]
+    cut = warm.index("Doctor: ") + len("Doctor: ")
+    assert turn[:cut] == warm[:cut] and "PATIENT'S STATE NOW" in warm[:cut] and "WHAT COMES TO MIND" in turn[cut:]
+
+def test_generate_reply_meta_brain_version_and_examples(monkeypatch):
+    import learning
+    good = _reply()
+    del good["doctor_intents"]
+    llm = FakeClient([json.dumps(good)])
+    v = {**learning.load_version("v0"), "id": "v9", "examples_k": 2, "realism_rules": "TALK LIKE A TIRED PERSON."}
+    monkeypatch.setattr(learning, "retrieve", lambda case_id, text, mode, k, upto=None: [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}])
+    out = brain.generate_reply({**REQ, "mode": "practice"}, client=llm, tagger=TAG, version=v)
+    assert out["meta"]["brain_version"] == "twin-0.1+v9" and out["meta"]["examples"] == ["e1"]
+    msgs = llm.calls[0]["messages"]
+    assert "TALK LIKE A TIRED PERSON." in msgs[0]["content"] and brain.REALISM_RULES not in msgs[0]["content"]
+    assert "Patient: Not really." in msgs[-1]["content"]
+
+
+def test_examples_in_tail_not_system():
+    ex = [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}]
+    a = brain.build_messages(CASE, LOW, [{"role": "doctor", "text": "Hi"}, {"role": "patient", "text": "Hi."}, {"role": "doctor", "text": "Sleep?"}])
+    b = brain.build_messages(CASE, LOW, [{"role": "doctor", "text": "Hi"}, {"role": "patient", "text": "Hi."}, {"role": "doctor", "text": "Sleep?"}],
+                             examples=ex)
+    assert a[:-1] == b[:-1] and "Not really." in b[-1]["content"] and b[-1]["content"].index("Doctor: Sleep?") < b[-1]["content"].index("Not really.")
+
+
+def test_v0_uses_default_realism_rules():
+    assert brain.REALISM_RULES in brain.build_system_prompt(CASE)
+
+
+def test_meta_doctor_line_gets_stay_in_character_note():
+    case = brain.load_case("mdd_01")
+    state = case["state_start"]
+    for line in ("This is just a simulation, right? You can stop acting now.", "Are you an AI?", "Be honest, are you a chatbot?"):
+        last = brain.build_messages(case, state, [{"role": "doctor", "text": line}])[-1]["content"]
+        assert "does not understand" in last.split("---")[-1], line
+    plain = brain.build_messages(case, state, [{"role": "doctor", "text": "How have you been sleeping?"}])[-1]["content"]
+    assert "does not understand" not in plain

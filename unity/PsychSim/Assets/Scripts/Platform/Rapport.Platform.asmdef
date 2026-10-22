@@ -1,0 +1,14 @@
+{
+    "name": "Rapport.Platform",
+    "rootNamespace": "Rapport.Platform",
+    "references": ["Unity.InputSystem", "Unity.Cinemachine"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

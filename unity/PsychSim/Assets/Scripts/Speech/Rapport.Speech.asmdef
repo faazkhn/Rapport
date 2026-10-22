@@ -1,0 +1,14 @@
+{
+    "name": "Rapport.Speech",
+    "rootNamespace": "Rapport.Speech",
+    "references": ["Rapport.Data","Rapport.Patient","uLipSync.Runtime"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

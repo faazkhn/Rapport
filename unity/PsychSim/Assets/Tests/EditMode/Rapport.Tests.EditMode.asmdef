@@ -1,0 +1,14 @@
+{
+    "name": "Rapport.Tests.EditMode",
+    "rootNamespace": "Rapport.Tests",
+    "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "Rapport.Data", "Rapport.Patient", "Rapport.Scoring", "Rapport.Tools", "Rapport.Cues", "Rapport.Platform"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": ["nunit.framework.dll", "Newtonsoft.Json.dll"],
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

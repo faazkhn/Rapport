@@ -1,13 +1,13 @@
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using PsychSim.Data;
+using Rapport.Data;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>
     /// Release builds may ship only 'approved' content (DESIGN 9.1). Development builds ship everything.

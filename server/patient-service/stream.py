@@ -56,6 +56,8 @@ class UtteranceStream:
 # end of sentence: . ! ? (or … / ...) followed by whitespace; the minimum length avoids speaking "I..." alone
 _END = re.compile(r'(?<=[.!?…])["\')\]]*\s+')
 MIN_CHARS = 12
+_COMMA = re.compile(r'(?<=,)\s+')
+FIRST_CLAUSE_CHARS = 30  # the reply's first clause may go to TTS at a comma, so a long first sentence doesn't hold back the voice
 
 
 def split_sentences(text: str) -> list[str]:
@@ -77,8 +79,9 @@ def split_sentences(text: str) -> list[str]:
 class SentenceSplitter:
     """Feed text as it streams; get complete sentences back as soon as they end. flush() returns the rest."""
 
-    def __init__(self):
+    def __init__(self, first_clause: bool = False):
         self.buf = ""
+        self.first = first_clause  # still waiting for the reply's first piece
 
     def feed(self, text: str) -> list[str]:
         self.buf += text
@@ -89,6 +92,11 @@ class SentenceSplitter:
                 out.append(piece)
                 start = m.end()
         self.buf = self.buf[start:]
+        if self.first and not out:
+            m = next((m for m in _COMMA.finditer(self.buf) if len(self.buf[:m.start()].strip()) >= FIRST_CLAUSE_CHARS), None)
+            if m:
+                out, self.buf = [self.buf[:m.start()].strip()], self.buf[m.end():]
+        self.first = self.first and not out
         return out
 
     def flush(self) -> list[str]:

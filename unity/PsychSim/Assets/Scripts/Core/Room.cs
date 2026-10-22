@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace PsychSim.Core
+namespace Rapport.Core
 {
     /// <summary>
     /// Room contract: every room (placeholder or the artist's Room_* prefab) provides these named children; code finds them by name.

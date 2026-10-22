@@ -22,7 +22,8 @@
     "their": "her"
    },
    "model_id": "female_20s_a",
-   "voice_id": "Luna"
+   "voice_id": "Luna",
+   "voice_description": "A 24-year-old Indian woman from Bengaluru with a soft, natural Indian-English accent. Young, warm but tired voice, mid-low pitch, quiet. Natural and human, not a narrator."
   },
   "male": {
    "name": "Arjun Rao",
@@ -33,16 +34,17 @@
     "their": "his"
    },
    "model_id": "male_20s_a",
-   "voice_id": "Leo"
+   "voice_id": "Leo",
+   "voice_description": "A 24-year-old Indian man from Bengaluru with a natural Indian-English accent. Young, low and soft male voice, tired and quiet. Natural and human, not a narrator."
   }
  },
  "patient": {
   "age": 24,
   "variant": "office_casual",
-  "voice_speed": 0.9,
+  "voice_speed": 1.0,
   "background": "Grew up in Mysuru; moved to Bengaluru two years ago for {their} first job as a software test engineer at an IT services company. Shares a rented flat in HSR Layout with a colleague. Father is a retired government school teacher, mother looks after the home; younger brother Rohan (19) is in second-year engineering. Sends part of {their} salary home towards Rohan's college fees. Speaks English at work and Kannada at home.",
   "personality": "Quiet, polite and apologetic. Minimises {their} problems ('it's probably just work stress'), says sorry for wasting the doctor's time, and is ashamed of 'being weak'. Answers briefly at first and opens up when {they} feels listened to and not judged. Does not like to complain about {their} family. Never dramatic.",
-  "speech_style": "Soft, slow, short sentences with pauses. Natural Indian English; occasional 'actually', 'no?', 'what to do'. No caricature."
+  "speech_style": "Soft and a little slow, plain short sentences. Natural Indian English; occasional 'actually', 'no?', 'what to do'. No caricature."
  },
  "behavior": {
   "appearance": {
@@ -55,10 +57,10 @@
    "rate": "slow",
    "volume": "soft",
    "latency": "long",
-   "description": "Short answers with pauses before replying; trails off; speaks more when listened to.",
+   "description": "Short answers, a beat before replying; speaks more when listened to.",
    "example_lines": [
-    "Hmm... I don't know. Just tired, I think.",
-    "It's... it's been like this for some time."
+    "I don't know. Just tired, I think.",
+    "It's been like this for some time now."
    ]
   },
   "mood": {
@@ -129,11 +131,33 @@
   "hold_out_hands": {
    "trust_min": 10
   },
+  "look_at_light": {
+   "trust_min": 10
+  },
+  "follow_finger": {
+   "trust_min": 10
+  },
+  "open_mouth": {
+   "trust_min": 15
+  },
+  "stick_out_tongue": {
+   "trust_min": 15
+  },
+  "show_forearms": {
+   "trust_min": 30,
+   "refusal_line": "Why? There's nothing there... do I have to?"
+  },
   "roll_up_sleeves": {
    "trust_min": 30,
    "refusal_line": "Why? There's nothing there... do I have to?"
   },
-  "look_at_light": {
+  "stand_up": {
+   "trust_min": 5
+  },
+  "sit_down": {
+   "trust_min": 0
+  },
+  "walk_few_steps": {
    "trust_min": 10
   }
  },
@@ -222,7 +246,7 @@
     "fun",
     "singing",
     "friends",
-    "pleasure"
+    "pleasure", "relax", "used to do", "still doing", "for fun"
    ],
    "kind": "symptom",
    "generates_discomfort": false,
@@ -386,9 +410,14 @@
     "dead",
     "alive",
     "not wake up",
+    "wouldn't wake up",
+    "never wake up",
     "hurt yourself",
     "harm yourself",
     "life worth living",
+    "worth living",
+    "better off dead",
+    "better off without",
     "suicidal",
     "end it all"
    ],
@@ -412,7 +441,7 @@
     "tried to kill",
     "tried to hurt",
     "attempted",
-    "made an attempt"
+    "made an attempt", "made any plans", "made plans", "thought about how"
    ],
    "kind": "risk",
    "generates_discomfort": true,
@@ -434,7 +463,7 @@
     "stored up",
     "stockpiled",
     "rope",
-    "weapon"
+    "weapon", "anything at home", "anything you might use", "something to hurt"
    ],
    "kind": "risk",
    "generates_discomfort": true,
@@ -453,7 +482,7 @@
     "stopped you",
     "reasons to live",
     "reason to live",
-    "holds you back from"
+    "holds you back from", "turn to", "supports you", "support you", "someone to talk to", "anyone to talk to"
    ],
    "kind": "history",
    "generates_discomfort": false,

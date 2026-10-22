@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
-namespace PsychSim.Cues
+namespace Rapport.Cues
 {
     /// <summary>
     /// Head + eye gaze with Animation Rigging Multi-Aim (built at runtime so any CC3 patient works).
@@ -13,6 +13,7 @@ namespace PsychSim.Cues
         public float CornerShare;        // internal_stimuli (Stage 2): looks at the bare corner
         public bool Thinking;
         public float RigWeight;          // 0 during the entrance, 1 when seated
+        public Transform Override;       // an exam gaze target (follow_finger) wins over everything else
         public Transform LookTarget { get; private set; }
 
         Transform doctor, corner, body;
@@ -84,7 +85,8 @@ namespace PsychSim.Cues
                 nextSwitch = Time.time + (away ? Random.Range(1.5f, 4f) : Random.Range(1.5f, 4.5f) * (1.2f - AvoidShare));
                 floorPoint = body.position + body.forward * Random.Range(0.9f, 1.4f) + body.right * Random.Range(-0.5f, 0.5f);
             }
-            Vector3 goal = Time.time < forceDoctorUntil ? doctor.position
+            Vector3 goal = Override ? Override.position
+                : Time.time < forceDoctorUntil ? doctor.position
                 : away && cornerNow ? corner.position
                 : Thinking ? body.position + body.forward * 1.5f + body.right * 0.6f + Vector3.up * 0.4f
                 : away ? floorPoint : doctor.position;

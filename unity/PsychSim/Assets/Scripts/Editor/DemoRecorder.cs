@@ -1,16 +1,16 @@
 using System.IO;
-using PsychSim.UI;
+using Rapport.UI;
 using UnityEditor;
 using UnityEditor.Recorder;
 using UnityEditor.Recorder.Encoder;
 using UnityEditor.Recorder.Input;
 using UnityEngine;
 
-namespace PsychSim.Editor
+namespace Rapport.Editor
 {
     /// <summary>
-    /// PsychSim/Record Demo: enters play mode, adds the DemoDirector and records the game view (1920x1080, 60 fps, audio)
-    /// to demo/raw/PsychSim_take.mp4 until the take finishes. The patient service must run in demo mode (see demo/README.md).
+    /// Rapport/Record Demo: enters play mode, adds the DemoDirector and records the game view (1920x1080, 60 fps, audio)
+    /// to demo/raw/Rapport_take.mp4 until the take finishes. The patient service must run in demo mode (see demo/README.md).
     /// </summary>
     [InitializeOnLoad]
     public static class DemoRecorder
@@ -20,22 +20,29 @@ namespace PsychSim.Editor
 
         static DemoRecorder() { EditorApplication.playModeStateChanged += OnPlayMode; }
 
-        [MenuItem("PsychSim/Record Demo")]
+        [MenuItem("Rapport/Record Demo")]
         static void Record() { SessionState.SetString(VariantFlag, "female"); SessionState.SetBool(RecordFlag, true); Enter(); }
 
-        [MenuItem("PsychSim/Record Demo (Arjun cut)")]
+        [MenuItem("Rapport/Record Demo (Arjun cut)")]
         static void RecordArjun() { SessionState.SetString(VariantFlag, "male"); SessionState.SetBool(RecordFlag, true); Enter(); }
 
-        const string VariantFlag = "PsychSim.Demo.Variant", StagedFlag = "PsychSim.Demo.Staged";
+        const string VariantFlag = "PsychSim.Demo.Variant", StagedFlag = "PsychSim.Demo.Staged", ScriptFlag = "PsychSim.Demo.Script";
 
         /// <summary>Staged concept preview: needs the service started with RAPPORT_STAGED=demo/staged/script.json.</summary>
-        [MenuItem("PsychSim/Record Staged Demo")]
+        [MenuItem("Rapport/Record Staged Demo")]
         static void RecordStaged() { SessionState.SetBool(StagedFlag, true); Record(); }
 
-        [MenuItem("PsychSim/Record Staged Demo (Arjun cut)")]
+        [MenuItem("Rapport/Record Staged Demo (Arjun cut)")]
         static void RecordStagedArjun() { SessionState.SetBool(StagedFlag, true); RecordArjun(); }
 
-        [MenuItem("PsychSim/Play Demo (no recording)")]
+        /// <summary>Demo v3: a different interview (demo/v3/script.json), full session with Arjun.</summary>
+        [MenuItem("Rapport/Record Demo v3 (Arjun, new script)")]
+        static void RecordV3() { SessionState.SetString(ScriptFlag, "demo/v3/script.json"); RecordArjun(); }
+
+        [MenuItem("Rapport/Play Demo v3 (no recording)")]
+        static void PlayV3() { SessionState.SetString(ScriptFlag, "demo/v3/script.json"); SessionState.SetString(VariantFlag, "male"); SessionState.SetBool(PlayFlag, true); Enter(); }
+
+        [MenuItem("Rapport/Play Demo (no recording)")]
         static void Play() { SessionState.SetString(VariantFlag, "female"); SessionState.SetBool(PlayFlag, true); Enter(); }
 
         static void Enter()
@@ -55,9 +62,11 @@ namespace PsychSim.Editor
             DemoDirector.Variant = SessionState.GetString(VariantFlag, "female");
             bool staged = SessionState.GetBool(StagedFlag, false);
             SessionState.SetBool(StagedFlag, false);
-            DemoDirector.ScriptPath = staged ? "demo/staged/script.json" : "demo/script.json";
+            var script = SessionState.GetString(ScriptFlag, "");
+            SessionState.EraseString(ScriptFlag);
+            DemoDirector.ScriptPath = staged ? "demo/staged/script.json" : script != "" ? script : "demo/script.json";
             new GameObject("DemoDirector").AddComponent<DemoDirector>();
-            if (record) StartRecording(staged ? "Rapport_staged" : "PsychSim_take");
+            if (record) StartRecording(staged ? "Rapport_staged" : script != "" ? "Rapport_take_v3" : "Rapport_take");
             DemoDirector.Finished -= OnFinished;
             DemoDirector.Finished += OnFinished;
         }
@@ -93,7 +102,7 @@ namespace PsychSim.Editor
             controller = new RecorderController(settings);
             controller.PrepareRecording();
             controller.StartRecording();
-            Debug.Log("PsychSim: recording demo to " + movie.OutputFile + ".mp4");
+            Debug.Log("Rapport: recording demo to " + movie.OutputFile + ".mp4");
         }
     }
 }

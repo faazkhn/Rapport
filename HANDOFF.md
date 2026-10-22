@@ -38,6 +38,56 @@
 - Latency p50 1,598 ms / p90 1,731 ms (ws_bench, 26 turns). The owner chose behaviour-only before the words after all-labels-first measured p50 3,068 ms.
 - Service tests 75 pass; Unity EditMode 28 pass.
 
+## 4c. Production readiness (branch `production-readiness`, paused 2026-10-21)
+- Repo renamed on GitHub to **faazkhn/Rapport** (remote updated). PR #1 (`live-digital-twin`) is open, not merged.
+- Phase A audit done: `docs/STATE_AUDIT.md` (owner feedback → root causes, what's left).
+- Phase G done 2026-10-21 (plan `docs/superpowers/plans/2026-10-21-phase-g-voice-quality.md`):
+  - Task 1 (reply realism, hesitation cap) + Task 2 (pauses ≤ 1.2 s): committed. **Eval gate skipped by owner**; `docs/voice-quality.md` not written. Baseline only: `tests/llm-eval/results/g-before.jsonl`.
+  - Task 3 bake-off: `docs/tts-bakeoff.md`, blind page `docs/listening/index.html`. Winner **Qwen3-TTS 1.7B VoiceDesign** (TTFA 174 ms, RTF 0.57, word acc 1.0, emotion sep 3.92 vs Kitten 0.67). Run offline: Kokoro, Qwen 0.6B, Chatterbox not tested; re-run `tools/tts_lab/bakeoff.py` online.
+  - Task 4: `voice.QwenDesign` streaming backend (`RAPPORT_TTS`, default `qwen3-design`; `kitten` to force old), emotion instruction from `expression_map.json` (`voice`, `emotions`) + case `voice_description`; Kitten fallback on load or synthesis error.
+  - Task 5: speculative STT (STT wait p50 227 → 0 ms), Smart Turn code (`stt.SmartTurn`, needs `models/smart-turn-v3.onnx`, not downloaded: offline), first-clause split. ADR 0002.
+  - **Latency: p50 2,326 / p90 3,018 ms, target 700 missed.** Regression from 1,598 is Task 1's prompt (TTFT 400 vs 224, first sentence 1,150 vs 604), not TTS. Levers in `docs/latency.md`.
+  - App rebuilt (`PsychSim > Build macOS (Development)`, `Editor/BuildMac.cs`); start screen checked. Service tests 99, Unity EditMode 29/29.
+  - Open risks: Qwen speaker drift between sentences (seed fixed per variant); Qwen ignores speed (pressured speech); possible audio underrun when GPU busy.
+  - Next: Smart Turn download + re-measure, realism eval gate.
+- Phase H done 2026-10-21 (plan `docs/superpowers/plans/2026-10-21-phase-h-camera-exam.md`):
+  - Exam router `server/patient-service/exam_router.py` (rules, lexicon `data/exam_router.json`, no embeddings: offline). 367-utterance set, 100% / 0 false triggers. The author wrote the set, so it is optimistic: `docs/exam-actions.md`.
+  - The service gates trust and agitation (`brain.exam_for_turn`), sends `exam` before `thinking`, and the Twin acknowledges, refuses or asks "Which hand?". The LLM no longer picks `exam_action`.
+  - Unity: `Cues/ExamQueue.cs` (order, hold until relax or 30 s, sits before sleeves, stands before a walk) + `Cues/ExamController.cs`:
+    - hand IK on the clip, palms;
+    - jaw and tongue blendshapes;
+    - follow_finger gaze;
+    - stand, walk and sit;
+    - IK for wipe_tears (not checked live).
+  - New clips `stand_up`, `stand_idle` (`make_clips.py --only`).
+  - Camera: `Platform/CameraDirector.cs` (Cinemachine runtime, 42° FOV, scroll lean-in, close-ups per action), `docs/camera.md` with stills.
+  - Tests: service 118, Unity EditMode 37. App rebuilt.
+  - Known: single-hand pose keeps lap-curled fingers; palms-up has no forearm supination; walk direction tuned for this room only (`ExamController.WalkTurnDeg`).
+  - Final review (fresh reviewer) fixed:
+    - interview phrases ("walk me through", "stand up for yourself") no longer trigger stand or walk;
+    - "I'd like to see your hands" works;
+    - "Which hand?" can be answered next turn;
+    - chained commands no longer wait 30 s;
+    - hands come down at once on relax;
+    - the staged demo sends exam messages.
+    Router set is now 385 items. Deferred minors are in the ledger rulings in the final report.
+- Next: Phases B leftovers, C, E, I.
+- Live demo guide: `docs/LIVE_DEMO_GUIDE.md` (run from the Unity editor until the app is rebuilt).
+
+## 4d. Phase E, the 3D Twin and release v0.2-twin (2026-10-21)
+- Phase E code (versions/rollback, quality gate + MiniLM experience library, faculty principles, metrics/judges, self-play + GEPA, A/B builder, ADR 0004) was stranded mid-rebase in a worktree; rebased onto this branch and pushed.
+- Learning: v0 baseline + one round (v1). v1 rejected for 1 confirmed safety flag; v0 stays live. All judge flags hand-reviewed (`tools/learning/reviewed_flags.json`). Report: `docs/LEARNING_REPORT.md`. Owner stopped after round 1 to release; rounds 2–5 and the blind A/B (Checkpoint 2) are still to do. GEPA's gate-based score saturates at 1.0: give it a harder score first. `gepa==0.1.4` is installed in the service venv for offline use only (not in requirements.txt).
+- Major bug fixed: "life isn't worth living" did not recall the passive death wish (case tags + test).
+- 3D Twin view: `server/patient-service/twin/twin3d.js`, owner's `Brain_Model.obj` decimated to `twin/assets/brain.glb` (licence/source of the model to confirm), three.js + Motion vendored. Render mode and file:// keep the 2D map.
+- Gates (shortened by the owner): `docs/GATES.md`. Skipped: eval ×3, 100-turn latency, STT bench, demo v3.
+- Release `v0.2-twin` tagged on `production-readiness` (not merged to main, owner's call). App rebuilt (`Builds/Rapport.app`, 617 MB) with the fix.
+- Next: merge PR to main; 5 learning rounds + A/B; Unity folder rename (#2); latency. (Demo v3 and the version bump are done, §4e.)
+
+## 4e. Demo v3 and v0.2.1 (2026-10-22)
+- Demo v3 (`demo/Rapport_demo_v3.mp4`, 3:06, one take, not in git): a different interview (`demo/v3/script.json`), full session with Arjun. Menu: **Rapport/Record Demo v3 (Arjun, new script)**; post: `tools/demo/post.py demo/raw/Rapport_take_v3_arjun.mp4 --arjun ''`.
+- The new script found three recall gaps (plan/means with "tablets or anything at home", "wouldn't wake up", support/hobbies); case tags fixed with tests. Demo opening shots fixed (establishing was outside the room, entrance camera overhead).
+- `bundleVersion` 0.2.0; takes now named `Rapport_take*`. Gates: `docs/GATES.md` § v0.2.1.
+
 ## 5. Next steps
 1. Commit §4; rebuild the player; re-measure latency after the send fix.
 2. `KICKOFF_PROMPT_v4.md` Phases A–I: audit, rename (repo, product, bundle id, menus, `PSYCHSIM_*` → `RAPPORT_*` aliases), literature review, Digital Twin brain, self-learning with A/B, Twin live wiring, TTS bake-off (Qwen3-TTS is the lead candidate) + Smart Turn + streaming STT, camera and exam router with IK, gates, demo v3, release `v0.2-twin`.

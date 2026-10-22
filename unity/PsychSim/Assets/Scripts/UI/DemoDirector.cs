@@ -2,18 +2,18 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
-using PsychSim.Core;
-using PsychSim.Scoring;
+using Rapport.Core;
+using Rapport.Scoring;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace PsychSim.UI
+namespace Rapport.UI
 {
     /// <summary>
     /// Plays the demo take from demo/script.json with a live patient: start screen (both patients shown), prebrief, establishing shot,
     /// entrance, then each doctor line is synthesised in Dr. Faaz's voice and fed into the microphone path (VAD -> STT -> local LLM ->
     /// streamed TTS). Patient replies are generated live; nothing is pre-baked. Then MSE, diagnosis, prescription, disposition and the debrief.
-    /// Variant "male" plays the short Arjun cut. Added at runtime by PsychSim/Record Demo; raises Finished when the take is over.
+    /// Variant "male" plays the short Arjun cut when the script has arjun_turns (demo/v3/script.json has none: a full Arjun take). Added at runtime by Rapport/Record Demo; raises Finished when the take is over.
     /// </summary>
     public class DemoDirector : MonoBehaviour
     {
@@ -36,7 +36,8 @@ namespace PsychSim.UI
         {
             var script = JsonUtility.FromJson<Script>(File.ReadAllText(Path.Combine(Application.dataPath, "../../../" + ScriptPath)));
             bool arjun = Variant == "male";
-            PsychSim.Cues.CueDriver.WipeTears = !ScriptPath.Contains("staged");
+            bool cut = arjun && script.arjun_turns is { Length: > 0 };   // the short Arjun cut; a script without arjun_turns plays in full
+            Rapport.Cues.CueDriver.WipeTears = !ScriptPath.Contains("staged");
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;   // uncapped editor rendering halves the local LLM's speed on the shared GPU
             em = FindAnyObjectByType<EncounterManager>();
@@ -54,13 +55,13 @@ namespace PsychSim.UI
 
             // shot 2: start screen, both patient options, pick one
             yield return new WaitUntil(() => em.Phase == Phase.Start);
-            yield return new WaitForSeconds(arjun ? 1.0f : 2.0f);
+            yield return new WaitForSeconds(cut ? 1.0f : 2.0f);
             ui.SelectVariant(arjun ? "female" : "male");
-            yield return new WaitForSeconds(arjun ? 0.5f : 1.3f);
+            yield return new WaitForSeconds(cut ? 0.5f : 1.3f);
             ui.SelectVariant(arjun ? "male" : "female");
-            yield return new WaitForSeconds(arjun ? 1.0f : 1.5f);
+            yield return new WaitForSeconds(cut ? 1.0f : 1.5f);
             em.Configure(script.case_id, Variant, Mode.Practice);
-            yield return new WaitForSeconds(arjun ? 1.0f : 3.5f);      // prebrief
+            yield return new WaitForSeconds(cut ? 1.0f : 3.5f);      // prebrief
 
             // shot 3: establishing; shot 4: door opens, the patient walks in and sits
             em.BeginEncounter();
@@ -68,8 +69,10 @@ namespace PsychSim.UI
             var door = room.Door.position;
             var pa = room.PatientAnchor.position;
             Establishing();
-            yield return new WaitForSeconds(arjun ? 1.5f : 3.0f);
-            Cut(Vector3.Lerp(pa, room.DoctorAnchor.position, 0.35f) + Vector3.up * 1.55f + (pa - door).normalized * 0.4f, door + Vector3.up, 50f);
+            yield return new WaitForSeconds(cut ? 1.5f : 3.0f);
+            // from behind the doctor's desk: door and chair both in view, and the seated patient faces the camera (was overhead)
+            var da = room.DoctorAnchor.position; var back = da - pa; back.y = 0;
+            Cut(Inside(new Vector3(da.x, 1.65f, da.z) + back.normalized * 0.6f), door + Vector3.up, 50f);
             while (em.Phase == Phase.Enter)
             {
                 var head = em.Patient.GetBoneTransform(HumanBodyBones.Head).position;
@@ -81,13 +84,13 @@ namespace PsychSim.UI
             yield return new WaitForSeconds(1.2f);
 
             // shots 5-8: the interview, Dr. Faaz speaking through the mic path
-            foreach (var t in arjun ? script.arjun_turns : script.turns)
+            foreach (var t in cut ? script.arjun_turns : script.turns)
             {
                 Shot(t.shot);
                 yield return Wait(em.SpeakDoctorIntoMic(t.doctor));
                 yield return new WaitForSeconds(0.5f);
             }
-            if (arjun) { yield return new WaitForSeconds(1f); Finished?.Invoke(); yield break; }
+            if (cut) { yield return new WaitForSeconds(1f); Finished?.Invoke(); yield break; }
 
             // shot 9: the tablet
             Pov();
@@ -168,8 +171,18 @@ namespace PsychSim.UI
             var centre = (pa + da + door) / 3f;
             var away = (centre - door); away.y = 0;
             var side = Vector3.Cross(Vector3.up, away.normalized);
-            var pos = centre + away.normalized * 2.4f + side * 0.6f + Vector3.up * 2.0f;
+            var pos = Inside(centre + away.normalized * 2.4f + side * 0.6f + Vector3.up * 2.0f);
             Cut(pos, centre + Vector3.up * 0.7f, 62f);
+        }
+
+        /// <summary>Clamps a camera position to the room's renderer bounds less 0.35 m, so a shot never lands outside a wall or above the ceiling.</summary>
+        Vector3 Inside(Vector3 p)
+        {
+            var rs = room.PatientAnchor.root.GetComponentsInChildren<Renderer>();
+            var b = rs[0].bounds;
+            foreach (var r in rs) b.Encapsulate(r.bounds);
+            b.Expand(-0.7f);
+            return b.ClosestPoint(p);
         }
 
         /// <summary>Behind the doctor's shoulder toward the patient; the tablet panel and subtitles stay visible.</summary>
