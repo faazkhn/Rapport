@@ -190,7 +190,7 @@
   {
    "id": "sits_down",
    "when": {
-    "agitation_below": 45,
+    "agitation_below": 55,
     "after_event": "stands_up"
    },
    "say": "{name} sits back down, a little calmer.",

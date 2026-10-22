@@ -323,3 +323,16 @@ def test_meta_doctor_line_gets_stay_in_character_note():
         assert "does not understand" in last.split("---")[-1], line
     plain = brain.build_messages(case, state, [{"role": "doctor", "text": "How have you been sleeping?"}])[-1]["content"]
     assert "does not understand" not in plain
+
+
+def test_a_sentence_naming_the_patient_in_full_is_never_spoken():
+    case = brain.load_case("mdd_01")
+    text = "Someone shouts in the corridor. Ananya Rao flinches and says she cannot sleep here. I can't sleep here, doctor."
+    out, hits = brain.strip_banned(text, brain.unspeakable(case))
+    assert out == "Someone shouts in the corridor. I can't sleep here, doctor." and hits == ["Ananya Rao"]
+
+
+def test_stage_direction_read_out_is_detected():
+    ev = [{"id": "x", "say": "Someone shouts in the corridor; Ananya flinches and says this is exactly why she cannot sleep here."}]
+    assert brain.is_stage_direction("Someone shouts in the corridor.", ev)
+    assert not brain.is_stage_direction("I can't sleep here, doctor.", ev) and not brain.is_stage_direction("Yes.", ev)

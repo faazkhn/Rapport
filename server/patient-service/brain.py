@@ -467,7 +467,9 @@ def build_messages(case, state, messages, summary=None, elapsed_min=None, recall
     if messages and messages[-1]["role"] == "doctor" and (line := meta_note(case, messages[-1]["text"])):
         post += "\n" + line
     if events:
-        post += "\nWHAT HAPPENS NOW (play it in this line, in character, then answer the doctor if it fits):\n" + "\n".join(f"- {e['say']}" for e in events)
+        name = case["patient"]["name"].split()[0]
+        post += (f"\nSTAGE DIRECTION, never read it out (it is what happens now; react to it in {name}'s own spoken words, then answer the "
+                 "doctor if it fits):\n" + "\n".join(f"- {e['say']}" for e in events))
     doctor = f"Doctor: {out.pop()['content']}\n\n---\n" if out[-1]["role"] == "user" else ""
     out.append({"role": "user", "content": f"{pre}\n\n---\n{doctor}{post}"})
     first = out[1]
@@ -536,6 +538,19 @@ def banned_hits(text: str, banned: list[str]) -> list[str]:
     return [w for w in banned if re.search(rf"\b{re.escape(w)}\b", text, re.I)]
 
 
+def unspeakable(case: dict) -> list[str]:
+    """Words a reply sentence may not contain: the case's banned words, and the patient's own full name (a sentence with it is
+    narration, e.g. a ward event's stage direction read out, never something the patient says)."""
+    return case["banned_words"] + [case["patient"]["name"]]
+
+
+def is_stage_direction(sentence: str, events: list[dict]) -> bool:
+    """True when a reply sentence copies this turn's event text (the model read the stage direction out)."""
+    norm = lambda t: re.sub(r"[^a-z ]", "", t.lower()).strip()  # noqa: E731
+    s = norm(sentence)
+    return len(s) > 8 and any(s in norm(e["say"]) for e in events)
+
+
 def strip_banned(utterance: str, banned: list[str]) -> tuple[str, list[str]]:
     """Drop whole sentences that contain a banned word (DESIGN 3.3 'reject or rewrite')."""
     import stream  # local import: stream imports nothing from brain
@@ -590,7 +605,7 @@ def guard(reply: dict, case: dict, trust: float) -> tuple[dict, list[dict]]:
         if delta[k] != v:
             dropped.append({"kind": "state_delta", "id": k, "reason": f"clamped {v} -> {delta[k]}"})
 
-    utterance, hits = strip_banned(reply.get("utterance", ""), case.get("banned_words", []))
+    utterance, hits = strip_banned(reply.get("utterance", ""), unspeakable(case))
     dropped += [{"kind": "banned_word", "id": w, "reason": "sentence removed"} for w in hits]
 
     labels = {}

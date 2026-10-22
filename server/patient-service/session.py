@@ -352,7 +352,9 @@ class Session:
 
         async def speak(sentence):
             nonlocal idx
-            sentence, hits = brain.strip_banned(sentence, case["banned_words"])
+            sentence, hits = brain.strip_banned(sentence, brain.unspeakable(case))
+            if events and brain.is_stage_direction(sentence, events):
+                return
             dropped_banned.extend(hits)
             sentence = voice.speakable(sentence, keep_first=not any("..." in x for x in spoken))
             if not sentence or cancel.is_set() or sum(len(x.split()) for x in spoken) >= word_cap:  # style word cap

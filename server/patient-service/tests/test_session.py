@@ -565,4 +565,4 @@ def test_ward_event_fires_moves_the_body_and_reaches_the_prompt():
     assert [m["id"] for m in fired] == ["stands"]  # once, not again on turn 2
     assert any(m["type"] == "exam" and m["actions"] == [{"id": "stand_up", "comply": True}] for _, m in ev)
     prompts = [c["messages"][-1]["content"] for c in llm.calls if "How do you sleep" in c["messages"][-1]["content"]]  # not the warm-up prefill
-    assert "WHAT HAPPENS NOW" in prompts[0] and "Ananya stands up" in prompts[0] and "WHAT HAPPENS NOW" not in prompts[1]
+    assert "STAGE DIRECTION" in prompts[0] and "Ananya stands up" in prompts[0] and "STAGE DIRECTION" not in prompts[1]
