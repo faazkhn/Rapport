@@ -113,9 +113,10 @@ def _resolved(case_id: str, variant: str, seed: int | None = None, mode: str = "
     p = pick(raw, seed, mode)
     chosen = {k: raw["slots"][k][i] for k, i in p["slots"].items()}
     case = _fill_all({k: x for k, x in raw.items() if k not in ("variants", "slots")}, v, {k: t for o in chosen.values() for k, t in o.items()})
-    case["style"] = p["style"]
+    # the authored state_start belongs to the authored style; another style shifts it by the difference of their offsets
+    authored, case["style"] = style(case), p["style"]
     st = style(case)
-    case["state_start"] = {k: min(100, max(0, v + st["start"].get(k, 0))) for k, v in case["state_start"].items()}
+    case["state_start"] = {k: min(100, max(0, v + st["start"].get(k, 0) - authored["start"].get(k, 0))) for k, v in case["state_start"].items()}
     if seed is not None:
         case["generated"] = {"seed": seed, "generator_version": GENERATOR_VERSION, "style": p["style"], "slots": chosen}
     case["facts"] = [f for f in case["facts"] if f.get("variant", variant) == variant]

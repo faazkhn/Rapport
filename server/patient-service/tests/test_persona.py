@@ -128,3 +128,11 @@ def test_ward_station_recall_and_events():
     fired = set()
     assert [e["id"] for e in twin.due_events(c, c["state_start"], 1, 0.2, fired)] == ["asks_to_leave"]
     assert "Arjun" in next(e["say"] for e in c["events"] if e["id"] == "stands_up")
+
+
+def test_authored_case_starts_where_its_author_wrote():
+    for cid in ("mdd_01", "ward_01"):
+        raw = brain.load_raw_case(cid)
+        assert brain.load_case(cid, "female")["state_start"] == raw["state_start"], cid
+    w = brain.load_case("ward_01", "female", seed=next(s for s in range(500) if brain.load_case("ward_01", "female", seed=s)["style"] == "plain"))
+    assert w["state_start"]["trust"] == 35 and w["state_start"]["agitation"] == 30  # plain is 10 trust up, 15 agitation down from upset
