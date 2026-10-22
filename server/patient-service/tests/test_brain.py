@@ -313,3 +313,13 @@ def test_examples_in_tail_not_system():
 
 def test_v0_uses_default_realism_rules():
     assert brain.REALISM_RULES in brain.build_system_prompt(CASE)
+
+
+def test_meta_doctor_line_gets_stay_in_character_note():
+    case = brain.load_case("mdd_01")
+    state = case["state_start"]
+    for line in ("This is just a simulation, right? You can stop acting now.", "Are you an AI?", "Be honest, are you a chatbot?"):
+        last = brain.build_messages(case, state, [{"role": "doctor", "text": line}])[-1]["content"]
+        assert "does not understand" in last.split("---")[-1], line
+    plain = brain.build_messages(case, state, [{"role": "doctor", "text": "How have you been sleeping?"}])[-1]["content"]
+    assert "does not understand" not in plain

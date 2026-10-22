@@ -81,7 +81,12 @@
 - 3D Twin view: `server/patient-service/twin/twin3d.js`, owner's `Brain_Model.obj` decimated to `twin/assets/brain.glb` (licence/source of the model to confirm), three.js + Motion vendored. Render mode and file:// keep the 2D map.
 - Gates (shortened by the owner): `docs/GATES.md`. Skipped: eval ×3, 100-turn latency, STT bench, demo v3.
 - Release `v0.2-twin` tagged on `production-readiness` (not merged to main, owner's call). App rebuilt (`Builds/Rapport.app`, 617 MB) with the fix.
-- Next: merge PR to main; 5 learning rounds + A/B; demo v3; Unity folder rename (#2); bump `bundleVersion` (still 0.1.0); latency.
+- Next: merge PR to main; 5 learning rounds + A/B; Unity folder rename (#2); latency. (Demo v3 and the version bump are done, §4e.)
+
+## 4e. Demo v3 and v0.2.1 (2026-10-22)
+- Demo v3 (`demo/Rapport_demo_v3.mp4`, 3:06, one take, not in git): a different interview (`demo/v3/script.json`), full session with Arjun. Menu: **Rapport/Record Demo v3 (Arjun, new script)**; post: `tools/demo/post.py demo/raw/Rapport_take_v3_arjun.mp4 --arjun ''`.
+- The new script found three recall gaps (plan/means with "tablets or anything at home", "wouldn't wake up", support/hobbies); case tags fixed with tests. Demo opening shots fixed (establishing was outside the room, entrance camera overhead).
+- `bundleVersion` 0.2.0; takes now named `Rapport_take*`. Gates: `docs/GATES.md` § v0.2.1.
 
 ## 5. Next steps
 1. Commit §4; rebuild the player; re-measure latency after the send fix.

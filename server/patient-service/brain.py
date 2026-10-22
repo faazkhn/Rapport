@@ -377,6 +377,20 @@ def turn_context(case: dict, state: dict, summary: str | None = None, elapsed_mi
     return "\n\n".join(pre), "\n\n".join(post)
 
 
+META = re.compile(r"\b(AI|A\.I\.|artificial intelligence|chatbot|chat bot|bot|robot|language model|simulation|simulated|"
+                  r"stop acting|you're acting|you are acting|role ?play|not real|a program|computer program)\b", re.I)
+
+
+def meta_note(case: dict, doctor_line: str) -> str | None:
+    """The live reply streams to speech before guard() runs, so a doctor's meta line (AI, simulation, stop acting) is steered
+    beforehand: a small model otherwise sometimes agrees ("Yes, I know.")."""
+    if not META.search(doctor_line):
+        return None
+    name = case["patient"]["name"].split()[0]
+    return (f"{name} does not understand what the doctor means (no idea about AI, simulations or acting) and never agrees with it: "
+            f"a short, puzzled reply in character, then back to why {name} came.")
+
+
 def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None, exam=None, examples=None, version=None) -> list[dict]:
     """[system: fixed per case+variant] [first user msg: facts block + first doctor line] [history verbatim]
     [pre-tail + last doctor line + post-tail]."""
@@ -385,6 +399,8 @@ def build_messages(case, state, messages, summary=None, elapsed_min=None, recall
         out.append({"role": "user" if m["role"] == "doctor" else "assistant", "content": m["text"]})
     pre, post = turn_context(case, state, summary, elapsed_min, recalled, recent_patient_lines(messages), examples)
     if exam and (line := exam_note(case, exam)):
+        post += "\n" + line
+    if messages and messages[-1]["role"] == "doctor" and (line := meta_note(case, messages[-1]["text"])):
         post += "\n" + line
     doctor = f"Doctor: {out.pop()['content']}\n\n---\n" if out[-1]["role"] == "user" else ""
     out.append({"role": "user", "content": f"{pre}\n\n---\n{doctor}{post}"})

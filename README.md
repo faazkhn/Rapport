@@ -10,7 +10,7 @@ It was renamed because `usc-psychsim/psychsim` is an established research framew
 
 [`docs/media/teaser.mp4`](docs/media/teaser.mp4): 18 s, 1280×720, from an earlier take (the UI still reads "PsychSim"). That take predates the Digital Twin and the new voice.
 
-Demo v3 is not recorded yet. The latest live take is `demo/PsychSim_demo_v2.mp4` (4:00, unedited, live replies). It is attached to the release, not kept in git.
+Demo v3: `demo/Rapport_demo_v3.mp4` (3:06, one continuous take, live replies, attached to the release, not kept in git). A different interview from v2: a full session with Arjun, new questions in a new order, the look-at-the-light exam, and the risk question asked early. Arjun withholds the passive death wish at trust 53 and discloses it when the doctor comes back to it at trust 61. The script is `demo/v3/script.json`; record with **Rapport/Record Demo v3 (Arjun, new script)**. The earlier take with Ananya is `demo/PsychSim_demo_v2.mp4`.
 
 The older demos are not in git (LFS budget). In `demo/Rapport_demo_staged.mp4` the patient's replies are **pre-scripted** (staged mode, `RAPPORT_STAGED`). Say so whenever you show it.
 
@@ -123,7 +123,7 @@ Release gates and what was skipped: [`docs/GATES.md`](docs/GATES.md).
 Tests:
 
 ```bash
-cd server/patient-service && .venv/bin/python -m pytest -q      # 152 pass (2026-10-21)
+cd server/patient-service && .venv/bin/python -m pytest -q      # 153 pass (2026-10-22)
 .venv/bin/python validate_data.py                                # data schemas and cross-references
 # Unity EditMode: 39 pass (2026-10-21, batch mode)
 ```

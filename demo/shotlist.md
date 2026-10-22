@@ -19,7 +19,7 @@ Stills for slides: `demo/stills/still_1.png` … `still_6.png`.
 ## How to re-record
 
 1. `cd server/patient-service && PSYCHSIM_DEMO_SCRIPT=$PWD/../../demo/script.json ./run.sh --mock`
-2. In Unity: **Rapport/Record Demo**, with the editor window in front (an unfocused editor drops below 60 fps and the audio drifts). The take is written to `demo/raw/PsychSim_take.mp4`.
+2. In Unity: **Rapport/Record Demo**, with the editor window in front (an unfocused editor drops below 60 fps and the audio drifts). The take is written to `demo/raw/Rapport_take.mp4`. Demo v3 (a different interview, Arjun in full) is **Rapport/Record Demo v3 (Arjun, new script)**, written to `demo/raw/Rapport_take_v3_arjun.mp4`; post it with `tools/demo/post.py demo/raw/Rapport_take_v3_arjun.mp4 --arjun ''`.
 3. `server/patient-service/.venv/bin/python tools/demo/post.py` writes the final MP4, check frames (`demo/raw/check/`) and stills.
 
 The doctor lines, patient lines and tool actions all live in `demo/script.json`. `tests/test_mock.py::test_demo_script_reveals_every_scripted_fact` checks that every scripted fact clears the trust gates.
