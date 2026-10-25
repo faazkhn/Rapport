@@ -152,4 +152,4 @@ Rapport is a teaching prototype. **All clinical content (cases, catalogues, rule
 
 ## Credits
 
-Created and directed by **Dr. Faaz** (owner). The models and libraries are listed under [Voice stack and licences](#voice-stack-and-licences) and in `models/README.md`. The literature behind the design is in `docs/literature/`.
+Created and directed by **Faaz** (owner). The models and libraries are listed under [Voice stack and licences](#voice-stack-and-licences) and in `models/README.md`. The literature behind the design is in `docs/literature/`.
