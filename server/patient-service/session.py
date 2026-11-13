@@ -34,6 +34,7 @@ PRE_ROLL_FRAMES = 10  # ~320 ms of audio kept before VAD start so the first word
 TURN_CAP_MS = 1200  # Smart Turn says "not finished": end the turn anyway after this much silence (old 500 ms + 700)
 SMART_TURN_DONE = 0.5
 SMART = {"model": None}  # stt.SmartTurn loaded at startup, or None
+INTERRUPT_MIN_S = 1.0  # the doctor cut the patient off only if this much of the reply was still to play (not while thinking, not the last word)
 PRESSURED_OVERLAP_S = 1.5  # pressured_speech: keep talking over the doctor for 1-2 s (DESIGN 7.1)
 TTS = {"model": None, "backend": None}  # backend: voice.load(RAPPORT_TTS) at startup; None = KittenTTS
 TWIN_LOG_DIR = Path(os.environ.get("RAPPORT_TWIN_LOG_DIR") or brain.REPO_ROOT / "logs" / "twin")  # local only, git-ignored
@@ -85,6 +86,7 @@ class Session:
         self.turn_task = None
         self.cancel = threading.Event()
         self.playing_until = 0.0  # monotonic time the client should finish playing what we sent
+        self.said_all = False  # this turn's utterance is closed and every sentence went to TTS
         self.interrupted = False
         self.turn_no = 0
         self.staged = None  # staged.Script in RAPPORT_STAGED concept-preview mode
@@ -163,6 +165,7 @@ class Session:
                 self.twin_log = None
             await self.twin(twin.init_event(self.case, self.state))
             asyncio.get_running_loop().run_in_executor(None, self.warm)
+            asyncio.get_running_loop().run_in_executor(TTS_POOL, self.warm_voice, self.tts)
         await self.send_json({"type": "listening"})
 
     async def twin(self, msg: dict):
@@ -193,6 +196,13 @@ class Session:
             kw = brain.llm_kwargs(brain.default_model(), brain.build_messages(self.case, self.state, msgs), {"type": "object"}, "warm", 0)
             kw.pop("response_format")
             (self.client or brain.get_client()).chat.completions.create(**{**kw, "max_tokens": 1})
+
+    def warm_voice(self, backend):
+        """One short line through the session's voice while the patient walks in: after a long idle the TTS weights are paged out
+        and the first reply's voice took 10 s."""
+        with contextlib.suppress(Exception):
+            for _ in backend.stream("Hmm.", self.case["patient"]["voice_id"], 1.0, voice.instruction(self.case, {})):
+                pass
 
     async def on_audio(self, data: bytes):
         if self.case is None:
@@ -252,23 +262,25 @@ class Session:
             await self.barge_in()
 
     def is_speaking(self) -> bool:
-        return (self.turn_task is not None and not self.turn_task.done()) or time.monotonic() < self.playing_until
+        # once the utterance is said, the turn is only finishing its JSON (state, facts): talking then is not an interruption
+        return (self.turn_task is not None and not self.turn_task.done() and not self.said_all) or time.monotonic() < self.playing_until
 
     async def barge_in(self):
+        cut = self.playing_until - time.monotonic() >= INTERRUPT_MIN_S  # measured when the doctor starts, not when the reply stops
         if brain.cue_live(self.case, "pressured_speech", self.state) > 0.1:
             async def later():  # talks over the doctor briefly; a task so mic frames keep flowing
                 await asyncio.sleep(PRESSURED_OVERLAP_S)
-                await self.stop("barge_in")
+                await self.stop("barge_in", cut)
             asyncio.create_task(later())
         else:
-            await self.stop("barge_in")
+            await self.stop("barge_in", cut)
 
-    async def stop(self, reason):
+    async def stop(self, reason, cut=None):
         t = time.monotonic()
         self.cancel.set()
-        self.playing_until = 0.0
-        if reason == "barge_in":
+        if reason == "barge_in" and (cut if cut is not None else self.playing_until - t >= INTERRUPT_MIN_S):
             self.interrupted = True
+        self.playing_until = 0.0
         await self.send_json({"type": "stop", "reason": reason})
         log.info("stop reason=%s service_ms=%d", reason, ms(t, time.monotonic()))
 
@@ -308,6 +320,7 @@ class Session:
         loop = asyncio.get_running_loop()
         case, state = self.case, dict(self.state)
         self.turn_no += 1
+        self.said_all = False
         was_interrupted, self.interrupted = self.interrupted, False  # the doctor talked over the previous reply
         elapsed = (time.monotonic() - self.t_start) / 60
         self.messages.append({"role": "doctor", "text": text})
@@ -321,7 +334,7 @@ class Session:
         await self.send_json({"type": "thinking"})
 
         pre_event = state
-        events = twin.due_events(case, state, self.turn_no, elapsed, self.fired)
+        events = twin.due_events(case, state, self.turn_no, elapsed, self.fired, text)
         if events:  # code decides when a ward event happens; the model only plays it
             state = twin.apply_event_deltas(state, events)
             acts = [{"id": e["action"], "comply": True} for e in events if e.get("action")]
@@ -335,7 +348,8 @@ class Session:
         allowed = [f["id"] for f in brain.allowed_facts(case, state["trust"])]
         schema = brain.build_reply_schema(case, allowed, [])
         kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed, recalled=recalled, exam=exam,
-                                                         examples=examples, events=events),
+                                                         examples=examples, events=events,
+                                                         ongoing=twin.ongoing_notes(case, self.fired, {e["id"] for e in events})),
                               schema, "patient_reply", 0)
         q: asyncio.Queue = asyncio.Queue()
         t_llm = time.monotonic()
@@ -368,6 +382,19 @@ class Session:
             if first is None or cancel.is_set():
                 return
             chunks, audio = first
+            pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
+            while not voice.ready_to_play(sentence, len(pcm) / 2 / OUT_SR, time.monotonic() - t, self.playing_until - time.monotonic()):
+                try:
+                    audio = await loop.run_in_executor(TTS_POOL, next, chunks, None)
+                except Exception as e:  # mid-sentence failure: say what was made, the next sentence uses the fallback
+                    self._tts_failed(e)
+                    audio = None
+                if audio is None or cancel.is_set():
+                    chunks = iter(())
+                    break
+                pcm += stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
+            if cancel.is_set():
+                return
             if marks["audio_start"] is None:
                 marks["tts_first_ms"] = ms(t, time.monotonic())
                 marks["audio_start"] = time.monotonic()
@@ -379,7 +406,6 @@ class Session:
                         return
                 await self.send_json({"type": "speaking", "slowed_pause_ms": round(marks["pause_applied"] * 1000)})
                 await self.twin({"event": "patient_start", "turn": self.turn_no})
-            pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
             await self.send_json({"type": "sentence", "index": idx, "text": sentence, "samples": len(pcm) // 2})
             spoken.append(sentence)
             idx += 1
@@ -406,6 +432,7 @@ class Session:
                 for s in pieces:
                     marks["first_sentence"] = marks["first_sentence"] or time.monotonic()
                     await speak(s)
+                self.said_all = flushed and not cancel.is_set()
             elif kind == "error":
                 err = val
                 break

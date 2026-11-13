@@ -49,6 +49,8 @@ namespace Rapport.Scoring
             ["benzo_monotherapy_for_depression"] = (d, all, c) => d.@class == "benzodiazepine" && c.answer_key.primary_dx.Any(x => x.StartsWith("mdd") || x.Contains("depress"))
                                                                  && !all.Any(o => Antidepressants.Contains(o.@class)),
             ["lithium_with_nsaid"] = (d, all, c) => d.id == "lithium" && all.Any(o => o.@class == "NSAID"),
+            ["disulfiram_in_withdrawal"] = (d, all, c) => d.id == "disulfiram" && c.answer_key.primary_dx.Any(x => x.StartsWith("alcohol")),
+            ["antipsychotic_lowers_seizure_threshold"] = (d, all, c) => d.@class.Contains("antipsychotic") && c.answer_key.primary_dx.Contains("alcohol_withdrawal"),
         };
 
         public static RxReport Check(List<RxItem> rx, CaseFile c, Formulary f)

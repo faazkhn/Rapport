@@ -55,6 +55,8 @@ namespace Rapport.Core
         public ScoreResult Score { get; private set; }
         public VoiceSession Voice { get; private set; }
         public readonly List<string> RevealedFacts = new();
+        readonly Dictionary<string, float> cueSeconds = new();   // how long each cue was visibly on: the MSE is marked against this
+        readonly HashSet<string> examsDone = new();
         public readonly List<TurnRecord> Turns = new();
         public float SessionSeconds { get; private set; }
         public float TimeLimitSeconds => (Case.time_limit_min ?? 15f) * 60f;
@@ -105,10 +107,11 @@ namespace Rapport.Core
         }
 
         /// <summary>Start screen: case, then the patient's sex (DESIGN 6.1 variants), then Practice or Assessment. Shows the prebrief.</summary>
-        public void Configure(string caseId, string variant, Mode mode)
+        public void Configure(string caseId, string variant, Mode mode, string look = null)
         {
             if (Phase != Phase.Start) return;
             Case = CaseVariants.Resolve(Data.cases[caseId], variant);
+            if (look != null && Looks(Case.patient.sex).Contains(look)) Case.patient.model_id = look;
             StyleLabel = null;
             Mode = mode;
             SetPhase(Phase.Brief);
@@ -129,6 +132,8 @@ namespace Rapport.Core
                 Case.seed = seed;
                 Case.seed_mode = mode == Mode.Assessment ? "assessment" : "practice";
                 StyleLabel = (string)p["style_label"];
+                var looks = Looks(Case.patient.sex);
+                if (looks.Count > 0) Case.patient.model_id = looks[seed % looks.Count];  // a random patient gets a random body too
             }
             catch (Exception e)
             {
@@ -142,6 +147,9 @@ namespace Rapport.Core
         }
 
         bool configuring;
+
+        /// <summary>Patient bodies for a sex ("female_20s_a", "female_20s_b", ...): any case variant can wear any of them.</summary>
+        public List<string> Looks(string sex) => patientPrefabs.Where(p => p && p.name.StartsWith(sex + "_")).Select(p => p.name).OrderBy(n => n).ToList();
 
         /// <summary>Conversation style label of a seeded patient (shown in the debrief); null for the authored patient.</summary>
         public string StyleLabel { get; private set; }
@@ -167,7 +175,8 @@ namespace Rapport.Core
             if (!room.SoundSourceDoor.TryGetComponent(out AudioSource doorAudio)) doorAudio = room.SoundSourceDoor.gameObject.AddComponent<AudioSource>();  // not ??: Unity fake-null
             yield return EntranceSequence.Run(Patient, Cues, gaze, room, doorAudio);
             while (!connect.IsCompleted) yield return null;
-            if (Voice.Connected) Voice.SetHandsFree(true);   // off during the entrance so door and footsteps are not heard as speech
+            // off during the entrance so door and footsteps are not heard as speech; the demo's injected voice needs the service VAD
+            if (Voice.Connected) Voice.SetHandsFree(!UseMicrophone || PlayerPrefs.GetInt(VoiceSession.HandsFreePref, 0) == 1);
             SetPhase(Phase.Active);
         }
 
@@ -218,9 +227,12 @@ namespace Rapport.Core
             Cues.Init(Case, State, () => SessionSeconds / 60f, Patient, gaze, tremor, mats, face);
             Cues.CueFired += (id, v) => { Log.Write("cue_fired", new { id, intensity = Math.Round(v, 2) }); CueFired?.Invoke(id, v); };
             Cues.CueChanged += (id, v) => Log.Write("cue", new { id, intensity = Math.Round(v, 2) });
+            go.AddComponent<ForearmTwist>().Setup(Patient);
+            var sleeves = go.AddComponent<SleeveRoller>();
+            sleeves.Setup(Patient);
             Exam = go.AddComponent<ExamController>();
-            Exam.Setup(Patient, Cues, gaze, face, room.DoctorAnchor);
-            Exam.ExamStarted += id => { Log.Write("exam_started", new { id }); if (cameraDirector) cameraDirector.OnExamStarted(id, Patient); };
+            Exam.Setup(Patient, Cues, gaze, face, room.DoctorAnchor, sleeves);
+            Exam.ExamStarted += id => { examsDone.Add(id); Log.Write("exam_started", new { id }); if (cameraDirector) cameraDirector.OnExamStarted(id, Patient); };
             Exam.ExamEnded += id => { Log.Write("exam_ended", new { id }); if (cameraDirector) cameraDirector.OnExamEnded(id); };
         }
 
@@ -228,6 +240,9 @@ namespace Rapport.Core
         {
             if (Phase != Phase.Active) return;
             SessionSeconds += Time.deltaTime;
+            if (Cues.Seated)
+                foreach (var kv in Cues.Live)
+                    if (kv.Value >= 0.35f) { cueSeconds.TryGetValue(kv.Key, out var s); cueSeconds[kv.Key] = s + Time.deltaTime; }
             driftAccum += Time.deltaTime;
             stateSyncAccum += Time.deltaTime;
             if (driftAccum >= 1f)  // drift once a second; SessionLog snapshots every 30 s
@@ -358,6 +373,16 @@ namespace Rapport.Core
             while (Voice.State == VoiceState.Speaking || Voice.State == VoiceState.Thinking) await Awaitable.NextFrameAsync();
         }
 
+        /// <summary>Debrief: AI examiner notes on this session's transcript (formative, never part of the score); null when the service
+        /// cannot give them.</summary>
+        public async Task<JObject> ExaminerNotes()
+        {
+            if (Turns.Count == 0) return null;
+            var turns = new JArray(Turns.Select(t => new JObject { ["doctor"] = t.doctor ?? "", ["patient"] = t.patient ?? "" }));
+            try { return await http.Assess(new JObject { ["case_id"] = Case.id, ["variant"] = Case.variant, ["turns"] = turns }); }
+            catch (Exception e) { Debug.LogWarning("Rapport: no examiner notes (" + e.GetBaseException().Message + ")"); return null; }
+        }
+
         /// <summary>Ends the station (learner submits, or the Assessment timer runs out) and scores it.</summary>
         public ScoreResult Submit()
         {
@@ -367,9 +392,10 @@ namespace Rapport.Core
             {
                 caseFile = Case, data = Data, ledger = Ledger, mseCues = new HashSet<string>(Mse.Ticked), primaryDx = Dx.Primary,
                 differentials = Dx.Differentials.ToList(), rx = Rx.Items.ToList(), dispositions = Disposition.Selected.ToList(), finalTrust = State.Trust,
-                turns = Turns.ToList(),
+                turns = Turns.ToList(), cueSeconds = new Dictionary<string, float>(cueSeconds), examsDone = new HashSet<string>(examsDone),
+                revealed = new HashSet<string>(RevealedFacts),
             });
-            Log.Write("mse", new { ticked = Mse.Ticked.OrderBy(x => x), notes = Mse.Notes });
+            Log.Write("mse", new { ticked = Mse.Ticked.OrderBy(x => x), notes = Mse.Notes, cue_seconds = cueSeconds });
             Log.Write("score", Score);
             SetPhase(Phase.Debrief);
             Scored?.Invoke(Score);

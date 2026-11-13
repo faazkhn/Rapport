@@ -159,8 +159,8 @@ namespace Rapport.Tests
         ScoreInput Perfect()
         {
             var i = new ScoreInput { caseFile = mdd, data = data, finalTrust = 80, primaryDx = "mdd_single_episode" };
-            i.ledger.Add(mdd.answer_key.required_intents.Concat(ScoringEngine.CommunicationIntents), 60);
-            foreach (var c in mdd.answer_key.required_cues_noted) i.mseCues.Add(c);
+            i.ledger.Add(mdd.answer_key.required_intents.Concat(ScoringEngine.CommunicationIntents).Append("empathy_statement"), 60);  // empathy twice
+            foreach (var c in mdd.answer_key.required_cues_noted.Append("fidget")) i.mseCues.Add(c);  // mse_expected also lists fidgeting
             i.differentials.Add("adjustment_disorder_depressed");
             i.rx.Add(new RxItem { drug = "sertraline", dose_mg = 50, route = "PO", frequency = "OD", duration = "4 weeks", reason = "depression" });
             i.dispositions.AddRange(new[] { "outpatient_referral", "safety_plan" });
@@ -206,6 +206,99 @@ namespace Rapport.Tests
             Assert.AreEqual("Just answer yes or no.", r.feedback[0].quote);  // ordered by time
             Assert.AreEqual(4, r.side_by_side.Count);
             Assert.IsTrue(r.side_by_side.Single(x => x.area == "Diagnosis").match);
+        }
+
+        [Test]
+        public void MseIsMarkedAgainstWhatThePatientShowed()
+        {
+            var i = Perfect();
+            i.mseCues.Clear();
+            i.mseCues.UnionWith(new[] { "slumped", "gaze_avoid", "pupils_dilated" });
+            i.cueSeconds = new Dictionary<string, float> { ["slumped"] = 120, ["gaze_avoid"] = 90, ["tearful"] = 2 };  // tears for 2 s: not observable
+            var r = ScoringEngine.Score(i);
+            CollectionAssert.AreEquivalent(new[] { "slumped", "gaze_avoid" }, r.cues_present);
+            CollectionAssert.AreEquivalent(new[] { "pupils_dilated" }, r.cues_false);
+            CollectionAssert.Contains(r.cues_not_shown, "tearful");
+            Assert.AreEqual(16f + 4f * 2f / 3f, r.domains.Single(d => d.id == "observation").score, 0.05f);  // all shown signs found; 1 of 3 ticks wrong
+            Assert.IsTrue(r.next_steps.Any(n => n.StartsWith("Record only what you see")));
+            Assert.IsFalse(r.side_by_side.Single(x => x.area == "MSE").match);
+        }
+
+        [Test]
+        public void HandsOutMakesTheTremorObservable()
+        {
+            var i = Perfect();
+            var c = JsonConvert.DeserializeObject<CaseFile>(JsonConvert.SerializeObject(mdd));
+            c.answer_key.required_cues_noted.Add("tremor_fine");
+            i.caseFile = c;
+            i.cueSeconds = new Dictionary<string, float>();
+            Assert.IsFalse(ScoringEngine.Score(i).cues_present.Contains("tremor_fine"));
+            i.examsDone.Add("hold_out_hands");
+            Assert.IsTrue(ScoringEngine.Score(i).cues_present.Contains("tremor_fine"));
+        }
+
+        [Test]
+        public void RiskAskedButNotAnsweredIsPartialNotCritical()
+        {
+            var i = Perfect();
+            i.revealed = new HashSet<string>();  // asked, but the patient never disclosed (asked too early)
+            var r = ScoringEngine.Score(i);
+            Assert.AreEqual(30f * ScoringEngine.AskedNotDisclosed, r.domains.Single(d => d.id == "risk").score, 0.05f);
+            Assert.IsEmpty(r.critical_errors);
+            Assert.IsTrue(r.next_steps.Any(n => n.Contains("before the patient trusted you")));
+            i.revealed = new HashSet<string> { "f_passive_si", "f_no_plan_no_attempt", "f_no_means" };
+            Assert.AreEqual(30f, ScoringEngine.Score(i).domains.Single(d => d.id == "risk").score, 0.05f);
+        }
+
+        [Test]
+        public void CaseCriticalIntentCountsAsRisk()
+        {
+            var alc = CaseVariants.Resolve(data.cases["alc_01"], "male");
+            var i = new ScoreInput { caseFile = alc, data = data, finalTrust = 60, primaryDx = "alcohol_use_disorder" };
+            i.ledger.Add(alc.answer_key.required_intents.Where(x => x != "ask_withdrawal_history"), 60);
+            i.rx.Add(new RxItem { drug = "thiamine", route = "PO" });
+            i.dispositions.Add("supervised_detox");
+            var r = ScoringEngine.Score(i);
+            Assert.IsTrue(r.critical_errors.Any(e => e.StartsWith("Risk item not asked") && e.Contains("fits")));
+            Assert.AreEqual("Borderline fail", r.global_rating);
+            StringAssert.Contains("Try:", r.next_steps[0]);
+        }
+
+        [Test]
+        public void JargonAndStackedQuestionsCostAndAreQuoted()
+        {
+            var i = Perfect();
+            i.turns.Add(new TurnRecord { t = 100, doctor = "Any suicidal ideation? Any plans?", intents = { "ask_suicidal_ideation" }, trustBefore = 50, trustAfter = 50 });
+            var r = ScoringEngine.Score(i);
+            Assert.IsTrue(r.feedback.Any(f => f.note.Contains("'ideation' is jargon")));
+            Assert.IsTrue(r.feedback.Any(f => f.note.StartsWith("Several questions at once")));
+            Assert.Less(r.domains.Single(d => d.id == "communication").score, ScoringEngine.Score(Perfect()).domains.Single(d => d.id == "communication").score);
+            Assert.AreEqual("ideation", ScoringEngine.JargonIn("Any suicidal ideation?"));
+            Assert.IsNull(ScoringEngine.JargonIn("How have you been sleeping?"));
+        }
+
+        [Test]
+        public void FeedbackOnlySaysDisclosedForTheRightFactAndQuotesARealClosedQuestion()
+        {
+            var i = Perfect();
+            i.turns.Add(new TurnRecord { t = 0, doctor = "Hello, I'm Dr. Faaz. What brings you in today?", intents = { "greet_introduce" } });
+            i.turns.Add(new TurnRecord { t = 20, doctor = "Do you sleep well?", intents = { "ask_sleep" } });
+            i.turns.Add(new TurnRecord { t = 40, doctor = "Are you eating?", intents = { "ask_appetite" } });
+            i.turns.Add(new TurnRecord { t = 50, doctor = "Is your energy low?", intents = { "ask_energy" } });  // 1 open question in 5 turns
+            i.turns.Add(new TurnRecord { t = 60, doctor = "Have you had thoughts of not wanting to live?", intents = { "ask_suicidal_ideation" }, revealed = { "f_sleep" } });
+            var r = ScoringEngine.Score(i);
+            StringAssert.Contains("did not answer it yet", r.feedback.Single(f => f.quote != null && f.quote.StartsWith("Have you had")).note);
+            Assert.AreEqual("Do you sleep well?", r.feedback.Single(f => f.note.StartsWith("Mostly closed")).quote);
+        }
+
+        [Test]
+        public void GlobalRatingFollowsTotalAndIsCappedByCriticalErrors()
+        {
+            Assert.AreEqual("Excellent", ScoringEngine.Global(85, 0));
+            Assert.AreEqual("Clear pass", ScoringEngine.Global(70, 0));
+            Assert.AreEqual("Borderline pass", ScoringEngine.Global(55, 0));
+            Assert.AreEqual("Borderline fail", ScoringEngine.Global(95, 1));
+            Assert.AreEqual("Clear fail", ScoringEngine.Global(95, 2));
         }
 
         [Test]
@@ -286,6 +379,10 @@ namespace Rapport.Tests
             yield return new TestCaseData("benzo_monotherapy_for_depression", "mdd_single_episode", false, new[] { "clonazepam" }, new Drug[0], true).SetName("benzo mono hit");
             yield return new TestCaseData("benzo_monotherapy_for_depression", "mdd_single_episode", false, new[] { "clonazepam", "sertraline" }, new Drug[0], false).SetName("benzo with ssri miss");
             yield return new TestCaseData("lithium_with_nsaid", "bipolar_i", false, new[] { "lithium", "ibuprofen" }, new[] { nsaid }, true).SetName("lithium nsaid hit");
+            yield return new TestCaseData("disulfiram_in_withdrawal", "alcohol_withdrawal", false, new[] { "disulfiram" }, new Drug[0], true).SetName("disulfiram while drinking hit");
+            yield return new TestCaseData("disulfiram_in_withdrawal", "mdd_single_episode", false, new[] { "disulfiram" }, new Drug[0], false).SetName("disulfiram no alcohol miss");
+            yield return new TestCaseData("antipsychotic_lowers_seizure_threshold", "alcohol_withdrawal", false, new[] { "olanzapine" }, new Drug[0], true).SetName("antipsychotic in withdrawal hit");
+            yield return new TestCaseData("antipsychotic_lowers_seizure_threshold", "schizophrenia", false, new[] { "olanzapine" }, new Drug[0], false).SetName("antipsychotic in psychosis miss");
         }
 
         [TestCaseSource(nameof(RuleCases))]

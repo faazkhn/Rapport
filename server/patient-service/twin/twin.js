@@ -1,9 +1,11 @@
 /* Digital Twin. Everything drawn is a pure function of time t (seconds) and the timeline, so render mode is deterministic.
-   Modes: replay (?timeline=url, default: bundled demo_timeline.js), render (&render=1), live (?live=1). See README.md. */
+   Modes: live (default over http, or ?live=1), replay (?timeline=url, or ?live=0 for the bundled demo_timeline.js), render (&render=1). See README.md. */
 (() => {
   "use strict";
   const Q = new URLSearchParams(location.search);
-  const RENDER = Q.get("render") === "1", LIVE = Q.get("live") === "1";
+  const RENDER = Q.get("render") === "1";
+  // served by the patient service, the plain link is the live session; ?live=0 plays the bundled demo
+  const LIVE = Q.get("live") === "1" || (Q.get("live") !== "0" && !RENDER && !Q.has("timeline") && location.protocol.startsWith("http"));
   const theme = Q.get("theme") || (RENDER ? "dark" : null);
   if (theme) document.documentElement.dataset.theme = theme;
   if (RENDER) document.body.classList.add("render");

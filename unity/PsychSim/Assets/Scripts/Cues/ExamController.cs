@@ -9,7 +9,7 @@ namespace Rapport.Cues
     /// <summary>
     /// Plays the exam actions the service routed (Phase H) from an ExamQueue:
     /// - hold_out_hands: humanoid hand IK toward the doctor, the hand turned palm up or down;
-    /// - sleeves, forearms, the penlight: clips frozen at their hold pose;
+    /// - sleeves, forearms, the penlight: clips frozen at their hold pose; the sleeves follow the rolling strokes (SleeveRoller);
     /// - mouth and tongue: jaw bone and blendshapes;
     /// - follow_finger: a moving gaze target;
     /// - stand, sit and a short walk out and back.
@@ -29,22 +29,26 @@ namespace Rapport.Cues
         const float HandsHold = 0.3f, RollHold = 0.62f, LightHold = 0.3f;
         // where each clip starts lowering (end of its hold section): on release it jumps there, the pose is the same, so the hands come down now
         const float HandsLower = 0.71f, RollLower = 0.83f, LightLower = 0.78f;
+        // the strokes that roll each sleeve (make_clips.py roll_up_sleeves: left 1.35-3.45 s, right 4.9-6.6 s of 13)
+        const float ForearmsUpAt = 6.9f;  // s into the clip: both forearms start turning up for the hold
+        static readonly Vector2 RollLeft = new(1.35f / 13f, 3.45f / 13f), RollRight = new(4.9f / 13f, 6.6f / 13f);
         Animator anim;
         CueDriver cues;
         GazeController gaze;
         FacePresets face;
+        SleeveRoller sleeves;
         Transform doctor, jaw, followTarget;
         readonly List<(SkinnedMeshRenderer smr, int idx)> jawShapes = new(), tongueShapes = new();
         int lArms, lHead;
-        float stepStart, handW, mouthW, tongueW, nextRefresh;
+        float stepStart, handW, mouthW, tongueW, forearmW, nextRefresh;
         bool motionDone, skipPosture;
         string handsWhich = "both", palms = "down";
         Coroutine walk;
         readonly (Vector3 fingers, Vector3 palm)[] handAxes = new (Vector3, Vector3)[2];
 
-        public void Setup(Animator a, CueDriver c, GazeController g, FacePresets f, Transform doctorFace)
+        public void Setup(Animator a, CueDriver c, GazeController g, FacePresets f, Transform doctorFace, SleeveRoller s = null)
         {
-            anim = a; cues = c; gaze = g; face = f; doctor = doctorFace;
+            anim = a; cues = c; gaze = g; face = f; doctor = doctorFace; sleeves = s;
             lArms = a.GetLayerIndex("ArmsOneShot"); lHead = a.GetLayerIndex("Head");
             foreach (var t in GetComponentsInChildren<Transform>()) if (t.name == "CC_Base_JawRoot") jaw = t;
             foreach (var smr in GetComponentsInChildren<SkinnedMeshRenderer>())
@@ -56,6 +60,7 @@ namespace Rapport.Cues
             followTarget = new GameObject("ExamFollowTarget").transform;
             handAxes[0] = HandAxes(true);
             handAxes[1] = HandAxes(false);
+            CacheFingers();
             Queue.Started += OnStarted;
             Queue.Ended += OnEnded;
         }
@@ -79,7 +84,11 @@ namespace Rapport.Cues
                     handsWhich = s.which; palms = s.palms;
                     if (UseHandsClip) cues.PlayExamAction("hold_out_hands");
                     break;
-                case "roll_up_sleeves": case "show_forearms": cues.PlayExamAction("roll_up_sleeves"); break;
+                case "roll_up_sleeves": case "show_forearms":
+                    cues.PlayExamAction("roll_up_sleeves");
+                    // nothing to roll (a sleeveless top): skip the strokes and turn the forearms up to show them
+                    if (sleeves && !sleeves.HasSleeves) anim.CrossFadeInFixedTime("action_roll_up_sleeves", 0.5f, lArms, ForearmsUpAt);
+                    break;
                 case "look_at_light": cues.PlayExamAction("look_at_light"); break;
                 case "follow_finger": gaze.Override = followTarget; break;
                 case "stand_up":
@@ -160,9 +169,15 @@ namespace Rapport.Cues
                 }
             }
             if (id == "follow_finger") MoveFollowTarget(Time.time - stepStart);
+            if (sleeves && Norm(lArms, "action_roll_up_sleeves") is var n and > 0f)  // follow the hand's strokes; they stay rolled up
+            {
+                sleeves.Left = Mathf.Max(sleeves.Left, Mathf.InverseLerp(RollLeft.x, RollLeft.y, n));
+                sleeves.Right = Mathf.Max(sleeves.Right, Mathf.InverseLerp(RollRight.x, RollRight.y, n));
+            }
 
             float k = Time.deltaTime / 0.5f;  // about 0.5 s in and out
             handW = Mathf.MoveTowards(handW, id == "hold_out_hands" ? 1f : 0f, k);
+            forearmW = Mathf.MoveTowards(forearmW, Queue.Holding && id is "roll_up_sleeves" or "show_forearms" ? 1f : 0f, k);
             mouthW = Mathf.MoveTowards(mouthW, id is "open_mouth" or "stick_out_tongue" ? 1f : 0f, k * 1.5f);
             tongueW = Mathf.MoveTowards(tongueW, id == "stick_out_tongue" && mouthW > 0.6f ? 1f : 0f, k * 1.5f);
         }
@@ -236,13 +251,49 @@ namespace Rapport.Cues
             if (anim == null) return;
             if (handW > 0.001f)
                 foreach (bool left in new[] { true, false })
-                    if (handsWhich == "both" || handsWhich == (left ? "left" : "right")) OrientHand(left, handW);
+                    if (handsWhich == "both" || handsWhich == (left ? "left" : "right"))
+                    {
+                        OrientHand(left, handW);
+                        foreach (var (bone, straight, isLeft) in fingers)  // the lap clip's curl read as limp, dangling hands
+                            if (isLeft == left) bone.localRotation = Quaternion.Slerp(bone.localRotation, straight, 0.75f * handW);
+                    }
+            if (forearmW > 0.001f) { Supinate(true, forearmW); Supinate(false, forearmW); }
             if (mouthW > 0.001f && jaw) jaw.rotation = Quaternion.AngleAxis(12f * mouthW, transform.right) * jaw.rotation;
             foreach (var (smr, i) in jawShapes) if (mouthW > 0.001f) smr.SetBlendShapeWeight(i, Mathf.Max(smr.GetBlendShapeWeight(i), 60f * mouthW));
             foreach (var (smr, i) in tongueShapes) smr.SetBlendShapeWeight(i, 100f * tongueW);
         }
 
-        /// <summary>Turns the hand so the fingers point at the doctor (10° down) and the palm faces up or down; the IK only places the
+        /// <summary>Rolls the hand about the forearm until the palm faces up, so the inner forearm shows (scars, needle marks);
+        /// ForearmTwist carries the roll up the forearm.</summary>
+        void Supinate(bool left, float w)
+        {
+            Transform hand = anim.GetBoneTransform(left ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand),
+                fore = anim.GetBoneTransform(left ? HumanBodyBones.LeftLowerArm : HumanBodyBones.RightLowerArm);
+            var palm = handAxes[left ? 0 : 1].palm;
+            if (!hand || !fore || palm == Vector3.zero) return;
+            var axis = (hand.position - fore.position).normalized;
+            float deg = Vector3.SignedAngle(Vector3.ProjectOnPlane(hand.rotation * palm, axis), Vector3.ProjectOnPlane(Vector3.up, axis), axis);
+            hand.rotation = Quaternion.AngleAxis(deg * w, axis) * hand.rotation;
+        }
+
+        readonly List<(Transform bone, Quaternion straight, bool left)> fingers = new();
+
+        /// <summary>Each finger joint's bind-pose (straight) local rotation, from the body mesh's bind poses.</summary>
+        void CacheFingers()
+        {
+            SkinnedMeshRenderer skin = null;
+            foreach (var r in GetComponentsInChildren<SkinnedMeshRenderer>()) if (r.sharedMesh && (!skin || r.sharedMesh.vertexCount > skin.sharedMesh.vertexCount)) skin = r;
+            if (!skin) return;
+            var bp = skin.sharedMesh.bindposes;
+            for (var b = HumanBodyBones.LeftThumbProximal; b <= HumanBodyBones.RightLittleDistal; b++)
+            {
+                var t = anim.GetBoneTransform(b);
+                int i = t ? System.Array.IndexOf(skin.bones, t) : -1, p = t ? System.Array.IndexOf(skin.bones, t.parent) : -1;
+                if (i >= 0 && p >= 0) fingers.Add((t, Quaternion.Inverse(bp[p].inverse.rotation) * bp[i].inverse.rotation, b <= HumanBodyBones.LeftLittleDistal));
+            }
+        }
+
+        /// <summary>Turns the hand so the fingers point at the doctor (5° up, wrist level as in a tremor check) and the palm faces up or down; the IK only places the
         /// wrist, and the lap pose's bent-up wrist otherwise shows a "stop" gesture.</summary>
         void OrientHand(bool left, float w)
         {
@@ -250,7 +301,7 @@ namespace Rapport.Cues
             var (fingers, palm) = handAxes[left ? 0 : 1];
             if (!hand || fingers == Vector3.zero) return;
             var dir = PresentDir(hand.position);
-            dir = Quaternion.AngleAxis(10f, Vector3.Cross(Vector3.up, dir)) * dir;
+            dir = Quaternion.AngleAxis(-5f, Vector3.Cross(Vector3.up, dir)) * dir;
             var want = Quaternion.LookRotation(dir, palms == "up" ? Vector3.down : Vector3.up) * Quaternion.Inverse(Quaternion.LookRotation(fingers, -palm));
             hand.rotation = Quaternion.Slerp(hand.rotation, want, w);
         }
@@ -264,7 +315,9 @@ namespace Rapport.Cues
                 little = anim.GetBoneTransform(left ? HumanBodyBones.LeftLittleProximal : HumanBodyBones.RightLittleProximal);
             if (!hand || !mid || !index || !little) return (Vector3.zero, Vector3.zero);
             var fingers = (mid.position - hand.position).normalized;
-            var palm = Vector3.Cross(fingers, index.position - little.position).normalized * (left ? 1f : -1f);  // checked: points down in the lap pose
+            // out of the palm: palms-down hands held out (fingers forward, index toward the midline) give -up. The old sign pointed out of
+            // the back of the hand, so "palms down" turned the palms up with a 180° wrist twist (2026-10-25 live test, checked on both bodies)
+            var palm = Vector3.Cross(fingers, index.position - little.position).normalized * (left ? -1f : 1f);
             var inv = Quaternion.Inverse(hand.rotation);
             return (inv * fingers, inv * palm);
         }

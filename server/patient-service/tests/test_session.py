@@ -111,6 +111,7 @@ def test_locked_facts_never_reach_the_model():
 @pytest.mark.parametrize("pressured,lo,hi", [(False, 0, 0.15), (True, 0.2, 0.6)])
 def test_barge_in(monkeypatch, pressured, lo, hi):
     monkeypatch.setattr(session, "PRESSURED_OVERLAP_S", 0.3)
+    monkeypatch.setattr(session, "INTERRUPT_MIN_S", 0.0)  # the fake replies are a fraction of a second long
     real = brain.cue_live
     monkeypatch.setattr(brain, "cue_live", lambda c, cid, st: 0.8 if (cid == "pressured_speech" and pressured) else real(c, cid, st))
 
@@ -134,6 +135,17 @@ def test_barge_in(monkeypatch, pressured, lo, hi):
         assert all(ts <= stop_t for ts, _ in audio)  # nothing spoken after the stop
     rep = next(m for _, m in ev if m["type"] == "reply")
     assert rep["meta"]["barge_in"] is True and s.interrupted
+
+
+@pytest.mark.parametrize("left_s,counted", [(0.3, False), (2.0, True)])
+def test_interrupt_only_counts_with_speech_left(left_s, counted):
+    async def go():
+        s, ev, _ = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        s.playing_until = time.monotonic() + left_s  # the doctor starts talking with this much of the reply still to play
+        await s.stop("barge_in")
+        return s
+    assert asyncio.run(go()).interrupted is counted
 
 
 def test_slowed_pause_absorbs_compute_and_is_separate_from_lag(monkeypatch):
@@ -279,6 +291,26 @@ def test_barge_in_snapshot(monkeypatch):
     assert len(snaps) == 1 and snaps[0]["utterance"].endswith("...") and len(calls) == 1
 
 
+def test_speaking_after_the_reply_is_said_keeps_the_reply():
+    """The doctor speaks while the LLM is still writing the JSON after the utterance: the patient has said it all, so the
+    reply's state change and facts must not be thrown away (the 2026-10-26 playtest lost about half its turns this way)."""
+    async def go():
+        s, ev, _ = make(FakeLLM(delay=0.01))
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        await s.on_json({"type": "text", "text": "How do you sleep?"})
+        while not s.said_all:
+            await asyncio.sleep(0.005)
+        s.playing_until = 0.0  # the audio has finished playing
+        await s.on_speech_start()
+        await s.turn_task
+        return ev
+    ev = asyncio.run(go())
+    rep = next(m for _, m in ev if m["type"] == "reply")
+    assert not rep["reply"]["utterance"].endswith("...") and not rep["meta"].get("barge_in")
+    assert rep["reply"]["revealed_fact_ids"] == ["f_sleep"] and rep["state"]["trust"] == 33
+    assert "stop" not in types(ev)
+
+
 def test_session_publishes():
     import twin_bus
 
@@ -374,7 +406,8 @@ def test_streaming_backend_sends_chunks_and_instruction():
     b = ChunkBackend()
     s, ev, audio = _turn_with(b)
     sentences = [m for _, m in ev if m["type"] == "sentence"]
-    assert len(sentences) == 2 and len(audio) == 4  # the third sentence is guard-stripped; first chunk with its sentence message, the second as bare PCM
+    # the third sentence is guard-stripped; 0.05 s chunks are held until 0.3 s is buffered, so each sentence goes out as one message
+    assert len(sentences) == 2 and len(audio) == 2 and all(len(a) == 4800 for _, a in audio)
     assert all(i.startswith(s.case["patient"]["voice_description"]) for i in b.instructions)
 
 
@@ -595,3 +628,21 @@ def test_a_capped_reply_credits_no_facts():
     rep = next(m for _, m in ev if m["type"] == "reply")
     assert rep["reply"]["utterance"] == "I wake up at four every day." and rep["reply"]["revealed_fact_ids"] == []
     assert any(d["reason"] == "word_cap" for d in rep["meta"]["guard_dropped"])
+
+
+def test_told_they_can_go_stays_true_on_later_turns():
+    """Playtest 2026-10-26: after 'You can go' the patient went back to asking to go home."""
+    async def go():
+        llm = FakeLLM()
+        s, ev, _ = make(llm)
+        await s.on_json({"type": "start", "case_id": "ward_01"})
+        await run_text(s, "Okay, you can go.")
+        await run_text(s, "What will you do at home?")
+        return s, ev, llm
+    s, ev, llm = asyncio.run(go())
+    assert "leave_granted" in s.fired
+    assert any(m["type"] == "exam" and {"id": "stand_up", "comply": True} in m["actions"] for _, m in ev)
+    first = [c["messages"][-1]["content"] for c in llm.calls if "you can go." in c["messages"][-1]["content"]][0]
+    second = [c["messages"][-1]["content"] for c in llm.calls if "What will you do at home" in c["messages"][-1]["content"]][0]
+    assert "STAGE DIRECTION" in first and "ALREADY HAPPENED" not in first
+    assert "ALREADY HAPPENED" in second and "does not ask to leave again" in second

@@ -17,5 +17,8 @@ if ! curl -sf http://127.0.0.1:8765/health >/dev/null; then
     sleep 0.5
   done
 fi
-echo "Service ready. Opening Rapport."
+LAN_IP="$(ipconfig getifaddr en0 || ipconfig getifaddr en1 || true)"
+echo "Service ready. Digital Twin: http://127.0.0.1:8765/twin/${LAN_IP:+  (other laptops on this Wi-Fi: http://$LAN_IP:8765/twin/)}"
+open "http://127.0.0.1:8765/twin/"
+echo "Opening Rapport."
 open -W "$APP"

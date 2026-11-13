@@ -141,7 +141,7 @@ def test_authored_case_starts_where_its_author_wrote():
 def test_non_plain_style_is_restated_every_turn():
     up = _with_style("upset")
     r = brain.style_reminder(up, up["state_start"])
-    assert "frustrated and defensive" in r and "Why do you need to know that?" in r and "asks_back" in r
+    assert "frustrated and defensive" in r and "I already told the other doctor" in r and "asks_back" in r
     assert "Lean towards" not in brain.style_reminder(brain.load_case("mdd_01"), brain.load_case("mdd_01")["state_start"])
 
 

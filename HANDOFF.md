@@ -96,6 +96,23 @@
 - Ward demo `demo/Rapport_ward_demo.mp4` (not in git). Takes: `demo/raw/Rapport_take_ward*.mp4`.
 - Owner and faculty: review the draft numbers and the cases; decide whether to merge to main.
 
+## 4g. Live-test fixes, new bodies, alcohol case, evaluation (branch `personalities`, 2026-10-25, not committed)
+- Voice: choppy TTS was underrun (Qwen RTF ~1.0 while the LLM shares the GPU). `voice.ready_to_play` holds each sentence until buffered audio outlasts its generation; no cost when idle. TTS warmed per session. Interruptions now count only with >= 1 s of reply left (`session.INTERRUPT_MIN_S`); typed/PTT turns were falsely tagged `interrupt`.
+- Push-to-talk default (remembered); Twin view at `/twin/` is live by default and served to the LAN (only `/twin` and `/health` answer other devices: `app.LocalOnly`).
+- Exam: palms were inverted (`ExamController.HandAxes`), and only the hand bone turned. `ForearmTwist` spreads the roll over the CC twist bones; fingers straighten for hands-out; `SleeveRoller` builds rolled-sleeve blendshapes from skin weights at runtime; sleeveless tops skip the strokes; the forearms supinate in the hold.
+- New bodies `female_20s_b` (Amber) and `male_30s_a` (Realistic Man, ARKit face keys): RIG_REPORT.md section "Added 2026-10-25". Start screen **Look** row; "Surprise me" picks a body.
+- New case `alc_01` "Shaky in the mornings" (docs/PATIENTS.md); cues `tremor_coarse` and `sweating` now drive the body; formulary: naltrexone, acamprosate, disulfiram + two rules.
+- Evaluation overhaul: docs/literature/evaluation-and-assessment.md. MSE against cues actually shown (recall + precision), risk credits disclosure, case `critical_intents`, MIRS-style communication items, jargon and stacked questions, global rating, "Next time" steps, AI examiner notes (`POST /assess`, `examiner.py`, quotes verified).
+- Tests: service 196, Unity EditMode 51. App rebuilt (1.19 GB with the new bodies).
+
+## 4h. Playtest fixes and life memory (branch `personalities`, 2026-10-31, not committed)
+- Plan: `docs/superpowers/plans/2026-10-31-patient-playtest-fixes.md`. Results: `docs/PATIENTS.md` § Playtest fixes.
+- Patients answer what they may share (prompt + styles). A barge-in after the reply is said keeps the reply (`Session.said_all`). "You can go" fires `leave_granted` and stays true (`then` notes).
+- Life memory files `data/life/*.json`, recalled like facts, never credited.
+- Amber's hair rebuilt whole; FBX Read/Write on; `ward_02` uses Amber and Realistic Man.
+- Tests: service 221, Unity EditMode 51/51 (batch). App rebuilt (batch, 1.1 GB).
+- **Not verified:** the start screen Look 2 in the built app. The Mac was locked, so there was no clicking or screenshots. In the editor every look spawns and enters in all cases.
+
 ## 5. Next steps
 1. Commit §4; rebuild the player; re-measure latency after the send fix.
 2. `KICKOFF_PROMPT_v4.md` Phases A–I: audit, rename (repo, product, bundle id, menus, `PSYCHSIM_*` → `RAPPORT_*` aliases), literature review, Digital Twin brain, self-learning with A/B, Twin live wiring, TTS bake-off (Qwen3-TTS is the lead candidate) + Smart Turn + streaming STT, camera and exam router with IK, gates, demo v3, release `v0.2-twin`.

@@ -36,3 +36,8 @@ tools/demo/node_modules/
 logs/
 tools/tts_lab/bakeoff/
 docs/listening/*.wav
+
+# rebuilt characters: regenerate with tools/blender/cc_rebuild.py / arp_to_cc.py (RIG_REPORT.md); Unity gets them via stage_patient.py
+art/Amber/
+art/RealisticMan/
+Realistic+man_Blend.zip

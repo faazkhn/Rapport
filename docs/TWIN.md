@@ -34,7 +34,7 @@ A painful locked hit always ends with a reaction that does not raise trust (`twi
 
 ## Twin view
 
-- Live: `http://127.0.0.1:8765/twin/?live=1`. The page reads `ws://<host>/twin/ws`; a late viewer receives the session so far and its clock catches up.
+- Live: `http://127.0.0.1:8765/twin/`. The page reads `ws://<host>/twin/ws`; a late viewer receives the session so far and its clock catches up.
 - Replay: every live session is logged to `logs/twin/<time>_<case>.jsonl` (git-ignored, local only). `python3 tools/demo/log_to_timeline.py <log> -o <timeline.json>`, then `?timeline=<url>`.
 - Unity writes each `brain_snapshot` to its `SessionLog`.
 

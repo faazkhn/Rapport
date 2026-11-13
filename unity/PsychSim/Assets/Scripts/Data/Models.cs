@@ -64,7 +64,7 @@ namespace Rapport.Data
     public class AnswerKey
     {
         public List<string> primary_dx = new(), acceptable_differentials = new(), required_intents = new(), required_cues_noted = new(),
-            acceptable_disposition = new(), required_disposition = new();
+            acceptable_disposition = new(), required_disposition = new(), critical_intents = new();
         public List<AcceptableRx> acceptable_rx = new();
         public List<UnsafeRx> unsafe_rx = new();
         public TeachingPoints teaching_points;
@@ -76,7 +76,7 @@ namespace Rapport.Data
     public class TeachingPoints { public string status, verified_by; public List<string> items = new(); }
     public class MseExpected { public List<string> cues = new(); public string note; }
 
-    public class Intent { public string id, description; public bool is_risk, negative; }
+    public class Intent { public string id, description, example; public bool is_risk, negative; }
     public class IntentList { public string status; public List<Intent> intents = new(); }
 
     public class Cue { public string id, name, meaning, mse_section; public List<string> method = new(); public bool in_slice; }

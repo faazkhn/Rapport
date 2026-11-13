@@ -30,22 +30,29 @@ def recall(case: dict, trust: float, doctor_text: str, limit: int = 3) -> dict:
     # shortcut: lexical tags only, no embeddings; upgrade when an embedding model is chosen (Phase D2)
     stemmed = [_stem(w) for w in _words(doctor_text)]
     stems, phrase = set(stemmed), " " + " ".join(stemmed) + " "
-    scored = []
-    for f in case["facts"]:
-        score = 0
-        for tag in f.get("activation_tags", []):
-            tw = [_stem(w) for w in _words(tag)]
-            if len(tw) > 1:
-                score += 2 * (" " + " ".join(tw) + " " in phrase)
-            elif tw:
-                score += tw[0] in stems
-        if score:
-            scored.append((score, f))
-    scored.sort(key=lambda x: -x[0])
-    open_ = [f["id"] for _, f in scored if f["trust_min"] <= trust][:limit]
-    locked = [f["id"] for _, f in scored if f["trust_min"] > trust]
+
+    def scored(items):
+        out = []
+        for f in items:
+            score = 0
+            for tag in f.get("activation_tags", []):
+                tw = [_stem(w) for w in _words(tag)]
+                if len(tw) > 1:
+                    score += 2 * (" " + " ".join(tw) + " " in phrase)
+                elif tw:
+                    score += tw[0] in stems
+            if score:
+                out.append((score, f))
+        return sorted(out, key=lambda x: -x[0])
+
+    facts = scored(case["facts"])
+    open_ = [f["id"] for _, f in facts if f["trust_min"] <= trust][:limit]
+    locked = [f["id"] for _, f in facts if f["trust_min"] > trust]
     hit = set(open_) | set(locked)
-    return {"open": open_, "locked_hit": locked, "discomfort": any(f.get("generates_discomfort") for _, f in scored if f["id"] in hit)}
+    # everyday memories (case["life"]): never locked, never credited as facts; two at most so the prompt stays small
+    life = [m["id"] for _, m in scored(case.get("life", [])) if m.get("trust_min", 0) <= trust][:2]
+    return {"open": open_, "locked_hit": locked, "discomfort": any(f.get("generates_discomfort") for _, f in facts if f["id"] in hit),
+            "life": life}
 
 
 def _topic(fact_id: str) -> str:
@@ -111,21 +118,43 @@ def update(state: dict, mood: dict, reply: dict, case: dict) -> tuple[dict, dict
 
 # ---------- ward events (docs/literature/personalities-and-randomized-patients.md, R9) ----------
 
-def due_events(case: dict, state: dict, turn: int, elapsed_min: float, fired: set) -> list[dict]:
+_LEAVE_OK = re.compile(r"\b(you (can|may|could|are free to|'re free to) (now )?(go|leave)|you('re| are) (free to go|discharged|good to go)|"
+                       r"(go|get) (back )?(to your )?home|(go|leave) (right )?now|leave (my|the|this) (room|cabin|office)|get out|"
+                       r"i('ll| will|'m going to| am going to) (let you go|discharge you|send you home)|we('re| are) done|"
+                       r"(appointment|consultation) is (done|over|finished))\b")
+_LEAVE_BLOCK = re.compile(r"\b(can't|cannot|can not|not|won't|don't|unless|until|if|when|once|after|before|want to|wanna)\b")
+
+
+def allows_leave(text: str) -> bool:
+    """The doctor tells the patient they may go (a statement, not a question, a condition or a refusal). Lexical, so it is known
+    before the reply is generated: intents are tagged only after the voice stream."""
+    return any(_LEAVE_OK.search(s) and not _LEAVE_BLOCK.search(s)
+               for s in re.split(r"(?<=[.!?])\s+", text.lower().replace("’", "'")) if s and not s.rstrip().endswith("?"))
+
+
+def due_events(case: dict, state: dict, turn: int, elapsed_min: float, fired: set, doctor_text: str = "") -> list[dict]:
     """Case events whose trigger holds now, each at most once per session (adds their ids to `fired`). Triggers, all of
     which must hold: turn (this turn number or later), after_min, trust_at_least, agitation_at_least, agitation_below,
-    after_event (another event already fired). Code decides when; the model only plays it."""
+    after_event (another event already fired), doctor_allows_leave (this doctor line lets the patient go). Code decides when;
+    the model only plays it."""
     due, before = [], set(fired)  # after_event needs the earlier event on a previous turn
     for e in case.get("events", []):
         w = e["when"]
         if e["id"] in fired or not all((
                 turn >= w.get("turn", 0), elapsed_min >= w.get("after_min", 0),
                 state["trust"] >= w.get("trust_at_least", 0), state["agitation"] >= w.get("agitation_at_least", 0),
-                state["agitation"] < w.get("agitation_below", 101), w.get("after_event") in before | {None})):
+                state["agitation"] < w.get("agitation_below", 101), w.get("after_event") in before | {None},
+                not w.get("doctor_allows_leave") or allows_leave(doctor_text))):
             continue
         fired.add(e["id"])
         due.append(e)
     return due
+
+
+def ongoing_notes(case: dict, fired: set, now: set) -> list[str]:
+    """`then` lines of events fired on earlier turns: what has already happened stays true (the patient told they may go does
+    not ask to leave again)."""
+    return [e["then"] for e in case.get("events", []) if e.get("then") and e["id"] in fired - now]
 
 
 def apply_event_deltas(state: dict, events: list[dict]) -> dict:

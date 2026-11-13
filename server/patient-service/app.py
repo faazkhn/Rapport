@@ -1,5 +1,6 @@
 """PsychSim patient service: WS /session (voice loop), /health, /reply (typed + tests), /tts (KittenTTS). Run with ./run.sh."""
 import io
+import ipaddress
 import logging
 import os
 import time
@@ -10,11 +11,13 @@ import numpy as np
 import soundfile as sf
 from fastapi import FastAPI, HTTPException, Query, WebSocket
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import Response
+from fastapi.responses import PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from starlette.websockets import WebSocketClose
 
 import brain
+import examiner
 import learning
 import mock
 import session
@@ -69,6 +72,31 @@ async def lifespan(app):
 
 
 app = FastAPI(title="Rapport patient service", lifespan=lifespan)
+LAN_OK = ("/twin", "/health")  # what another device on the network may open; the voice session, replies and learning stay on this Mac
+
+
+def _loopback(scope) -> bool:
+    try:
+        return ipaddress.ip_address((scope.get("client") or ("",))[0]).is_loopback
+    except ValueError:
+        return False
+
+
+class LocalOnly:
+    """run.sh binds every interface so a second laptop on the same Wi-Fi can open the Twin view; nothing else answers it."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] in ("http", "websocket") and not scope["path"].startswith(LAN_OK) and not _loopback(scope):
+            deny = PlainTextResponse("Only the Digital Twin view (/twin/) is shared on the network.", 403) if scope["type"] == "http" \
+                else WebSocketClose(1008)
+            return await deny(scope, receive, send)
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(LocalOnly)
 
 
 @app.websocket("/twin/ws")  # declared before the /twin static mount, which would otherwise catch it
@@ -198,6 +226,31 @@ def approve(req: ApproveReq):
     if not learning.approve(req.case_id, req.entry_id):
         raise HTTPException(404, f"unknown entry {req.entry_id!r}")
     return {"ok": True}
+
+
+class Turn(BaseModel):
+    doctor: str = Field(max_length=4000)
+    patient: str | None = Field(default=None, max_length=4000)
+
+
+class AssessReq(BaseModel):
+    case_id: str
+    variant: Literal["female", "male"] = "female"
+    turns: list[Turn] = Field(min_length=1, max_length=200)
+
+
+@app.post("/assess")
+async def assess(req: AssessReq):
+    """Debrief: formative AI examiner notes on the doctor's verbal skills, every quote checked against the transcript (examiner.py)."""
+    case = _case_or_404(req.case_id, req.variant)
+    if MOCK:
+        return {"strengths": [], "improvements": [], "dropped_ungrounded": 0, "model": "mock"}
+    try:
+        out = await run_in_threadpool(examiner.assess, case, [t.model_dump() for t in req.turns])
+    except Exception as e:  # the debrief stands without it
+        raise HTTPException(503, f"examiner unavailable ({type(e).__name__})")
+    log.info("assess case=%s turns=%d notes=%d dropped=%d", req.case_id, len(req.turns), len(out["strengths"]) + len(out["improvements"]), out["dropped_ungrounded"])
+    return out
 
 
 @app.post("/tts")

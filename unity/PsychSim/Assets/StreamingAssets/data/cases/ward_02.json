@@ -21,7 +21,7 @@
     "them": "her",
     "their": "her"
    },
-   "model_id": "female_20s_a",
+   "model_id": "female_20s_b",
    "voice_id": "Luna",
    "voice_description": "A 21-year-old Indian woman from Kerala living in Bengaluru, natural Indian-English accent with a slight Malayali lilt. Young, guarded, quick, a little suspicious. Natural and human, not a narrator."
   },
@@ -33,7 +33,7 @@
     "them": "him",
     "their": "his"
    },
-   "model_id": "male_20s_a",
+   "model_id": "male_30s_a",
    "voice_id": "Leo",
    "voice_description": "A 21-year-old Indian man from Kerala living in Bengaluru, natural Indian-English accent with a slight Malayali lilt. Young, guarded, quick, a little suspicious. Natural and human, not a narrator."
   }
@@ -139,6 +139,19 @@
     "after_event": "nurse_with_tablets"
    },
    "say": "{name} quietly asks whether the doctor would take one of those tablets first, to show they are safe."
+  },
+  {
+   "id": "leave_granted",
+   "when": {
+    "doctor_allows_leave": true
+   },
+   "say": "The doctor has just said {name} can go home. {name} is taken aback, then relieved, picks up {their} things and stands to leave; {they} may ask what happens next.",
+   "then": "The doctor has already said {name} can go home; {they} is getting ready to leave and does not ask to leave again.",
+   "action": "stand_up",
+   "state_delta": {
+    "agitation": -10,
+    "distress": -5
+   }
   }
  ],
  "banned_words": [
@@ -548,5 +561,6 @@
  },
  "core_belief": "If I let my guard down, someone will take advantage of me.",
  "attachment_style": "Avoidant: keeps people at a distance, trusts family more than strangers.",
- "dialect": "Indian English (Kerala)"
+ "dialect": "Indian English (Kerala)",
+ "life": "nair"
 }

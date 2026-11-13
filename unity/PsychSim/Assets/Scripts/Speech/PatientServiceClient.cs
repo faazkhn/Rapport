@@ -42,6 +42,15 @@ namespace Rapport.Speech
             return JObject.Parse(req.downloadHandler.text);
         }
 
+        /// <summary>POST /assess: formative AI examiner notes on the doctor's verbal skills, quotes checked against the transcript.</summary>
+        public async Task<JObject> Assess(JObject body)
+        {
+            using var req = Post("/assess", body.ToString(), 60);
+            await req.SendWebRequest();
+            if (req.result != UnityWebRequest.Result.Success) throw new Exception($"/assess {req.responseCode} {req.error}");
+            return JObject.Parse(req.downloadHandler.text);
+        }
+
         public async Task<AudioClip> Speak(string text, string voice, float speed)
         {
             var sw = Stopwatch.StartNew();

@@ -60,7 +60,7 @@ Service logs (stdout) hold latency, model and counts only: no conversation text 
 ## Digital Twin (docs/TWIN.md)
 
 - WebSocket `/session` now also sends, per live turn: `twin_event` (`init` at start, then `doctor_end`, `patient_start`, `patient_end`) and one `brain_snapshot` (state, PAD mood, reaction, intensity, behaviour, resistance, why, recalled, locked_hit, cues, expression, brain_version).
-- `WS /twin/ws`: the same events for Twin view viewers (`/twin/?live=1`); a late viewer gets the session so far. Never blocks the voice.
+- `WS /twin/ws`: the same events for Twin view viewers (`/twin/`); a late viewer gets the session so far. Never blocks the voice.
 - Each live session is logged to `logs/twin/<time>_<case>.jsonl` (`RAPPORT_TWIN_LOG_DIR` overrides). Local only; contains the conversation text.
 - Reply contract fields (in generation order): `behaviour, emotion, utterance, reaction, intensity, resistance, state_delta, event_cues, revealed_fact_ids, exam_action`.
 

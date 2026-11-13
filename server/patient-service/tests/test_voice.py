@@ -51,3 +51,12 @@ def test_speakable_keeps_the_hesitation_at_a_sentence_cut():
     # the splitter cuts after "..."; that piece's trailing hesitation is the reply's one allowed pause
     assert voice.speakable("I don't know...") == "I don't know..."
     assert voice.speakable("I don't know...", keep_first=False) == "I don't know."
+
+
+def test_ready_to_play_holds_only_when_generation_is_slow():
+    s = "It's an IT services company. I test software."  # ~3.5 s of speech
+    assert voice.ready_to_play(s, 0.4, 0.21)  # idle (RTF 0.53): the first chunk starts it
+    assert not voice.ready_to_play(s, 0.4, 0.45)  # LLM busy (RTF ~1.1): wait for more audio
+    assert voice.ready_to_play(s, 1.2, 1.25)
+    assert voice.ready_to_play(s, 0.4, 0.45, queued_s=2.0)  # the previous sentence is still playing on the client
+    assert not voice.ready_to_play(s, 0.0, 0.1)

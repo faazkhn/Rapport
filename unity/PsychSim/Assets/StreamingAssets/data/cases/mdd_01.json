@@ -901,5 +901,20 @@
  },
  "core_belief": "I am a burden and a failure to my family.",
  "attachment_style": "Anxious: seeks reassurance but hides need, afraid of disappointing people.",
- "dialect": "natural Indian English"
+ "dialect": "natural Indian English",
+ "events": [
+  {
+   "id": "leave_granted",
+   "when": {
+    "doctor_allows_leave": true
+   },
+   "say": "The doctor has just said {name} can go. {name} gathers {their} things and stands up to leave; {they} may ask what happens next.",
+   "then": "The doctor has already said {name} can go; {they} is getting ready to leave and does not ask to leave again.",
+   "action": "stand_up",
+   "state_delta": {
+    "agitation": -5
+   }
+  }
+ ],
+ "life": "rao"
 }

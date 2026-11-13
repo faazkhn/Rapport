@@ -118,6 +118,8 @@ namespace Rapport.Cues
             anim.SetFloat("Slumped", Get("slumped"), 0.5f, Time.deltaTime);
             gaze.AvoidShare = Get("gaze_avoid");
             tremor.FineTremor = Get("tremor_fine");
+            tremor.CoarseTremor = Get("tremor_coarse");
+            materials.Sweating = Get("sweating");
             tremor.Restless = Seated ? Get("restless") : 0f;
             materials.Tearfulness = tearful;
             if (face) face.Scale = 1f - 0.7f * Get("flat_affect");

@@ -269,7 +269,9 @@ MonoBehaviour:
   yawLimit: {x: -70, y: 70}
   pitchLimit: {x: -35, y: 30}
   followYawOffset: 17
+  followPitchOffset: 7
   Follow: {fileID: 0}
+  Target: {fileID: 0}
 --- !u!114 &65056576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -646,6 +648,8 @@ MonoBehaviour:
   patientPrefabs:
   - {fileID: 1376928584485269527, guid: 574f9419908a6480db4afbe73a08f81d, type: 3}
   - {fileID: 5601993858602240154, guid: bf1fbdf2d5b034eb0b60cb92e4cdb3d2, type: 3}
+  - {fileID: 7856076192088337215, guid: af57d0bf9a5cb487f9523c82cd226f76, type: 3}
+  - {fileID: 3619220379334796570, guid: 23bd4255b38514db3995b1a669d4f803, type: 3}
   facePresets:
   - {fileID: 4900000, guid: 02b928f0ea06f4a16a9209408a85e576, type: 3}
   - {fileID: 4900000, guid: 02f2165dd6fa64f8c894f9af4fa9557d, type: 3}

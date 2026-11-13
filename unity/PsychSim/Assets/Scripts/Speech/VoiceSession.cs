@@ -15,7 +15,7 @@ namespace Rapport.Speech
     /// <summary>
     /// Client for the service's voice loop (server/patient-service/PROTOCOL.md): streams 16 kHz mono PCM16 microphone audio to
     /// ws://.../session, plays the patient's 24 kHz PCM as it arrives (one streaming AudioClip on the lip-synced source) and raises
-    /// the JSON events on the main thread. Hands-free (service VAD) by default; push-to-talk and typed text go over the same socket.
+    /// the JSON events on the main thread. Push-to-talk by default (an open mic beside speakers hears the patient); hands-free (service VAD) and typed text go over the same socket.
     /// Audio stays in memory; nothing is written to disk.
     /// </summary>
     public class VoiceSession : MonoBehaviour
@@ -24,7 +24,8 @@ namespace Rapport.Speech
 
         public VoiceState State { get; private set; } = VoiceState.Off;
         public float MicLevel { get; private set; }          // 0..1, RMS of the last mic block (for the meter)
-        public bool HandsFree { get; private set; } = true;
+        public bool HandsFree { get; private set; }
+        public const string HandsFreePref = "rapport.hands_free";  // the learner's last choice; push-to-talk until they pick hands-free
         public bool UseMicrophone = true;                     // false: only InjectMicAudio feeds the mic path (demo, tests)
         public bool Connected => ws != null && ws.State == WebSocketState.Open;
 
@@ -69,7 +70,7 @@ namespace Rapport.Speech
             await ws.ConnectAsync(uri, cts.Token);
             _ = Task.Run(ReceiveLoop);
             start["type"] = "start";
-            HandsFree = start["hands_free"]?.Value<bool>() ?? true;
+            HandsFree = start["hands_free"]?.Value<bool>() ?? false;
             await SendJson(start);
             if (UseMicrophone) StartMic();
         }

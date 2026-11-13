@@ -1,3 +1,5 @@
+import pytest
+
 import twin
 
 CASE = {"events": [
@@ -43,3 +45,26 @@ def test_after_event_waits_for_a_later_turn():
     fired = set()
     assert ids(twin.due_events(case, CALM, 1, 0, fired)) == ["a"]
     assert ids(twin.due_events(case, CALM, 2, 0, fired)) == ["b"]
+
+
+@pytest.mark.parametrize("line", ["You can go.", "Yes, you may leave.", "Okay, go home now. Your appointment is done.", "Go, go to your home.",
+                                  "Leave my room.", "Doctor, you have to go home right now.", "Yes, you are free to go.",
+                                  "Why do you want to stay? You can go.", "Yes, I am. You have to go right now."])
+def test_allows_leave(line):
+    assert twin.allows_leave(line)
+
+
+@pytest.mark.parametrize("line", ["Why? Why do you want to go home?", "So if I allow you to go home, will you go?", "You can't leave yet.",
+                                  "You can go home when you feel better.", "I just wanna go home and get sleep.",
+                                  "Let's just sit down and then we'll talk.", "You are not going home today.", "How are you?"])
+def test_does_not_allow_leave(line):
+    assert not twin.allows_leave(line)
+
+
+def test_leave_event_fires_on_the_doctors_words():
+    case = {"events": [{"id": "leave_granted", "when": {"doctor_allows_leave": True}, "say": "may go", "then": "is leaving"}]}
+    assert ids(twin.due_events(case, CALM, 3, 4, set(), "How are you?")) == []
+    fired = set()
+    assert ids(twin.due_events(case, CALM, 4, 5, fired, "Okay, you can go.")) == ["leave_granted"]
+    assert twin.ongoing_notes(case, fired, set()) == ["is leaving"]
+    assert twin.ongoing_notes(case, fired, {"leave_granted"}) == []  # the turn it fires has the stage direction instead

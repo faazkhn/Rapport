@@ -35,6 +35,22 @@ def instruction(case: dict, labels: dict) -> str:
     return f"{desc} In this line: {'; '.join(parts)}." if parts else desc
 
 
+SPEECH_CPS = 13  # the designed voices speak ~13-16 characters a second; the low end overestimates a sentence, so it holds longer
+RATE_SAFETY = 0.85  # assume generation gets 15% slower than measured so far (the LLM's load on the GPU comes in bursts)
+JITTER_S = 0.3
+
+
+def ready_to_play(text: str, produced_s: float, gen_s: float, queued_s: float = 0.0) -> bool:
+    """Whether a sentence's audio can start: what is buffered ahead (still queued on the client + produced, unsent) must outlast
+    the rest of its generation. Qwen runs at RTF 0.53 alone but ~1.0 while the LLM shares the GPU, so sending from the first
+    chunk ran dry mid-word: the voice broke up like a bad call. Idle, the first chunk is enough; busy, it holds ~0.5 s more."""
+    r = RATE_SAFETY * produced_s / max(gen_s, 1e-3)  # audio seconds made per wall second
+    if r <= 0:
+        return False
+    gen_left = max(len(text) / SPEECH_CPS - produced_s, 0.4) / r
+    return max(queued_s, 0.0) + produced_s >= max(0.0, 1 - r) * gen_left + JITTER_S
+
+
 class FnBackend:
     """Wraps a whole-sentence TTS function (KittenTTS, test fakes): one chunk per sentence, no instructions."""
 

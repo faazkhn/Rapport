@@ -209,7 +209,7 @@ namespace Rapport.Editor
             return Asset(path, () => new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = c });
         }
 
-        static GameObject BuildPatientPrefab(string id)
+        internal static GameObject BuildPatientPrefab(string id)
         {
             var model = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Art/Patients/{id}/{id}.fbx");
             if (model == null) return null;

@@ -119,6 +119,15 @@ The new intents (`explain_rights_status`, `assess_capacity`, `offer_choice`, `ex
 
 `tools/ward/ws_text_session.py <case> <script>` plays a typed doctor script over the live `/session` and prints each reply with state, events and body actions. Two scripts are included: `tools/ward/coercive_doctor.txt` (what not to do) and `tools/ward/good_doctor.txt`.
 
+## Station `alc_01`: "Shaky in the mornings" (draft, 2026-10-25)
+
+Alcohol dependence with early withdrawal, about 12 hours after the last drink, and a withdrawal fit last year: the detail that makes supervised (inpatient) withdrawal the safe plan (NICE CG100, IPS CPG). Prakash (male, `male_30s_a`) or Kavya (female, `female_20s_b`) Gowda, 33, sales manager; clinical facts identical for both.
+
+- **Presentation:** coarse tremor and sweating that grow over the 15 minutes (`time_gain_per_min`), restlessness, fidgeting, eyes away when the drinking comes up. Two new cues drive the body: `tremor_coarse` (5-6 Hz, forearms too) and `sweating` (skin sheen).
+- **Disclosure:** minimises at first ("a couple of pegs, like everyone in sales"); the real amount (half a bottle a day), the morning drink and the fit come with trust and the right question. The fit is rarely volunteered: ask about fits or seeing things directly.
+- **Answer key:** alcohol use disorder or withdrawal; thiamine required; chlordiazepoxide, lorazepam or diazepam; naltrexone or acamprosate later; `supervised_detox` required; unsafe: disulfiram while still drinking, an antipsychotic for "nerves" (lowers the seizure threshold). `ask_withdrawal_history` is a case-critical item.
+- **Calibrated live (Gemma 4 E4B):** with `tests/llm-eval/alc_01/01_gold_standard.yaml` trust rose 32 to 64; the fit, morning drinking, warning letter, scraped car, a passing death thought when drunk (no plan) and the daughter as a protective factor were all disclosed, in both variants. Fixes made on the way: style `plain` (the `reserved` word cap hid even unlocked facts), trust gates lowered (amount 30, fit 35, suicide items 45), sharper intent descriptions for alcohol, last use and withdrawal.
+
 ## Measured (2026-10-22, Gemma 4 E4B, local)
 
 ### Are the styles distinguishable, and do they stay safe?
@@ -170,11 +179,51 @@ The take is recorded with **Rapport/Record Ward Demo (Ananya)** from `demo/ward/
 
 Over the take, trust went 22 → 12 → 51 and agitation 57 → 67 → 29. Getting there took four takes. The earlier three showed the bugs above, and that a three-sentence doctor line can be split into two turns by end-of-turn detection, so demo lines are single sentences.
 
+## Playtest fixes (2026-10-31)
+
+The owner's playtest on 2026-10-26 (`logs/twin/20261026_*`) found four problems. Plan: `docs/superpowers/plans/2026-10-31-patient-playtest-fixes.md`.
+
+- **Patients dodged what they were allowed to share.** The `upset` style restated "Why do you need to know that?" every turn and leaned towards `deflects`. The trust < 30 band said "deflects personal questions". Recalled facts were listed without saying the doctor had just asked about them. Now:
+  - recalled facts and memories carry "answer with them now, with at least one concrete detail… does not dodge";
+  - the low band says "answers what is asked in a few words";
+  - `upset` leans to asks_back, hostile and minimises, with examples that push back and then answer;
+  - `reserved` gives "brief answers that still answer the question".
+- **Background details were withheld.** The background says the father is a retired teacher, yet the patient said "I don't know much about him". Hard rule 3 now says everyday background and memory details are not secrets. Anything clinical still follows the trust-gated facts, even when the background mentions it.
+- **Late barge-ins discarded replies.** Speaking while the LLM was still finishing the JSON after the utterance cancelled the turn. The result was a fallback with no state change and no facts credited, plus "..." on the line. That hit about half the playtest turns. Once the utterance is said, the turn now finishes (`Session.said_all`).
+- **"You can go" was forgotten.** The new event trigger `doctor_allows_leave` uses `twin.allows_leave`, which is lexical and runs before the reply, because intents are tagged after it. Statements only: no questions, conditionals or negations. Each case has a `leave_granted` event: the patient stands, the agitation drops, and its `then` note ("does not ask to leave again") stays in every later turn under ALREADY HAPPENED. A related bug is fixed: the stage-direction filter dropped short natural replies that happened to sit inside the event text ("What happens next?"), which undid the event.
+- **Replay of the owner's own ward_01 doctor lines** (3 runs):
+  - the father is now "a teacher, retired";
+  - after "You can go" the patient asks what happens next and never goes back to "I want to go home" (the log looped for 45 turns).
+
+### Life memory (owner request, 2026-10-31)
+
+Each patient has an everyday life in `data/life/<id>.json`, which a case names with `"life": "<id>"`. `rao` (41 memories) is shared by `mdd_01` and `ward_01`; there are also `nair` (33, `ward_02`) and `gowda` (31, `alc_01`). The memories cover:
+
+- family members with names and ways;
+- childhood stories, school and college;
+- work details, colleagues and friends;
+- food, festivals, films, sport and phone habits;
+- dreams.
+
+They are recalled lexically like facts: at most two a turn, never locked, never credited as clinical facts. They use the case's slots, so a seeded patient's {sibling} or {hometown} stays consistent. **They never touch a trust-gated fact**:
+
+- no terrace or manager for Rao;
+- no uncle, business, cannabis or exams for Nair;
+- no drinking, father's death, car, money or arguments for Gowda.
+
+`validate_data.py` lints them for clinical words (banned words, diagnoses, drugs) and unknown placeholders. Live, `mdd_01` now answers "my younger brother Rohan… in college", "my mother's ragi mudde", "Deepa and Kiran are still in the group chat"; `alc_01` answers "Santosh and Girish", "Egg curry… if I make it, I make it loud". `ward_02` (reserved, guarded) stays terse but specific.
+
+### Bodies
+
+- **Amber's hair** had been collapse-decimated from about 120k to 40k triangles per mesh, so she looked nearly bald. `cc_rebuild.py` now keeps hair and brow cards whole, and Amber is rebuilt at 580k triangles (hair 470k).
+- **Read/Write is on** for all four patient FBX files, and in `PatientImport`. In the app `SleeveRoller` could not read the meshes, so sleeves never rolled.
+- **`ward_02` now wears the new bodies** by default: Priya `female_20s_b`, Rahul `male_30s_a`.
+
 ## Open
 
 - Faculty review of everything here: the slot lists, the style numbers, both ward cases and their teaching points (the MHCA sections in particular).
 - The hostile end of the styles (R6): Gemma still softens. Options are a guard that swaps out over-apologetic lines when code state says hostile, or authored example lines per case.
 - Attachment and defence styles as trigger rules (R5) are not built.
-- Typed `/reply` does not run events.
+- Typed `/reply` does not run events (the leave trigger included); Unity's text box goes over the session socket, which does.
 - Unity does not show ward events beyond the body action. The patient's line carries the event.
 - `ward_02` reuses Ananya's and Arjun's bodies and voice seeds with new voice descriptions; it would need its own avatars.

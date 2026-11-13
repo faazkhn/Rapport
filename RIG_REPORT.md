@@ -38,7 +38,7 @@ Facial cues are **unblocked**. Everything in the cue catalog that needs a face (
 
 ## Matt rebuild (fallback; no Character Creator project available)
 **Output:** `art/Matt/Matt.Fbx` (textures embedded; use this for Unity) and `art/Matt/Matt.blend`.
-**Script:** `tools/blender/matt_fallback.py`. Run it again to regenerate; the usage line is at the top of the file.
+**Script:** `tools/blender/cc_rebuild.py`. Run it again to regenerate; the usage line is at the top of the file.
 
 | Mesh | Before | After | How |
 |---|---|---|---|
@@ -67,3 +67,16 @@ Suggested IDs for the current two (artist brief §6):
 
 ## Recommended import route into Unity
 Use Reallusion's free **CC Unity Tools** (CC/iC Unity Tools, URP version). It reads the `.json` next to each FBX, builds the materials, and sets up the Humanoid avatar. Then replace the heavy Digital Human shaders with URP Lit versions for Quest 3S.
+
+## Added 2026-10-25: Amber and the Realistic Man
+
+| | Amber (`female_20s_b`) | Realistic Man (`male_30s_a`) |
+|---|---|---|
+| Source | `Amber_Unity.rar`: Character Creator 4 export (`Amber.Fbx`, `Amber_Motion.Fbx`, textures) | `Realistic+man_Blend.zip`: one .blend; CC body re-rigged with Auto-Rig Pro + Faceit, textures packed |
+| Problem | Subdivision baked in twice (1.59 M tris; body 449 k); rest skeleton 90° off the mesh (a T-pose take hid it) | Meshes skinned to the 537-bone ARP rig; the CC armature sat in a hidden collection; hood up |
+| Fix | `tools/blender/cc_rebuild.py --levels 2 --max-tris 40000 --drop Bra Underwear_Bottoms Punk_Leather_Jacket`: base body from the motion file, un-subdivide head meshes with their shape keys, decimate hair, stand the rest pose up (`Armature.transform`) | `tools/blender/arp_to_cc.py ... "Vest/Key 1"`: ARP deform weights summed onto CC bones (face bones fold into head and jaw; shape keys do the face), hood-down key baked in |
+| Result | 269 k tris (hair 160 k of it), 153 face keys + 181 on the 3D brows | 73 k tris; 209 face keys: CC Standard + all 52 ARKit names (`eyeBlinkLeft`, `jawOpen`, `tongueOut`...) + 5 Faceit presets |
+| Unity | `tools/blender/stage_patient.py` (textures <= 2048 px, `_Diffuse_A` for alpha-clipped cards) then **Rapport > Import New Patients** (`Editor/PatientImport.cs`): humanoid avatar (auto, or Arjun's CC mapping), URP Lit materials copied from the tuned ones on the existing patients, prefab, scene list | same |
+
+Checked in play mode: seated idle, hands out (palms down and up), sleeves rolled, forearms shown. Lip sync and face presets use the CC shape-key names both models share. Not yet checked: the 3D brows (`Camila_Brow`) follow the face keys in Unity, and Amber's decimated hair at close range.
+The start screen's **Look** row lets any case variant wear any body of the same sex; "Surprise me" picks one at random; `alc_01` uses the new bodies by default.

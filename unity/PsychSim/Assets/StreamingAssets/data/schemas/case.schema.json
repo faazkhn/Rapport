@@ -490,6 +490,10 @@
     "required_cues_noted": {
      "$ref": "#/$defs/ids"
     },
+    "critical_intents": {
+     "$ref": "#/$defs/ids",
+     "description": "Case-specific must-ask items scored as risk: missing one is a critical error (e.g. past withdrawal fits in an alcohol case)."
+    },
     "acceptable_rx": {
      "type": "array",
      "items": {
@@ -773,6 +777,10 @@
        },
        "after_event": {
         "type": "string"
+       },
+       "doctor_allows_leave": {
+        "type": "boolean",
+        "description": "the doctor's line tells the patient they may go (twin.allows_leave)"
        }
       }
      },
@@ -812,6 +820,12 @@
      },
      "note": {
       "type": "string"
+     },
+     "then": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "stays true on every later turn (ALREADY HAPPENED note)"
      }
     }
    }
@@ -921,6 +935,11 @@
   "dialect": {
    "type": "string",
    "minLength": 1
+  },
+  "life": {
+   "type": "string",
+   "pattern": "^[a-z0-9_]+$",
+   "description": "life memory file data/life/<id>.json: everyday, non-clinical memories recalled lexically (service only)"
   }
  }
 }

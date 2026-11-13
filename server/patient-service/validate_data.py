@@ -127,6 +127,22 @@ def validate_all() -> list[str]:
             for t in (t for o in opts for t in o.values()):
                 if any(w in t.lower() for w in clinical):
                     errors.append(f"{label} slot {name}: clinical word in {t!r}")
+        # life memories: everyday and non-clinical (no banned word, diagnosis or drug), known placeholders, unique l_ ids
+        if case.get("life"):
+            life_path = DATA_DIR / "life" / f"{case['life']}.json"
+            if not life_path.exists():
+                errors.append(f"{label}: no life file {life_path.name}")
+            else:
+                mems = json.loads(life_path.read_text(encoding="utf-8"))["memories"]
+                _dupes(errors, mems, f"{label} life")
+                for m in mems:
+                    if not m["id"].startswith("l_") or not m.get("activation_tags") or not m.get("text"):
+                        errors.append(f"{label} life {m['id']}: needs an l_ id, activation_tags and text")
+                    for ph in re.findall(r"\{[^{}]*\}", " ".join([m["text"], *m["activation_tags"]])):
+                        if not brain._TPL.fullmatch(ph) and ph[1:-1] not in slot_keys:
+                            errors.append(f"{label} life {m['id']}: unknown template {ph}")
+                    if hits := [w for w in clinical if re.search(rf"\b{re.escape(w)}\b", m["text"].lower())]:
+                        errors.append(f"{label} life {m['id']}: clinical word {hits}")
         for st in data["styles"]["styles"]:
             _refs(errors, st["behaviours"], set(brain.label_ids("behaviours")), f"styles.json {st['id']} behaviours")
         slot_keys_each = [set(k for o in opts for k in o) for opts in case.get("slots", {}).values()]
@@ -149,6 +165,7 @@ def validate_all() -> list[str]:
         ak = case["answer_key"]
         _refs(errors, ak["primary_dx"] + ak["acceptable_differentials"], dx_ids, f"{label} answer_key dx")
         _refs(errors, ak["required_intents"], intent_ids, f"{label} answer_key required_intents")
+        _refs(errors, ak.get("critical_intents", []), set(ak["required_intents"]), f"{label} answer_key critical_intents (must be required too)")
         _refs(errors, ak["required_cues_noted"], {c["id"] for c in case["cues"]}, f"{label} answer_key required_cues_noted (must be case cues)")
         _refs(errors, [r["drug"] for r in ak["acceptable_rx"]], drug_ids, f"{label} answer_key acceptable_rx")
         for r in ak["unsafe_rx"]:

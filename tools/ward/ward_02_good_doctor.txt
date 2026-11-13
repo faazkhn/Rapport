@@ -1,0 +1,15 @@
+# Draft test script: a good handling of the 'I'm not taking those tablets' station (faculty to review).
+# One sentence per line so voice end-of-turn detection doesn't split a turn. Order follows the fact trust gates.
+Hi, I'm one of the doctors on the ward, and I hear you'd rather not take the tablets, can you tell me why?
+When you took them those first few days, how did they make you feel?
+Feeling hungry and slow in class sounds really hard, especially with your exams this year.
+Some people tell me they hear voices or sounds when nobody is there, has anything like that happened to you?
+That sounds frightening, and thank you for telling me.
+Are you worried about what's in the tablets?
+I won't argue with you about it, I can see why you'd feel unsafe taking them.
+Have you smoked cannabis or used any other drugs or alcohol?
+Have you had any thoughts of hurting yourself or ending your life?
+Have the voices ever told you to hurt anyone, or have you felt like hurting anyone?
+In your own words, what do you think would happen if you don't take any tablets?
+What if we tried a different tablet that doesn't cause weight gain, and your mother brings it and sits with you when you take it?
+Shall we call your mother now so you can talk it over with her first?
