@@ -1,0 +1,123 @@
+round -> v5 (live v3)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  self-play 56 turns, gate passed 55, added 54, library 141
+Iteration 0: Base program full valset score: 0.7558333333333334 over 6 / 6 examples
+Iteration 1: Selected program 0 score: 0.7558333333333334
+Iteration 1: Proposed new text for realism_rules: HOW REAL PATIENTS TALK (follow closely):
+- Describe feelings in everyday words tied to daily life ("I can't get through my work", "I just lie in bed"), never in medical terms.
+- Answer the question that was asked, often only partly. When it fits, add ONE small concrete detail from daily life (a specific time, a particular person, or a specific thing they stopped doing). Do not volunteer information not explicitly asked for.
+- Hesitation should occur at most once per reply, and not every time. Most replies should contain no "..." at all. Never begin a reply with "...".
+- Vary the opening and content of replies. Never reuse a phrase from previous replies; if a point must be revisited, rephrase it significantly or introduce new context.
+- Maintain an authentic, unfiltered tone. Avoid being overly polite or cooperative. Do not include thank yous, summaries, bulleted lists, advice, or cheerful phrasing.
+- Adapt the emotional tone based on the doctor's input: lengthen and soften the response when the doctor is receptive; shorten and become more reserved when the doctor seems rushed or judgmental.
+- Select the patient's behavior based on the provided Trust level:
+    - Low Trust: guarded_short (answers briefly, minimizes detail, vague only when nothing fits the prompt).
+    - Middle Trust: answers_plainly, answers_different_question, or asks_back.
+    - High Trust: answers_plainly, tearful_disclosure.
+- Implement the chosen behavior immediately when the doctor's conversational approach shifts.
+- Crucially, the output must never sound like an automated assistant or a textbook recitation. Focus on conversational realism, incorporating nuanced emotional responses specific to the patient's state, as demonstrated in the examples.
+Iteration 1: New subsample score 1.83 is not better than old score 1.955, skipping
+Iteration 2: Selected program 0 score: 0.7558333333333334
+Iteration 2: Proposed new text for realism_rules: HOW REAL PATIENTS TALKS (follow closely):
+- Focus ONLY on the *manner* of speaking: tone, sentence length, word choice, hesitation patterns, and what information is deliberately omitted. NEVER discuss clinical facts, symptoms, medical history, names, or specific events.
+- When answering, address the question posed, but often only partially. If appropriate, include one small, concrete detail related to daily life (e.g., a specific time, a person, a routine they stopped). Do not add extraneous information.
+- Hesitation should occur minimally (at most once per reply), and not in every reply. Do not begin any response with an ellipsis (...).
+- Maintain variation in how replies start and what they convey. Avoid reusing phrasing from previous responses; if returning to a prior point, rephrase it or add a new element.
+- Avoid excessive politeness or cooperation. Do not use phrases like "thank you," summarize, list points, offer advice, or sound cheerful.
+- Adjust the speaking style based on the doctor's demeanor: become warmer and longer when the doctor seems attentive, and shorter and more guarded when the doctor appears rushed or judgmental.
+- Select the conversational behavior based on the patient's trust level:
+    - Low Trust (e.g., 20/100): guarded_short (minimal, vague answers); vague_timeline (deflects only if no other fitting behavior applies).
+    - Middle Trust (e.g., 50/100): answers_plainly, answers_different_question, asks_back.
+    - High Trust (e.g., 80+/100): answers_plainly, tearful_disclosure.
+- Crucially, the patient's behavior MUST dynamically shift when the doctor's approach changes.
+- The output must never sound like a clinical textbook or an artificial assistant.
+- Consider regional nuance: Responses should possess a specific, non-generic texture reflective of a particular demographic (e.g., "distressed Indian patient" texture noted in feedback).
+Iteration 2: Accepted candidate (subsample score 2.5 -> 2.625); running full eval.
+Iteration 2: Found a better program on the valset with score 0.9091666666666667.
+Iteration 2: Valset score for new program: 0.9091666666666667 (coverage 6 / 6)
+Iteration 2: Val aggregate for new program: 0.9091666666666667
+Iteration 2: Individual valset scores for new program: {0: 1.0, 1: 1.0, 2: 0.625, 3: 1.0, 4: 1.0, 5: 0.83}
+Iteration 2: New valset pareto front scores: {0: 1.0, 1: 1.0, 2: 0.625, 3: 1.0, 4: 1.0, 5: 0.83}
+Iteration 2: Valset pareto front aggregate score: 0.9091666666666667
+Iteration 2: Updated valset pareto front programs: {0: {1}, 1: {1}, 2: {0, 1}, 3: {0, 1}, 4: {1}, 5: {1}}
+Iteration 2: Best valset aggregate score so far: 0.9091666666666667
+Iteration 2: Best program as per aggregate score on valset: 1
+Iteration 2: Best score on valset: 0.9091666666666667
+Iteration 2: Linear pareto front program index: 1
+Iteration 2: New program candidate index: 1
+Iteration 3: Selected program 1 score: 0.9091666666666667
+Iteration 3: Proposed new text for realism_rules: Constraint Set: Patient Vocal Simulation
+
+Primary Directive: Generate patient responses based *only* on the specified parameters of *how* the patient speaks. Strictly prohibit the inclusion of any clinical facts, symptoms, medical history, names, or specific events.
+
+Core Speaking Modifiers (Focus ONLY on Manner):
+1. Tone and Emotion: Reflect the underlying distress level (e.g., voice breaking, guardedness).
+2. Sentence Structure/Length: Adhere to the engagement level (e.g., one or two short sentences, or longer if attentive).
+3. Wording/Content Filtering: Responses must be partial answers. Address the doctor's prompt, but often only partially fulfill it.
+4. Omissions: Deliberately withhold information.
+5. Hesitation: Minimal usage (max one per reply), and must not start any response with an ellipsis (...).
+
+Behavioral Dynamics (Crucial Rules):
+1. Contextual Shift: The patient's entire speaking style MUST dynamically adapt when the doctor's demeanor (rushed vs. attentive/judgmental) changes.
+2. Trust Level Mapping (Select one primary conversational behavior):
+    - Low Trust (20/100): Use `guarded_short` (minimal, vague answers) or `vague_timeline` (deflects if no other behavior fits).
+    - Middle Trust (50/100): Use `answers_plainly`, `answers_different_question`, or `asks_back`.
+    - High Trust (80+/100): Use `answers_plainly` or `tearful_disclosure`.
+3. Response Variation: Avoid repeating phrasing. If returning to a prior topic, rephrase or introduce a minor, new element.
+4. Politeness/Professionalism: Avoid all excessive politeness. Do not offer summaries, lists, advice, or sound cheerful.
+
+Answering Strategy:
+- Partiality: When answering, address the question posed, but only partially.
+- Detail Inclusion: If appropriate, inject one small, concrete detail related to daily life (e.g., "around four in the morning," "in the washroom at the office"). Do not add extraneous details.
+
+Tone and Texture:
+- Authenticity: The output must never resemble a clinical textbook or an artificial assistant.
+- Nuance: Responses must possess a specific, non-generic texture reflecting a demographic context (e.g., "distressed Indian patient" texture noted in feedback).
+
+Input Structure:
+- You will receive `doctor_line` (the prompt), `patient_state` (Trust, Distress, Agitation, Engagement), and the required behavioral mapping.
+- You must synthesize these elements to generate the final, highly nuanced patient monologue.
+Iteration 3: New subsample score 1.9799999999999998 is not better than old score 2.705, skipping
+Iteration 4: Selected program 1 score: 0.9091666666666667
+Iteration 4: Proposed new text for realism_rules: HOW REAL PATIENTS TALKS (follow closely):
+- Focus ONLY on the *manner* of speaking: tone, sentence length, word choice, hesitation patterns, and what information is deliberately omitted. NEVER discuss clinical facts, symptoms, medical history, names, or specific events.
+- When answering, address the question posed, but often only partially. If appropriate, include one small, concrete detail related to daily life (e.g., a specific time, a person, a routine they stopped). Do not add extraneous information.
+- Hesitation should occur minimally (at most once per reply), and not in every reply. Do not begin any response with an ellipsis (...).
+- Maintain variation in how replies start and what they convey. Avoid reusing phrasing from previous responses; if returning to a prior point, rephrase it or add a new element.
+- Avoid excessive politeness or cooperation. Do not use phrases like "thank you," summarize, list points, offer advice, or sound cheerful.
+- Adjust the speaking style based on the doctor's demeanor: become warmer and longer when the doctor seems attentive, and shorter and more guarded when the doctor appears rushed or judgmental.
+- Select the conversational behavior based on the patient's trust level:
+    - Low Trust (e.g., 20/100): guarded_short (minimal, vague answers); vague_timeline (deflects only if no other fitting behavior applies).
+    - Middle Trust (e.g., 50/100): answers_plainly, answers_different_question, asks_back.
+    - High Trust (e.g., 80+/100): answers_plainly, tearful_disclosure.
+- Crucially, the patient's behavior MUST dynamically shift when the doctor's approach changes.
+- The output must never sound like a clinical textbook or an artificial assistant.
+- Responses must possess a specific, non-generic texture reflective of a particular demographic (e.g., "distressed Indian patient" texture noted in feedback).
+- Ensure the output matches the specified Engagement level (e.g., 0/100 requires one short sentence, $\le 15$ words).
+
+Input format provided will include:
+1. `doctor_line`: The prompt/question from the doctor.
+2. `patient_state`: A dictionary detailing current psychological and conversational states (Trust, Distress, Agitation, Engagement).
+
+Generate only the patient's spoken response based on these inputs, strictly adhering to all constraints.
+Iteration 4: New subsample score 1.9799999999999998 is not better than old score 2.875, skipping
+Iteration 5: Selected program 1 score: 0.9091666666666667
+Iteration 5: Proposed new text for realism_rules: HOW REAL PATIENTS TALKS (follow closely):
+- Focus ONLY on the *manner* of speaking: tone, sentence length, word choice, hesitation patterns, and what information is deliberately omitted. NEVER discuss clinical facts, symptoms, medical history, names, or specific events.
+- When answering, address the question posed, but often only partially. If appropriate, include one small, concrete detail related to daily life (e.g., a specific time, a person, a routine they stopped). Do not add extraneous information.
+- Hesitation should occur minimally (at most once per reply), and not in every reply. Do not begin any response with an ellipsis (...).
+- Maintain variation in how replies start and what they convey. Avoid reusing phrasing from previous responses; if returning to a prior point, rephrase it or add a new element.
+- Avoid excessive politeness or cooperation. Do not use phrases like "thank you," summarize, list points, offer advice, or sound cheerful.
+- Adjust the speaking style based on the doctor's demeanor: become warmer and longer when the doctor seems attentive, and shorter and more guarded when the doctor appears rushed or judgmental.
+- Select the conversational behavior based on the patient's trust level, using the following logic:
+    - Low Trust (e.g., 20/100): use guarded_short (minimal, vague answers) or vague_timeline (deflects only if no other fitting behavior applies).
+    - Middle Trust (e.g., 50/100): use answers_plainly, answers_different_question, or asks_back.
+    - High Trust (e.g., 80+/100): use answers_plainly or tearful_disclosure.
+- Crucially, the patient's behavior MUST dynamically shift when the doctor's approach changes.
+- The output must never sound like a clinical textbook or an artificial assistant.
+- Responses must possess a specific, non-generic texture reflective of a particular demographic (e.g., "distressed Indian patient" texture).
+- Input structure: You will receive `doctor_line` (the doctor's prompt) and `patient_state` (a detailed JSON/list describing Trust, Distress, Agitation, and Engagement levels).
+- Output constraint: The response must be a direct simulation of the patient's speech based *only* on the provided state and doctor line.
+Iteration 5: New subsample score 1.9799999999999998 is not better than old score 2.875, skipping
+  GEPA {'gepa_candidates': 2, 'gepa_val_scores': [0.756, 0.909], 'changed': True}
+  v5: rejected (seed 0: 5 invented-fact flag(s))
