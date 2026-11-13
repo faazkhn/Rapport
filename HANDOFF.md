@@ -1,5 +1,13 @@
 # Rapport (formerly PsychSim): handoff, 2026-10-20
 
+## v0.3 in progress (branch `v0.3-brain`, 2026-11-13): read this first
+Plan: `KICKOFF_PROMPT_v5.md`. Phase 0 and the Phase 1 brain code are done; the measurements run overnight.
+- **Committed:** `personalities` got the §4g/§4h work (`72e9e1f`; the two new bodies' FBX/textures are NOT committed: about 150 MB of LFS needs the owner's go-ahead). `v0.3-brain` adds brain twin-0.2 (`1c457f7`, `60c568f`): `mind.py` (one turn pipeline for voice and typed), `rubric.py` + `data/brain/rubric.json`, `memory.py` (episodic memory, improvised everyday backstory, owner request 2026-11-13), `consistency.py`, hybrid recall in `twin.py` (bge-small + tags + `recall_probes` + generated `data/recall/<case>.json`), MSE blocks and risk `disclosure_line`s in the cases (clinician review), move/intent classifier `tools/brain/moves_model.py`. Features are per brain version: `v2` = all, `v0` = none (rollback v0 restores the old brain). Live stays `v0`.
+- **Tests:** service 236 pass, Unity EditMode 51/51, validate_data 0 errors.
+- **Recall (paraphrase set, 512 lines by a writer who never saw the tags; `tests/recall/`, `tools/recall_bench.py`):** test half, risk facts: lexical 35% -> hybrid 73% (before generated probes); gate is 95%. Re-measured overnight.
+- **Overnight queue:** `tools/overnight/queue.sh` (status `tests/overnight/status.md`, logs `tests/overnight/*.log`): baseline v0 held-out (clean worktree `../v03-baseline`), recall bench, held-out v2 and v0 (3 seeds x mdd_01, alc_01; judge Qwen3.5-9B), latency v0 and v2 (52 turns each), baseline stills of 4 bodies, classifier label/train/eval (+ v3 if it beats the lexical rubric), model bake-off (Qwen3.5-4B/9B as patient), 5 learning rounds. If the session died, run it again: it redoes missing pieces.
+- **Morning:** hand-review judge flags (`tools/learning/reviewed_flags.json`), hand-check `tests/brain/gold_review.md`, `loop.py rescore`, write `docs/BASELINE_v0.3.md`, idle clips (play mode), A/B page, then Phase 2 rendering and Phase 3 voice.
+
 **To continue:** open Claude Code in `/Users/faazkhn/Documents/Med` and say:
 > Read `HANDOFF.md`, then implement `KICKOFF_PROMPT_v4.md` (the Rapport / Digital Twin plan), starting at Phase A.
 
