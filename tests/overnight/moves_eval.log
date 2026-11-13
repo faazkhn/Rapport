@@ -1,0 +1,20 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+{
+ "lines": 381,
+ "moves_classifier": {
+  "micro_f1": 0.322,
+  "macro_f1": 0.334
+ },
+ "moves_lexical": {
+  "micro_f1": 0.198,
+  "macro_f1": 0.347
+ },
+ "intents_classifier": {
+  "micro_f1": 0.657,
+  "macro_f1": 0.577
+ },
+ "intents_llm_tagger": {
+  "micro_f1": 0.692,
+  "macro_f1": 0.672
+ }
+}
