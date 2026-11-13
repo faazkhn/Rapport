@@ -60,7 +60,8 @@ def record(mem: dict, case: dict, turn: int, doctor: str, mv: list[str], recalle
     discussed too (the model sometimes forgets to list what it said)."""
     eps = mem["episodes"]
     said = utterance.strip()
-    discussed = list(dict.fromkeys(revealed + (recalled.get("open", []) if len(said.split()) >= 4 else [])))
+    strong_open = [f for f in recalled.get("open", []) if f in recalled.get("strong", recalled.get("open", []))]
+    discussed = list(dict.fromkeys(revealed + (strong_open if len(said.split()) >= 4 else [])))
     if discussed:
         eps.append({"t": turn, "kind": "told", "facts": discussed, "doctor": quote(doctor), "patient": quote(said)})
     if recalled.get("locked_hit"):
@@ -103,7 +104,7 @@ def record_improvised(mem: dict, case: dict, turn: int, utterance: str) -> list[
 
 def repeated(mem: dict, recalled: dict, turn: int) -> bool:
     """The doctor is asking again about something the patient already answered, two or more turns ago."""
-    hit = set(recalled.get("open", []))
+    hit = set(recalled.get("open", [])) & set(recalled.get("strong", recalled.get("open", [])))
     return any(e["kind"] == "told" and e["t"] <= turn - 2 and hit & set(e["facts"]) for e in mem["episodes"])
 
 

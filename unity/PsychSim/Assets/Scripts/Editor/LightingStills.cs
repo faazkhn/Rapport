@@ -21,6 +21,27 @@ namespace Rapport.Editor
             Capture("male_20s_a", Path.Combine(dir, "lighting_after_male.png"));
         }
 
+        /// <summary>Batch mode (-executeMethod Rapport.Editor.LightingStills.CaptureAllBodiesBatch -stillsDir DIR): opens the Encounter
+        /// scene and writes &lt;modelId&gt;.png and .face.json for every patient body, from the same camera; exits 0 or 1.</summary>
+        public static void CaptureAllBodiesBatch()
+        {
+            var args = System.Environment.GetCommandLineArgs();
+            var i = System.Array.IndexOf(args, "-stillsDir");
+            var dir = i >= 0 && i + 1 < args.Length ? args[i + 1] : Path.GetFullPath(Path.Combine(Application.dataPath, "../../../docs/media/stills"));
+            try
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/Encounter.unity");
+                foreach (var id in new[] { "female_20s_a", "male_20s_a", "female_20s_b", "male_30s_a" })
+                    Capture(id, Path.Combine(dir, id + ".png"));
+                EditorApplication.Exit(0);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
+                EditorApplication.Exit(1);
+            }
+        }
+
         public static string Capture(string modelId, string pngPath, int w = 1920, int h = 1080)
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Art/Patients/{modelId}/{modelId}.prefab");

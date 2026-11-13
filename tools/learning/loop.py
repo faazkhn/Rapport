@@ -70,15 +70,17 @@ def evaluate(version: dict, client, judge=None, seed=SEED) -> dict:
         conv = yaml.safe_load(p.read_text())
         case = brain.load_case(CASE, conv["variant"])
         state = {**case["state_start"], **conv.get("start_state", {})}
-        msgs, turns = [], []
+        msgs, turns, mind = [], [], None
         for i, line in enumerate(conv["turns"], 1):
             msgs.append({"role": "doctor", "text": line})
             t0 = time.perf_counter()
-            r = brain.generate_reply({"case_id": CASE, "variant": conv["variant"], "messages": msgs, "state": state, "elapsed_min": i * 1.0},
-                                     client=seeded, version=version)
-            new = brain.apply_turn(state, r)
-            turns.append({"turn": i, "doctor": line, "state_before": state, "state_after": new, "recalled": twin.recall(case, state["trust"], line),
-                          "reply": {k: v for k, v in r.items() if k != "meta"}, "meta": r["meta"], "wall_ms": round((time.perf_counter() - t0) * 1000)})
+            r = brain.generate_reply({"case_id": CASE, "variant": conv["variant"], "messages": msgs, "state": state, "elapsed_min": i * 1.0,
+                                      "twin": mind}, client=seeded, version=version)
+            new, mind = r["state"], r["twin"]  # one brain: the same trust step, mood, memory and events as a live session
+            turns.append({"turn": i, "doctor": line, "state_before": state, "state_after": new, "recalled": r["recalled"],
+                          "recalled_ref": twin.recall(case, state["trust"], line),  # common reference (hybrid recall) for every version
+                          "reply": {k: v for k, v in r.items() if k not in ("meta", "twin")}, "meta": r["meta"],
+                          "wall_ms": round((time.perf_counter() - t0) * 1000)})
             if r["utterance"]:
                 msgs.append({"role": "patient", "text": r["utterance"]})
             state = new
@@ -125,10 +127,10 @@ def scores_of(vid, client):
     return v["scores"]
 
 
-def cmd_round(client, turns, budget):
+def cmd_round(client, turns, budget, judge=None):
     import optimize  # gepa only needed here
     cur = learning.current()
-    n = max(int(v["id"].lstrip("v")) for v in learning.versions()) + 1
+    n = max(int(v["id"].lstrip("v")) for v in learning.versions() if v["id"].lstrip("v").isdigit()) + 1
     print(f"round -> v{n} (live {cur['id']})", flush=True)
     held = selfplay.held_out_lines(CASE)
     sessions = [selfplay.run(cur, p, client, turns, CASE, ("female", "male")[i % 2], held) for i, p in enumerate(selfplay.PERSONAS)]
@@ -140,7 +142,7 @@ def cmd_round(client, turns, budget):
             if learning.gate(t["reply"]["utterance"], t["meta"], case, t["state_before"], history):
                 continue
             passed += 1
-            j = judges.invented(client, case, t)
+            j = judges.invented(judge or client, case, t)
             if j["unsupported_claims"] or j["broke_character"]:
                 continue
             learning.add_experience(CASE, {"doctor": t["doctor"], "utterance": t["reply"]["utterance"], "engagement": t["state_before"]["engagement"],
@@ -151,25 +153,41 @@ def cmd_round(client, turns, budget):
     n_turns = sum(len(s) for s in sessions)
     upto = len(learning.library(CASE))
     print(f"  self-play {n_turns} turns, gate passed {passed}, added {added}, library {upto}", flush=True)
-    ctx = [{"messages": t["messages"], "state": t["state_before"], "variant": t["variant"], "recalled": t["recalled"]}
+    ctx = [{"messages": t["messages"], "state": t["state_before"], "variant": t["variant"], "recalled": t["recalled"], "twin": t.get("twin")}
            for s in sessions for t in s]
     random.Random(n).shuffle(ctx)
     base = {**cur, "examples_k": 2, "library_upto": upto}
-    best, info = optimize.propose(base, ctx, client, budget, seed=n)
+    best, info = optimize.propose(base, ctx, client, budget, seed=n, judge=judge)
     print(f"  GEPA {info}", flush=True)
     doc = {**base, "id": f"v{n}", "parent": cur["id"], "created": time.strftime("%Y-%m-%d %H:%M"), "status": "candidate",
            "realism_rules": None if best == brain.REALISM_RULES else best, "scores": {},
            "selfplay": {"turns": n_turns, "gate_passed": passed, "added": added, "personas": list(selfplay.PERSONAS)}, "gepa": info,
            "notes": f"Round {n}: library {upto} entries (+{added}), examples_k 2, realism rules " + ("rewritten by GEPA" if info["changed"] else "unchanged")}
     learning.save_version(doc)
-    decide(f"v{n}", client)
+    decide(f"v{n}", client, judge)
 
 
-def decide(vid, client):
+SEEDS = (11, 23, 42)
+
+
+def runs_of(vid, client, judge) -> list[dict]:
+    """Held-out scores for each seed in SEEDS (cached in the version file)."""
+    v = learning.load_version(vid)
+    by = v.setdefault("scores_by_run", {})
+    for seed in SEEDS:
+        if f"{CASE}.s{seed}" not in by:
+            by[f"{CASE}.s{seed}"] = evaluate(v, client, judge, seed)
+            learning.save_version(v)
+    return [by[f"{CASE}.s{seed}"] for seed in SEEDS]
+
+
+def decide(vid, client, judge=None):
+    """Promote only if the candidate passes every safety gate on every seed and beats the live version on the held-out set
+    across three seeds (higher mean composite and higher on at least two seeds)."""
     v = learning.load_version(vid)
     cur = learning.current()
-    v["scores"] = v.get("scores") or evaluate(v, client)
-    ok, why = metrics.promote(v["scores"], scores_of(cur["id"], client))
+    ok, why = metrics.promote_seeds(runs_of(vid, client, judge), runs_of(cur["id"], client, judge))
+    v = learning.load_version(vid)
     v["status"], v["decision"] = ("live" if ok else "rejected"), why
     learning.save_version(v)
     if ok:
@@ -177,6 +195,7 @@ def decide(vid, client):
         learning.save_version({**prev, "status": "superseded"})
         learning.set_current(vid)
     print(f"  {vid}: {'PROMOTED' if ok else 'rejected'} ({why})", flush=True)
+    return ok
 
 
 def cmd_rescore():
@@ -251,8 +270,8 @@ def main():
     CASE = a.case
     client = OpenAI(base_url=a.url, api_key="local", timeout=180, max_retries=1)
     judge = OpenAI(base_url=a.judge_url, api_key="local", timeout=180, max_retries=1) if a.judge_url else None
-    {"heldout": lambda: cmd_eval(a.vid, client, judge, [int(x) for x in a.seeds.split(",")]), "round": lambda: cmd_round(client, a.turns, a.budget), "rescore": cmd_rescore,
-     "decide": lambda: decide(a.vid, client), "report": cmd_report}[a.cmd]()
+    {"heldout": lambda: cmd_eval(a.vid, client, judge, [int(x) for x in a.seeds.split(",")]), "round": lambda: cmd_round(client, a.turns, a.budget, judge), "rescore": cmd_rescore,
+     "decide": lambda: decide(a.vid, client, judge), "report": cmd_report}[a.cmd]()
 
 
 if __name__ == "__main__":

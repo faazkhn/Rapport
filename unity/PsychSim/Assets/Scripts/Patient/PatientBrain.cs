@@ -38,6 +38,7 @@ namespace Rapport.Patient
         readonly ContentData data;
         readonly IPatientService service;
         readonly FallbackLines fallback;
+        JObject twin;  // the service's mind for this session (memory, mood, resistance, fired events): carried between requests
 
         public PatientBrain(CaseFile c, ContentData d, PatientState state, IPatientService service)
         {
@@ -57,6 +58,8 @@ namespace Rapport.Patient
                 ["elapsed_min"] = Math.Round(elapsedMin, 1),
             };
             if (!string.IsNullOrEmpty(Model)) req["model"] = Model;
+            if (twin != null) req["twin"] = twin;
+            Dictionary<string, float> serviceState = null;
 
             var sw = Stopwatch.StartNew();
             for (int attempt = 0; attempt < 2 && turn.reply == null; attempt++)
@@ -66,6 +69,7 @@ namespace Rapport.Patient
                     var raw = JsonConvert.DeserializeObject<PatientReply>(await service.Reply(req.ToString(Formatting.None)));
                     turn.reply = GuardCheck.Clean(raw, caseFile, data.intents, State.Trust, turn.dropped);
                     if (raw?.meta?["fallback"]?.Value<bool>() == true) turn.fallback = true;
+                    if (turn.reply != null) { serviceState = raw.state; if (raw.twin != null) twin = raw.twin; }
                 }
                 catch (Exception e) when (e is not OperationCanceledException)
                 {
@@ -79,7 +83,9 @@ namespace Rapport.Patient
                 turn.reply = new PatientReply { utterance = fallback.Next(), emotion = "confused", state_delta = PatientState.Keys.ToDictionary(k => k, _ => 0) };
             }
 
-            turn.stateApplied = State.ApplyTurn(turn.reply.state_delta, turn.reply.doctor_intents, data.stateRules);
+            // one brain for both paths: the service's state (events, trust step, mood) wins; the local rule is the offline fallback
+            if (serviceState != null) { State.Set(serviceState); turn.stateApplied = State.Snapshot(); }
+            else turn.stateApplied = State.ApplyTurn(turn.reply.state_delta, turn.reply.doctor_intents, data.stateRules);
             turn.stateAfter = State.Snapshot();
             History.Add(("patient", turn.reply.utterance));
             PatientReplied?.Invoke(turn);

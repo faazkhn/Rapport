@@ -15,6 +15,9 @@ namespace Rapport.Patient
         public List<EventCue> event_cues = new();
         public List<string> revealed_fact_ids = new(), doctor_intents = new();
         public JObject meta;
+        /// <summary>Typed /reply (twin-0.2): the new state the service's Digital Twin computed, and its mind to send back next turn.</summary>
+        public Dictionary<string, float> state;
+        public JObject twin;
     }
 
     /// <summary>The game has the final say over the LLM (DESIGN 7.2): unknown/locked facts, unknown cues and intents are dropped, deltas clamped.</summary>

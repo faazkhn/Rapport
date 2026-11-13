@@ -38,8 +38,8 @@ def check(ctx: dict, out: dict, case: dict) -> list[str]:
 class RulesAdapter:
     propose_new_texts = None  # GEPA's default reflective proposer
 
-    def __init__(self, base: dict, client, case_id: str = "mdd_01"):
-        self.base, self.client, self.case_id = base, client, case_id
+    def __init__(self, base: dict, client, case_id: str = "mdd_01", judge=None):
+        self.base, self.client, self.case_id, self.judge = base, client, case_id, judge
 
     def evaluate(self, batch, candidate, capture_traces=False):
         outs, scores, traces = [], [], []
@@ -50,10 +50,17 @@ class RulesAdapter:
                 out, reasons = {"utterance": ""}, ["rules longer than 2000 characters"]
             else:
                 out = brain.generate_reply({"case_id": self.case_id, "variant": ctx["variant"], "messages": ctx["messages"],
-                                            "state": ctx["state"]}, client=self.client, version={**self.base, "realism_rules": rules})
+                                            "state": ctx["state"], "twin": ctx.get("twin")}, client=self.client,
+                                           version={**self.base, "realism_rules": rules})
                 reasons = [WHY.get(r, r) for r in check(ctx, out, case)]
             outs.append(out["utterance"])
-            scores.append(max(0.0, 1 - 0.34 * len(reasons)))
+            score = max(0.0, 1 - 0.34 * len(reasons))
+            if self.judge is not None and out["utterance"]:  # stricter realism rating from a different model, so the score has room
+                rating, why = realism(self.judge, ctx, out["utterance"])
+                score = (score + (rating - 1) / 4) / 2
+                if rating < 4 and why:
+                    reasons.append(f"realism {rating}/5: {why}")
+            scores.append(score)
             traces.append({"doctor": ctx["messages"][-1]["text"], "state": brain.describe_state(ctx["state"]),
                            "utterance": out["utterance"], "reasons": reasons})
         return EvaluationBatch(outputs=outs, scores=scores, trajectories=traces if capture_traces else None)
@@ -72,11 +79,33 @@ def reflection_lm(client):
     return call
 
 
-def propose(base: dict, contexts: list[dict], client, budget: int, seed: int = 0) -> tuple[str, dict]:
+REALISM = {"type": "object", "additionalProperties": False, "required": ["rating", "why"],
+           "properties": {"rating": {"type": "integer", "minimum": 1, "maximum": 5}, "why": {"type": "string", "maxLength": 200}}}
+
+
+def realism(judge, ctx: dict, utterance: str) -> tuple[int, str]:
+    """1-5: how much the line sounds like this real patient in this state (5 = a real person; 1 = an assistant or a textbook)."""
+    import json
+    hist = "\n".join(f"{m['role']}: {m['text']}" for m in ctx["messages"][-6:])
+    try:
+        r = judge.chat.completions.create(model="judge", temperature=0, max_tokens=200, messages=[
+            {"role": "system", "content": "You rate one line from a simulated psychiatric patient for realism only: does it sound like a "
+             "real, specific person in this state, in natural spoken Indian English? Penalise assistant tone, textbook words, over-"
+             "politeness, summaries, generic filler, repetition and a manner that ignores what the doctor just did. Be strict: 5 is rare."},
+            {"role": "user", "content": f"Patient state:\n{brain.describe_state(ctx['state'])}\nConversation:\n{hist}\nPatient's line: {utterance}"}],
+            response_format={"type": "json_schema", "json_schema": {"name": "r", "strict": True, "schema": REALISM}},
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}})
+        d = json.loads(r.choices[0].message.content)
+        return max(1, min(5, int(d["rating"]))), d["why"]
+    except Exception:
+        return 3, ""
+
+
+def propose(base: dict, contexts: list[dict], client, budget: int, seed: int = 0, judge=None) -> tuple[str, dict]:
     """GEPA over `realism_rules`, seeded with the base version's text. Returns (best text, info)."""
     seed_text = base.get("realism_rules") or brain.REALISM_RULES
     val, train = contexts[:6], contexts[6:] or contexts
-    res = gepa.optimize(seed_candidate={"realism_rules": seed_text}, trainset=train, valset=val, adapter=RulesAdapter(base, client),
+    res = gepa.optimize(seed_candidate={"realism_rules": seed_text}, trainset=train, valset=val, adapter=RulesAdapter(base, client, judge=judge),
                         reflection_lm=reflection_lm(client), max_metric_calls=budget, reflection_minibatch_size=3, seed=seed,
                         raise_on_exception=False, display_progress_bar=False)
     best = res.best_candidate["realism_rules"]

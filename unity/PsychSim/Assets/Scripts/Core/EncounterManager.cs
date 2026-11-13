@@ -273,6 +273,10 @@ namespace Rapport.Core
                 case "reply": OnReply(o); break;
                 case "exam": Exam.Receive(o); Log.Write("exam", o); break;
                 case "brain_snapshot": Log.Write("brain_snapshot", o); break;
+                case "patient_ended":  // the patient walked out after repeated abuse (twin-0.2); the learner still submits for the debrief
+                    Log.Write("patient_ended", o);
+                    if (Voice != null) Voice.SetHandsFree(false);
+                    break;
                 case "timing":
                     if (o["audio_start_ms"]?.Type == JTokenType.Integer) LastLatencyMs = (long)o["audio_start_ms"];
                     Log.Write("timing", o);

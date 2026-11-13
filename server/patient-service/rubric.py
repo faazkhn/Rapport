@@ -69,10 +69,17 @@ CLOSED = re.compile(_LEAD + r"(do|did|does|are|is|was|were|have|has|had|can|coul
 _QSTART = re.compile(r"(?:^|[?.;]|\band\b|\bor\b|,)\s*(?:also\s+)?(do|did|are|is|have|has|how|what|when|where|why|who|any|can|could|would)\b", re.I)
 
 
+CONTEXT_MOVES = {"risk_question", "repeat_question", "interrupt", "rushed"}
+
+
 def moves(doctor_text: str, recalled: dict | None = None, case: dict | None = None, repeated: bool = False, interrupted: bool = False,
-          prev_doctor: str | None = None) -> list[str]:
-    """What the doctor's line did, as rubric move ids (several can hold). Code only; no model call."""
+          prev_doctor: str | None = None, text_moves: list[str] | None = None) -> list[str]:
+    """What the doctor's line did, as rubric move ids (several can hold). No LLM call. text_moves: what the move classifier read
+    from the words (it then replaces the lexical patterns); moves that need context (risk, repeat, interrupt, rushing) stay in code."""
     t = doctor_text.strip()
+    if text_moves is not None:
+        out = [m for m in text_moves if m not in CONTEXT_MOVES - {"rushed"}]
+        return _context_moves(out, t, recalled, case, repeated, interrupted, prev_doctor)
     out = [m for m, rx in PATTERNS.items() if rx.search(t)]
     if "apology" in out:
         out = [m for m in out if m != "empathy" or not re.search(r"^\s*I'?m sorry\b", t, re.I)] or out
@@ -88,9 +95,14 @@ def moves(doctor_text: str, recalled: dict | None = None, case: dict | None = No
         out.append("open_question")
     elif CLOSED.search(t) or t.endswith("?"):
         out.append("closed_question")
+    return _context_moves(out, t, recalled, case, repeated, interrupted, prev_doctor)
+
+
+def _context_moves(out, t, recalled, case, repeated, interrupted, prev_doctor) -> list[str]:
     if recalled and case:
         kinds = {f["id"]: f.get("kind") for f in case["facts"]}
-        if any(kinds.get(f) == "risk" for f in recalled.get("open", []) + recalled.get("locked_hit", [])):
+        strong = recalled.get("strong", recalled.get("open", []) + recalled.get("locked_hit", []))  # weak matches never make it a risk question
+        if any(kinds.get(f) == "risk" for f in strong):
             out.append("risk_question")
         if recalled.get("open") or recalled.get("locked_hit"):
             out = [m for m in out if m != "off_topic"]

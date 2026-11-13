@@ -25,6 +25,9 @@ substance use, medical history, suicidal thoughts or plans. List every such clai
 information given (the background and the facts the patient was allowed to share at that moment). Paraphrase, vaguer versions or
 partial versions of a listed fact are supported. Everyday vague answers ("I don't know", "just tired", "it's hard") are not claims unless
 they contradict the case. Small talk with no clinical content (an opinion on cricket, a favourite film) is not a clinical claim.
+Everyday life details the patient makes up that the case does not cover and that do not contradict it (a friend's or teacher's
+name, a food, a film, a school memory, a neighbour) are allowed improvisation, not claims; list them only if they contradict the
+background or facts, or if they are about illness, symptoms, substances, risk, treatment or the family's medical history.
 broke_character = true if the line speaks as an AI, assistant or doctor, mentions prompts, files, models or simulations, names a
 diagnosis label, or gives medical advice or drug names. Answer with the JSON only."""
 

@@ -16,7 +16,28 @@ import rubric
 import stream
 import twin
 
-FEATURES = ("hybrid_recall", "rubric", "memory", "consistency", "mse", "improvise")
+FEATURES = ("hybrid_recall", "rubric", "memory", "consistency", "mse", "improvise", "move_model")
+_models: dict = {}
+
+
+def move_model(model_id: str):
+    """The move/intent classifier head (learned/models/<id>.npz, tools/brain/moves_model.py), or None if it is not there."""
+    if model_id not in _models:
+        import numpy as np
+        p = learning.DIR / "models" / f"{model_id}.npz"
+        _models[model_id] = dict(np.load(p, allow_pickle=False)) if model_id.replace("-", "").isalnum() and p.exists() else None
+    return _models[model_id]
+
+
+def classify(model: dict, text: str, qvec=None) -> list[str]:
+    """Labels whose probability passes their threshold; [] without the embedding model."""
+    import numpy as np
+    q = qvec if qvec is not None else twin.embed([text])
+    if q is None:
+        return []
+    q = q if q.ndim == 1 else q[0]
+    p = 1 / (1 + np.exp(-(model["W"] @ q + model["b"])))
+    return [str(lab) for lab, x, t in zip(model["labels"], p, model["thr"]) if x >= t]
 MODEL_TRUST_CLAMP = 3  # with the rubric on, the model's own trust delta only fine-tunes the code's step
 
 
@@ -85,12 +106,18 @@ def prepare(case: dict, state: dict, mind: dict, messages: list[dict], elapsed_m
     start = dict(state)
     st = twin.apply_event_deltas(state, events) if events else dict(state)
     lexical = "hybrid_recall" not in on
-    sims = {} if lexical else twin.similarities(case, doctor)
+    model = move_model(v.get("move_model", "moves-v1")) if "move_model" in on else None
+    qvec = twin.embed([doctor]) if (not lexical or model) and doctor.strip() else None  # one embedding for recall and the classifier
+    qvec = qvec[0] if qvec is not None else None
+    sims = {} if lexical else twin.similarities(case, doctor, qvec)
     recalled = twin.recall(case, st["trust"], doctor, lexical=lexical, sims=sims)
     mv, plan = [], None
     if "rubric" in on:
         rep = memory.repeated(mind["memory"], recalled, mind["turn"]) if "memory" in on else False
-        mv = rubric.moves(doctor, recalled, case, rep, mind.get("interrupted", False), prev_doctor)
+        text_moves = None
+        if model is not None and qvec is not None:  # the classifier replaces the lexical patterns; context moves stay in code
+            text_moves = [m for m in classify(model, doctor, qvec) if m in rubric.table()["moves"]]
+        mv = rubric.moves(doctor, recalled, case, rep, mind.get("interrupted", False), prev_doctor, text_moves)
         st = rubric.pre_step(st, mv, case)
         recalled = twin.recall(case, st["trust"], doctor, lexical=lexical, sims=sims)  # the step may open a lock; no new embedding
         level = rubric.resistance(mind["resistance"], mv, case, st["trust"], mind["calm"])
