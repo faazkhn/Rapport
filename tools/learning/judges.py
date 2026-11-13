@@ -7,10 +7,10 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools/llm_eval"))
-from judge import judge_one as invented  # noqa: E402,F401  (client, case, turn) -> {unsupported_claims, broke_character, why}
+from judge import ask_json, judge_one as invented  # noqa: E402,F401  (client, case, turn) -> {unsupported_claims, broke_character, why}
 
 YES = {"type": "object", "additionalProperties": False, "required": ["ok", "why"],
-       "properties": {"ok": {"type": "boolean"}, "why": {"type": "string"}}}
+       "properties": {"ok": {"type": "boolean"}, "why": {"type": "string", "maxLength": 240}}}
 
 RESISTANCE = """You check one line of a simulated psychiatric patient for ACCURACY against disclosure rules. Not realism, not style.
 Rules:
@@ -23,11 +23,7 @@ ok = true if the line follows these rules. Answer with the JSON only."""
 
 
 def _ask(client, system: str, user: str) -> dict:
-    r = client.chat.completions.create(model="judge", temperature=0, max_tokens=200,
-                                       messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-                                       response_format={"type": "json_schema", "json_schema": {"name": "j", "strict": True, "schema": YES}},
-                                       extra_body={"chat_template_kwargs": {"enable_thinking": False}})
-    return json.loads(r.choices[0].message.content)
+    return ask_json(client, system, user, YES, {"ok": None, "why": ""})
 
 
 def resistance(client, case: dict, turn: dict) -> bool:

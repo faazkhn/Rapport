@@ -1,5 +1,7 @@
 """The learning loop (Phase E). Everything runs against the local llama-server; nothing leaves the Mac.
-  loop.py heldout <vid>       held-out evaluation of a version (scripted lines, fixed seed) + judges -> version scores
+  loop.py heldout <vid> [--seeds 7,11,23] [--case mdd_01] [--judge-url http://127.0.0.1:8081/v1]
+                              held-out evaluation of a version (scripted lines, fixed seeds) + judges -> version scores (seed 7 on
+                              mdd_01 is the version's stored score; other seeds and cases are saved under scores_by_run)
   loop.py round [--turns 8] [--budget 40]
                               self-play with the live version -> gate + invented-fact judge -> library (L1) -> GEPA over the realism
                               rules (L3) -> new version -> held-out eval -> promoted only if better and safety-clean
@@ -60,8 +62,9 @@ def judge_turn(client, case, t):
     return j
 
 
-def evaluate(version: dict, client) -> dict:
-    seeded = Seeded(client)
+def evaluate(version: dict, client, judge=None, seed=SEED) -> dict:
+    """judge: a client for a different local model than the patient's (a model rates its own lines too kindly); default the same."""
+    seeded, judge = Seeded(client, seed), judge or client
     convs = []
     for p in sorted((REPO / "tests/llm-eval" / CASE).glob("*.yaml")):
         conv = yaml.safe_load(p.read_text())
@@ -82,25 +85,36 @@ def evaluate(version: dict, client) -> dict:
         convs.append({"kind": "conv", "conv": p.stem, "type": conv["type"], "variant": conv["variant"], "run": 0,
                       "expect": conv.get("expect", {}), "turns": turns})
         print(f"  {version['id']} {p.stem}: {len(turns)} turns", flush=True)
+    out = RESULTS / f"{version['id']}{run_tag(seed)}.jsonl"
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    out.write_text("".join(json.dumps(c, ensure_ascii=False) + "\n" for c in convs))  # saved before judging: a judge failure never loses a run
     jobs = [(c, t) for c in convs for t in c["turns"]]
     with ThreadPoolExecutor(2) as ex:
-        verdicts = list(ex.map(lambda j: judge_turn(client, brain.load_case(CASE, j[0]["variant"]), j[1]), jobs))
+        verdicts = list(ex.map(lambda j: judge_turn(judge, brain.load_case(CASE, j[0]["variant"]), j[1]), jobs))
     for (c, t), v in zip(jobs, verdicts):
         t["judge"] = v
-    RESULTS.mkdir(parents=True, exist_ok=True)
-    (RESULTS / f"{version['id']}.jsonl").write_text("".join(json.dumps(c, ensure_ascii=False) + "\n" for c in convs))
+    out.write_text("".join(json.dumps(c, ensure_ascii=False) + "\n" for c in convs))
     return metrics.compute(convs, reviewed())
+
+
+def run_tag(seed) -> str:
+    """File suffix of a held-out run; the original run (mdd_01, seed 7) has none."""
+    return "" if (CASE, seed) == ("mdd_01", SEED) else f".{CASE}.s{seed}"
 
 
 def load_eval(vid: str) -> list[dict]:
     return [json.loads(x) for x in (RESULTS / f"{vid}.jsonl").read_text().splitlines()]
 
 
-def cmd_eval(vid, client):
+def cmd_eval(vid, client, judge=None, seeds=(SEED,)):
     v = learning.load_version(vid)
-    v["scores"] = evaluate(v, client)
-    learning.save_version(v)
-    print(json.dumps(v["scores"], indent=1))
+    for seed in seeds:
+        s = evaluate(v, client, judge, seed)
+        v.setdefault("scores_by_run", {})[f"{CASE}.s{seed}"] = s
+        if not run_tag(seed):
+            v["scores"] = s
+        learning.save_version(v)
+        print(seed, json.dumps(s, indent=1), flush=True)
 
 
 def scores_of(vid, client):
@@ -223,15 +237,21 @@ def svg(vs) -> str:
 
 
 def main():
+    global CASE
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("cmd", choices=["heldout", "round", "rescore", "decide", "report"])
     ap.add_argument("vid", nargs="?")
     ap.add_argument("--turns", type=int, default=8)
     ap.add_argument("--budget", type=int, default=40)
     ap.add_argument("--url", default="http://127.0.0.1:8080/v1")
+    ap.add_argument("--judge-url", default=None, help="llama-server with a different model for the judges")
+    ap.add_argument("--seeds", default=str(SEED))
+    ap.add_argument("--case", default=CASE)
     a = ap.parse_args()
+    CASE = a.case
     client = OpenAI(base_url=a.url, api_key="local", timeout=180, max_retries=1)
-    {"heldout": lambda: cmd_eval(a.vid, client), "round": lambda: cmd_round(client, a.turns, a.budget), "rescore": cmd_rescore,
+    judge = OpenAI(base_url=a.judge_url, api_key="local", timeout=180, max_retries=1) if a.judge_url else None
+    {"heldout": lambda: cmd_eval(a.vid, client, judge, [int(x) for x in a.seeds.split(",")]), "round": lambda: cmd_round(client, a.turns, a.budget), "rescore": cmd_rescore,
      "decide": lambda: decide(a.vid, client), "report": cmd_report}[a.cmd]()
 
 

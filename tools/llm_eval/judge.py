@@ -16,7 +16,7 @@ from openai import OpenAI  # noqa: E402
 
 SCHEMA = {"type": "object", "additionalProperties": False, "required": ["unsupported_claims", "broke_character", "why"],
           "properties": {"unsupported_claims": {"type": "array", "items": {"type": "string"}},
-                         "broke_character": {"type": "boolean"}, "why": {"type": "string"}}}
+                         "broke_character": {"type": "boolean"}, "why": {"type": "string", "maxLength": 240}}}
 
 SYSTEM = """You check a simulated psychiatric patient's line for factual accuracy against the case file. You do NOT judge realism or style.
 
@@ -36,11 +36,22 @@ def judge_one(client, case, turn):
     user = (f"Patient: {p['name']}, {p['age']}, {p['sex']}.\nBackground: {p.get('background', '')}\nReferral note: {case['referral_note']}\n"
             f"Facts the patient was allowed to share at this moment:\n{facts}\n\nDoctor said: {turn['doctor']}\n"
             f"Patient's line to check: {turn['reply']['utterance']}")
-    r = client.chat.completions.create(model="judge", temperature=0, max_tokens=400,
-                                       messages=[{"role": "system", "content": SYSTEM}, {"role": "user", "content": user}],
-                                       response_format={"type": "json_schema", "json_schema": {"name": "j", "strict": True, "schema": SCHEMA}},
-                                       extra_body={"chat_template_kwargs": {"enable_thinking": False}})
-    return json.loads(r.choices[0].message.content)
+    return ask_json(client, SYSTEM, user, SCHEMA, {"unsupported_claims": [], "broke_character": False, "why": ""})
+
+
+def ask_json(client, system: str, user: str, schema: dict, empty: dict, max_tokens: int = 700) -> dict:
+    """One judge call with a JSON schema; a cut-off or broken reply is retried once, then returned as `empty` with judge_error
+    set, so the turn goes to hand review instead of silently passing."""
+    for _ in range(2):
+        r = client.chat.completions.create(model="judge", temperature=0, max_tokens=max_tokens,
+                                           messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+                                           response_format={"type": "json_schema", "json_schema": {"name": "j", "strict": True, "schema": schema}},
+                                           extra_body={"chat_template_kwargs": {"enable_thinking": False}})
+        try:
+            return json.loads(r.choices[0].message.content)
+        except (ValueError, TypeError):
+            continue
+    return {**empty, "judge_error": True}
 
 
 def main():
