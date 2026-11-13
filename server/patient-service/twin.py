@@ -53,6 +53,18 @@ SIM_RISK = 0.74  # risk facts: a missed suicide question costs more than an extr
 SIM_NEAR = 0.02  # below SIM_HIT, the best match still counts if it is at least SIM_FLOOR and ahead of the runner-up by this much
 SIM_FLOOR = 0.70
 RISK_NEAR, RISK_MARGIN = 0.66, 0.06  # in a risk-domain line, other risk facts this close to the best one count too
+_tuned = {"done": False}
+
+
+def _load_tuned():
+    """Re-tuned thresholds (tools/brain/tune_recall.py, dev half only) override the defaults above, once."""
+    global SIM_HIT, SIM_RISK, SIM_FLOOR, SIM_NEAR, RISK_NEAR, RISK_MARGIN
+    _tuned["done"] = True
+    try:
+        t = brain.load_json("brain/recall.json")
+        SIM_HIT, SIM_RISK, SIM_FLOOR, SIM_NEAR, RISK_NEAR, RISK_MARGIN = (t[k] for k in ("sim_hit", "sim_risk", "sim_floor", "sim_near", "risk_near", "risk_margin"))
+    except (FileNotFoundError, KeyError):
+        pass
 _emb = {"fn": "unset"}
 _vecs: dict = {}
 
@@ -134,6 +146,8 @@ def recall(case: dict, trust: float, doctor_text: str, limit: int = 3, lexical: 
     apply after matching, so a paraphrase of a locked question is still only a discomfort signal. `strong`: hits by a tag or a
     similarity past the plain threshold (not the near-best or risk-domain rules); code only forces a disclosure on these.
     sims: precomputed similarities() for this line (prepare() recalls twice around the rubric's state step)."""
+    if not _tuned["done"]:
+        _load_tuned()
     lex = {f["id"]: s for s, f in _lexical(case["facts"], doctor_text)}
     if sims is None:
         sims = {} if lexical else similarities(case, doctor_text)

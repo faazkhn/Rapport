@@ -80,6 +80,7 @@ mkdir -p "$RES/baseline" && mv "$RES"/v0.mdd_01.s*.jsonl "$RES"/v0.alc_01.s*.jso
 cp "$REPO/../v03-baseline/server/patient-service/learned/versions/v0.json" "$RES/baseline/v0-version.json" 2>/dev/null
 
 # ---- 1. recall on the held-out paraphrase half (CPU) ----
+step recall_tune "$PY" tools/brain/tune_recall.py
 step recall_test "$PY" tools/recall_bench.py --split test --misses --json "$OUT/recall_test.json"
 step recall_test_lexical "$PY" tools/recall_bench.py --split test --lexical --json "$OUT/recall_test_lexical.json"
 step recall_dev "$PY" tools/recall_bench.py --split dev --json "$OUT/recall_dev.json"
