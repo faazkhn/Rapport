@@ -297,7 +297,7 @@ def test_generate_reply_meta_brain_version_and_examples(monkeypatch):
     v = {**learning.load_version("v0"), "id": "v9", "examples_k": 2, "realism_rules": "TALK LIKE A TIRED PERSON."}
     monkeypatch.setattr(learning, "retrieve", lambda case_id, text, mode, k, upto=None: [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}])
     out = brain.generate_reply({**REQ, "mode": "practice"}, client=llm, tagger=TAG, version=v)
-    assert out["meta"]["brain_version"] == "twin-0.1+v9" and out["meta"]["examples"] == ["e1"]
+    assert out["meta"]["brain_version"] == "twin-0.2+v9" and out["meta"]["examples"] == ["e1"]
     msgs = llm.calls[0]["messages"]
     assert "TALK LIKE A TIRED PERSON." in msgs[0]["content"] and brain.REALISM_RULES not in msgs[0]["content"]
     assert "Patient: Not really." in msgs[-1]["content"]

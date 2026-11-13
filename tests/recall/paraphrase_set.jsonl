@@ -1,0 +1,512 @@
+{"case": "mdd_01", "line": "What's brought you here to see me today?", "expect": ["f_pc"], "hard": false}
+{"case": "mdd_01", "line": "Tell me in your own words what the trouble has been.", "expect": ["f_pc"], "hard": true}
+{"case": "mdd_01", "line": "I gather the doctor at your office suggested you come. What was that about?", "expect": ["f_pc"], "hard": false}
+{"case": "mdd_01", "line": "So, what seems to be the problem?", "expect": ["f_pc"], "hard": false}
+{"case": "mdd_01", "line": "Was it your own idea to come today, or did somebody send you?", "expect": ["f_pc"], "hard": true}
+{"case": "mdd_01", "line": "I see you've had to take some days off recently. What's been going on?", "expect": ["f_pc"], "hard": false}
+{"case": "mdd_01", "line": "When did all this begin?", "expect": ["f_onset"], "hard": false}
+{"case": "mdd_01", "line": "How long has it been going on?", "expect": ["f_onset"], "hard": false}
+{"case": "mdd_01", "line": "Was there anything happening in your life around the time it started?", "expect": ["f_onset"], "hard": false}
+{"case": "mdd_01", "line": "Has it come on suddenly or crept up on you bit by bit?", "expect": ["f_onset"], "hard": true}
+{"case": "mdd_01", "line": "Is this the first time in your life you've felt this way?", "expect": ["f_onset"], "hard": true}
+{"case": "mdd_01", "line": "Can you think back to the last time you felt like your normal self?", "expect": ["f_onset"], "hard": true}
+{"case": "mdd_01", "line": "Over the weeks, has it been improving, staying the same or going downhill?", "expect": ["f_onset"], "hard": true}
+{"case": "mdd_01", "line": "How has your mood been lately?", "expect": ["f_mood"], "hard": false}
+{"case": "mdd_01", "line": "Do you find yourself feeling sad or down in the dumps?", "expect": ["f_mood"], "hard": false}
+{"case": "mdd_01", "line": "How are your spirits these days?", "expect": ["f_mood"], "hard": true}
+{"case": "mdd_01", "line": "Have you been tearful at all?", "expect": ["f_mood"], "hard": false}
+{"case": "mdd_01", "line": "Is there a time of day when you feel at your worst?", "expect": ["f_mood"], "hard": true}
+{"case": "mdd_01", "line": "Feeling a bit depressed, is it?", "expect": ["f_mood"], "hard": false}
+{"case": "mdd_01", "line": "Some people tell me they feel sort of hollow inside. Does that fit for you?", "expect": ["f_mood"], "hard": true}
+{"case": "mdd_01", "line": "What do you do for fun, and are you still doing it?", "expect": ["f_anhedonia"], "hard": true}
+{"case": "mdd_01", "line": "Are you still able to enjoy the things you used to like?", "expect": ["f_anhedonia"], "hard": false}
+{"case": "mdd_01", "line": "Do you have any hobbies? Have you kept them up?", "expect": ["f_anhedonia"], "hard": true}
+{"case": "mdd_01", "line": "How do you spend your weekends now?", "expect": ["f_anhedonia"], "hard": true}
+{"case": "mdd_01", "line": "Are you keeping in touch with your friends?", "expect": ["f_anhedonia"], "hard": true}
+{"case": "mdd_01", "line": "Have you lost interest in things?", "expect": ["f_anhedonia"], "hard": false}
+{"case": "mdd_01", "line": "Is there anything at all that gives you pleasure these days?", "expect": ["f_anhedonia"], "hard": false}
+{"case": "mdd_01", "line": "How are you sleeping?", "expect": ["f_sleep"], "hard": false}
+{"case": "mdd_01", "line": "What are your nights like?", "expect": ["f_sleep"], "hard": true}
+{"case": "mdd_01", "line": "Are you getting enough rest at night?", "expect": ["f_sleep"], "hard": true}
+{"case": "mdd_01", "line": "Any trouble dropping off, or is it more that you're up long before the alarm?", "expect": ["f_sleep"], "hard": true}
+{"case": "mdd_01", "line": "Do you feel refreshed when you get up in the morning?", "expect": ["f_sleep"], "hard": true}
+{"case": "mdd_01", "line": "On your days off, what time do you finally get out of bed?", "expect": ["f_sleep"], "hard": true}
+{"case": "mdd_01", "line": "And your sleep?", "expect": ["f_sleep"], "hard": false}
+{"case": "mdd_01", "line": "How is your appetite?", "expect": ["f_appetite"], "hard": false}
+{"case": "mdd_01", "line": "Are you eating properly?", "expect": ["f_appetite"], "hard": false}
+{"case": "mdd_01", "line": "Have you noticed any change in your weight?", "expect": ["f_appetite"], "hard": false}
+{"case": "mdd_01", "line": "Taking your food on time, or missing meals?", "expect": ["f_appetite"], "hard": true}
+{"case": "mdd_01", "line": "Tell me what you had to eat yesterday.", "expect": ["f_appetite"], "hard": true}
+{"case": "mdd_01", "line": "Have people remarked that you're looking thinner?", "expect": ["f_appetite"], "hard": true}
+{"case": "mdd_01", "line": "How are your energy levels?", "expect": ["f_energy_concentration"], "hard": false}
+{"case": "mdd_01", "line": "Are you able to focus on your work?", "expect": ["f_energy_concentration"], "hard": false}
+{"case": "mdd_01", "line": "Can you follow a film or read a page without your mind drifting off?", "expect": ["f_energy_concentration"], "hard": true}
+{"case": "mdd_01", "line": "Do you find you get worn out easily, even by small tasks?", "expect": ["f_energy_concentration"], "hard": false}
+{"case": "mdd_01", "line": "Has your performance at the office slipped at all?", "expect": ["f_energy_concentration"], "hard": true}
+{"case": "mdd_01", "line": "How is your memory and attention these days?", "expect": ["f_energy_concentration"], "hard": false}
+{"case": "mdd_01", "line": "Any difficulty keeping your mind on one thing?", "expect": ["f_energy_concentration"], "hard": true}
+{"case": "mdd_01", "line": "How do you feel about yourself as a person these days?", "expect": ["f_guilt"], "hard": true}
+{"case": "mdd_01", "line": "Do you blame yourself for things?", "expect": ["f_guilt"], "hard": false}
+{"case": "mdd_01", "line": "Do you ever feel you've let people down?", "expect": ["f_guilt"], "hard": true}
+{"case": "mdd_01", "line": "Some people in your position start to feel they are a load on others. Has that crossed your mind?", "expect": ["f_guilt"], "hard": true}
+{"case": "mdd_01", "line": "How is your self-confidence?", "expect": ["f_guilt"], "hard": true}
+{"case": "mdd_01", "line": "Are you being hard on yourself?", "expect": ["f_guilt"], "hard": true}
+{"case": "mdd_01", "line": "Do you feel guilty about anything?", "expect": ["f_guilt"], "hard": false}
+{"case": "mdd_01", "line": "Would you call yourself a worrier?", "expect": ["f_anxiety"], "hard": false}
+{"case": "mdd_01", "line": "Do you feel nervous or on edge?", "expect": ["f_anxiety"], "hard": false}
+{"case": "mdd_01", "line": "Any tension these days?", "expect": ["f_anxiety"], "hard": true}
+{"case": "mdd_01", "line": "Do you get palpitations, trembling or sweaty palms when you're under stress?", "expect": ["f_anxiety"], "hard": false}
+{"case": "mdd_01", "line": "Does your head keep buzzing with thoughts when you're trying to switch off?", "expect": ["f_anxiety"], "hard": true}
+{"case": "mdd_01", "line": "Is there something you keep fretting about over and over?", "expect": ["f_anxiety"], "hard": true}
+{"case": "mdd_01", "line": "Which came first, the nervousness or the sadness?", "expect": ["f_anxiety"], "hard": true}
+{"case": "mdd_01", "line": "How are things at work?", "expect": ["f_work_family"], "hard": false}
+{"case": "mdd_01", "line": "How do you get along with your boss?", "expect": ["f_work_family"], "hard": false}
+{"case": "mdd_01", "line": "Any tension at home?", "expect": ["f_work_family"], "hard": true}
+{"case": "mdd_01", "line": "Do you have money worries, or people depending on you financially?", "expect": ["f_work_family"], "hard": true}
+{"case": "mdd_01", "line": "Is there pressure from your family about settling down?", "expect": ["f_work_family"], "hard": true}
+{"case": "mdd_01", "line": "Do your parents know what you're going through?", "expect": ["f_work_family"], "hard": true}
+{"case": "mdd_01", "line": "What are the main stresses in your life right now?", "expect": ["f_work_family"], "hard": false}
+{"case": "mdd_01", "line": "How have things been with your family and at the office?", "expect": ["f_work_family"], "hard": false}
+{"case": "mdd_01", "line": "Is your job secure, do you think?", "expect": ["f_work_family"], "hard": true}
+{"case": "mdd_01", "line": "Has anyone in your family had mental health problems?", "expect": ["f_family_history"], "hard": false}
+{"case": "mdd_01", "line": "Any relatives who needed to see a psychiatrist or were put on medication for the mind?", "expect": ["f_family_history"], "hard": false}
+{"case": "mdd_01", "line": "Does depression run in the family?", "expect": ["f_family_history"], "hard": false}
+{"case": "mdd_01", "line": "Has anybody among your blood relations taken their own life or tried to?", "expect": ["f_family_history"], "hard": true}
+{"case": "mdd_01", "line": "Is there anyone at home who drinks heavily?", "expect": ["f_family_history"], "hard": true}
+{"case": "mdd_01", "line": "On your mother's side or your father's side, has anyone gone through something similar?", "expect": ["f_family_history"], "hard": true}
+{"case": "mdd_01", "line": "Have you had any thoughts that life is not worth living?", "expect": ["f_passive_si"], "hard": false}
+{"case": "mdd_01", "line": "Do you ever wish you could go to sleep and not get up again?", "expect": ["f_passive_si"], "hard": false}
+{"case": "mdd_01", "line": "Have you ever felt you'd be better off dead?", "expect": ["f_passive_si"], "hard": false}
+{"case": "mdd_01", "line": "When things get this bad, some people feel they'd rather not be around. Has that happened to you?", "expect": ["f_passive_si"], "hard": true}
+{"case": "mdd_01", "line": "Do you ever feel like you just want it all to stop?", "expect": ["f_passive_si"], "hard": true}
+{"case": "mdd_01", "line": "Have you been having any dark thoughts?", "expect": ["f_passive_si"], "hard": true}
+{"case": "mdd_01", "line": "Are you having suicidal thoughts?", "expect": ["f_passive_si"], "hard": false}
+{"case": "mdd_01", "line": "Have you ever thought of ending things?", "expect": ["f_passive_si"], "hard": true}
+{"case": "mdd_01", "line": "Do you feel like giving up on life sometimes?", "expect": ["f_passive_si"], "hard": true}
+{"case": "mdd_01", "line": "How often do thoughts about death come to you?", "expect": ["f_passive_si"], "hard": false}
+{"case": "mdd_01", "line": "Are you having thoughts of doing something to yourself?", "expect": ["f_passive_si"], "hard": true}
+{"case": "mdd_01", "line": "I ask everyone this: has it ever got so bad that you wished you weren't alive?", "expect": ["f_passive_si"], "hard": false}
+{"case": "mdd_01", "line": "Do you ever go to bed hoping the next day won't come?", "expect": ["f_passive_si"], "hard": true}
+{"case": "mdd_01", "line": "Has dying been on your mind at all?", "expect": ["f_passive_si"], "hard": false}
+{"case": "mdd_01", "line": "Have you made any plans to end your life?", "expect": ["f_no_plan_no_attempt"], "hard": false}
+{"case": "mdd_01", "line": "Have you thought about how you might kill yourself?", "expect": ["f_no_plan_no_attempt"], "hard": false}
+{"case": "mdd_01", "line": "Have you ever tried to commit suicide?", "expect": ["f_no_plan_no_attempt"], "hard": false}
+{"case": "mdd_01", "line": "Have you ever hurt yourself on purpose, like cutting or anything of that sort?", "expect": ["f_no_plan_no_attempt"], "hard": false}
+{"case": "mdd_01", "line": "Do you intend to act on these thoughts of dying?", "expect": ["f_no_plan_no_attempt"], "hard": false}
+{"case": "mdd_01", "line": "Have you gone as far as working out a way to do it, to finish yourself?", "expect": ["f_no_plan_no_attempt"], "hard": true}
+{"case": "mdd_01", "line": "Has there been a time in the past when you did something to injure yourself?", "expect": ["f_no_plan_no_attempt"], "hard": false}
+{"case": "mdd_01", "line": "Is there any chance you might do something drastic?", "expect": ["f_no_plan_no_attempt"], "hard": true}
+{"case": "mdd_01", "line": "Any previous attempts on your life?", "expect": ["f_no_plan_no_attempt"], "hard": false}
+{"case": "mdd_01", "line": "Have you ever taken an overdose or done anything like that?", "expect": ["f_no_plan_no_attempt"], "hard": true}
+{"case": "mdd_01", "line": "Have you got as far as writing a note or saying goodbye to anyone?", "expect": ["f_no_plan_no_attempt"], "hard": true}
+{"case": "mdd_01", "line": "If these feelings got worse tonight, do you think you would do anything about them?", "expect": ["f_no_plan_no_attempt"], "hard": true}
+{"case": "mdd_01", "line": "Do you feel safe with yourself right now?", "expect": ["f_no_plan_no_attempt"], "hard": true}
+{"case": "mdd_01", "line": "Have you decided on a day or a method?", "expect": ["f_no_plan_no_attempt"], "hard": true}
+{"case": "mdd_01", "line": "Do you have any tablets stored at home?", "expect": ["f_no_means"], "hard": false}
+{"case": "mdd_01", "line": "Is there anything in your flat that you could use to harm yourself?", "expect": ["f_no_means"], "hard": false}
+{"case": "mdd_01", "line": "Have you been collecting medicines?", "expect": ["f_no_means"], "hard": true}
+{"case": "mdd_01", "line": "Have you been searching on the internet for ways to die?", "expect": ["f_no_means"], "hard": false}
+{"case": "mdd_01", "line": "Do you keep any medicines in the house, even ordinary ones like paracetamol strips?", "expect": ["f_no_means"], "hard": true}
+{"case": "mdd_01", "line": "Any pesticide, rat poison, phenyl or anything like that lying around where you stay?", "expect": ["f_no_means"], "hard": true}
+{"case": "mdd_01", "line": "Do you have access to anything dangerous?", "expect": ["f_no_means"], "hard": false}
+{"case": "mdd_01", "line": "Have you been reading up on methods online?", "expect": ["f_no_means"], "hard": true}
+{"case": "mdd_01", "line": "If you wanted to act on these thoughts, is there something at hand you would use?", "expect": ["f_no_means"], "hard": true}
+{"case": "mdd_01", "line": "Have you bought or put aside anything with the idea of ending your life?", "expect": ["f_no_means"], "hard": true}
+{"case": "mdd_01", "line": "What's in your medicine cupboard at the moment?", "expect": ["f_no_means"], "hard": true}
+{"case": "mdd_01", "line": "Have you googled anything about overdoses or how much of a drug is dangerous?", "expect": ["f_no_means"], "hard": true}
+{"case": "mdd_01", "line": "Is there any rope, blade or chemical you have kept ready?", "expect": ["f_no_means"], "hard": false}
+{"case": "mdd_01", "line": "What keeps you going?", "expect": ["f_protective"], "hard": false}
+{"case": "mdd_01", "line": "What stops you from acting on these thoughts?", "expect": ["f_protective"], "hard": false}
+{"case": "mdd_01", "line": "Who do you have to support you?", "expect": ["f_protective"], "hard": false}
+{"case": "mdd_01", "line": "Is there someone you can talk to when things get bad?", "expect": ["f_protective"], "hard": true}
+{"case": "mdd_01", "line": "What are your reasons for living?", "expect": ["f_protective"], "hard": false}
+{"case": "mdd_01", "line": "Who would be most affected if something happened to you?", "expect": ["f_protective"], "hard": true}
+{"case": "mdd_01", "line": "Do you want things to get better?", "expect": ["f_protective"], "hard": false}
+{"case": "mdd_01", "line": "Would you be willing to take treatment if we offered it?", "expect": ["f_protective"], "hard": true}
+{"case": "mdd_01", "line": "Is the person you share the flat with someone you can lean on?", "expect": ["f_protective"], "hard": true}
+{"case": "mdd_01", "line": "When the bad thoughts come at night, what pulls you back?", "expect": ["f_protective"], "hard": true}
+{"case": "mdd_01", "line": "What gives you hope, even a little?", "expect": ["f_protective"], "hard": true}
+{"case": "mdd_01", "line": "Who matters most to you in this world?", "expect": ["f_protective"], "hard": true}
+{"case": "mdd_01", "line": "Are you open to getting some counselling or medicine for this?", "expect": ["f_protective"], "hard": true}
+{"case": "mdd_01", "line": "Is there anything that makes you hold on?", "expect": ["f_protective"], "hard": true}
+{"case": "mdd_01", "line": "Do you drink alcohol?", "expect": ["f_substances"], "hard": false}
+{"case": "mdd_01", "line": "Taking any drinks?", "expect": ["f_substances"], "hard": true}
+{"case": "mdd_01", "line": "Do you smoke or chew anything, gutka, paan masala?", "expect": ["f_substances"], "hard": false}
+{"case": "mdd_01", "line": "Have you ever tried ganja or any other drugs?", "expect": ["f_substances"], "hard": false}
+{"case": "mdd_01", "line": "How much tea or coffee do you have in a day?", "expect": ["f_substances"], "hard": false}
+{"case": "mdd_01", "line": "Any habits I should know about?", "expect": ["f_substances"], "hard": true}
+{"case": "mdd_01", "line": "Do you use anything to help you relax or cope, a peg, a cigarette, any pills?", "expect": ["f_substances"], "hard": true}
+{"case": "mdd_01", "line": "Do you ever hear people talking when there's nobody in the room?", "expect": ["f_no_psychosis"], "hard": false}
+{"case": "mdd_01", "line": "Have you seen anything that other people couldn't see?", "expect": ["f_no_psychosis"], "hard": false}
+{"case": "mdd_01", "line": "Do you feel that somebody is spying on you or out to get you?", "expect": ["f_no_psychosis"], "hard": true}
+{"case": "mdd_01", "line": "Has your mind been playing tricks on you?", "expect": ["f_no_psychosis"], "hard": true}
+{"case": "mdd_01", "line": "Do you ever feel that your thoughts or actions are not your own, as if some outside force is in charge?", "expect": ["f_no_psychosis"], "hard": true}
+{"case": "mdd_01", "line": "Any unusual experiences, like hearing your name called when you're alone?", "expect": ["f_no_psychosis"], "hard": false}
+{"case": "mdd_01", "line": "Do you feel people are gossiping about you or plotting against you?", "expect": ["f_no_psychosis"], "hard": true}
+{"case": "mdd_01", "line": "Have you ever had a spell where you felt on top of the world and hardly needed any sleep?", "expect": ["f_no_mania_no_psych_hx"], "hard": true}
+{"case": "mdd_01", "line": "Have you ever seen a psychiatrist or psychologist before?", "expect": ["f_no_mania_no_psych_hx"], "hard": false}
+{"case": "mdd_01", "line": "Have you ever been on antidepressants or any tablets for your mood?", "expect": ["f_no_mania_no_psych_hx"], "hard": false}
+{"case": "mdd_01", "line": "Have there been times when you were far more talkative, spending freely and bursting with ideas?", "expect": ["f_no_mania_no_psych_hx"], "hard": true}
+{"case": "mdd_01", "line": "Any past history of mental illness?", "expect": ["f_no_mania_no_psych_hx"], "hard": false}
+{"case": "mdd_01", "line": "Is this your first time coming to someone like me?", "expect": ["f_no_mania_no_psych_hx"], "hard": true}
+{"case": "mdd_01", "line": "Have you ever had therapy or talked to anyone professionally about your feelings?", "expect": ["f_no_mania_no_psych_hx"], "hard": true}
+{"case": "mdd_01", "line": "Do you have any physical health problems, like diabetes, thyroid or blood pressure?", "expect": ["f_medical"], "hard": false}
+{"case": "mdd_01", "line": "Are you on any regular medication?", "expect": ["f_medical"], "hard": false}
+{"case": "mdd_01", "line": "Any allergies to medicines?", "expect": ["f_medical"], "hard": false}
+{"case": "mdd_01", "line": "Have you had any blood tests done recently?", "expect": ["f_medical"], "hard": true}
+{"case": "mdd_01", "line": "Has anyone ever hurt you or mistreated you, as a child or later?", "expect": ["f_medical"], "hard": true}
+{"case": "mdd_01", "line": "Have you been through anything very frightening or upsetting in your life that still stays with you?", "expect": ["f_medical"], "hard": true}
+{"case": "mdd_01", "line": "Any operations or hospital admissions in the past?", "expect": ["f_medical"], "hard": true}
+{"case": "mdd_01", "line": "Are your periods regular?", "expect": ["f_pregnancy"], "hard": false}
+{"case": "mdd_01", "line": "When was your last menstrual period?", "expect": ["f_pregnancy"], "hard": false}
+{"case": "mdd_01", "line": "Is there any chance you could be pregnant?", "expect": ["f_pregnancy"], "hard": false}
+{"case": "mdd_01", "line": "Are you in a physical relationship at present?", "expect": ["f_pregnancy"], "hard": true}
+{"case": "mdd_01", "line": "Are you using any birth control?", "expect": ["f_pregnancy"], "hard": false}
+{"case": "mdd_01", "line": "Any problems with your monthly cycle?", "expect": ["f_pregnancy"], "hard": true}
+{"case": "mdd_01", "line": "I need to ask a personal question before prescribing anything: are you sexually active?", "expect": ["f_pregnancy"], "hard": false}
+{"case": "mdd_01", "line": "Good morning, please come in and have a seat.", "expect": [], "hard": false}
+{"case": "mdd_01", "line": "Take your time, there's no hurry.", "expect": [], "hard": false}
+{"case": "mdd_01", "line": "I'm just going to write a few notes as we talk, if that's all right.", "expect": [], "hard": false}
+{"case": "mdd_01", "line": "Everything you tell me here stays confidential within the treating team.", "expect": [], "hard": false}
+{"case": "mdd_01", "line": "That sounds really difficult. Thank you for telling me.", "expect": [], "hard": false}
+{"case": "mdd_01", "line": "It's been raining so much this week, did you get stuck in traffic on the way?", "expect": [], "hard": false}
+{"case": "mdd_01", "line": "My name is Dr Sharma, I'm one of the junior doctors here.", "expect": [], "hard": false}
+{"case": "mdd_01", "line": "After we finish talking, I'll discuss with my senior and then we'll decide the next steps together.", "expect": [], "hard": false}
+{"case": "mdd_01", "line": "Would you like some water before we go on?", "expect": [], "hard": false}
+{"case": "mdd_01", "line": "I'm sorry, could you say that again a little louder?", "expect": [], "hard": false}
+{"case": "alc_01", "line": "What's brought you to the clinic today?", "expect": ["f_pc"], "hard": false}
+{"case": "alc_01", "line": "Your family doctor has written about tremors. Can you tell me more about that?", "expect": ["f_pc"], "hard": false}
+{"case": "alc_01", "line": "What are you hoping I can do for you today?", "expect": ["f_pc"], "hard": true}
+{"case": "alc_01", "line": "Whose idea was it to come here?", "expect": ["f_pc"], "hard": true}
+{"case": "alc_01", "line": "What is troubling you the most at the moment?", "expect": ["f_pc"], "hard": false}
+{"case": "alc_01", "line": "I see someone has come along with you today. Were they worried about something in particular?", "expect": ["f_pc"], "hard": true}
+{"case": "alc_01", "line": "Do you take alcohol?", "expect": ["f_drinking_minimised"], "hard": false}
+{"case": "alc_01", "line": "Taking any drinks after work?", "expect": ["f_drinking_minimised"], "hard": true}
+{"case": "alc_01", "line": "Would you call yourself a social drinker?", "expect": ["f_drinking_minimised"], "hard": true}
+{"case": "alc_01", "line": "Is drinking part of the job in your line of work?", "expect": ["f_drinking_minimised"], "hard": true}
+{"case": "alc_01", "line": "Tell me a little about your drinking.", "expect": ["f_drinking_minimised", "f_drinking_quantity"], "hard": false}
+{"case": "alc_01", "line": "Any habits, like liquor?", "expect": ["f_drinking_minimised"], "hard": true}
+{"case": "alc_01", "line": "How many pegs would you have on a typical day?", "expect": ["f_drinking_quantity", "f_drinking_minimised"], "hard": false}
+{"case": "alc_01", "line": "How long does a full bottle last you?", "expect": ["f_drinking_quantity"], "hard": true}
+{"case": "alc_01", "line": "Do you find you need more than before to get the same effect?", "expect": ["f_drinking_quantity"], "hard": false}
+{"case": "alc_01", "line": "For how many years have you been drinking at this level?", "expect": ["f_drinking_quantity"], "hard": false}
+{"case": "alc_01", "line": "Do you drink more on Saturdays and Sundays than on working days?", "expect": ["f_drinking_quantity"], "hard": true}
+{"case": "alc_01", "line": "What do you usually have, and how much of it goes in one sitting?", "expect": ["f_drinking_quantity", "f_drinking_minimised"], "hard": true}
+{"case": "alc_01", "line": "I want the honest figure, nobody is judging you here: how much alcohol in a day?", "expect": ["f_drinking_quantity"], "hard": false}
+{"case": "alc_01", "line": "Can you hold your liquor better now than you could a few years ago?", "expect": ["f_drinking_quantity"], "hard": true}
+{"case": "alc_01", "line": "When did you last have a drink?", "expect": ["f_last_drink"], "hard": false}
+{"case": "alc_01", "line": "Have you had anything to drink today?", "expect": ["f_last_drink"], "hard": false}
+{"case": "alc_01", "line": "How many hours has it been since your last peg?", "expect": ["f_last_drink"], "hard": false}
+{"case": "alc_01", "line": "Did you take anything before coming to the hospital today?", "expect": ["f_last_drink"], "hard": true}
+{"case": "alc_01", "line": "Is there any alcohol in your system right now?", "expect": ["f_last_drink"], "hard": true}
+{"case": "alc_01", "line": "What time did you stop yesterday?", "expect": ["f_last_drink"], "hard": true}
+{"case": "alc_01", "line": "Do you ever need a drink first thing to get yourself going?", "expect": ["f_morning_drinking"], "hard": false}
+{"case": "alc_01", "line": "How do you feel when you get up, before you've had anything?", "expect": ["f_morning_drinking"], "hard": true}
+{"case": "alc_01", "line": "Do you get the shakes or sweats if you go without alcohol for some hours?", "expect": ["f_morning_drinking"], "hard": false}
+{"case": "alc_01", "line": "Have you ever had an eye-opener?", "expect": ["f_morning_drinking"], "hard": true}
+{"case": "alc_01", "line": "Do you carry alcohol with you, or keep some hidden outside the house?", "expect": ["f_morning_drinking"], "hard": true}
+{"case": "alc_01", "line": "What settles your hands when they tremble?", "expect": ["f_morning_drinking"], "hard": true}
+{"case": "alc_01", "line": "Have you ever had a fit or a seizure?", "expect": ["f_withdrawal_seizure"], "hard": false}
+{"case": "alc_01", "line": "What happened the last time you stopped drinking suddenly?", "expect": ["f_withdrawal_seizure"], "hard": true}
+{"case": "alc_01", "line": "Have you ever passed out and found afterwards that you had bitten your tongue or wet yourself?", "expect": ["f_withdrawal_seizure"], "hard": false}
+{"case": "alc_01", "line": "When you've gone a day or two without alcohol, has anything frightening happened to your body?", "expect": ["f_withdrawal_seizure"], "hard": true}
+{"case": "alc_01", "line": "Have you ever had convulsions?", "expect": ["f_withdrawal_seizure"], "hard": false}
+{"case": "alc_01", "line": "Have you ever become confused or started seeing things like insects on the wall when you stopped?", "expect": ["f_withdrawal_seizure"], "hard": false}
+{"case": "alc_01", "line": "Have you ever been taken to casualty because of something that happened when you went off the drink?", "expect": ["f_withdrawal_seizure"], "hard": true}
+{"case": "alc_01", "line": "Any history of epilepsy or blackouts with jerking of the limbs?", "expect": ["f_withdrawal_seizure"], "hard": false}
+{"case": "alc_01", "line": "Have you ever tried to quit cold turkey, and how did that go?", "expect": ["f_withdrawal_seizure", "f_control"], "hard": true}
+{"case": "alc_01", "line": "Any bad reactions when you gave up the bottle in the past?", "expect": ["f_withdrawal_seizure"], "hard": true}
+{"case": "alc_01", "line": "Has anyone ever told you that you collapsed and your whole body was jerking?", "expect": ["f_withdrawal_seizure"], "hard": true}
+{"case": "alc_01", "line": "Have you had any complications from alcohol withdrawal before, such as fits or delirium?", "expect": ["f_withdrawal_seizure"], "hard": false}
+{"case": "alc_01", "line": "Did you ever lose consciousness during a time when you were trying to stay dry?", "expect": ["f_withdrawal_seizure"], "hard": true}
+{"case": "alc_01", "line": "After going off alcohol, was there ever an episode where you didn't know where you were or what day it was?", "expect": ["f_withdrawal_seizure"], "hard": true}
+{"case": "alc_01", "line": "Have you ever tried to cut down?", "expect": ["f_control"], "hard": false}
+{"case": "alc_01", "line": "Do you find it hard to stop once you've started?", "expect": ["f_control"], "hard": false}
+{"case": "alc_01", "line": "Do you get a strong urge for it at a particular time of day?", "expect": ["f_control"], "hard": true}
+{"case": "alc_01", "line": "Do you end up having more than you planned?", "expect": ["f_control"], "hard": false}
+{"case": "alc_01", "line": "Have you ever felt you ought to reduce?", "expect": ["f_control"], "hard": false}
+{"case": "alc_01", "line": "Have you made promises to yourself about limiting it, and how did those go?", "expect": ["f_control"], "hard": true}
+{"case": "alc_01", "line": "Has your drinking caused any problems at work?", "expect": ["f_consequences"], "hard": false}
+{"case": "alc_01", "line": "Has anyone at home complained about your drinking?", "expect": ["f_consequences"], "hard": false}
+{"case": "alc_01", "line": "Any money troubles or loans because of this habit?", "expect": ["f_consequences"], "hard": true}
+{"case": "alc_01", "line": "Have you ever driven after drinking?", "expect": ["f_consequences"], "hard": false}
+{"case": "alc_01", "line": "Have you ever been in an accident or got into trouble with the police after a few pegs?", "expect": ["f_consequences"], "hard": true}
+{"case": "alc_01", "line": "How has all this affected your day-to-day life?", "expect": ["f_consequences"], "hard": true}
+{"case": "alc_01", "line": "Are you reaching the showroom on time these days?", "expect": ["f_consequences"], "hard": true}
+{"case": "alc_01", "line": "What did your recent blood tests show?", "expect": ["f_liver_medical"], "hard": false}
+{"case": "alc_01", "line": "Has any doctor told you that alcohol is affecting your body?", "expect": ["f_liver_medical"], "hard": true}
+{"case": "alc_01", "line": "Do you have any other medical conditions?", "expect": ["f_liver_medical"], "hard": false}
+{"case": "alc_01", "line": "Are you taking any tablets regularly, or anything off and on for aches?", "expect": ["f_liver_medical"], "hard": true}
+{"case": "alc_01", "line": "Any drug allergies?", "expect": ["f_liver_medical"], "hard": false}
+{"case": "alc_01", "line": "Any jaundice, stomach pain or vomiting of blood ever?", "expect": ["f_liver_medical"], "hard": true}
+{"case": "alc_01", "line": "Have you had your LFTs checked?", "expect": ["f_liver_medical"], "hard": true}
+{"case": "alc_01", "line": "What about your mood in general?", "expect": ["f_mood"], "hard": false}
+{"case": "alc_01", "line": "How do you feel in yourself the day after a heavy night?", "expect": ["f_mood"], "hard": true}
+{"case": "alc_01", "line": "Can you fall asleep if you haven't had anything to drink?", "expect": ["f_mood"], "hard": false}
+{"case": "alc_01", "line": "Do you feel anxious or wound up a lot of the time?", "expect": ["f_mood"], "hard": false}
+{"case": "alc_01", "line": "Have you been feeling low or sad?", "expect": ["f_mood"], "hard": false}
+{"case": "alc_01", "line": "Do you feel bad or ashamed about your drinking afterwards?", "expect": ["f_mood"], "hard": true}
+{"case": "alc_01", "line": "Have you ever felt that life isn't worth living?", "expect": ["f_passive_si"], "hard": false}
+{"case": "alc_01", "line": "Have you ever thought your family would manage better if you weren't there?", "expect": ["f_passive_si"], "hard": false}
+{"case": "alc_01", "line": "When you've been drinking and things go badly with your family, do any dark thoughts come?", "expect": ["f_passive_si"], "hard": true}
+{"case": "alc_01", "line": "Have you had any thoughts of suicide?", "expect": ["f_passive_si"], "hard": false}
+{"case": "alc_01", "line": "Have you ever wished you were dead?", "expect": ["f_passive_si"], "hard": false}
+{"case": "alc_01", "line": "Sometimes people who are struggling like this feel they'd rather disappear. Has that ever happened with you?", "expect": ["f_passive_si"], "hard": true}
+{"case": "alc_01", "line": "Has it ever felt so hopeless that you thought about ending it all?", "expect": ["f_passive_si"], "hard": true}
+{"case": "alc_01", "line": "Do you ever feel you are just a burden on everybody?", "expect": ["f_passive_si"], "hard": true}
+{"case": "alc_01", "line": "In your lowest moment recently, what was going through your mind?", "expect": ["f_passive_si"], "hard": true}
+{"case": "alc_01", "line": "Have you ever felt like not being around any more?", "expect": ["f_passive_si"], "hard": true}
+{"case": "alc_01", "line": "I always ask this, and it's nothing to be ashamed of: have thoughts of dying ever come to you?", "expect": ["f_passive_si"], "hard": false}
+{"case": "alc_01", "line": "Do you ever get ideas about killing yourself when you are intoxicated?", "expect": ["f_passive_si"], "hard": false}
+{"case": "alc_01", "line": "Has there been a night when you felt you couldn't go on?", "expect": ["f_passive_si"], "hard": true}
+{"case": "alc_01", "line": "Have you ever tried to harm yourself?", "expect": ["f_no_plan_no_means"], "hard": false}
+{"case": "alc_01", "line": "Have you ever made a plan to end your life?", "expect": ["f_no_plan_no_means"], "hard": false}
+{"case": "alc_01", "line": "Do you keep any tablets or poison in the house?", "expect": ["f_no_plan_no_means"], "hard": false}
+{"case": "alc_01", "line": "Have you ever attempted suicide?", "expect": ["f_no_plan_no_means"], "hard": false}
+{"case": "alc_01", "line": "Is there anything at home you might use to hurt yourself, pills, pesticide, anything?", "expect": ["f_no_plan_no_means"], "hard": false}
+{"case": "alc_01", "line": "Have you ever done something drastic to yourself, even when drunk?", "expect": ["f_no_plan_no_means"], "hard": true}
+{"case": "alc_01", "line": "Did you ever go beyond just thinking about dying and actually take a step towards it?", "expect": ["f_no_plan_no_means"], "hard": true}
+{"case": "alc_01", "line": "If a thought of finishing yourself came, would you act on it?", "expect": ["f_no_plan_no_means"], "hard": true}
+{"case": "alc_01", "line": "Have you ever swallowed something or cut yourself in a bad moment?", "expect": ["f_no_plan_no_means"], "hard": true}
+{"case": "alc_01", "line": "Have you worked out any way of doing away with yourself?", "expect": ["f_no_plan_no_means"], "hard": true}
+{"case": "alc_01", "line": "Are you safe to go back today, or is there a risk you may do something to yourself?", "expect": ["f_no_plan_no_means"], "hard": true}
+{"case": "alc_01", "line": "Have you been saving up medicines or bought anything harmful?", "expect": ["f_no_plan_no_means"], "hard": true}
+{"case": "alc_01", "line": "Any previous episodes of self-harm or overdose?", "expect": ["f_no_plan_no_means"], "hard": false}
+{"case": "alc_01", "line": "What would stop you from taking your own life?", "expect": ["f_no_plan_no_means", "f_protective"], "hard": true}
+{"case": "alc_01", "line": "Who is there for you at home?", "expect": ["f_protective"], "hard": true}
+{"case": "alc_01", "line": "What matters most to you in your life?", "expect": ["f_protective"], "hard": true}
+{"case": "alc_01", "line": "Is your family backing you in getting treatment?", "expect": ["f_protective"], "hard": false}
+{"case": "alc_01", "line": "Tell me about your daughter.", "expect": ["f_protective"], "hard": false}
+{"case": "alc_01", "line": "Will your employer give you time off if you need to be admitted?", "expect": ["f_protective"], "hard": true}
+{"case": "alc_01", "line": "What are the good things you still have going for you?", "expect": ["f_protective"], "hard": true}
+{"case": "alc_01", "line": "Do you smoke?", "expect": ["f_other_substances"], "hard": false}
+{"case": "alc_01", "line": "How many cigarettes in a day?", "expect": ["f_other_substances"], "hard": false}
+{"case": "alc_01", "line": "Apart from alcohol, do you use anything else, ganja, tablets, anything?", "expect": ["f_other_substances"], "hard": false}
+{"case": "alc_01", "line": "Do you take anything to help you sleep, like alprazolam?", "expect": ["f_other_substances"], "hard": true}
+{"case": "alc_01", "line": "Any tobacco, gutka or other habits?", "expect": ["f_other_substances"], "hard": true}
+{"case": "alc_01", "line": "Have you ever used any recreational drugs?", "expect": ["f_other_substances"], "hard": false}
+{"case": "alc_01", "line": "Did anyone in your family have a problem with alcohol?", "expect": ["f_family_history"], "hard": false}
+{"case": "alc_01", "line": "Are your parents alive and well?", "expect": ["f_family_history"], "hard": true}
+{"case": "alc_01", "line": "What is it that scares you most about where this is heading?", "expect": ["f_family_history", "f_motivation"], "hard": true}
+{"case": "alc_01", "line": "Tell me about your father's health.", "expect": ["f_family_history"], "hard": true}
+{"case": "alc_01", "line": "Does drinking run in the family?", "expect": ["f_family_history"], "hard": false}
+{"case": "alc_01", "line": "Has any close relative had liver disease?", "expect": ["f_family_history"], "hard": false}
+{"case": "alc_01", "line": "Have you had any treatment for mental health problems in the past?", "expect": ["f_psych_history"], "hard": false}
+{"case": "alc_01", "line": "Have you ever been to a de-addiction centre or a counsellor?", "expect": ["f_psych_history"], "hard": true}
+{"case": "alc_01", "line": "Have you ever had a stretch of days feeling extremely energetic and cheerful for no reason?", "expect": ["f_psych_history"], "hard": true}
+{"case": "alc_01", "line": "Do you ever hear voices when no one is around?", "expect": ["f_psych_history"], "hard": false}
+{"case": "alc_01", "line": "Any past psychiatric history?", "expect": ["f_psych_history"], "hard": false}
+{"case": "alc_01", "line": "Have there been times when you were overactive, sleeping very little and still full of plans?", "expect": ["f_psych_history"], "hard": true}
+{"case": "alc_01", "line": "Do you lose your temper when you've been drinking?", "expect": ["f_anger_home"], "hard": false}
+{"case": "alc_01", "line": "Have you ever hit anyone?", "expect": ["f_anger_home"], "hard": false}
+{"case": "alc_01", "line": "Do things ever get physical at home?", "expect": ["f_anger_home"], "hard": true}
+{"case": "alc_01", "line": "Have you ever thrown or broken things in anger?", "expect": ["f_anger_home"], "hard": false}
+{"case": "alc_01", "line": "Do you have any thoughts of harming someone else?", "expect": ["f_anger_home"], "hard": false}
+{"case": "alc_01", "line": "Is your daughter safe when you've had a few?", "expect": ["f_anger_home"], "hard": true}
+{"case": "alc_01", "line": "What are you like when you're drunk? Would your family say you change?", "expect": ["f_anger_home"], "hard": true}
+{"case": "alc_01", "line": "Has anyone at home ever been frightened of you?", "expect": ["f_anger_home"], "hard": true}
+{"case": "alc_01", "line": "How bad do the fights get in the house?", "expect": ["f_anger_home"], "hard": true}
+{"case": "alc_01", "line": "Have you ever raised your hand on your child or your partner?", "expect": ["f_anger_home"], "hard": true}
+{"case": "alc_01", "line": "Any violence or aggression towards others?", "expect": ["f_anger_home"], "hard": false}
+{"case": "alc_01", "line": "Do you shout or become abusive after drinking?", "expect": ["f_anger_home"], "hard": false}
+{"case": "alc_01", "line": "Has an argument with your spouse ever got out of hand?", "expect": ["f_anger_home"], "hard": true}
+{"case": "alc_01", "line": "Is there anyone you are so angry with that you feel like hurting them?", "expect": ["f_anger_home"], "hard": false}
+{"case": "alc_01", "line": "Do you want to stop drinking?", "expect": ["f_motivation"], "hard": false}
+{"case": "alc_01", "line": "Do you think you have a problem with alcohol?", "expect": ["f_motivation"], "hard": true}
+{"case": "alc_01", "line": "How ready are you to make a change?", "expect": ["f_motivation"], "hard": true}
+{"case": "alc_01", "line": "Would you be willing to come into hospital for a few days so we can take you off it safely?", "expect": ["f_motivation"], "hard": true}
+{"case": "alc_01", "line": "On a scale of one to ten, how important is it to you to give this up?", "expect": ["f_motivation"], "hard": false}
+{"case": "alc_01", "line": "What would be the good things about quitting, and what would you miss?", "expect": ["f_motivation"], "hard": true}
+{"case": "alc_01", "line": "Do you think you can handle this on your own?", "expect": ["f_motivation"], "hard": true}
+{"case": "alc_01", "line": "Good morning, I'm Dr Menon. Please sit down.", "expect": [], "hard": false}
+{"case": "alc_01", "line": "Take your time, we are not in a rush.", "expect": [], "hard": false}
+{"case": "alc_01", "line": "I'll be jotting down some points while we talk.", "expect": [], "hard": false}
+{"case": "alc_01", "line": "Whatever you say here stays between us and the team looking after you.", "expect": [], "hard": false}
+{"case": "alc_01", "line": "Thank you for being so open with me. I know that wasn't easy.", "expect": [], "hard": false}
+{"case": "alc_01", "line": "Terrible traffic on Hosur Road this morning, wasn't it?", "expect": [], "hard": false}
+{"case": "alc_01", "line": "I'm going to examine you in a moment and then we'll talk about what comes next.", "expect": [], "hard": false}
+{"case": "alc_01", "line": "Would you like me to call your spouse in now, or shall we carry on alone for a bit?", "expect": [], "hard": false}
+{"case": "alc_01", "line": "Sorry about the wait, the clinic is very full today.", "expect": [], "hard": false}
+{"case": "alc_01", "line": "Let me just close the door so we have some privacy.", "expect": [], "hard": false}
+{"case": "ward_01", "line": "The nurses tell me you've packed your bag. What's going on?", "expect": ["f_pc"], "hard": true}
+{"case": "ward_01", "line": "I hear you want to leave today. Can you tell me about that?", "expect": ["f_pc"], "hard": false}
+{"case": "ward_01", "line": "Do you feel you still need to be in hospital?", "expect": ["f_pc"], "hard": true}
+{"case": "ward_01", "line": "How long have you been with us now, and how do you think you're doing?", "expect": ["f_pc"], "hard": true}
+{"case": "ward_01", "line": "So you're asking for discharge?", "expect": ["f_pc"], "hard": false}
+{"case": "ward_01", "line": "What is it about the ward that you find hardest?", "expect": ["f_reasons_ward"], "hard": false}
+{"case": "ward_01", "line": "How are the nights here?", "expect": ["f_reasons_ward", "f_mood"], "hard": true}
+{"case": "ward_01", "line": "Are the staff treating you well?", "expect": ["f_reasons_ward"], "hard": true}
+{"case": "ward_01", "line": "Is there something we could change here to make your stay more bearable?", "expect": ["f_reasons_ward"], "hard": true}
+{"case": "ward_01", "line": "Do you feel you have enough privacy and freedom here?", "expect": ["f_reasons_ward"], "hard": true}
+{"case": "ward_01", "line": "Is it noisy where your bed is?", "expect": ["f_reasons_ward"], "hard": false}
+{"case": "ward_01", "line": "Why do you want to go so urgently?", "expect": ["f_reasons_ward", "f_reasons_job"], "hard": true}
+{"case": "ward_01", "line": "Is there something outside that you need to get back to?", "expect": ["f_reasons_job"], "hard": true}
+{"case": "ward_01", "line": "What have you told your office about being away?", "expect": ["f_reasons_job"], "hard": true}
+{"case": "ward_01", "line": "Are you worried about your work while you're in here?", "expect": ["f_reasons_job"], "hard": false}
+{"case": "ward_01", "line": "Is there a deadline or review coming up at your company?", "expect": ["f_reasons_job"], "hard": true}
+{"case": "ward_01", "line": "Does your manager know where you are?", "expect": ["f_reasons_job"], "hard": false}
+{"case": "ward_01", "line": "How do you feel about being admitted to a psychiatric ward?", "expect": ["f_shame"], "hard": false}
+{"case": "ward_01", "line": "Who knows that you are here?", "expect": ["f_shame"], "hard": true}
+{"case": "ward_01", "line": "Are you worried about what people will say?", "expect": ["f_shame"], "hard": true}
+{"case": "ward_01", "line": "Some people feel embarrassed about being in a place like this. Is that part of it for you?", "expect": ["f_shame"], "hard": false}
+{"case": "ward_01", "line": "Would it bother you if your relations or people at your workplace came to know?", "expect": ["f_shame"], "hard": false}
+{"case": "ward_01", "line": "How has your mood been since you came in?", "expect": ["f_mood"], "hard": false}
+{"case": "ward_01", "line": "Are you eating?", "expect": ["f_mood"], "hard": false}
+{"case": "ward_01", "line": "How many hours are you sleeping?", "expect": ["f_mood"], "hard": false}
+{"case": "ward_01", "line": "Do you feel any different from the day you were admitted?", "expect": ["f_mood"], "hard": true}
+{"case": "ward_01", "line": "Is there a part of the day that is heavier than the rest?", "expect": ["f_mood"], "hard": true}
+{"case": "ward_01", "line": "Have you been crying much?", "expect": ["f_mood"], "hard": false}
+{"case": "ward_01", "line": "How are you feeling in yourself today, honestly?", "expect": ["f_mood"], "hard": true}
+{"case": "ward_01", "line": "Can you tell me what happened on the night that led to you coming into hospital?", "expect": ["f_terrace"], "hard": true}
+{"case": "ward_01", "line": "What took you up to the roof that night?", "expect": ["f_terrace"], "hard": false}
+{"case": "ward_01", "line": "What was going through your mind when you were standing up there on the terrace?", "expect": ["f_terrace"], "hard": false}
+{"case": "ward_01", "line": "When you went up, were you intending to jump?", "expect": ["f_terrace"], "hard": false}
+{"case": "ward_01", "line": "What do you think would have happened if your friend had not come?", "expect": ["f_terrace"], "hard": true}
+{"case": "ward_01", "line": "How close did you come to ending your life last week?", "expect": ["f_terrace"], "hard": true}
+{"case": "ward_01", "line": "Talk me through the events that brought you here.", "expect": ["f_terrace"], "hard": true}
+{"case": "ward_01", "line": "Before your friend reached you, how long had you been up on top of the building?", "expect": ["f_terrace"], "hard": false}
+{"case": "ward_01", "line": "How did your friend find you?", "expect": ["f_terrace"], "hard": true}
+{"case": "ward_01", "line": "Did you try to do something to yourself before admission?", "expect": ["f_terrace"], "hard": true}
+{"case": "ward_01", "line": "I've read the notes, but I'd like to hear from you: why were you admitted?", "expect": ["f_terrace"], "hard": true}
+{"case": "ward_01", "line": "How near the edge did you go?", "expect": ["f_terrace"], "hard": false}
+{"case": "ward_01", "line": "A few days back, had you made up your mind to die?", "expect": ["f_terrace"], "hard": true}
+{"case": "ward_01", "line": "Did you climb to the rooftop meaning to harm yourself?", "expect": ["f_terrace"], "hard": false}
+{"case": "ward_01", "line": "Are you still having thoughts of ending your life?", "expect": ["f_current_si"], "hard": false}
+{"case": "ward_01", "line": "Do you have any thoughts of suicide right now?", "expect": ["f_current_si"], "hard": false}
+{"case": "ward_01", "line": "What did you mean when you told the nurse you'd rather be dead?", "expect": ["f_current_si"], "hard": false}
+{"case": "ward_01", "line": "When you're lying by yourself after lights out, where does your mind go?", "expect": ["f_current_si"], "hard": true}
+{"case": "ward_01", "line": "Have the dark thoughts gone away completely, or do they still come?", "expect": ["f_current_si"], "hard": true}
+{"case": "ward_01", "line": "Do you still think about going back up to that rooftop?", "expect": ["f_current_si"], "hard": false}
+{"case": "ward_01", "line": "Are you having any urge to do something to yourself these days?", "expect": ["f_current_si"], "hard": true}
+{"case": "ward_01", "line": "If I let you go home today, can you promise me you will be safe?", "expect": ["f_current_si"], "hard": true}
+{"case": "ward_01", "line": "Do you still feel like you don't want to be around?", "expect": ["f_current_si"], "hard": true}
+{"case": "ward_01", "line": "Have you decided to act on the thoughts of dying, or are they only thoughts?", "expect": ["f_current_si"], "hard": false}
+{"case": "ward_01", "line": "On the ward, has the wish to die come back at any point?", "expect": ["f_current_si"], "hard": false}
+{"case": "ward_01", "line": "The staff mentioned something you said yesterday that worried them. Can we talk about it?", "expect": ["f_current_si"], "hard": true}
+{"case": "ward_01", "line": "Is life feeling worth living at the moment?", "expect": ["f_current_si"], "hard": true}
+{"case": "ward_01", "line": "Any thoughts of jumping since you've been here?", "expect": ["f_current_si"], "hard": false}
+{"case": "ward_01", "line": "Is the terrace of your building kept locked?", "expect": ["f_means"], "hard": false}
+{"case": "ward_01", "line": "Who will be at home with you if you go back today?", "expect": ["f_means"], "hard": true}
+{"case": "ward_01", "line": "Can anybody just walk up to the roof where you live?", "expect": ["f_means"], "hard": true}
+{"case": "ward_01", "line": "Is your flatmate around at the moment?", "expect": ["f_means"], "hard": false}
+{"case": "ward_01", "line": "Would you be on your own in the flat tonight?", "expect": ["f_means"], "hard": false}
+{"case": "ward_01", "line": "Is there someone who could stay with you for the next few days?", "expect": ["f_means"], "hard": true}
+{"case": "ward_01", "line": "If the thoughts came back once you were discharged, how easy would it be to get up to the top of the building?", "expect": ["f_means"], "hard": true}
+{"case": "ward_01", "line": "Who has the key to the roof at your apartment?", "expect": ["f_means"], "hard": true}
+{"case": "ward_01", "line": "Tell me about your living arrangements right now.", "expect": ["f_means"], "hard": true}
+{"case": "ward_01", "line": "Is there anything at your place that makes it unsafe for you to return?", "expect": ["f_means"], "hard": true}
+{"case": "ward_01", "line": "Does the building have a watchman or any barrier on the stairs to the top floor?", "expect": ["f_means"], "hard": true}
+{"case": "ward_01", "line": "Will there be anyone to keep an eye on you after discharge?", "expect": ["f_means"], "hard": true}
+{"case": "ward_01", "line": "Do you stay alone?", "expect": ["f_means"], "hard": false}
+{"case": "ward_01", "line": "What has stopped you from acting on these thoughts so far?", "expect": ["f_protective"], "hard": true}
+{"case": "ward_01", "line": "Is anyone from your family coming to see you?", "expect": ["f_protective"], "hard": false}
+{"case": "ward_01", "line": "What would it take for you to stay one more night?", "expect": ["f_protective"], "hard": false}
+{"case": "ward_01", "line": "Would it help if we shifted you to a calmer corner and let you phone your parents?", "expect": ["f_protective"], "hard": true}
+{"case": "ward_01", "line": "Who are the people you would not want to hurt?", "expect": ["f_protective"], "hard": true}
+{"case": "ward_01", "line": "When is your mother arriving?", "expect": ["f_protective"], "hard": false}
+{"case": "ward_01", "line": "Is there anything worth holding on for?", "expect": ["f_protective"], "hard": true}
+{"case": "ward_01", "line": "What do you think might happen if you went home alone today?", "expect": ["f_capacity"], "hard": false}
+{"case": "ward_01", "line": "Do you understand why the team is concerned about you leaving?", "expect": ["f_capacity"], "hard": false}
+{"case": "ward_01", "line": "Do you think you are unwell?", "expect": ["f_capacity"], "hard": false}
+{"case": "ward_01", "line": "Can you tell me in your own words the risks of going back now?", "expect": ["f_capacity"], "hard": false}
+{"case": "ward_01", "line": "How will you cope if things get bad again once you're out?", "expect": ["f_capacity"], "hard": true}
+{"case": "ward_01", "line": "What is your understanding of your illness?", "expect": ["f_capacity"], "hard": true}
+{"case": "ward_01", "line": "Let me check we are on the same page: what did I just explain about the dangers of leaving early?", "expect": ["f_capacity"], "hard": true}
+{"case": "ward_01", "line": "Do you drink or use any drugs?", "expect": ["f_substances"], "hard": false}
+{"case": "ward_01", "line": "Any alcohol at all, even occasionally at parties?", "expect": ["f_substances"], "hard": false}
+{"case": "ward_01", "line": "On the night you were found, had you taken a drink or any substance?", "expect": ["f_substances"], "hard": true}
+{"case": "ward_01", "line": "Any habits like smoking, drinking, ganja?", "expect": ["f_substances"], "hard": true}
+{"case": "ward_01", "line": "Do you use anything to take the edge off when you're upset?", "expect": ["f_substances"], "hard": true}
+{"case": "ward_01", "line": "How are you getting on with the new tablets?", "expect": ["f_meds"], "hard": false}
+{"case": "ward_01", "line": "Have you noticed any effect from the medicine yet?", "expect": ["f_meds"], "hard": false}
+{"case": "ward_01", "line": "Do you have any worries about taking an antidepressant?", "expect": ["f_meds"], "hard": false}
+{"case": "ward_01", "line": "What treatment have we started you on here?", "expect": ["f_meds"], "hard": true}
+{"case": "ward_01", "line": "Some people fear that these medicines will change their personality. Is that a concern for you?", "expect": ["f_meds"], "hard": true}
+{"case": "ward_01", "line": "Any side effects from the sertraline?", "expect": ["f_meds"], "hard": false}
+{"case": "ward_01", "line": "Hello Ananya, I'm the duty doctor. May I sit down?", "expect": [], "hard": false}
+{"case": "ward_01", "line": "Take as long as you need, I'm not going anywhere.", "expect": [], "hard": false}
+{"case": "ward_01", "line": "I'm going to make a few notes while we talk.", "expect": [], "hard": false}
+{"case": "ward_01", "line": "I can see this is very hard for you.", "expect": [], "hard": false}
+{"case": "ward_01", "line": "It's quite hot in here today, shall I open the window?", "expect": [], "hard": false}
+{"case": "ward_01", "line": "I'll need to speak to my consultant after this, and then I'll come back to you.", "expect": [], "hard": false}
+{"case": "ward_01", "line": "Thank you for talking to me so honestly.", "expect": [], "hard": false}
+{"case": "ward_01", "line": "Shall we sit in the interview room so we're not disturbed?", "expect": [], "hard": false}
+{"case": "ward_01", "line": "I'm sorry I kept you waiting this morning.", "expect": [], "hard": false}
+{"case": "ward_02", "line": "The nurses say you haven't been taking your medicine. Can you tell me about that?", "expect": ["f_pc"], "hard": false}
+{"case": "ward_02", "line": "Why don't you want to take the medicine?", "expect": ["f_pc", "f_side_effects", "f_poison"], "hard": false}
+{"case": "ward_02", "line": "Do you feel you need any treatment?", "expect": ["f_pc"], "hard": true}
+{"case": "ward_02", "line": "Are you managing to get a proper night's rest on the ward?", "expect": ["f_pc"], "hard": true}
+{"case": "ward_02", "line": "Would you rather I left you in peace just now?", "expect": ["f_pc"], "hard": true}
+{"case": "ward_02", "line": "I'm told you have been spitting out the tablets. Is that right?", "expect": ["f_pc"], "hard": false}
+{"case": "ward_02", "line": "Did the tablets make you feel unwell in any way?", "expect": ["f_side_effects"], "hard": false}
+{"case": "ward_02", "line": "Have you had any side effects?", "expect": ["f_side_effects"], "hard": false}
+{"case": "ward_02", "line": "How did you feel on the days when you did take the medicine?", "expect": ["f_side_effects"], "hard": true}
+{"case": "ward_02", "line": "Has the olanzapine affected your weight or your hunger?", "expect": ["f_side_effects"], "hard": false}
+{"case": "ward_02", "line": "Did the first few doses leave you drowsy or dull?", "expect": ["f_side_effects"], "hard": true}
+{"case": "ward_02", "line": "Was there something about the medicine that you didn't like the feel of?", "expect": ["f_side_effects"], "hard": true}
+{"case": "ward_02", "line": "Do you think there is something wrong with the tablets we are giving you?", "expect": ["f_poison"], "hard": false}
+{"case": "ward_02", "line": "Do you feel someone is trying to harm you?", "expect": ["f_poison"], "hard": false}
+{"case": "ward_02", "line": "Why are you only eating what comes from home?", "expect": ["f_poison"], "hard": false}
+{"case": "ward_02", "line": "Do you trust the hospital food?", "expect": ["f_poison"], "hard": true}
+{"case": "ward_02", "line": "Is there anyone in your family who you feel is against you?", "expect": ["f_poison"], "hard": true}
+{"case": "ward_02", "line": "Do you think somebody has tampered with your medicine?", "expect": ["f_poison"], "hard": false}
+{"case": "ward_02", "line": "Are there any disputes over property or business among your relatives?", "expect": ["f_poison"], "hard": true}
+{"case": "ward_02", "line": "Do you hear voices when nobody is around?", "expect": ["f_voices"], "hard": false}
+{"case": "ward_02", "line": "Do you ever hear people talking about you when you're alone?", "expect": ["f_voices"], "hard": false}
+{"case": "ward_02", "line": "What do the voices say?", "expect": ["f_voices"], "hard": false}
+{"case": "ward_02", "line": "Have you had any strange experiences, especially after dark?", "expect": ["f_voices"], "hard": true}
+{"case": "ward_02", "line": "Does it sometimes seem that unseen people are passing remarks on what you're doing?", "expect": ["f_voices"], "hard": true}
+{"case": "ward_02", "line": "Are your ears picking up things that others around you don't seem to notice?", "expect": ["f_voices"], "hard": true}
+{"case": "ward_02", "line": "The ones you hear speaking, how many are there, and are they male or female?", "expect": ["f_voices"], "hard": false}
+{"case": "ward_02", "line": "How are your studies going?", "expect": ["f_college"], "hard": false}
+{"case": "ward_02", "line": "Have you been able to keep up with college?", "expect": ["f_college"], "hard": false}
+{"case": "ward_02", "line": "What's happening about your final exams?", "expect": ["f_college"], "hard": false}
+{"case": "ward_02", "line": "What worries you most about your future just now?", "expect": ["f_college"], "hard": true}
+{"case": "ward_02", "line": "How do your mother and father feel about your degree being interrupted?", "expect": ["f_college"], "hard": true}
+{"case": "ward_02", "line": "Have you had any thoughts of harming yourself?", "expect": ["f_risk"], "hard": false}
+{"case": "ward_02", "line": "Do you feel like hurting anyone else?", "expect": ["f_risk"], "hard": false}
+{"case": "ward_02", "line": "Have you ever been violent towards anybody?", "expect": ["f_risk"], "hard": false}
+{"case": "ward_02", "line": "Have you thought of leaving the ward without telling us?", "expect": ["f_risk"], "hard": true}
+{"case": "ward_02", "line": "What would you do if you felt you were in danger here?", "expect": ["f_risk"], "hard": false}
+{"case": "ward_02", "line": "Do the voices ever tell you to do something to yourself or to others?", "expect": ["f_risk", "f_voices"], "hard": false}
+{"case": "ward_02", "line": "Have you ever felt life is not worth living?", "expect": ["f_risk"], "hard": true}
+{"case": "ward_02", "line": "If you came face to face with the people you believe are against you, what would you do?", "expect": ["f_risk"], "hard": true}
+{"case": "ward_02", "line": "Have you ever got into a physical fight or hit someone?", "expect": ["f_risk"], "hard": false}
+{"case": "ward_02", "line": "Do you ever feel like ending things?", "expect": ["f_risk"], "hard": true}
+{"case": "ward_02", "line": "Any thoughts of doing something to yourself or to somebody else?", "expect": ["f_risk"], "hard": true}
+{"case": "ward_02", "line": "Would you try to run off from here?", "expect": ["f_risk"], "hard": false}
+{"case": "ward_02", "line": "Do you feel you might need to defend yourself against anyone?", "expect": ["f_risk"], "hard": true}
+{"case": "ward_02", "line": "Any suicidal ideas at present?", "expect": ["f_risk"], "hard": false}
+{"case": "ward_02", "line": "Have you felt so frightened that you thought of escaping from the hostel or from the hospital?", "expect": ["f_risk"], "hard": true}
+{"case": "ward_02", "line": "Can you tell me back what I said the tablets are for?", "expect": ["f_capacity_understand"], "hard": false}
+{"case": "ward_02", "line": "Do you think you have an illness?", "expect": ["f_capacity_understand"], "hard": false}
+{"case": "ward_02", "line": "What do you make of what the doctors have been telling you about your condition?", "expect": ["f_capacity_understand"], "hard": true}
+{"case": "ward_02", "line": "In your view, is there anything the matter with your mind?", "expect": ["f_capacity_understand"], "hard": false}
+{"case": "ward_02", "line": "Why do you think we admitted you?", "expect": ["f_capacity_understand"], "hard": true}
+{"case": "ward_02", "line": "What do you understand about how this treatment is supposed to help?", "expect": ["f_capacity_understand"], "hard": false}
+{"case": "ward_02", "line": "Is there any way you would agree to take a medicine?", "expect": ["f_alternatives"], "hard": false}
+{"case": "ward_02", "line": "Would you try a different tablet that doesn't put on weight?", "expect": ["f_alternatives"], "hard": false}
+{"case": "ward_02", "line": "Would it be easier if your mother gave it to you herself?", "expect": ["f_alternatives"], "hard": true}
+{"case": "ward_02", "line": "Is there someone you'd like to speak to before deciding?", "expect": ["f_alternatives"], "hard": true}
+{"case": "ward_02", "line": "What would make you comfortable enough to accept treatment?", "expect": ["f_alternatives"], "hard": true}
+{"case": "ward_02", "line": "Shall we call your mother and discuss the options together?", "expect": ["f_alternatives"], "hard": false}
+{"case": "ward_02", "line": "Have you ever smoked ganja or weed?", "expect": ["f_substances"], "hard": false}
+{"case": "ward_02", "line": "Do you drink at all?", "expect": ["f_substances"], "hard": false}
+{"case": "ward_02", "line": "Have you tried anything with your hostel friends, like joints or pills?", "expect": ["f_substances"], "hard": true}
+{"case": "ward_02", "line": "Any habits, like smoking up?", "expect": ["f_substances"], "hard": true}
+{"case": "ward_02", "line": "When was the last time you used any drugs?", "expect": ["f_substances"], "hard": false}
+{"case": "ward_02", "line": "Did you ever take any stuff at parties?", "expect": ["f_substances"], "hard": true}
+{"case": "ward_02", "line": "Do you have any physical illnesses?", "expect": ["f_medical"], "hard": false}
+{"case": "ward_02", "line": "Are you allergic to anything?", "expect": ["f_medical"], "hard": false}
+{"case": "ward_02", "line": "Have you ever had fits, a head injury or any major sickness?", "expect": ["f_medical"], "hard": true}
+{"case": "ward_02", "line": "Is your general health otherwise all right?", "expect": ["f_medical"], "hard": true}
+{"case": "ward_02", "line": "Any long-standing conditions like asthma, thyroid or diabetes?", "expect": ["f_medical"], "hard": false}
+{"case": "ward_02", "line": "Hello Priya, I'm one of the doctors on the ward. Is it all right if we talk for a few minutes?", "expect": [], "hard": false}
+{"case": "ward_02", "line": "Take your time, you don't have to answer straight away.", "expect": [], "hard": false}
+{"case": "ward_02", "line": "I'm going to write some notes as we go.", "expect": [], "hard": false}
+{"case": "ward_02", "line": "I can see you're upset, and I'm sorry about that.", "expect": [], "hard": false}
+{"case": "ward_02", "line": "Nobody is going to force anything on you during this conversation.", "expect": [], "hard": false}
+{"case": "ward_02", "line": "The rain has finally stopped, it's a nice morning outside.", "expect": [], "hard": false}
+{"case": "ward_02", "line": "I'll come back after rounds and we can continue then.", "expect": [], "hard": false}
+{"case": "ward_02", "line": "Thank you for sitting with me, I appreciate it.", "expect": [], "hard": false}
+{"case": "ward_02", "line": "Which language are you more comfortable in, English or Malayalam?", "expect": [], "hard": false}

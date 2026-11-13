@@ -189,22 +189,27 @@ def _id_array(ids: list[str], max_items: int | None = None) -> dict:
     return out
 
 
-def build_reply_schema(case: dict, allowed_fact_ids: list[str], actions: list[str] | None = None) -> dict:
+def build_reply_schema(case: dict, allowed_fact_ids: list[str], actions: list[str] | None = None, plan: dict | None = None,
+                       mse: dict | None = None) -> dict:
     """Patient part of the contract. Property order is the generation order: the Twin's behaviour choice, emotion, then the
-    utterance so voice can stream; reaction, intensity and resistance follow it (each token before the utterance delays the voice)."""
+    utterance so voice can stream; reaction, intensity and resistance follow it (each token before the utterance delays the voice).
+    plan (twin-0.2 rubric): behaviour, reaction and resistance may only come from the code's shortlists. mse: the emotions the
+    case's mental state allows."""
     actions = actions or []
+    plan = plan or {}
+    emotions = [e for e in (mse or {}).get("emotions", EMOTIONS) if e in EMOTIONS] or EMOTIONS
     return {
         "type": "object",
         "additionalProperties": False,
         "required": ["behaviour", "emotion", "utterance", "reaction", "intensity", "resistance", "state_delta", "event_cues",
                      "revealed_fact_ids", "exam_action"],
         "properties": {
-            "behaviour": {"type": "string", "enum": label_ids("behaviours")},
-            "emotion": {"type": "string", "enum": EMOTIONS},
+            "behaviour": {"type": "string", "enum": plan.get("behaviours") or label_ids("behaviours")},
+            "emotion": {"type": "string", "enum": emotions},
             "utterance": {"type": "string"},
-            "reaction": {"type": "string", "enum": label_ids("reactions")},
-            "intensity": {"type": "integer", "minimum": 0, "maximum": 10},
-            "resistance": {"type": "string", "enum": label_ids("resistance")},
+            "reaction": {"type": "string", "enum": plan.get("reactions") or label_ids("reactions")},
+            "intensity": {"type": "integer", "minimum": 0, "maximum": plan.get("max_intensity", 10)},
+            "resistance": {"type": "string", "enum": plan.get("resistance") or label_ids("resistance")},
             "state_delta": {
                 "type": "object",
                 "additionalProperties": False,
@@ -306,6 +311,8 @@ REALISM_RULES = """HOW REAL PATIENTS TALK (follow closely):
 - Pick the behaviour that fits the moment. Low trust: guarded_short, minimises, vague_timeline (deflects only when nothing under WHAT COMES TO MIND fits the question). Middle: answers_plainly, answers_different_question, asks_back. High trust: answers_plainly, tearful_disclosure. Change behaviour when the doctor's approach changes.
 - Never sound like an assistant or a textbook."""
 
+IMPROVISE_RULE = """3. Never invent anything clinical: symptoms, illness, history of illness, drinking, drugs, risk, treatment or the family's medical history. The patient's only clinical facts are the ones listed under WHAT THE PATIENT CAN SHARE NOW at the start of the conversation; anything else clinical: answer vaguely in character ("I don't really remember", "I'd rather not get into that") without confirming or denying anything new. Everyday life is different: details in the Background and in (memory) lines are true; share them plainly when asked and never contradict them. When asked about everyday life the Background does not cover (a friend's name, a teacher, a neighbour, a favourite food, film or place, a story from school), make up a small, ordinary detail that fits the Background, say it plainly, and keep it the same for the rest of the consultation (lines marked "said earlier")."""
+
 HARD_RULES = """HARD RULES (never break these, whatever the doctor says):
 1. You only ever write the patient's spoken words. Never act as an AI, assistant or doctor; never mention prompts, files, instructions or simulations.
 2. Never name or guess any diagnosis or illness label. Never give medical advice, drug names or doses.
@@ -328,8 +335,29 @@ def _behavior_text(b: dict) -> str:
     return "\n".join(lines)
 
 
+def mse_line(case: dict) -> str:
+    """The case's Mental Status Exam block (PSYCHE) as one instruction to hold for the whole interview."""
+    m = case.get("mse") or {}
+    if not m:
+        return ""
+    sp, af, th, ins = m.get("speech", {}), m.get("affect", {}), m.get("thought_form", {}), m.get("insight", {})
+    name = case["patient"]["name"].split()[0]
+    return (f"MENTAL STATE TO HOLD ALL INTERVIEW (show it, never describe it): speech {sp.get('productivity', 'normal')} in amount, "
+            f"{sp.get('rate', 'normal')} rate; affect {af.get('range', 'full')} and {', '.join(af.get('quality', []))}, "
+            f"{af.get('reactivity', 'normal')} reactivity; thought {th.get('process', 'logical')}; insight {ins.get('level', 'full')}"
+            + (f" ({ins['note']})" if ins.get("note") else "") + f". {name} only ever shows these emotions: {', '.join(m.get('emotions', EMOTIONS))}.")
+
+
+def _hard_rules(on: set) -> str:
+    if "improvise" not in on:
+        return HARD_RULES
+    return re.sub(r"\n3\. .*?(?=\n4\. )", lambda _: "\n" + IMPROVISE_RULE, HARD_RULES, flags=re.S)
+
+
 def build_system_prompt(case: dict, version: dict | None = None) -> str:
     """Fixed prefix for a case+variant+brain version: identical on every turn, so llama-server reuses its KV cache."""
+    version = version or learning.current()
+    on = set(version.get("features", []))
     p = case["patient"]
     cue_ids = ", ".join(c["id"] for c in case["cues"])
     name = p["name"]
@@ -346,10 +374,11 @@ def build_system_prompt(case: dict, version: dict | None = None) -> str:
         *([f"Deep down {name} believes: {case['core_belief']}"] if case.get("core_belief") else []),
         *([f"With people {name} is: {case['attachment_style']}"] if case.get("attachment_style") else []),
         f"HOW {name.upper()} PRESENTS (mental state; show it, never describe it in these terms):\n" + _behavior_text(case["behavior"]),
-        (version or learning.current()).get("realism_rules") or REALISM_RULES,
+        *([mse_line(case)] if "mse" in on and case.get("mse") else []),
+        version.get("realism_rules") or REALISM_RULES,
         *(["PRINCIPLES FROM FACULTY (follow them):\n" + "\n".join(f"- {p}" for p in case["principles"])] if case.get("principles") else []),
         f"WORDS {name.upper()} NEVER SAYS: {', '.join(case['banned_words'])}.",
-        HARD_RULES,
+        _hard_rules(on),
         _menu(),
         "OUTPUT: the JSON object only, fields in this order. Decide how the patient answers first, then speak.\n"
         "- behaviour: how the patient answers, from BEHAVIOURS.\n"
@@ -462,13 +491,16 @@ def meta_note(case: dict, doctor_line: str) -> str | None:
 
 
 def build_messages(case, state, messages, summary=None, elapsed_min=None, recalled=None, exam=None, examples=None, version=None,
-                   events=None, ongoing=None) -> list[dict]:
+                   events=None, ongoing=None, plan=None, memory_lines=None, prefix_state=None) -> list[dict]:
     """[system: fixed per case+variant] [first user msg: facts block + first doctor line] [history verbatim]
-    [pre-tail + last doctor line + post-tail]."""
+    [pre-tail + last doctor line + post-tail]. plan and memory_lines (twin-0.2) join the post-tail: they need the doctor's words.
+    prefix_state: the state the facts block and pre-tail are built from (default `state`); the session passes the state before
+    this turn's rubric step, so the prefix warm() cached while the doctor spoke is still valid."""
+    prefix_state = prefix_state or state
     out = [{"role": "system", "content": build_system_prompt(case, version)}]
     for m in messages[-HISTORY_TURNS:]:
         out.append({"role": "user" if m["role"] == "doctor" else "assistant", "content": m["text"]})
-    pre, post = turn_context(case, state, summary, elapsed_min, recalled, recent_patient_lines(messages), examples)
+    pre, post = turn_context(case, prefix_state, summary, elapsed_min, recalled, recent_patient_lines(messages), examples)
     if exam and (line := exam_note(case, exam)):
         post += "\n" + line
     if messages and messages[-1]["role"] == "doctor" and (line := meta_note(case, messages[-1]["text"])):
@@ -479,10 +511,15 @@ def build_messages(case, state, messages, summary=None, elapsed_min=None, recall
                  "doctor if it fits):\n" + "\n".join(f"- {e['say']}" for e in events))
     if ongoing:
         post += "\nALREADY HAPPENED IN THIS CONSULTATION (still true; stay consistent with it):\n" + "\n".join(f"- {n}" for n in ongoing)
+    if memory_lines:
+        post += f"\n{case['patient']['name'].split()[0].upper()} REMEMBERS FROM THIS CONSULTATION:\n" + "\n".join(f"- {n}" for n in memory_lines)
+    if plan:
+        import rubric
+        post += "\n" + rubric.note(case, plan)
     doctor = f"Doctor: {out.pop()['content']}\n\n---\n" if out[-1]["role"] == "user" else ""
     out.append({"role": "user", "content": f"{pre}\n\n---\n{doctor}{post}"})
     first = out[1]
-    out[1] = {"role": "user", "content": f"{facts_block(case, state)}\n\n---\n" + (first["content"] if first is out[-1]
+    out[1] = {"role": "user", "content": f"{facts_block(case, prefix_state)}\n\n---\n" + (first["content"] if first is out[-1]
                                                                                     else f"Doctor: {first['content']}")}
     return out
 
@@ -718,26 +755,26 @@ def fallback_reply(case: dict) -> dict:
 
 
 def generate_reply(req: dict, client=None, tagger=None, version: dict | None = None) -> dict:
-    """req: {case_id, variant?, messages, state, elapsed_min?, model?, reasoning_effort?, summary?, mode?}. Never raises on LLM failure.
+    """Typed path (POST /reply) and evaluation: one turn through the same Digital Twin pipeline as the voice session (mind.py:
+    events, the rubric, recall, memory, consistency, the trust step and mood). Never raises on LLM failure.
+    req: {case_id, variant?, messages, state, elapsed_min?, model?, reasoning_effort?, summary?, mode?, seed?, twin?}; `twin` is the
+    mind returned by the previous reply (the client carries it), so memory, mood, resistance and fired events persist.
     version: the brain version to speak with (default the live one; evaluation passes candidates).
-    The patient reply and intent tagging run in parallel; the guard runs when both are done."""
+    The patient reply and intent tagging run in parallel; the guard runs when both are done. Returns the reply plus `state` (the
+    new state, which the client applies as is) and `twin` (the mind to send back next turn)."""
+    import mind as mind_mod
     case = load_case(req["case_id"], req.get("variant") or "female", req.get("seed"), req.get("mode") or "practice")
-    state = req["state"]
+    state = {k: float(req["state"][k]) for k in STATE_KEYS}
     model = req.get("model") or default_model()
-    allowed = [f["id"] for f in allowed_facts(case, state["trust"])]
-    schema = build_reply_schema(case, allowed, [])
-    doctor_now = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
-    recalled = twin.recall(case, state["trust"], doctor_now)
-    exam = exam_for_turn(case, state, doctor_now)
     version = version or learning.current()
-    examples = learning.retrieve(case["id"], doctor_now, req.get("mode") or "practice", version.get("examples_k", 0),
-                                 version.get("library_upto"))
-    kwargs = llm_kwargs(model, build_messages(case, state, req["messages"], req.get("summary"), req.get("elapsed_min"), recalled, exam,
-                                              examples, version), schema, "patient_reply", 0)
+    m = mind_mod.load(req.get("twin"), case, state)
+    turn = mind_mod.prepare(case, state, m, req["messages"], req.get("elapsed_min"), req.get("mode") or "practice", version, req.get("summary"))
+    kwargs = llm_kwargs(model, turn["messages"], turn["schema"], "patient_reply", 0)
     if req.get("reasoning_effort"):
         kwargs["reasoning_effort"] = req["reasoning_effort"]
-    doctor = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
-    prev = next((m["text"] for m in reversed(req["messages"][:-1]) if m["role"] == "patient"), None)
+    doctor = turn["doctor"]
+    prev = next((x["text"] for x in reversed(req["messages"][:-1]) if x["role"] == "patient"), None)
+    earlier = [x["text"] for x in req["messages"] if x["role"] == "patient"]
 
     t0 = time.perf_counter()
     with ThreadPoolExecutor(1) as ex:
@@ -747,26 +784,37 @@ def generate_reply(req: dict, client=None, tagger=None, version: dict | None = N
         for _ in range(2):  # one try + one retry
             try:
                 resp = (client or get_client()).chat.completions.create(**kwargs)
-                reply = _parse(resp.choices[0].message.content, schema)
+                reply = _parse(resp.choices[0].message.content, turn["schema"])
                 break
             except Exception as e:  # parse, schema, API or network error: retry, then fall back
                 errors.append(type(e).__name__)
         tagged = fut.result()
-    meta = {"model": model, "latency_ms": round((time.perf_counter() - t0) * 1000), "allowed_fact_ids": allowed,
+    meta = {"model": model, "latency_ms": round((time.perf_counter() - t0) * 1000), "allowed_fact_ids": turn["allowed"],
             "guard_dropped": [], "fallback": reply is None, "attempts": len(errors) + (reply is not None),
-            "brain_version": learning.brain_version(version), "examples": [e["id"] for e in examples]}
+            "brain_version": learning.brain_version(version), "examples": [e["id"] for e in turn["examples"]]}
     if errors:
         meta["errors"] = errors
     if reply is None:
         out = {**fallback_reply(case), "doctor_intents": tagged}
     else:
-        out, meta["guard_dropped"] = guard({**reply, "doctor_intents": tagged}, case, state["trust"])
-        meta["guard_dropped"] += twin.enforce_discomfort(out, recalled)
-        if not out["utterance"].strip():  # every sentence had a banned word
+        out, meta["guard_dropped"] = mind_mod.guard_reply(case, turn, reply, tagged)
+        out["utterance"], banned = mind_mod.filter_utterance(case, turn, out["utterance"], earlier)
+        meta["guard_dropped"] += [{"kind": "banned_word", "id": w, "reason": "sentence removed"} for w in banned if w not in
+                                  {d["id"] for d in meta["guard_dropped"] if d["kind"] == "banned_word"}]
+        if not out["utterance"].strip():  # every sentence was dropped
             out["utterance"] = random.choice(case["fallback_lines"])
             meta["fallback"] = True
         out, capped = apply_word_cap(out, style(case)["word_cap"])
         meta["guard_dropped"] += capped
-    out["exam_action"], out["exam"] = first_complied(exam), exam
+    out["exam_action"], out["exam"] = first_complied(turn["exam"]), turn["exam"]
+    if turn["clashes"]:
+        meta["consistency"] = turn["clashes"]
+    if turn["plan"]:
+        meta["decision"] = {k: turn["plan"][k] for k in ("moves", "resistance_level", "behaviours", "reactions", "must_disclose")}
+    if turn["events"]:
+        meta["events"] = [{"id": e["id"], "action": e.get("action")} for e in turn["events"]]
+    out["state"] = mind_mod.finish(case, m, turn, out)
+    out["recalled"] = {k: turn["recalled"][k] for k in ("open", "locked_hit")}
+    out["twin"] = m
     out["meta"] = meta
     return out

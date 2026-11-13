@@ -1,0 +1,18 @@
+{
+  "id": "v2",
+  "parent": "v0",
+  "created": "2026-11-13 23:06",
+  "realism_rules": null,
+  "examples_k": 0,
+  "status": "candidate",
+  "notes": "twin-0.2 brain: hybrid recall (bge-small + tags + generated probes), rubric decision before the call, episodic memory with improvised backstory, consistency check in code, MSE block. Talking rules as v0.",
+  "features": [
+    "hybrid_recall",
+    "rubric",
+    "memory",
+    "consistency",
+    "mse",
+    "improvise"
+  ],
+  "scores": {}
+}

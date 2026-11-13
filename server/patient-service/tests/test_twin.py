@@ -23,7 +23,7 @@ def test_recall_same_line_unlocked():
 
 
 def test_recall_no_match():
-    assert twin.recall(CASE, 30, "Okay, I see.") == {"open": [], "locked_hit": [], "discomfort": False, "life": []}
+    assert twin.recall(CASE, 30, "Okay, I see.") == {"open": [], "locked_hit": [], "discomfort": False, "life": [], "strong": []}
 
 
 def test_life_memories_come_to_mind_and_are_never_facts():

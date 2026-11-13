@@ -237,7 +237,15 @@
    ],
    "kind": "symptom",
    "generates_discomfort": false,
-   "label": "Tired, not myself"
+   "label": "Tired, not myself",
+   "recall_probes": [
+    "What brings you in today?",
+    "How can I help you today?",
+    "What has been going on?",
+    "Why did the company doctor send you?",
+    "What made you come to see me?",
+    "Tell me what's been troubling you."
+   ]
   },
   {
    "id": "f_onset",
@@ -258,7 +266,14 @@
    ],
    "kind": "history",
    "generates_discomfort": false,
-   "label": "Onset: 2 months ago"
+   "label": "Onset: 2 months ago",
+   "recall_probes": [
+    "When did all this start?",
+    "How long have you been feeling this way?",
+    "Was there a time when you felt fine?",
+    "Did something happen around the time it began?",
+    "Has it been getting better or worse since it started?"
+   ]
   },
   {
    "id": "f_mood",
@@ -280,7 +295,16 @@
    ],
    "kind": "symptom",
    "generates_discomfort": false,
-   "label": "Mood: low, empty"
+   "label": "Mood: low, empty",
+   "recall_probes": [
+    "How has your mood been?",
+    "How have you been feeling in yourself?",
+    "Do you feel low or sad?",
+    "How are your spirits?",
+    "What is a typical day like for you emotionally?",
+    "Do you feel empty inside?",
+    "Have you been crying?"
+   ]
   },
   {
    "id": "f_anhedonia",
@@ -305,7 +329,16 @@
    ],
    "kind": "symptom",
    "generates_discomfort": false,
-   "label": "Stopped {hobby_short}"
+   "label": "Stopped {hobby_short}",
+   "recall_probes": [
+    "Do you still enjoy things?",
+    "What do you do to relax?",
+    "Have you lost interest in your hobbies?",
+    "What do you do for fun these days?",
+    "Do you still meet your friends?",
+    "Is there anything you look forward to?",
+    "Do you still do {hobby}?"
+   ]
   },
   {
    "id": "f_sleep",
@@ -324,7 +357,14 @@
    ],
    "kind": "symptom",
    "generates_discomfort": false,
-   "label": "Sleep: wakes at 4 a.m."
+   "label": "Sleep: wakes at 4 a.m.",
+   "recall_probes": [
+    "How have you been sleeping?",
+    "What are your nights like?",
+    "Do you wake up early?",
+    "Do you feel rested in the morning?",
+    "Any trouble falling or staying asleep?"
+   ]
   },
   {
    "id": "f_appetite",
@@ -343,7 +383,14 @@
    ],
    "kind": "symptom",
    "generates_discomfort": false,
-   "label": "Appetite: −4 kg"
+   "label": "Appetite: −4 kg",
+   "recall_probes": [
+    "How is your appetite?",
+    "Are you eating properly?",
+    "Have you lost weight?",
+    "Do your clothes feel loose?",
+    "Are you skipping meals?"
+   ]
   },
   {
    "id": "f_energy_concentration",
@@ -363,7 +410,15 @@
    ],
    "kind": "symptom",
    "generates_discomfort": false,
-   "label": "Energy, focus low"
+   "label": "Energy, focus low",
+   "recall_probes": [
+    "How is your energy?",
+    "Can you concentrate at work?",
+    "Are you able to focus?",
+    "Do you feel exhausted?",
+    "Have you been making mistakes at work?",
+    "Can you keep up with your work?"
+   ]
   },
   {
    "id": "f_guilt",
@@ -385,7 +440,15 @@
    ],
    "kind": "formative",
    "generates_discomfort": true,
-   "label": "Guilt: a burden"
+   "label": "Guilt: a burden",
+   "recall_probes": [
+    "How do you feel about yourself?",
+    "Do you blame yourself?",
+    "Do you feel guilty about anything?",
+    "Do you feel like a burden?",
+    "Do you feel you have let people down?",
+    "Do you feel worthless?"
+   ]
   },
   {
    "id": "f_anxiety",
@@ -406,7 +469,15 @@
    ],
    "kind": "symptom",
    "generates_discomfort": false,
-   "label": "Tense, hands shake"
+   "label": "Tense, hands shake",
+   "recall_probes": [
+    "Do you feel anxious or tense?",
+    "Do you worry a lot?",
+    "Do you get nervous?",
+    "Is your mind racing?",
+    "Do you feel on edge?",
+    "Any panic or fear?"
+   ]
   },
   {
    "id": "f_work_family",
@@ -428,7 +499,16 @@
    ],
    "kind": "trigger",
    "generates_discomfort": false,
-   "label": "Work, family strain"
+   "label": "Work, family strain",
+   "recall_probes": [
+    "How are things at work?",
+    "How is your manager?",
+    "How are things at home with your family?",
+    "Any pressure from your parents?",
+    "Are there money worries?",
+    "Does your family know how you feel?",
+    "Any stress in your life right now?"
+   ]
   },
   {
    "id": "f_family_history",
@@ -446,7 +526,13 @@
    ],
    "kind": "history",
    "generates_discomfort": false,
-   "label": "Aunt 'on tablets'"
+   "label": "Aunt 'on tablets'",
+   "recall_probes": [
+    "Does anyone in your family have mental health problems?",
+    "Has anyone in the family been treated for nerves?",
+    "Any illness that runs in the family?",
+    "Has anyone in your family had something like this?"
+   ]
   },
   {
    "id": "f_passive_si",
@@ -478,7 +564,22 @@
    ],
    "kind": "risk",
    "generates_discomfort": true,
-   "label": "Wish not to wake"
+   "label": "Wish not to wake",
+   "recall_probes": [
+    "Do you get dark thoughts?",
+    "Have you felt you could not go on?",
+    "Are you safe?",
+    "Have you had thoughts of ending your life?",
+    "Do you ever wish you were dead?",
+    "Have you felt life is not worth living?",
+    "Do you sometimes wish you would not wake up?",
+    "Have you thought about killing yourself?",
+    "Have you had thoughts of harming yourself?",
+    "Do you feel everyone would be better off without you?",
+    "Have you thought about not being here any more?",
+    "Do you sometimes want to disappear forever?"
+   ],
+   "disclosure_line": "Some nights... I wish I just wouldn't wake up in the morning. It comes a few times a week, then it passes."
   },
   {
    "id": "f_no_plan_no_attempt",
@@ -503,7 +604,18 @@
    ],
    "kind": "risk",
    "generates_discomfort": true,
-   "label": "No plan, no attempt"
+   "label": "No plan, no attempt",
+   "recall_probes": [
+    "Any previous self-harm or overdose?",
+    "Have you searched online for ways to die?",
+    "Have you made any plans to end your life?",
+    "Have you thought about how you would do it?",
+    "Have you ever tried to hurt yourself?",
+    "Have you ever attempted suicide?",
+    "Do you intend to act on these thoughts?",
+    "Have you done anything to prepare?"
+   ],
+   "disclosure_line": "No... I've never planned anything, and I've never tried to hurt myself. I wouldn't do that."
   },
   {
    "id": "f_no_means",
@@ -528,7 +640,17 @@
    ],
    "kind": "risk",
    "generates_discomfort": true,
-   "label": "No means at home"
+   "label": "No means at home",
+   "recall_probes": [
+    "Have you put anything aside to end your life?",
+    "Is your home safe for you?",
+    "Do you have any tablets or poison at home?",
+    "Do you have access to anything you could use to hurt yourself?",
+    "Have you stored up medicines?",
+    "Have you looked up ways to do it?",
+    "Is there anything at home you might use?"
+   ],
+   "disclosure_line": "No, there's nothing like that at home. I haven't looked anything up."
   },
   {
    "id": "f_protective",
@@ -552,7 +674,16 @@
    ],
    "kind": "history",
    "generates_discomfort": false,
-   "label": "Amma and {sibling}"
+   "label": "Amma and {sibling}",
+   "recall_probes": [
+    "What keeps you going?",
+    "What stops you from acting on those thoughts?",
+    "Who do you turn to for support?",
+    "What are your reasons for living?",
+    "Who is there for you?",
+    "Is there anyone you can talk to?",
+    "What gives you hope?"
+   ]
   },
   {
    "id": "f_substances",
@@ -573,7 +704,15 @@
    ],
    "kind": "history",
    "generates_discomfort": false,
-   "label": "Substances: none"
+   "label": "Substances: none",
+   "recall_probes": [
+    "Do you drink alcohol?",
+    "Do you smoke?",
+    "Do you use any drugs?",
+    "How much coffee do you drink?",
+    "Have you ever tried cannabis?",
+    "Do you chew tobacco?"
+   ]
   },
   {
    "id": "f_no_psychosis",
@@ -593,7 +732,14 @@
    ],
    "kind": "symptom",
    "generates_discomfort": false,
-   "label": "Psychosis: none"
+   "label": "Psychosis: none",
+   "recall_probes": [
+    "Do you hear voices?",
+    "Do you see things other people cannot?",
+    "Do you feel watched or followed?",
+    "Does anyone control your thoughts?",
+    "Do you have any strange experiences?"
+   ]
   },
   {
    "id": "f_no_mania_no_psych_hx",
@@ -613,7 +759,14 @@
    ],
    "kind": "history",
    "generates_discomfort": false,
-   "label": "No mania, no past hx"
+   "label": "No mania, no past hx",
+   "recall_probes": [
+    "Have you ever felt very high or full of energy?",
+    "Have you seen a psychiatrist before?",
+    "Have you had any mental health treatment in the past?",
+    "Have you ever needed very little sleep and felt great?",
+    "Have you seen a counsellor before?"
+   ]
   },
   {
    "id": "f_medical",
@@ -637,7 +790,15 @@
    ],
    "kind": "history",
    "generates_discomfort": false,
-   "label": "Medical: all clear"
+   "label": "Medical: all clear",
+   "recall_probes": [
+    "Do you have any medical problems?",
+    "Do you take any medicines?",
+    "Any allergies?",
+    "Have you had any blood tests?",
+    "Any major illnesses or operations?",
+    "Has anything traumatic ever happened to you?"
+   ]
   },
   {
    "id": "f_pregnancy",
@@ -655,7 +816,14 @@
    ],
    "kind": "history",
    "generates_discomfort": false,
-   "label": "Not pregnant"
+   "label": "Not pregnant",
+   "recall_probes": [
+    "Are your periods regular?",
+    "Could you be pregnant?",
+    "Are you sexually active?",
+    "Do you use contraception?",
+    "When was your last period?"
+   ]
   }
  ],
  "cues": [
@@ -916,5 +1084,38 @@
    }
   }
  ],
- "life": "rao"
+ "life": "rao",
+ "mse": {
+  "status": "draft",
+  "speech": {
+   "productivity": "reduced",
+   "rate": "slow",
+   "spontaneity": "low"
+  },
+  "affect": {
+   "quality": [
+    "sad",
+    "constricted"
+   ],
+   "range": "constricted",
+   "reactivity": "reduced, tearful about family",
+   "max_intensity": 7
+  },
+  "emotions": [
+   "sad",
+   "flat",
+   "ashamed",
+   "anxious",
+   "neutral",
+   "confused"
+  ],
+  "thought_form": {
+   "process": "logical and coherent but slowed",
+   "tangential": false
+  },
+  "insight": {
+   "level": "partial",
+   "note": "calls it work stress or personal weakness, accepts help"
+  }
+ }
 }

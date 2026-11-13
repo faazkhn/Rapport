@@ -245,7 +245,14 @@
    ],
    "kind": "symptom",
    "label": "Refuses tablets",
-   "volunteered": true
+   "volunteered": true,
+   "recall_probes": [
+    "Why don't you want the tablets?",
+    "What would you like to happen?",
+    "How are you feeling today?",
+    "What is going on?",
+    "Can you tell me why you're refusing the medicine?"
+   ]
   },
   {
    "id": "f_side_effects",
@@ -262,7 +269,14 @@
     "when you took"
    ],
    "kind": "history",
-   "label": "Weight and sleepiness"
+   "label": "Weight and sleepiness",
+   "recall_probes": [
+    "Did you take the tablets before?",
+    "What happened when you took them?",
+    "Did the tablets have side effects?",
+    "How did the medicine make you feel?",
+    "Did you put on weight?"
+   ]
   },
   {
    "id": "f_poison",
@@ -283,7 +297,15 @@
    ],
    "kind": "symptom",
    "label": "Thinks they're poisoned",
-   "generates_discomfort": true
+   "generates_discomfort": true,
+   "recall_probes": [
+    "Do you think something is wrong with the tablets?",
+    "Do you trust the food here?",
+    "Is someone trying to harm you?",
+    "Do you think someone is putting something in your food or medicine?",
+    "Why do you only eat food from home?",
+    "Is anyone against you?"
+   ]
   },
   {
    "id": "f_voices",
@@ -302,7 +324,14 @@
    ],
    "kind": "symptom",
    "label": "Hears two men",
-   "generates_discomfort": true
+   "generates_discomfort": true,
+   "recall_probes": [
+    "Do you hear voices when no one is there?",
+    "Do you hear people talking about you?",
+    "Do you see or hear things others don't?",
+    "What do you hear at night?",
+    "Do the voices say anything to you?"
+   ]
   },
   {
    "id": "f_college",
@@ -319,7 +348,14 @@
     "future"
    ],
    "kind": "trigger",
-   "label": "College slipping"
+   "label": "College slipping",
+   "recall_probes": [
+    "How is college going?",
+    "Have you missed any exams?",
+    "What are you studying?",
+    "Are you worried about your studies?",
+    "What do your parents expect of you?"
+   ]
   },
   {
    "id": "f_risk",
@@ -343,6 +379,17 @@
    "unlock_intents": [
     "ask_suicidal_ideation",
     "ask_homicidal_ideation"
+   ],
+   "recall_probes": [
+    "What would you do if you met the people against you?",
+    "Would you try to run away?",
+    "Have you had thoughts of harming yourself?",
+    "Have you had thoughts of harming anyone else?",
+    "Do you feel unsafe?",
+    "Have you ever been violent?",
+    "Have you thought about ending your life?",
+    "What would you do if you felt in danger?",
+    "Do you ever want to hurt the people who are after you?"
    ]
   },
   {
@@ -361,7 +408,14 @@
     "explain back"
    ],
    "kind": "history",
-   "label": "Repeats it, not convinced"
+   "label": "Repeats it, not convinced",
+   "recall_probes": [
+    "What do you understand about why we suggest the tablets?",
+    "What do you think the tablets are for?",
+    "Do you think you are unwell?",
+    "What do you think would happen if you didn't take them?",
+    "Can you tell me in your own words what I explained?"
+   ]
   },
   {
    "id": "f_alternatives",
@@ -380,7 +434,14 @@
     "from home"
    ],
    "kind": "history",
-   "label": "Would take one from Amma"
+   "label": "Would take one from Amma",
+   "recall_probes": [
+    "Is there a tablet you would be willing to take?",
+    "What would make it easier to take medicine?",
+    "Would you take it if your mother brought it?",
+    "What would you like us to do instead?",
+    "Who would you like to talk to first?"
+   ]
   },
   {
    "id": "f_substances",
@@ -402,6 +463,13 @@
    "unlock_intents": [
     "ask_substance_drugs",
     "ask_substance_alcohol"
+   ],
+   "recall_probes": [
+    "Do you use cannabis?",
+    "Do you drink alcohol?",
+    "Do you use any drugs?",
+    "Do you smoke?",
+    "Have you ever used ganja?"
    ]
   },
   {
@@ -415,7 +483,13 @@
     "health"
    ],
    "kind": "history",
-   "label": "No medical problems"
+   "label": "No medical problems",
+   "recall_probes": [
+    "Do you have any medical problems?",
+    "Any allergies?",
+    "Do you have any illnesses?",
+    "Any health problems?"
+   ]
   }
  ],
  "cues": [
@@ -562,5 +636,39 @@
  "core_belief": "If I let my guard down, someone will take advantage of me.",
  "attachment_style": "Avoidant: keeps people at a distance, trusts family more than strangers.",
  "dialect": "Indian English (Kerala)",
- "life": "nair"
+ "life": "nair",
+ "mse": {
+  "status": "draft",
+  "speech": {
+   "productivity": "reduced",
+   "rate": "normal, soft",
+   "spontaneity": "low"
+  },
+  "affect": {
+   "quality": [
+    "anxious",
+    "guarded",
+    "brief anger when not believed"
+   ],
+   "range": "constricted",
+   "reactivity": "guarded",
+   "max_intensity": 7
+  },
+  "emotions": [
+   "anxious",
+   "suspicious",
+   "angry",
+   "neutral",
+   "confused",
+   "flat"
+  ],
+  "thought_form": {
+   "process": "mostly logical; vague and slightly odd about the tablets",
+   "tangential": false
+  },
+  "insight": {
+   "level": "poor",
+   "note": "does not believe there is anything wrong"
+  }
+ }
 }

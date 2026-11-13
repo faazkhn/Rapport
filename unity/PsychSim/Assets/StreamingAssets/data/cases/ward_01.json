@@ -305,7 +305,14 @@
    ],
    "kind": "symptom",
    "label": "Wants to go home",
-   "volunteered": true
+   "volunteered": true,
+   "recall_probes": [
+    "Why do you want to go home?",
+    "What would you like to happen today?",
+    "How are you feeling now?",
+    "You've packed your bag; what's going on?",
+    "What can I do for you?"
+   ]
   },
   {
    "id": "f_reasons_ward",
@@ -322,7 +329,14 @@
     "treated"
    ],
    "kind": "trigger",
-   "label": "Hates the ward"
+   "label": "Hates the ward",
+   "recall_probes": [
+    "How is it on the ward?",
+    "Are you able to sleep here?",
+    "What is bothering you about being here?",
+    "What is it like for you on the ward?",
+    "Is anything here upsetting you?"
+   ]
   },
   {
    "id": "f_reasons_job",
@@ -338,7 +352,14 @@
     "worry"
    ],
    "kind": "trigger",
-   "label": "Job at risk"
+   "label": "Job at risk",
+   "recall_probes": [
+    "Are you worried about work?",
+    "What is waiting for you outside?",
+    "Does your manager know you're here?",
+    "Is there something you need to get back to?",
+    "Are you worried about your job?"
+   ]
   },
   {
    "id": "f_shame",
@@ -353,7 +374,14 @@
     "stigma"
    ],
    "kind": "formative",
-   "label": "Ashamed to be here"
+   "label": "Ashamed to be here",
+   "recall_probes": [
+    "How do you feel about being in hospital?",
+    "Are you worried what people will think?",
+    "Do you feel embarrassed to be here?",
+    "Who knows that you're here?",
+    "Does being here make you feel ashamed?"
+   ]
   },
   {
    "id": "f_mood",
@@ -369,7 +397,14 @@
     "sleep"
    ],
    "kind": "symptom",
-   "label": "Still low"
+   "label": "Still low",
+   "recall_probes": [
+    "How has your mood been?",
+    "How are you feeling in yourself?",
+    "Are you sleeping and eating?",
+    "Do you still feel low?",
+    "How are the evenings for you?"
+   ]
   },
   {
    "id": "f_terrace",
@@ -388,7 +423,16 @@
    ],
    "kind": "risk",
    "label": "The terrace night",
-   "generates_discomfort": true
+   "generates_discomfort": true,
+   "recall_probes": [
+    "What happened before you came in?",
+    "Can you tell me about the night on the terrace?",
+    "What were you thinking that night?",
+    "What brought you into hospital?",
+    "Did you go somewhere high that night?",
+    "Were you thinking of jumping?",
+    "What did your friend find?"
+   ]
   },
   {
    "id": "f_current_si",
@@ -418,7 +462,19 @@
    "must_be_asked": true,
    "unlock_intents": [
     "ask_suicidal_ideation"
-   ]
+   ],
+   "recall_probes": [
+    "Can you keep yourself safe if you go home?",
+    "Do you feel safe from yourself right now?",
+    "Are you still having thoughts of ending your life?",
+    "Do you still feel you want to die?",
+    "Do those thoughts still come at night?",
+    "Have you thought about the terrace again?",
+    "Do you feel life is not worth living now?",
+    "Do you have thoughts of harming yourself now?",
+    "Do you still wish you weren't here?"
+   ],
+   "disclosure_line": "At night, when I'm alone... the thoughts still come. I've thought about the terrace again. I haven't decided anything."
   },
   {
    "id": "f_means",
@@ -441,6 +497,17 @@
    "unlock_intents": [
     "ask_suicide_means",
     "ask_social_history"
+   ],
+   "recall_probes": [
+    "Will anyone be with you at home?",
+    "Is there someone to keep an eye on you after discharge?",
+    "Can you get up to the roof where you live?",
+    "Can you get onto the terrace at home?",
+    "Who is at home with you?",
+    "Is the terrace door locked?",
+    "Would you be alone at home?",
+    "Is there anything at home you could use to hurt yourself?",
+    "Where would you go if you left today?"
    ]
   },
   {
@@ -461,7 +528,15 @@
     "option"
    ],
    "kind": "history",
-   "label": "Amma and {sibling}"
+   "label": "Amma and {sibling}",
+   "recall_probes": [
+    "What keeps you going?",
+    "Who would you want to be with?",
+    "Is anyone coming to see you?",
+    "What would help you stay another night?",
+    "What stops you from acting on those thoughts?",
+    "Who do you turn to?"
+   ]
   },
   {
    "id": "f_capacity",
@@ -477,7 +552,14 @@
     "what do you think"
    ],
    "kind": "history",
-   "label": "Understands the risk"
+   "label": "Understands the risk",
+   "recall_probes": [
+    "What do you think might happen if you go home today?",
+    "Do you understand why the team is worried?",
+    "What would you do if the thoughts came back at home?",
+    "Do you think you are unwell?",
+    "Can you tell me what the risks are of leaving?"
+   ]
   },
   {
    "id": "f_substances",
@@ -491,7 +573,13 @@
     "substance"
    ],
    "kind": "history",
-   "label": "No substances"
+   "label": "No substances",
+   "recall_probes": [
+    "Do you drink alcohol?",
+    "Do you use any drugs?",
+    "Do you smoke?",
+    "Any substances?"
+   ]
   },
   {
    "id": "f_meds",
@@ -506,7 +594,14 @@
     "treatment"
    ],
    "kind": "history",
-   "label": "New tablets"
+   "label": "New tablets",
+   "recall_probes": [
+    "Are you on any medicines?",
+    "How are the new tablets?",
+    "Have you started any treatment here?",
+    "How do you feel about the medicine?",
+    "Any side effects from the tablets?"
+   ]
   }
  ],
  "cues": [
@@ -724,5 +819,41 @@
  "core_belief": "I am a burden and a failure to my family.",
  "attachment_style": "Anxious: seeks reassurance but hides need, afraid of disappointing people.",
  "dialect": "natural Indian English",
- "life": "rao"
+ "life": "rao",
+ "mse": {
+  "status": "draft",
+  "speech": {
+   "productivity": "normal",
+   "rate": "normal, clipped at first",
+   "spontaneity": "low"
+  },
+  "affect": {
+   "quality": [
+    "low",
+    "irritable",
+    "frustrated"
+   ],
+   "range": "constricted",
+   "reactivity": "reduced; quieter about feelings",
+   "max_intensity": 8
+  },
+  "emotions": [
+   "angry",
+   "sad",
+   "anxious",
+   "suspicious",
+   "ashamed",
+   "flat",
+   "neutral",
+   "confused"
+  ],
+  "thought_form": {
+   "process": "logical",
+   "tangential": false
+  },
+  "insight": {
+   "level": "partial",
+   "note": "accepts being unwell but says 'I'm fine now' and wants to leave"
+  }
+ }
 }

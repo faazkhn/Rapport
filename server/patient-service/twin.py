@@ -1,12 +1,13 @@
 """Digital Twin: the patient's mind for one live turn. Recall with trust locks (no LLM), label checks and the code-built reason,
 the slow-path state and mood update, the expression map, and the brain_snapshot. See docs/TWIN.md.
 """
+import json
 import re
 
 import brain
 import learning
 
-VERSION = "twin-0.1"
+VERSION = "twin-0.2"
 
 _WORD = re.compile(r"[a-z']+")
 _SUFFIX = re.compile(r"(ing|ed|es|s)$")
@@ -24,35 +25,149 @@ def _words(text: str) -> list[str]:
     return _WORD.findall(text.lower())
 
 
-def recall(case: dict, trust: float, doctor_text: str, limit: int = 3) -> dict:
-    """Memory items the doctor's words touch. Open ones (trust_min <= trust) come best first, at most `limit`; locked ones are
-    only reported as hits, never their content."""
-    # shortcut: lexical tags only, no embeddings; upgrade when an embedding model is chosen (Phase D2)
+def _lexical(items: list[dict], doctor_text: str) -> list[tuple[float, dict]]:
+    """Activation-tag matches, best first: a phrase tag scores 2, a single word 1."""
     stemmed = [_stem(w) for w in _words(doctor_text)]
     stems, phrase = set(stemmed), " " + " ".join(stemmed) + " "
+    out = []
+    for f in items:
+        score = 0
+        for tag in f.get("activation_tags", []):
+            tw = [_stem(w) for w in _words(tag)]
+            if len(tw) > 1:
+                score += 2 * (" " + " ".join(tw) + " " in phrase)
+            elif tw:
+                score += tw[0] in stems
+        if score:
+            out.append((score, f))
+    return sorted(out, key=lambda x: -x[0])
 
-    def scored(items):
-        out = []
-        for f in items:
-            score = 0
-            for tag in f.get("activation_tags", []):
-                tw = [_stem(w) for w in _words(tag)]
-                if len(tw) > 1:
-                    score += 2 * (" " + " ".join(tw) + " " in phrase)
-                elif tw:
-                    score += tw[0] in stems
-            if score:
-                out.append((score, f))
-        return sorted(out, key=lambda x: -x[0])
 
-    facts = scored(case["facts"])
-    open_ = [f["id"] for _, f in facts if f["trust_min"] <= trust][:limit]
-    locked = [f["id"] for _, f in facts if f["trust_min"] > trust]
+# ---------- hybrid recall: tags + sentence embeddings (twin-0.2) ----------
+# bge-small-en-v1.5 (MIT) beat all-MiniLM-L6-v2 on the dev half of tests/recall/paraphrase_set.jsonl (right fact in the top 3:
+# 0.93 vs 0.87). Each fact is embedded once per case from its recall_probes (authored doctor questions), tags and text.
+RECALL_MODEL = "BAAI/bge-small-en-v1.5"
+# thresholds tuned on the dev half (tools/recall_bench.py --split dev); the test half is only for reported numbers
+SIM_HIT = 0.82  # a fact comes to mind on similarity alone at or above this
+SIM_RISK = 0.74  # risk facts: a missed suicide question costs more than an extra locked hit (which only makes the patient evasive)
+SIM_NEAR = 0.02  # below SIM_HIT, the best match still counts if it is at least SIM_FLOOR and ahead of the runner-up by this much
+SIM_FLOOR = 0.70
+RISK_NEAR, RISK_MARGIN = 0.66, 0.06  # in a risk-domain line, other risk facts this close to the best one count too
+_emb = {"fn": "unset"}
+_vecs: dict = {}
+
+
+def _recall_embedder():
+    import os
+    if os.environ.get("RAPPORT_EMBED") == "off":
+        return None
+    try:
+        import numpy as np
+        import onnxruntime as ort
+        from huggingface_hub import hf_hub_download
+        from tokenizers import Tokenizer
+        tok = Tokenizer.from_file(hf_hub_download(RECALL_MODEL, "tokenizer.json"))
+        tok.enable_padding()
+        tok.enable_truncation(64)
+        sess = ort.InferenceSession(hf_hub_download(RECALL_MODEL, "onnx/model.onnx"), providers=["CPUExecutionProvider"])
+    except Exception:
+        return None
+
+    def run(texts):
+        enc = tok.encode_batch(texts)
+        ids = np.array([e.ids for e in enc], np.int64)
+        mask = np.array([e.attention_mask for e in enc], np.int64)
+        v = sess.run(None, {"input_ids": ids, "attention_mask": mask, "token_type_ids": np.zeros_like(ids)})[0][:, 0]  # CLS
+        return v / np.linalg.norm(v, axis=1, keepdims=True)
+    return run
+
+
+def embed(texts: list[str]):
+    """Recall embeddings (unit vectors), or None when the model is not available (then recall is lexical only)."""
+    if _emb["fn"] == "unset":
+        _emb["fn"] = _recall_embedder()
+    return _emb["fn"](texts) if _emb["fn"] and texts else None
+
+
+def generated_probes(case_id: str) -> dict[str, list[str]]:
+    """Doctor lines written offline per fact (tools/brain/gen_lines.py probes -> data/recall/<case>.json); {} if none."""
+    try:
+        return brain.load_json(f"recall/{case_id}.json")["probes"]
+    except (FileNotFoundError, KeyError):
+        return {}
+
+
+def _probes(f: dict, generated: dict | None = None) -> list[str]:
+    return [*f.get("recall_probes", []), *(generated or {}).get(f["id"], []), *(t for t in f.get("activation_tags", []) if "{" not in t), f["text"]]
+
+
+def fact_vectors(case: dict):
+    """(fact ids, probe matrix, probe -> fact index) for this case's facts, computed once per filled case (at case load)."""
+    gen = generated_probes(case["id"])
+    key = (case["id"], case.get("variant"), json.dumps([(f["id"], _probes(f, gen)) for f in case["facts"]]))
+    if key not in _vecs:
+        import numpy as np
+        probes = [(i, p) for i, f in enumerate(case["facts"]) for p in _probes(f, gen)]
+        mat = embed([p for _, p in probes])
+        _vecs[key] = None if mat is None else ([f["id"] for f in case["facts"]], mat, np.array([i for i, _ in probes]))
+        if len(_vecs) > 64:  # seeds come from clients: bounded
+            _vecs.pop(next(iter(_vecs)))
+    return _vecs[key]
+
+
+def similarities(case: dict, doctor_text: str, qvec=None) -> dict[str, float]:
+    """Best probe similarity per fact id; {} without the embedding model."""
+    fv = fact_vectors(case)
+    if fv is None or not doctor_text.strip():
+        return {}
+    import numpy as np
+    ids, mat, owner = fv
+    q = qvec if qvec is not None else embed([doctor_text])[0]
+    best = np.full(len(ids), -1.0)
+    np.maximum.at(best, owner, mat @ q)
+    return dict(zip(ids, best.tolist()))
+
+
+def recall(case: dict, trust: float, doctor_text: str, limit: int = 3, lexical: bool = False, sims: dict | None = None) -> dict:
+    """Memory items the doctor's words touch: tag matches plus embedding matches (lexical=True: tags only, brain v0). Open ones
+    (trust_min <= trust) come best first, at most `limit`; locked ones are only reported as hits, never their content. Trust locks
+    apply after matching, so a paraphrase of a locked question is still only a discomfort signal. `strong`: hits by a tag or a
+    similarity past the plain threshold (not the near-best or risk-domain rules); code only forces a disclosure on these.
+    sims: precomputed similarities() for this line (prepare() recalls twice around the rubric's state step)."""
+    lex = {f["id"]: s for s, f in _lexical(case["facts"], doctor_text)}
+    if sims is None:
+        sims = {} if lexical else similarities(case, doctor_text)
+    if lexical:
+        sims = {}
+    hits = dict.fromkeys(lex, 0.0)
+    strong = set(lex)
+    if sims:
+        ranked = sorted(sims.items(), key=lambda x: -x[1])
+        kinds = {f["id"]: f.get("kind") for f in case["facts"]}
+        for fid, s in ranked:
+            if s >= (SIM_RISK if kinds.get(fid) == "risk" else SIM_HIT):
+                hits[fid] = s
+                strong.add(fid)
+        (top, s1), s2 = ranked[0], ranked[1][1] if len(ranked) > 1 else 0.0
+        if s1 >= SIM_FLOOR and s1 - s2 >= SIM_NEAR:
+            hits[top] = s1
+        # a line that is clearly about risk touches every nearby risk fact (a locked hit only makes the patient evasive)
+        risk = [(fid, s) for fid, s in ranked if kinds.get(fid) == "risk"]
+        if risk and (risk[0][1] >= SIM_RISK or any(kinds.get(f) == "risk" for f in lex)):
+            for fid, s in risk:
+                if s >= RISK_NEAR and s >= risk[0][1] - RISK_MARGIN:
+                    hits[fid] = s
+        hits = {fid: sims.get(fid, 0.0) + 0.05 * lex.get(fid, 0) for fid in hits}
+    else:
+        hits = {fid: float(s) for fid, s in lex.items()}
+    facts = sorted((f for f in case["facts"] if f["id"] in hits), key=lambda f: -hits[f["id"]])
+    open_ = [f["id"] for f in facts if f["trust_min"] <= trust][:limit]
+    locked = [f["id"] for f in facts if f["trust_min"] > trust]
     hit = set(open_) | set(locked)
     # everyday memories (case["life"]): never locked, never credited as facts; two at most so the prompt stays small
-    life = [m["id"] for _, m in scored(case.get("life", [])) if m.get("trust_min", 0) <= trust][:2]
-    return {"open": open_, "locked_hit": locked, "discomfort": any(f.get("generates_discomfort") for _, f in facts if f["id"] in hit),
-            "life": life}
+    life = [m["id"] for _, m in _lexical(case.get("life", []), doctor_text) if m.get("trust_min", 0) <= trust][:2]
+    return {"open": open_, "locked_hit": locked, "discomfort": any(f.get("generates_discomfort") for f in facts if f["id"] in hit),
+            "life": life, "strong": [f for f in open_ + locked if f in strong]}
 
 
 def _topic(fact_id: str) -> str:
@@ -95,12 +210,16 @@ def pad_from(s: dict) -> dict:
             "d": _clamp(((t - 50) * .5 + (e - 50) * .5 - (d - 50) * .6 - (a - 30) * .4) / 50)}
 
 
-def update(state: dict, mood: dict, reply: dict, case: dict) -> tuple[dict, dict]:
+def update(state: dict, mood: dict, reply: dict, case: dict, start: dict | None = None, rubric: bool = False) -> tuple[dict, dict]:
     """Slow path: the reaction's trust step joins the model's delta before the one clamp in brain.apply_turn; the mood then
-    drifts part of the way toward the PAD of the new state."""
+    drifts part of the way toward the PAD of the new state. rubric=True (twin-0.2): the code already stepped the state before the
+    call (rubric.pre_step, state is that stepped state), so the reaction step is not added again and the model's trust delta only
+    fine-tunes it (+-3); the per-turn clamp then counts from `start`, the state before the turn."""
     rules = brain.load_json("state_rules.json")
-    step = next((r["trust_step"] for r in brain.catalogue()["reactions"] if r["id"] == reply.get("reaction")), 0)
-    st, d = brain.style(case), reply["state_delta"]
+    step = 0 if rubric else next((r["trust_step"] for r in brain.catalogue()["reactions"] if r["id"] == reply.get("reaction")), 0)
+    st, d = brain.style(case), dict(reply["state_delta"])
+    if rubric:
+        d["trust"] = max(-3, min(3, d["trust"]))
     trust = d["trust"] + step * rules["reaction_trust_unit"]
     # a kind move (an intent with a positive trust nudge) cannot lower trust: the persona's mood colours the model's own
     # judgement (an upset patient reacts 'wary' to everything), so what the doctor did decides the direction
@@ -112,6 +231,9 @@ def update(state: dict, mood: dict, reply: dict, case: dict) -> tuple[dict, dict
     delta = {**d, "trust": round(trust * (st["trust_gain"] if trust > 0 else st["trust_loss"])),
              "agitation": round(agitation * st["agitation_gain"]) if agitation > 0 else agitation}
     new = brain.apply_turn(state, {**reply, "state_delta": delta}, rules)
+    if start is not None:
+        c = rules["clamp_per_turn"]
+        new = {k: min(start[k] + c, max(start[k] - c, v)) for k, v in new.items()}
     target, rate = pad_from(new), rules["mood_rate"]
     return new, {k: _clamp(mood[k] + (target[k] - mood[k]) * rate) for k in "pad"}
 
@@ -191,12 +313,13 @@ def init_event(case: dict, state: dict) -> dict:
             "formulation": case.get("formulation", {}), "state_start": {k: state[k] for k in brain.STATE_KEYS}}
 
 
-def snapshot(turn: int, doctor: str, reply: dict, recalled: dict, state: dict, mood: dict, why_text: str, speed: float = 1.0) -> dict:
+def snapshot(turn: int, doctor: str, reply: dict, recalled: dict, state: dict, mood: dict, why_text: str, speed: float = 1.0,
+             version: dict | None = None) -> dict:
     """One brain_snapshot in the Twin view's timeline format (twin/README.md)."""
     return {"type": "brain_snapshot", "turn": turn, "doctor": doctor, "utterance": reply["utterance"], "state": state, "mood": mood,
             "reaction": reply["reaction"], "intensity": reply["intensity"], "behaviour": reply["behaviour"],
             "resistance": reply["resistance"], "why": why_text, "recalled": recalled["open"], "locked_hit": recalled["locked_hit"],
-            "cues": reply["event_cues"], "exam_action": reply["exam_action"], "emotion": reply["emotion"], "brain_version": learning.brain_version(),
+            "cues": reply["event_cues"], "exam_action": reply["exam_action"], "emotion": reply["emotion"], "brain_version": learning.brain_version(version),
             # face preset name as Unity's FacePresets builds it; body = the cues this reply fired
             "expression": {"face": f"face_{reply['emotion']}", "body": [c["id"] for c in reply["event_cues"]],
                            "voice": f"{reply['emotion']}, speed ×{speed:.2f} next turn", "nonverbal": None}}

@@ -246,7 +246,7 @@ def test_turn_emits_snapshot():
     t = types(ev)
     assert t.count("brain_snapshot") == 1 and t.index("brain_snapshot") > t.index("reply")
     snap = next(m for _, m in ev if m["type"] == "brain_snapshot")
-    assert set(snap) == SNAP_KEYS and "f_sleep" in snap["recalled"] and snap["brain_version"] == "twin-0.1+v0"
+    assert set(snap) == SNAP_KEYS and "f_sleep" in snap["recalled"] and snap["brain_version"] == "twin-0.2+v0"
     assert snap["expression"]["face"] == "face_sad" and snap["expression"]["body"] == [c["id"] for c in snap["cues"]]
     tw = [m["event"] for _, m in ev if m["type"] == "twin_event"]
     assert tw == ["init", "doctor_end", "patient_start", "patient_end"]
@@ -274,12 +274,12 @@ def test_barge_in_snapshot(monkeypatch):
     import twin
     calls = []
     real = twin.update
-    monkeypatch.setattr(twin, "update", lambda *a: calls.append(1) or real(*a))
+    monkeypatch.setattr(twin, "update", lambda *a, **k: calls.append(1) or real(*a, **k))
 
     async def go():
         s, ev, audio = make(FakeLLM(delay=0.01))
         await s.on_json({"type": "start", "case_id": "mdd_01"})
-        mood0 = dict(s.mood)
+        mood0 = dict(s.mind["mood"])
         await s.on_json({"type": "text", "text": "How do you sleep?"})
         while not audio:
             await asyncio.sleep(0.005)
@@ -611,7 +611,7 @@ def test_an_unvoiced_event_is_not_used_up_and_narration_never_reaches_history():
         return s, ev
     s, ev = asyncio.run(go())
     rep = next(m for _, m in ev if m["type"] == "reply")
-    assert rep["reply"]["utterance"] == "" and "stands" not in s.fired
+    assert rep["reply"]["utterance"] == "" and "stands" not in s.mind["fired"]
     assert rep["state"]["agitation"] < 15 + 20  # the event's nudge was undone
     assert all(m["role"] != "patient" for m in s.messages)
 
@@ -640,7 +640,7 @@ def test_told_they_can_go_stays_true_on_later_turns():
         await run_text(s, "What will you do at home?")
         return s, ev, llm
     s, ev, llm = asyncio.run(go())
-    assert "leave_granted" in s.fired
+    assert "leave_granted" in s.mind["fired"]
     assert any(m["type"] == "exam" and {"id": "stand_up", "comply": True} in m["actions"] for _, m in ev)
     first = [c["messages"][-1]["content"] for c in llm.calls if "you can go." in c["messages"][-1]["content"]][0]
     second = [c["messages"][-1]["content"] for c in llm.calls if "What will you do at home" in c["messages"][-1]["content"]][0]

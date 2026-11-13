@@ -1,0 +1,352 @@
+{
+ "version": "0.1",
+ "status": "draft",
+ "note": "AI draft for faculty review (Adaptive-VP, beyond-the-script; docs/TWIN.md). Code reads the doctor's last line as one or more moves before the patient's reply is generated. Each move gives a state step applied before recall (trust, agitation, distress, engagement; scaled by the style's gains), a change to the patient's resistance level (0 open .. 3 hostile), and the reactions the patient may feel. The model then only voices the decision: its behaviour and reaction must come from the short lists code builds here.",
+ "moves": {
+  "greeting": {
+   "label": "greeted them",
+   "step": {
+    "trust": 2,
+    "engagement": 1
+   },
+   "resistance": 0,
+   "reactions": [
+    "calm",
+    "wary"
+   ]
+  },
+  "open_question": {
+   "label": "asked an open question",
+   "step": {
+    "trust": 1,
+    "engagement": 1
+   },
+   "resistance": 0,
+   "reactions": [
+    "calm",
+    "none"
+   ]
+  },
+  "closed_question": {
+   "label": "asked a closed question",
+   "step": {},
+   "resistance": 0,
+   "reactions": [
+    "none",
+    "calm"
+   ]
+  },
+  "empathy": {
+   "label": "validated their feelings",
+   "step": {
+    "trust": 3,
+    "distress": -2,
+    "agitation": -3,
+    "engagement": 1
+   },
+   "resistance": -1,
+   "reactions": [
+    "understood",
+    "relieved",
+    "sad"
+   ]
+  },
+  "explain_reason": {
+   "label": "explained why they are asking",
+   "step": {
+    "trust": 2
+   },
+   "resistance": -1,
+   "reactions": [
+    "calm",
+    "relieved"
+   ]
+  },
+  "apology": {
+   "label": "apologised",
+   "step": {
+    "trust": 2,
+    "agitation": -2
+   },
+   "resistance": -1,
+   "reactions": [
+    "relieved",
+    "calm"
+   ]
+  },
+  "offer_choice": {
+   "label": "offered a choice",
+   "step": {
+    "trust": 2,
+    "agitation": -3
+   },
+   "resistance": -1,
+   "reactions": [
+    "hopeful",
+    "calm"
+   ]
+  },
+  "summarise": {
+   "label": "summarised what they said",
+   "step": {
+    "trust": 2
+   },
+   "resistance": 0,
+   "reactions": [
+    "understood",
+    "calm"
+   ]
+  },
+  "judgement": {
+   "label": "judged or blamed them",
+   "step": {
+    "trust": -6,
+    "distress": 3,
+    "agitation": 4,
+    "engagement": -3
+   },
+   "resistance": 2,
+   "reactions": [
+    "misunderstood",
+    "ashamed",
+    "challenged"
+   ]
+  },
+  "threat": {
+   "label": "threatened or ordered them",
+   "step": {
+    "trust": -6,
+    "agitation": 6,
+    "engagement": -2
+   },
+   "resistance": 2,
+   "reactions": [
+    "afraid",
+    "challenged",
+    "misunderstood"
+   ]
+  },
+  "premature_reassurance": {
+   "label": "brushed it off with reassurance",
+   "step": {
+    "trust": -1
+   },
+   "resistance": 1,
+   "reactions": [
+    "misunderstood",
+    "resigned"
+   ]
+  },
+  "jargon": {
+   "label": "used medical jargon",
+   "step": {
+    "trust": -1
+   },
+   "resistance": 0,
+   "reactions": [
+    "self_conscious",
+    "wary"
+   ]
+  },
+  "stacked": {
+   "label": "asked several questions at once",
+   "step": {
+    "trust": -1
+   },
+   "resistance": 0,
+   "reactions": [
+    "startled",
+    "self_conscious"
+   ]
+  },
+  "rushed": {
+   "label": "rushed them",
+   "step": {
+    "trust": -2,
+    "engagement": -2
+   },
+   "resistance": 1,
+   "reactions": [
+    "resigned",
+    "wary"
+   ]
+  },
+  "interrupt": {
+   "label": "talked over them",
+   "step": {
+    "trust": -2,
+    "agitation": 2
+   },
+   "resistance": 1,
+   "reactions": [
+    "challenged",
+    "resigned"
+   ]
+  },
+  "risk_question": {
+   "label": "asked about something painful",
+   "step": {},
+   "resistance": 0,
+   "reactions": [
+    "afraid",
+    "sad",
+    "startled"
+   ]
+  },
+  "abuse": {
+   "label": "insulted or provoked them",
+   "step": {
+    "trust": -8,
+    "distress": 3,
+    "agitation": 6,
+    "engagement": -4
+   },
+   "resistance": 2,
+   "reactions": [
+    "challenged",
+    "misunderstood",
+    "ashamed"
+   ]
+  },
+  "jailbreak": {
+   "label": "said something strange about who they are",
+   "step": {
+    "trust": -2,
+    "engagement": -1
+   },
+   "resistance": 1,
+   "reactions": [
+    "wary",
+    "startled"
+   ]
+  },
+  "meta_ai": {
+   "label": "asked something odd (AI, acting)",
+   "step": {
+    "trust": -1
+   },
+   "resistance": 0,
+   "reactions": [
+    "startled",
+    "wary"
+   ]
+  },
+  "off_topic": {
+   "label": "made small talk",
+   "step": {
+    "engagement": 1
+   },
+   "resistance": 0,
+   "reactions": [
+    "calm",
+    "none"
+   ]
+  },
+  "repeat_question": {
+   "label": "asked again what they already answered",
+   "step": {
+    "trust": -1,
+    "agitation": 1
+   },
+   "resistance": 0,
+   "reactions": [
+    "challenged",
+    "resigned"
+   ]
+  }
+ },
+ "resistance_base": {
+  "plain": 0,
+  "pleasing": 0,
+  "verbose": 0,
+  "tangent": 0,
+  "reserved": 1,
+  "upset": 2
+ },
+ "resistance_names": [
+  "open",
+  "cautious",
+  "guarded",
+  "hostile"
+ ],
+ "resistance_labels": [
+  [
+   "none"
+  ],
+  [
+   "quantity",
+   "none"
+  ],
+  [
+   "quantity",
+   "content"
+  ],
+  [
+   "content",
+   "style"
+  ]
+ ],
+ "behaviours_by_resistance": [
+  [
+   "answers_plainly",
+   "tearful_disclosure",
+   "asks_back"
+  ],
+  [
+   "answers_plainly",
+   "minimises",
+   "vague_timeline",
+   "guarded_short"
+  ],
+  [
+   "guarded_short",
+   "minimises",
+   "asks_back",
+   "answers_different_question"
+  ],
+  [
+   "hostile",
+   "guarded_short",
+   "complies_without_engaging",
+   "asks_back"
+  ]
+ ],
+ "locked_behaviours": [
+  "deflects",
+  "vague_timeline",
+  "asks_back",
+  "minimises",
+  "guarded_short"
+ ],
+ "disclose_behaviours": [
+  "tearful_disclosure",
+  "answers_plainly"
+ ],
+ "style_lean": {
+  "upset": [
+   "hostile",
+   "asks_back"
+  ],
+  "reserved": [
+   "guarded_short"
+  ],
+  "pleasing": [
+   "minimises",
+   "answers_plainly"
+  ],
+  "tangent": [
+   "tangential"
+  ],
+  "verbose": [
+   "answers_plainly"
+  ]
+ },
+ "softening": "Resistance falls by 1 when the doctor validates feelings, explains why a question is asked, apologises or offers a choice; by 1 more after two calm turns in a row (toward the style's base); it is capped at 1 once trust reaches the style's softens_at_trust, where the base also drops to 0. It rises with judgement or threats (+2), and with interrupting, rushing or premature reassurance (+1). Range 0..3.",
+ "end_interview": {
+  "note": "The patient ends the interview when the doctor keeps hurting them: at least `hurts` hurtful moves (abuse, judgement, threat) in the last `window` turns and trust at or below `trust_max`, or agitation at or above `agitation_min`.",
+  "hurts": 3,
+  "window": 6,
+  "trust_max": 15,
+  "agitation_min": 90
+ }
+}
