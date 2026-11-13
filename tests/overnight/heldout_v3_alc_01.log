@@ -1,0 +1,76 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  v3 01_gold_standard: 13 turns
+  v3 02_judgmental: 6 turns
+11 {
+ "turns": 19,
+ "fidelity": 0.7777777777777778,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.10526315789473684,
+ "length_fit": 1.0,
+ "resistance_ok": 0.7894736842105263,
+ "principles_ok": null,
+ "mean_words": 15.263157894736842,
+ "invented": 3,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 6,
+ "top2_share": 0.5789473684210527,
+ "behaviour_entropy": 0.6301420510089167,
+ "trigram_repeat": 0.10526315789473684,
+ "opener_repeat": 0.0,
+ "composite": 0.8923976608187134
+}
+  v3 01_gold_standard: 13 turns
+  v3 02_judgmental: 6 turns
+23 {
+ "turns": 19,
+ "fidelity": 0.7777777777777778,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.10526315789473684,
+ "length_fit": 1.0,
+ "resistance_ok": 0.7894736842105263,
+ "principles_ok": null,
+ "mean_words": 16.05263157894737,
+ "invented": 1,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 6,
+ "top2_share": 0.631578947368421,
+ "behaviour_entropy": 0.5790296610007234,
+ "trigram_repeat": 0.15789473684210525,
+ "opener_repeat": 0.05263157894736842,
+ "composite": 0.8923976608187134
+}
+  v3 01_gold_standard: 13 turns
+  v3 02_judgmental: 6 turns
+42 {
+ "turns": 19,
+ "fidelity": 0.7777777777777778,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.10526315789473684,
+ "length_fit": 1.0,
+ "resistance_ok": 0.8421052631578947,
+ "principles_ok": null,
+ "mean_words": 15.68421052631579,
+ "invented": 5,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 6,
+ "top2_share": 0.5789473684210527,
+ "behaviour_entropy": 0.637709700377593,
+ "trigram_repeat": 0.21052631578947367,
+ "opener_repeat": 0.05263157894736842,
+ "composite": 0.9029239766081872
+}
