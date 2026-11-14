@@ -1,0 +1,10 @@
+*.aux
+*.log
+*.bbl
+*.blg
+*.out
+*.bcf
+*.run.xml
+_png/
+manuscript.tex
+paper_preview.pdf

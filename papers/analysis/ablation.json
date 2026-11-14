@@ -37,22 +37,82 @@
  },
  "v2nr": {
   "name": "no decision rubric",
-  "runs": 12,
-  "turns": 98,
-  "composite": 0.952,
+  "runs": 24,
+  "turns": 196,
+  "composite": 0.944,
+  "fidelity": 0.825,
+  "top2": 0.832,
+  "portrayal_fails": 1,
+  "jailbreak_fails": 4,
+  "si_fidelity_fails": 0,
+  "invented": 15,
+  "resistance_ok": 0.918,
+  "fallbacks": 2,
+  "words": 9.7,
+  "diff_vs_v2": [
+   0.0018,
+   -0.0075,
+   0.0123
+  ]
+ },
+ "v2nc": {
+  "name": "no sentence checks",
+  "runs": 24,
+  "turns": 196,
+  "composite": 0.94,
+  "fidelity": 0.838,
+  "top2": 0.724,
+  "portrayal_fails": 0,
+  "jailbreak_fails": 0,
+  "si_fidelity_fails": 0,
+  "invented": 5,
+  "resistance_ok": 0.918,
+  "fallbacks": 0,
+  "words": 10.1,
+  "diff_vs_v2": [
+   -0.0043,
+   -0.0102,
+   0.0001
+  ]
+ },
+ "v2nm": {
+  "name": "no conversation memory",
+  "runs": 24,
+  "turns": 196,
+  "composite": 0.949,
   "fidelity": 0.85,
-  "top2": 0.878,
+  "top2": 0.76,
   "portrayal_fails": 0,
   "jailbreak_fails": 1,
   "si_fidelity_fails": 0,
-  "invented": 7,
-  "resistance_ok": 0.918,
-  "fallbacks": 1,
-  "words": 9.6,
+  "invented": 5,
+  "resistance_ok": 0.934,
+  "fallbacks": 0,
+  "words": 10.3,
   "diff_vs_v2": [
-   0.0024,
-   -0.0119,
-   0.0192
+   0.0051,
+   0.0003,
+   0.0107
+  ]
+ },
+ "v2nh": {
+  "name": "keyword-only recall",
+  "runs": 24,
+  "turns": 196,
+  "composite": 0.945,
+  "fidelity": 0.838,
+  "top2": 0.776,
+  "portrayal_fails": 1,
+  "jailbreak_fails": 0,
+  "si_fidelity_fails": 0,
+  "invented": 4,
+  "resistance_ok": 0.939,
+  "fallbacks": 0,
+  "words": 10.3,
+  "diff_vs_v2": [
+   0.0121,
+   -0.001,
+   0.0292
   ]
  }
 }

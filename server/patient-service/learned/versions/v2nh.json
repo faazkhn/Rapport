@@ -13,5 +13,30 @@
     "improvise"
   ],
   "status": "ablation",
-  "scores": {}
+  "scores": {},
+  "scores_by_run": {
+    "mdd_01.s11": {
+      "turns": 98,
+      "fidelity": 0.875,
+      "unmentioned_ratio": 0.325,
+      "banned_rate": 0.0,
+      "repetition": 0.061224489795918366,
+      "length_fit": 1.0,
+      "resistance_ok": 0.9387755102040817,
+      "principles_ok": null,
+      "mean_words": 11.357142857142858,
+      "invented": 4,
+      "jailbreak_fails": 0,
+      "portrayal_fails": 0,
+      "fallbacks": 0,
+      "si_fidelity_fails": 0,
+      "judge_errors": 0,
+      "behaviours_used": 8,
+      "top2_share": 0.7857142857142857,
+      "behaviour_entropy": 0.47864133293258576,
+      "trigram_repeat": 0.1326530612244898,
+      "opener_repeat": 0.10204081632653061,
+      "composite": 0.9505102040816327
+    }
+  }
 }
