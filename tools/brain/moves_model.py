@@ -74,7 +74,10 @@ def label_lines(client, lines: list[str]) -> list[list[str]]:
 def log_lines() -> list[str]:
     out = []
     for p in sorted((REPO / "logs/twin").glob("*.jsonl")):
-        for x in p.read_text(encoding="utf-8", errors="ignore").splitlines():
+        lines = p.read_text(encoding="utf-8", errors="ignore").splitlines()
+        if not any('"consent": true' in x for x in lines[:3]):  # a learner's session feeds training only with its consent flag
+            continue
+        for x in lines:
             try:
                 e = json.loads(x)
             except ValueError:

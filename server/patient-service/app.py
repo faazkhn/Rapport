@@ -1,6 +1,7 @@
 """PsychSim patient service: WS /session (voice loop), /health, /reply (typed + tests), /tts (KittenTTS). Run with ./run.sh."""
 import io
 import ipaddress
+import json
 import logging
 import os
 import time
@@ -13,7 +14,7 @@ from fastapi import FastAPI, HTTPException, Query, WebSocket
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from starlette.websockets import WebSocketClose
 
 import brain
@@ -138,6 +139,14 @@ class ReplyReq(BaseModel):
     summary: str | None = Field(default=None, max_length=4000)
     mode: Literal["practice", "assessment"] = "practice"
     seed: int | None = Field(default=None, ge=0, le=2**31 - 1)
+    twin: dict | None = None  # the mind this service returned last turn (signed; anything else starts a fresh mind)
+
+    @field_validator("twin")
+    @classmethod
+    def _small(cls, v):
+        if v is not None and len(json.dumps(v)) > 65536:
+            raise ValueError("twin too large")
+        return v
 
 
 class TtsReq(BaseModel):

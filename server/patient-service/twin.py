@@ -141,6 +141,32 @@ def similarities(case: dict, doctor_text: str, qvec=None) -> dict[str, float]:
     return dict(zip(ids, best.tolist()))
 
 
+_topic_w = {"data": "unset"}
+
+
+def topic_weights():
+    """Hand-set topic vectors (tools/brain/hand_weights.py -> data/brain/topic_weights.json), or None."""
+    if _topic_w["data"] == "unset":
+        try:
+            _topic_w["data"] = brain.load_json("brain/topic_weights.json")
+        except FileNotFoundError:
+            _topic_w["data"] = None
+    return _topic_w["data"]
+
+
+def hand_topics(doctor_text: str, qvec=None) -> list[str]:
+    """Risk topics whose hand-set vector is close enough to the line (cosine >= its threshold)."""
+    w = topic_weights()
+    if not w or not doctor_text.strip():
+        return []
+    import numpy as np
+    q = qvec if qvec is not None else embed([doctor_text])
+    if q is None:
+        return []
+    q = q if q.ndim == 1 else q[0]
+    return [t for t, v in w["vectors"].items() if float(np.dot(v, q)) >= w["thresholds"][t]]
+
+
 def recall(case: dict, trust: float, doctor_text: str, limit: int = 3, lexical: bool = False, sims: dict | None = None,
            topics: list[str] | None = None) -> dict:
     """Memory items the doctor's words touch: tag matches plus embedding matches (lexical=True: tags only, brain v0). Open ones

@@ -168,7 +168,10 @@ def decide(case: dict, state: dict, level: int, mv: list[str], recalled: dict, h
     T = table()
     facts = {f["id"]: f for f in case["facts"]}
     hurt = bool(HURTFUL & set(mv))
-    open_risk = [f for f in recalled.get("open", []) if facts.get(f, {}).get("kind") == "risk" and facts[f].get("must_be_asked")]
+    strong = set(recalled.get("strong", recalled.get("open", [])))
+    open_risk = [f for f in recalled.get("open", []) if facts.get(f, {}).get("kind") == "risk" and facts[f].get("must_be_asked") and f in strong]
+    import consistency  # a fact whose truth is itself a "no" (no plan) must not hide an open death wish asked in the same line
+    open_risk.sort(key=lambda f: bool(consistency.DENIAL.match(facts[f].get("disclosure_line", ""))))
     must_disclose = open_risk[0] if open_risk and not hurt else None
     locked = bool(recalled.get("locked_hit"))
     forced = True

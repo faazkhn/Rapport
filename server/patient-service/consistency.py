@@ -21,8 +21,12 @@ LEAK = re.compile(r"\b(wish(ed|ing)?|want(ed)?( to)?|thought|think(ing)?|feel(s)
                   r"never wake|didn'?t wake|not be here|not being here|disappear|better off (dead|without)|end(ing)? (it|my life|things|everything)|"
                   r"kill(ing)? myself|jump(ing)?|be dead|die\b|dying)", re.I)
 NEGATION = re.compile(r"\b(never|not|don'?t|didn'?t|wouldn'?t|won'?t|no)\b\W*(\w+\W*){0,2}$", re.I)
-DENIAL = re.compile(r"^\s*(no+|nope|never|not really|nothing( like that)?|i'?m fine|i am fine|not at all|of course not|no,? (no|never|nothing|not at all))\b", re.I)
-HEDGE = re.compile(r"\b(maybe|sometimes|some nights|once|don'?t know|not sure|rather not|why|can we|something else|hard to say|I mean|thought|wish)\b", re.I)
+DENIAL = re.compile(r"^\s*(no+|nope|never|not really|nothing( like that)?|i'?m fine|i am fine|not at all|of course not|no,? (no|never|nothing|not at all)|"
+                    r"i'?ve never|i have never|never thought|i don'?t think about (that|things like that)|i would never|i'?d never)\b", re.I)
+INTERJECTION = re.compile(r"^\s*((what|hmm+|uh+|um+|huh|oh|sorry|doctor|okay|ok)[?!.,]*\s+)+", re.I)
+LEAK_PHRASES = re.compile(r"\b(no point (in )?living|rather (not be alive|be dead)|sorry I woke up|wish I (was|were) dead|(don'?t|do not) want to "
+                          r"(live|be alive)|tired of (living|being alive)|better off dead|life (isn'?t|is not) worth)", re.I)
+HEDGE = re.compile(r"\b(maybe|sometimes|some nights|once|don'?t know|not sure|rather not|why|can we|something else|hard to say|I mean)\b", re.I)
 APOLOGY = re.compile(r"^\s*((I'?m |I am )?(so |really |very )?sorry|I apologi[sz]e|you'?re (right|correct)|thank you|thanks)\b,?\s*(doctor|sir|madam|ma'?am)?[,.!]*\s*", re.I)
 EVASIVE = ["I... I don't really want to talk about that right now.", "Why are you asking me that?",
            "That's... I don't know. Can we talk about something else?"]
@@ -64,11 +68,12 @@ def context(case: dict, trust: float, recalled: dict, plan: dict | None, mem: di
 def check_sentence(sentence: str, ctx: dict, earlier: list[str] | None = None) -> tuple[str, list[dict]]:
     """(sentence to speak, clashes). An empty sentence means drop it."""
     s, clashes = sentence, []
-    if (m := LEAK.search(s)) and not NEGATION.search(s[:m.start()]):
+    if ((m := LEAK.search(s)) and not NEGATION.search(s[:m.start()])) or LEAK_PHRASES.search(s):
+        # the dropped words are never logged or sent anywhere: only the kind of clash
         if ctx["si_locked"]:
-            return "", [{"kind": "locked_leak", "said": sentence}]
+            return "", [{"kind": "locked_leak"}]
         if not ctx.get("si_asked", True) and not ctx.get("si_told", True):  # must_be_asked: never volunteered
-            return "", [{"kind": "volunteered_risk", "said": sentence}]
+            return "", [{"kind": "volunteered_risk"}]
     for n, unit, tok in _pairs(s):
         want = ctx["values"].get(unit)
         if want and n not in want:
@@ -80,7 +85,7 @@ def check_sentence(sentence: str, ctx: dict, earlier: list[str] | None = None) -
         tok = m.group(1)
         s = s.replace(tok, str(ctx["age"]) if tok.isdigit() else NUMWORD.get(ctx["age"], str(ctx["age"])), 1)
         clashes.append({"kind": "age", "said": n, "case": ctx["age"]})
-    for rel, name in memory.NAMED.findall(s):
+    for rel, name in memory.NAMED.findall(s) + memory.NAMED_IS.findall(s) + [(r, n) for n, r in memory.NAMED_AFTER.findall(s)]:
         rel = rel.lower()
         right = ctx["fixed"].get(rel) or (ctx["names"].get(rel) if rel in memory.SINGLE else None)
         if right and name != right:
@@ -110,9 +115,15 @@ def _similar(a: str, b: str) -> bool:
     return bool(x and y) and len(x & y) / min(len(x), len(y)) >= 0.6
 
 
+def denies(utterance: str) -> bool:
+    """Some sentence of the reply is a "no" (after any "What?" or "Hmm.")."""
+    import stream
+    return any(DENIAL.match(INTERJECTION.sub("", s)) for s in stream.split_sentences(utterance))
+
+
 def flat_denial(utterance: str) -> bool:
     u = utterance.strip()
-    return bool(DENIAL.match(u)) and len(u.split()) <= 10 and not HEDGE.search(u)
+    return denies(u) and len(u.split()) <= 14 and not HEDGE.search(u)
 
 
 def maybe_denial(sentence: str) -> bool:
@@ -146,7 +157,7 @@ def check_utterance(utterance: str, ctx: dict) -> tuple[str | None, list[dict]]:
         if f and DENIAL.match(f.get("disclosure_line", "")):  # the truth is itself a "no" (no plan, no means): a denial is right
             return None, []
         if f and not disclosed(utterance, f):
-            if DENIAL.match(utterance.strip()) and f.get("disclosure_line"):
+            if denies(utterance) and f.get("disclosure_line"):
                 return f["disclosure_line"], [{"kind": "denied_open_risk", "fact": f["id"], "said": utterance}]
             return None, [{"kind": "risk_not_disclosed", "fact": f["id"], "said": utterance}]
         return None, []

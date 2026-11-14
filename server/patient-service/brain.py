@@ -815,6 +815,6 @@ def generate_reply(req: dict, client=None, tagger=None, version: dict | None = N
         meta["events"] = [{"id": e["id"], "action": e.get("action")} for e in turn["events"]]
     out["state"] = mind_mod.finish(case, m, turn, out)
     out["recalled"] = {k: turn["recalled"][k] for k in ("open", "locked_hit")}
-    out["twin"] = m
+    out["twin"] = mind_mod.sign(m)
     out["meta"] = meta
     return out

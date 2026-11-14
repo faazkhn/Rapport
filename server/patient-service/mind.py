@@ -6,7 +6,12 @@ snapshot. The per-session `mind` is plain JSON, so the typed path can carry it b
 Features are switched on by the brain version (learned/versions/<id>.json `features`), so `learning.py rollback v0` restores the
 old brain: hybrid_recall, rubric, memory, consistency, mse, improvise. See docs/TWIN.md.
 """
+import hashlib
+import hmac
+import json
+import os
 import random
+import secrets
 
 import brain
 import consistency
@@ -16,7 +21,7 @@ import rubric
 import stream
 import twin
 
-FEATURES = ("hybrid_recall", "rubric", "memory", "consistency", "mse", "improvise", "move_model", "text_model")
+FEATURES = ("hybrid_recall", "rubric", "memory", "consistency", "mse", "improvise", "move_model", "text_model", "hand_topics")
 _models: dict = {}
 
 
@@ -80,11 +85,32 @@ def new(case: dict, state: dict) -> dict:
             "ended": False}
 
 
+_KEY = (os.environ.get("RAPPORT_TWIN_KEY") or secrets.token_hex(32)).encode()  # per service run unless set
+
+
+def _sig(m: dict) -> str:
+    body = json.dumps({k: v for k, v in m.items() if k != "sig"}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hmac.new(_KEY, body.encode(), hashlib.sha256).hexdigest()
+
+
+def sign(m: dict) -> dict:
+    """The mind as the typed path returns it: signed, so only minds this service issued are accepted back."""
+    return {**m, "sig": _sig(m)}
+
+
 def load(blob, case: dict, state: dict) -> dict:
-    """A mind that came back from a client (typed /reply): checked types and bounded sizes; anything odd starts fresh."""
+    """A mind that came back from a client (typed /reply): only one this service signed, then checked types and bounded sizes;
+    anything else starts a fresh mind (a client can neither forge memory nor inject prompt text)."""
     m = new(case, state)
-    if not isinstance(blob, dict):
+    if not isinstance(blob, dict) or not isinstance(blob.get("sig"), str) or not hmac.compare_digest(blob["sig"], _sig(blob)):
         return m
+    try:
+        return _load(blob, case, m)
+    except (TypeError, ValueError, KeyError, AttributeError):
+        return new(case, state)
+
+
+def _load(blob: dict, case: dict, m: dict) -> dict:
     num = lambda v, lo, hi: isinstance(v, (int, float)) and not isinstance(v, bool) and lo <= v <= hi  # noqa: E731
     if num(blob.get("turn"), 0, 10_000):
         m["turn"] = int(blob["turn"])
@@ -134,6 +160,7 @@ def prepare(case: dict, state: dict, mind: dict, messages: list[dict], elapsed_m
     mind["fired"] = sorted(fired)
     start = dict(state)
     st = twin.apply_event_deltas(state, events) if events else dict(state)
+    after_events = dict(st)
     lexical = "hybrid_recall" not in on
     model = move_model(v.get("move_model", "moves-v1")) if "move_model" in on else None
     qvec = twin.embed([doctor]) if (not lexical or model) and doctor.strip() else None  # one embedding for recall and the classifier
@@ -142,6 +169,8 @@ def prepare(case: dict, state: dict, mind: dict, messages: list[dict], elapsed_m
     tm = text_model(v.get("text_model", "tm-v1")) if "text_model" in on else None
     read = read_line(tm, doctor) if tm and doctor.strip() else None
     topics = read["topics"] if read else None
+    if "hand_topics" in on and not lexical:  # hand-set topic weights (no training): a clear risk topic strongly touches its facts
+        topics = list(dict.fromkeys((topics or []) + twin.hand_topics(doctor, qvec)))
     recalled = twin.recall(case, st["trust"], doctor, lexical=lexical, sims=sims, topics=topics)
     mv, plan = [], None
     if "rubric" in on:
@@ -153,14 +182,14 @@ def prepare(case: dict, state: dict, mind: dict, messages: list[dict], elapsed_m
             text_moves = [m for m in classify(model, doctor, qvec) if m in rubric.table()["moves"]]
         mv = rubric.moves(doctor, recalled, case, rep, mind.get("interrupted", False), prev_doctor, text_moves)
         st = rubric.pre_step(st, mv, case)
+        c = brain.load_json("state_rules.json")["clamp_per_turn"]  # event + step together stay within one turn's clamp
+        st = {k: min(start[k] + c, max(start[k] - c, v)) for k, v in st.items()}
         recalled = twin.recall(case, st["trust"], doctor, lexical=lexical, sims=sims, topics=topics)  # the step may open a lock
         level = rubric.resistance(mind["resistance"], mv, case, st["trust"], mind["calm"])
         if not mind["ended"] and _should_end(case, {**mind, "hurt_turns": mind["hurt_turns"] + [mind["turn"]] * bool(rubric.HURTFUL & set(mv))}, st, mv):
             events = events + [_end_event(case)]
             mind["fired"].append("patient_ends")
         plan = rubric.decide(case, st, level, mv, recalled, mind["behaviours"], exam, mind["ended"] or any(e["id"] == "patient_ends" for e in events))
-        if plan["must_disclose"] and plan["must_disclose"] not in recalled.get("strong", []):
-            plan["must_disclose"] = None  # forced only on a clear risk question, never on a borderline match
     mem_lines = []
     if "memory" in on:
         mem_lines = memory.lines(mind["memory"], case, mind["turn"], recalled, mv, doctor)
@@ -175,7 +204,9 @@ def prepare(case: dict, state: dict, mind: dict, messages: list[dict], elapsed_m
     if ended_before:
         ongoing.append(_end_event(case)["then"])
     msgs = brain.build_messages(case, st, messages, summary, elapsed_min, recalled, exam, examples, v, events, ongoing, plan=plan,
-                                memory_lines=mem_lines, prefix_state=start)
+                                memory_lines=mem_lines,
+                                # the cached prefix uses the start state, but never shows a fact the lower of the two trusts locks
+                                prefix_state={**start, "trust": min(start["trust"], st["trust"])} if "rubric" in on else after_events)
     turn = {"turn": mind["turn"], "doctor": doctor, "start": start, "state": st, "exam": exam, "events": events, "recalled": recalled,
             "moves": mv, "plan": plan, "allowed": allowed, "schema": schema, "messages": msgs, "examples": examples, "version": v,
             "features": sorted(on), "memory_lines": mem_lines, "clashes": []}
@@ -196,9 +227,10 @@ def speakable(case: dict, turn: dict, sentence: str, spoken: list[str], earlier:
 
 
 def hold(turn: dict, sentence: str, spoken: list[str]) -> bool:
-    """Hold a first sentence that may be a flat denial until the reply ends, on a turn where a denial would break a rule."""
+    """On a turn where a denial would break a rule (an open risk fact asked kindly, or a locked one touched), the whole reply is
+    held until it is complete and checked as one: a "no" can come in any sentence. Costs latency on those turns only."""
     p = turn["plan"] or {}
-    return bool(turn["ctx"]) and not spoken and (p.get("must_disclose") or p.get("evasive")) and consistency.maybe_denial(sentence)
+    return bool(turn["ctx"]) and not spoken and bool(p.get("must_disclose") or p.get("evasive"))
 
 
 def final_check(turn: dict, utterance: str) -> str | None:
@@ -255,7 +287,7 @@ def finish(case: dict, mind: dict, turn: dict, reply: dict, spoken_ok: bool = Tr
     have = {c["id"] for c in reply["event_cues"]}
     reply["event_cues"] = (reply["event_cues"] + [c for c in expr["cues"] if c["id"] not in have])[:2]
     mind["next_speed"] = expr["speed"]
-    new, mind["mood"] = twin.update(base, mind["mood"], reply, case, start=start, rubric="rubric" in on)
+    new, mind["mood"] = twin.update(base, mind["mood"], reply, case, start=start if "rubric" in on else None, rubric="rubric" in on)
     mind["interrupted"] = False
     if turn["plan"]:
         p, mv = turn["plan"], turn["moves"]

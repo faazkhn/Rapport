@@ -16,10 +16,12 @@ RELATIONS = ("brother", "sister", "mother", "father", "amma", "appa", "wife", "h
 SINGLE = {"mother", "father", "amma", "appa", "wife", "husband", "manager", "boss", "flatmate", "roommate", "spouse"}
 _REL = "|".join(RELATIONS)
 NAMED = re.compile(rf"\b(?:[Mm]y|[Oo]ur)\s+(?:younger |elder |older |little |big |best |old |new |dear )?({_REL})\s*,?\s+([A-Z][a-z]{{2,}})\b")
+NAMED_IS = re.compile(rf"\b(?:[Mm]y|[Oo]ur)\s+(?:younger |elder |older |little |big |best |old |new |dear )?({_REL})(?:'s name is| is called| is named|, called| called| named)\s+([A-Z][a-z]{{2,}})\b")
 NAMED_AFTER = re.compile(rf"\b([A-Z][a-z]{{2,}})\s*,?\s*\(?(?:my|her|his|their|{{their}})\s+(?:younger |elder |older |little |big |best )?({_REL})\b")
 CLINICAL = re.compile(r"\b(drink|drank|drunk|alcohol|peg|beer|whisky|rum|smoke|cigarette|ganja|weed|drug|tablet|pill|medicine|doctor|hospital|"
-                      r"psychiatr|counsel|sleep|appetite|weight|tired|sad|low|depress|anxi|panic|voices|suicid|die|dead|kill|hurt|harm|cry|"
-                      r"burden|worthless|fit|seizure|shak)", re.I)
+                      r"psychiatr|counsel|sleep|appetite|weight|tired|sad|low|depress|anxi|panic|voices|suicid|die|dead|death|kill|hurt|harm|cry|"
+                      r"burden|worthless|fit|seizure|shak|heart|sugar|diabet|bp\b|blood|pressure|cancer|tumou?r|surgery|operat|disease|ill|sick|"
+                      r"patient|treat|therap|nerves|mental|stress|accident|injur|pain|clinic|admit)", re.I)
 COMMON = {"Doctor", "Sir", "Madam", "Okay", "Yes", "No", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
           "English", "Kannada", "Hindi", "Tamil", "Telugu", "Malayalam", "India", "Indian", "Diwali", "Sankranti", "Ugadi", "Dasara", "Christmas",
           "Eid", "Holi", "Onam", "Pongal", "God", "Amma", "Appa", "Mummy", "Papa"}
@@ -89,8 +91,10 @@ def record_improvised(mem: dict, case: dict, turn: int, utterance: str) -> list[
     for s in stream.split_sentences(utterance):
         if CLINICAL.search(s):
             continue
-        for rel, name in NAMED.findall(s):
-            rel = rel.lower()
+        pairs = [(r.lower(), n) for r, n in NAMED.findall(s) + NAMED_IS.findall(s) + [(r, n) for n, r in NAMED_AFTER.findall(s)]]
+        if any(r in fixed and n != fixed[r] for r, n in pairs):  # contradicts a name the case fixes: never kept as backstory
+            continue
+        for rel, name in pairs:
             if rel not in fixed and rel in SINGLE:
                 mem["names"].setdefault(rel, name)
         # capitalised words past the first (sentence starts are capitalised anyway) that the case never uses: a made-up name or place

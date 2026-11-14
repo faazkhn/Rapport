@@ -8,6 +8,7 @@ import io
 import json
 import logging
 import os
+import random
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -17,6 +18,7 @@ import jsonschema
 import numpy as np
 
 import brain
+import consistency
 import exam_router
 import learning
 import mind
@@ -163,7 +165,7 @@ class Session:
             except OSError as e:  # the log is a convenience; never let it stop the voice
                 log.warning("twin log off: %s", type(e).__name__)
                 self.twin_log = None
-            await self.twin(twin.init_event(self.case, self.state))
+            await self.twin({**twin.init_event(self.case, self.state), "consent": self.consent})
             asyncio.get_running_loop().run_in_executor(None, self.warm)
             asyncio.get_running_loop().run_in_executor(TTS_POOL, self.warm_voice, self.tts)
         await self.send_json({"type": "listening"})
@@ -478,7 +480,11 @@ class Session:
         if capped:  # facts in the unspoken tail are not credited
             meta["guard_dropped"] += [{"kind": "fact", "id": i, "reason": "word_cap"} for i in reply["revealed_fact_ids"]]
             reply["revealed_fact_ids"] = []
-        reply["utterance"] = " ".join(spoken) if spoken else ("" if events else reply["utterance"])
+        if not spoken and not cancel.is_set() and not events:  # every sentence was dropped by the checks: say a safe line instead
+            safe = consistency.EVASIVE[0] if (turn["plan"] or {}).get("evasive") else random.choice(case["fallback_lines"])
+            await speak(safe, checked=True)
+            meta["fallback"] = True
+        reply["utterance"] = " ".join(spoken)  # only what was said: a dropped sentence never reaches the client, history or memory
         if cancel.is_set():
             meta["barge_in"] = True
             reply["utterance"] = (" ".join(spoken) + "...") if spoken else ""
