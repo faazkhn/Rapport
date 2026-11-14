@@ -1,6 +1,16 @@
 # Rapport (formerly PsychSim): handoff, 2026-10-20
 
-## v0.3 in progress (branch `v0.3-brain`, 2026-11-13): read this first
+## v0.3 status (branch `v0.3-brain`, 2026-11-14 08:30): read this first
+Owner deadline 14:30 today; submission = built app + push/PR to main (owner approved; push with `GH_TOKEN=$(gh auth token -u faazkhn)`,
+gh's active account is ActionGenius) + written report. Done: brain twin-0.2 with all 10 safety-review fixes and the 'you can go'
+loop fix (service tests 244); rendering quick wins + body language (EditMode 55); trial build OK (Builds/Rapport.app 08:22).
+Running in the background (tests/overnight/rerun/status.md): v2 held-out 3 seeds x 2 cases, then upset-style check (queue4),
+then the clean leave replay (scratchpad/leave/replay_clean.log). Left: fill docs/GATES_v0.3.md from
+`tools/overnight/gates_tables.py`, decide live brain (v2 if held-out has no safety regression; `learning.py rollback v2`),
+A/B page (`tools/learning/ab_page.py --a v0.mdd_01.s11 --b v2.mdd_01.s11`), final build, push, PR (draft body in the scratchpad
+pr_body.md). Not done: recall 95% gate (test half 72.7%), learning rounds, lip sync, skin/eye/hair shaders, live takes.
+
+### Earlier (2026-11-13)
 Plan: `KICKOFF_PROMPT_v5.md`. Phase 0 and the Phase 1 brain code are done; the measurements run overnight.
 - **Committed:** `personalities` got the §4g/§4h work (`72e9e1f`; the two new bodies' FBX/textures are NOT committed: about 150 MB of LFS needs the owner's go-ahead). `v0.3-brain` adds brain twin-0.2 (`1c457f7`, `60c568f`): `mind.py` (one turn pipeline for voice and typed), `rubric.py` + `data/brain/rubric.json`, `memory.py` (episodic memory, improvised everyday backstory, owner request 2026-11-13), `consistency.py`, hybrid recall in `twin.py` (bge-small + tags + `recall_probes` + generated `data/recall/<case>.json`), MSE blocks and risk `disclosure_line`s in the cases (clinician review), move/intent classifier `tools/brain/moves_model.py`. Features are per brain version: `v2` = all, `v0` = none (rollback v0 restores the old brain). Live stays `v0`.
 - **Tests:** service 236 pass, Unity EditMode 51/51, validate_data 0 errors.
