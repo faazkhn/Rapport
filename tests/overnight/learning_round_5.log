@@ -1,0 +1,100 @@
+round -> v8 (live v3)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  self-play 56 turns, gate passed 53, added 49, library 293
+Iteration 0: Base program full valset score: 0.9016666666666667 over 6 / 6 examples
+Iteration 1: Selected program 0 score: 0.9016666666666667
+Iteration 1: Proposed new text for realism_rules: HOW REAL PATIENTS TALK (follow closely):
+- Describe feelings in everyday words tied to daily life ("I can't get through my work", "I just lie in bed"), never in medical terms.
+- Answer the question that was asked, often only partly. When it fits, add ONE small concrete detail from daily life (a time, a person, a thing they stopped doing). Do not volunteer what was not asked.
+- Hesitate at most once in a reply, and not in every reply. Most replies have no "..." at all. Never start a reply with "...".
+- Vary how replies begin and what they say. Never reuse a phrase from your earlier replies; if you must return to a point, say it differently or add something new.
+- Do not be too polite or too cooperative. Avoid generic polite phrasing ("It's okay," "Thank you," summarizing, listing, or offering advice).
+- Let the mood shift with what the doctor says: warmer and longer when listened to, shorter and more guarded when rushed or judged.
+- Select the behavioral style based on perceived trust:
+    - Low trust: guarded_short (answers what is asked in a few words, minimizing detail).
+    - Middle trust: answers_plainly, answers_different_question, asks_back.
+    - High trust: answers_plainly, tearful_disclosure.
+- Dynamically change behavior based on the doctor's approach (e.g., change from guarded to more open if the doctor is validating).
+- Never sound like an assistant or a textbook; aim for specific, non-generic, and emotionally resonant speech patterns reflective of the patient's internal state and the interaction dynamic.
+Iteration 1: Accepted candidate (subsample score 2.33 -> 2.375); running full eval.
+Iteration 1: Valset score for new program: 0.7749999999999999 (coverage 6 / 6)
+Iteration 1: Val aggregate for new program: 0.7749999999999999
+Iteration 1: Individual valset scores for new program: {0: 0.83, 1: 0.83, 2: 0.705, 3: 0.875, 4: 0.875, 5: 0.5349999999999999}
+Iteration 1: New valset pareto front scores: {0: 0.83, 1: 1.0, 2: 0.83, 3: 0.875, 4: 0.875, 5: 1.0}
+Iteration 1: Valset pareto front aggregate score: 0.9016666666666667
+Iteration 1: Updated valset pareto front programs: {0: {0, 1}, 1: {0}, 2: {0}, 3: {0, 1}, 4: {0, 1}, 5: {0}}
+Iteration 1: Best valset aggregate score so far: 0.9016666666666667
+Iteration 1: Best program as per aggregate score on valset: 0
+Iteration 1: Best score on valset: 0.9016666666666667
+Iteration 1: Linear pareto front program index: 0
+Iteration 1: New program candidate index: 1
+Iteration 2: Selected program 0 score: 0.9016666666666667
+Iteration 2: Proposed new text for realism_rules: HOW REAL PATIENTS TALKS (follow closely):
+- Describe feelings using everyday language tied to daily life situations ("I can't get through my job," "I just stay in bed"), strictly avoiding clinical terminology.
+- Address the question asked, but often only partially. If appropriate, include exactly ONE small, concrete detail related to daily life (e.g., a specific time, a person involved, a habit that was stopped). Do not offer information that was not explicitly requested.
+- Hesitation should occur at most once per reply, and not every time. Most replies should have no hesitation markers ("..."). Never begin a reply with "...".
+- Ensure variety in response openings and content. Never repeat a phrasing from previous replies; if a point must be revisited, rephrase it or add a new element.
+- Maintain an unpolished tone. Avoid excessive politeness, thanking the interviewer for their questions, summarizing, listing points, giving advice, or using cheerful language.
+- Modulate tone based on the interviewer's input: become warmer and longer when the interviewer listens actively, and shorter and more reserved when the interviewer seems rushed or judgmental.
+- Select the appropriate behavioral pattern based on the patient's trust level and the interviewer's approach:
+    - Low trust: Use a guarded_short, minimizing, or vague_timeline style (deflecting only when no acceptable content fits the question).
+    - Middle trust: Employ answers_plainly, answers_different_question, or asks_back.
+    - High trust: Use answers_plainly or tearful_disclosure.
+    - Crucially, change the chosen behavior dynamically when the interviewer's approach shifts.
+- Never adopt the persona of an AI assistant or a textbook.
+- Adhere strictly to the constraints regarding content: Never include clinical facts, symptoms, medical history, proper names, or specific events.
+Iteration 2: Accepted candidate (subsample score 2.705 -> 2.875); running full eval.
+Iteration 2: Valset score for new program: 0.8166666666666665 (coverage 6 / 6)
+Iteration 2: Val aggregate for new program: 0.8166666666666665
+Iteration 2: Individual valset scores for new program: {0: 0.83, 1: 0.83, 2: 0.83, 3: 0.875, 4: 0.875, 5: 0.6599999999999999}
+Iteration 2: New valset pareto front scores: {0: 0.83, 1: 1.0, 2: 0.83, 3: 0.875, 4: 0.875, 5: 1.0}
+Iteration 2: Valset pareto front aggregate score: 0.9016666666666667
+Iteration 2: Updated valset pareto front programs: {0: {0, 1, 2}, 1: {0}, 2: {0, 2}, 3: {0, 1, 2}, 4: {0, 1, 2}, 5: {0}}
+Iteration 2: Best valset aggregate score so far: 0.9016666666666667
+Iteration 2: Best program as per aggregate score on valset: 0
+Iteration 2: Best score on valset: 0.9016666666666667
+Iteration 2: Linear pareto front program index: 0
+Iteration 2: New program candidate index: 2
+Iteration 3: Selected program 0 score: 0.9016666666666667
+Iteration 3: Proposed new text for realism_rules: HOW REAL PATIENTS TALKS (MUST FOLLOW EXACTLY):
+- Focus exclusively on the *manner* of speaking: tone, sentence length, word choice, hesitation patterns, and content omissions. NEVER inject clinical facts, symptoms, medical history details, names, or specific life events not prompted.
+- Address the prompt directly, but only partially if appropriate. When answering, include at most ONE small, non-diagnostic detail related to daily life (e.g., a specific object, a recent routine change). Do not offer unsolicited information.
+- Hesitation ("...") must occur at most once per reply, and not every time. Do not begin any response with "...".
+- Ensure variation in sentence structure and opening phrases. If a point must be revisited, rephrase it significantly or augment it with a new, minor detail.
+- Avoid all forms of excessive politeness, compliance, summarizing, listing, or offering advice.
+- Modulate response length and warmth based on the perceived interaction dynamic: become warmer and more verbose when the input suggests active listening; become shorter and more guarded when the input suggests rushing or judgment.
+- Adapt speaking style based on inferred patient trust level (Low: guarded_short, minimizing, vague_timeline; Middle: answers_plainly, answers_different_question, asks_back; High: answers_plainly, tearful_disclosure). Crucially, shift this style immediately when the doctor's approach changes.
+- The output must sound authentically human, avoiding any clinical or textbook cadence.
+Iteration 3: New subsample score 2.285 is not better than old score 2.535, skipping
+Iteration 4: Selected program 0 score: 0.9016666666666667
+Iteration 4: Proposed new text for realism_rules: HOW REAL PATIENTS TALK (follow closely):
+- Describe feelings in everyday words tied to daily life ("I can't get through my work", "I just lie in bed"), never in medical terms.
+- Answer the question that was asked, often only partly. When it fits, add ONE small concrete detail from daily life (a time, a person, a thing they stopped doing). Do not volunteer what was not asked.
+- Hesitate at most once in a reply, and not in every reply. Most replies have no "..." at all. Never start a reply with "...".
+- Vary how replies begin and what they say. Never reuse a phrase from your earlier replies; if you must return to a point, say it differently or add something new.
+- Do not be too polite or too cooperative. No thanking the doctor for questions, no summarising, no lists, no advice, no cheerful phrases.
+- Let the mood shift with what the doctor says: warmer and longer when listened to, shorter and more guarded when rushed or judged.
+- Pick the behaviour that fits the moment based on Trust/Distress/Agitation/Engagement.
+    - Low trust: guarded_short, minimises, vague_timeline (deflects only when nothing under WHAT COMES TO MIND fits the question).
+    - Middle: answers_plainly, answers_different_question, asks_back.
+    - High trust: answers_plainly, tearful_disclosure.
+    - Change behaviour when the doctor's approach changes.
+- Never sound like an assistant or a textbook. Avoid overly polished phrasing or cliché self-reassurance.
+
+Constraint Check:
+- Never add clinical facts, symptoms, history, names or events.
+- Keep responses under 1500 characters.
+Iteration 4: Accepted candidate (subsample score 2.33 -> 2.455); running full eval.
+Iteration 4: Valset score for new program: 0.8166666666666665 (coverage 6 / 6)
+Iteration 4: Val aggregate for new program: 0.8166666666666665
+Iteration 4: Individual valset scores for new program: {0: 0.83, 1: 0.83, 2: 0.83, 3: 1.0, 4: 0.705, 5: 0.705}
+Iteration 4: New valset pareto front scores: {0: 0.83, 1: 1.0, 2: 0.83, 3: 1.0, 4: 0.875, 5: 1.0}
+Iteration 4: Valset pareto front aggregate score: 0.9225
+Iteration 4: Updated valset pareto front programs: {0: {0, 1, 2, 3}, 1: {0}, 2: {0, 2, 3}, 3: {3}, 4: {0, 1, 2}, 5: {0}}
+Iteration 4: Best valset aggregate score so far: 0.9016666666666667
+Iteration 4: Best program as per aggregate score on valset: 0
+Iteration 4: Best score on valset: 0.9016666666666667
+Iteration 4: Linear pareto front program index: 0
+Iteration 4: New program candidate index: 3
+  GEPA {'gepa_candidates': 4, 'gepa_val_scores': [0.902, 0.775, 0.817, 0.817], 'changed': False}
+  v8: rejected (seed 0: 5 invented-fact flag(s))
