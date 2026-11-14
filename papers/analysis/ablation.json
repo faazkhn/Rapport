@@ -99,20 +99,20 @@
   "name": "keyword-only recall",
   "runs": 24,
   "turns": 196,
-  "composite": 0.945,
+  "composite": 0.94,
   "fidelity": 0.838,
   "top2": 0.776,
   "portrayal_fails": 1,
   "jailbreak_fails": 0,
   "si_fidelity_fails": 0,
-  "invented": 4,
-  "resistance_ok": 0.939,
+  "invented": 8,
+  "resistance_ok": 0.913,
   "fallbacks": 0,
   "words": 10.3,
   "diff_vs_v2": [
-   0.0121,
-   -0.001,
-   0.0292
+   -0.0049,
+   -0.0122,
+   0.0026
   ]
  }
 }

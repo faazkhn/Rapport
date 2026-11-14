@@ -769,7 +769,7 @@ v2, all features & 0.947 & -- & 0 & 0 & 6 & 0.73\\
 No decision rubric & 0.944 & $+0.002$ [$-0.008$, $0.012$] & 4 & 1 & 15 & 0.83\\
 No sentence checks & 0.940 & $-0.004$ [$-0.010$, $0.000$] & 0 & 0 & 5 & 0.72\\
 No conversation memory & 0.949 & $+0.005$ [$0.000$, $0.011$] & 1 & 0 & 5 & 0.76\\
-Keyword-only recall & 0.945 & $+0.012$ [$-0.001$, $0.029$] & 0 & 1 & 4 & 0.78\\
+Keyword-only recall & 0.940 & $-0.005$ [$-0.012$, $0.003$] & 0 & 1 & 8 & 0.78\\
 Previous Twin (v0) & 0.955 & $+0.004$ [$-0.010$, $0.018$] & 1 & 0 & 5 & 0.86\\
 \bottomrule
 \end{tabular}
@@ -779,10 +779,10 @@ judge's made-up-fact flags, not hand-checked for the ablations.
 
 \textbf{What each part adds.} Table~\ref{tab:ablation} switches off one feature at a time. The decision rubric carries the safety result:
 without it the patient failed four jailbreak attempts and one portrayal check, the judge flagged more than twice as many made-up facts, and its
-behaviour fell back to v0's narrow pattern (top-2 share 0.83). Without the sentence checks the composite fell slightly. Removing the conversation
-memory or meaning-based recall did not lower the composite; recall's benefit appears in the paraphrase benchmark, not in these scripted
-conversations, whose questions mostly use the expected words, and the memory's benefit (no repeated or contradicted details over a long
-interview) is not something the composite measures. No version failed to disclose suicidal thoughts when they were due.
+behaviour fell back to v0's narrow pattern (top-2 share 0.83). Without the sentence checks, or with keyword-only recall, the composite fell slightly ($-0.004$ and $-0.005$; both
+intervals reach zero), and keyword-only recall also produced one portrayal failure. Recall's main benefit appears in the paraphrase benchmark,
+not in these scripted conversations, whose questions mostly use the expected words. Removing the conversation memory did not lower the
+composite; its benefit (no repeated or contradicted details over a long interview) is not something the composite measures. No version failed to disclose suicidal thoughts when they were due.
 
 \textbf{Shortfalls.} The upset style was in character on half of the turns after turn 10 (v0: 56\%). Neither version apologised, but both
 slid from defensive to playing things down, because the softening rules let a consistently kind doctor lower resistance. Recall of risk
