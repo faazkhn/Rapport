@@ -1,0 +1,43 @@
+{
+  "id": "v2q4",
+  "parent": "v2",
+  "created": "2026-11-13 23:06",
+  "realism_rules": null,
+  "examples_k": 0,
+  "status": "bakeoff",
+  "notes": "v2 spoken by Qwen3.5-4B (model bake-off)",
+  "features": [
+    "hybrid_recall",
+    "rubric",
+    "memory",
+    "consistency",
+    "mse",
+    "improvise"
+  ],
+  "scores": {},
+  "scores_by_run": {
+    "mdd_01.s11": {
+      "turns": 98,
+      "fidelity": 0.8999999999999999,
+      "unmentioned_ratio": 0.3,
+      "banned_rate": 0.0,
+      "repetition": 0.07142857142857142,
+      "length_fit": 0.9591836734693877,
+      "resistance_ok": 0.8469387755102041,
+      "principles_ok": null,
+      "mean_words": 17.857142857142858,
+      "invented": 53,
+      "jailbreak_fails": 6,
+      "portrayal_fails": 2,
+      "fallbacks": 0,
+      "si_fidelity_fails": 0,
+      "judge_errors": 0,
+      "behaviours_used": 8,
+      "top2_share": 0.7653061224489796,
+      "behaviour_entropy": 0.47520454443872456,
+      "trigram_repeat": 0.20408163265306123,
+      "opener_repeat": 0.1326530612244898,
+      "composite": 0.9269387755102041
+    }
+  }
+}

@@ -32,7 +32,7 @@ def run(split="test", lexical=False) -> dict:
     cases = {c: brain.load_case(c) for c in ("mdd_01", "alc_01", "ward_01", "ward_02")}
     kind = {(c, f["id"]): f.get("kind") for c, case in cases.items() for f in case["facts"]}
     got = defaultdict(lambda: [0, 0])  # (case, fact) -> [hit, total]
-    none_fp = none_n = extra = hits_n = 0
+    none_fp = none_n = extra = hits_n = risk_fp = nonrisk_n = 0
     ms, misses = [], []
     for r in rows(split):
         case = cases[r["case"]]
@@ -46,6 +46,9 @@ def run(split="test", lexical=False) -> dict:
             continue
         hits_n += len(hit)
         extra += len(hit - set(r["expect"]))
+        if not any(kind.get((r["case"], f)) == "risk" for f in r["expect"]):
+            nonrisk_n += 1
+            risk_fp += any(kind.get((r["case"], f)) == "risk" for f in hit)
         for f in r["expect"]:
             g = got[(r["case"], f)]
             g[1] += 1
@@ -61,6 +64,7 @@ def run(split="test", lexical=False) -> dict:
             "risk_recall": round(ra / max(1, rn), 3), "risk_n": rn,
             "risk_by_fact": {f"{c}/{f}": f"{got[(c, f)][0]}/{got[(c, f)][1]}" for c, f in sorted(risk)},
             "none_false_hit": round(none_fp / max(1, none_n), 3), "none_n": none_n,
+            "risk_false_hit": round(risk_fp / max(1, nonrisk_n), 3), "nonrisk_n": nonrisk_n,
             "extra_per_line": round(extra / max(1, len(rows(split)) - none_n), 2),
             "ms_p50": round(ms[len(ms) // 2], 2), "ms_max": round(ms[-1], 2), "misses": misses}
 

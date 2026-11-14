@@ -53,6 +53,7 @@ SIM_RISK = 0.74  # risk facts: a missed suicide question costs more than an extr
 SIM_NEAR = 0.02  # below SIM_HIT, the best match still counts if it is at least SIM_FLOOR and ahead of the runner-up by this much
 SIM_FLOOR = 0.70
 RISK_NEAR, RISK_MARGIN = 0.66, 0.06  # in a risk-domain line, other risk facts this close to the best one count too
+SIM_STRONG = 0.83  # "strong": the doctor clearly asked about it (code forces a disclosure only on these, never on a recall-level match)
 _tuned = {"done": False}
 
 
@@ -161,6 +162,7 @@ def recall(case: dict, trust: float, doctor_text: str, limit: int = 3, lexical: 
         for fid, s in ranked:
             if s >= (SIM_RISK if kinds.get(fid) == "risk" else SIM_HIT):
                 hits[fid] = s
+            if s >= max(SIM_STRONG, SIM_HIT if kinds.get(fid) != "risk" else SIM_STRONG):
                 strong.add(fid)
         (top, s1), s2 = ranked[0], ranked[1][1] if len(ranked) > 1 else 0.0
         if s1 >= SIM_FLOOR and s1 - s2 >= SIM_NEAR:

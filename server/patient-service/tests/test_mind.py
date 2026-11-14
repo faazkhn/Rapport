@@ -90,8 +90,11 @@ def test_invented_names_dropped_unless_improvising():
 def test_locked_death_wish_never_reaches_speech():
     s, c = consistency.check_sentence("Sometimes I wish I wouldn't wake up.", _ctx(trust=30))
     assert s == "" and c[0]["kind"] == "locked_leak"
-    s, _ = consistency.check_sentence("Sometimes I wish I wouldn't wake up.", _ctx(trust=70))
-    assert s  # open: the patient may say it
+    asked = {"open": ["f_passive_si"], "strong": ["f_passive_si"]}
+    s, _ = consistency.check_sentence("Sometimes I wish I wouldn't wake up.", _ctx(trust=70, recalled=asked))
+    assert s  # open and asked: the patient may say it
+    s, c = consistency.check_sentence("Sometimes I wish I wouldn't wake up.", _ctx(trust=70))
+    assert s == "" and c[0]["kind"] == "volunteered_risk"  # open but never asked: not volunteered
     s, c = consistency.check_sentence("I don't want to die.", _ctx(trust=30))
     assert s and not c  # a denial is not a disclosure
 

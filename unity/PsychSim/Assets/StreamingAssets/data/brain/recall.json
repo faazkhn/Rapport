@@ -1,0 +1,17 @@
+{
+ "version": "0.1",
+ "status": "draft",
+ "note": "Hybrid recall thresholds tuned on the dev half of tests/recall/paraphrase_set.jsonl by tools/brain/tune_recall.py.",
+ "sim_hit": 0.83,
+ "sim_risk": 0.78,
+ "sim_floor": 0.76,
+ "sim_near": 0.02,
+ "risk_near": 0.66,
+ "risk_margin": 0.06,
+ "dev": {
+  "fact_recall": 0.777,
+  "risk_recall": 0.907,
+  "risk_false_hit": 0.127
+ },
+ "choice": "Picked by hand from the dev precision/recall front (2026-11-14): 95% risk recall costs ~20% false risk hits on dev; this point keeps ~13%. A false risk hit only makes the patient evasive (locked) or lists the fact as ask-only (open); forced disclosure needs twin.SIM_STRONG and an unasked death wish is never spoken (consistency.volunteered_risk)."
+}

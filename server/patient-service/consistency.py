@@ -55,6 +55,8 @@ def context(case: dict, trust: float, recalled: dict, plan: dict | None, mem: di
             values.setdefault(unit, set()).add(n)
     return {"case": case, "values": {u: v for u, v in values.items() if len(v) == 1},  # only an unambiguous value can correct
             "si_locked": any(f["trust_min"] > trust for f in si_facts(case)), "age": case["patient"].get("age"),
+            "si_asked": any(f["id"] in recalled.get("strong", []) for f in si_facts(case)),
+            "si_told": any(e["kind"] == "told" and {f["id"] for f in si_facts(case)} & set(e["facts"]) for e in (mem or {}).get("episodes", [])),
             "fixed": memory.case_names(case), "names": dict((mem or {}).get("names", {})), "improvise": improvise,
             "known": memory.known_names(case), "plan": plan or {}}
 
@@ -62,8 +64,11 @@ def context(case: dict, trust: float, recalled: dict, plan: dict | None, mem: di
 def check_sentence(sentence: str, ctx: dict, earlier: list[str] | None = None) -> tuple[str, list[dict]]:
     """(sentence to speak, clashes). An empty sentence means drop it."""
     s, clashes = sentence, []
-    if ctx["si_locked"] and (m := LEAK.search(s)) and not NEGATION.search(s[:m.start()]):
-        return "", [{"kind": "locked_leak", "said": sentence}]
+    if (m := LEAK.search(s)) and not NEGATION.search(s[:m.start()]):
+        if ctx["si_locked"]:
+            return "", [{"kind": "locked_leak", "said": sentence}]
+        if not ctx.get("si_asked", True) and not ctx.get("si_told", True):  # must_be_asked: never volunteered
+            return "", [{"kind": "volunteered_risk", "said": sentence}]
     for n, unit, tok in _pairs(s):
         want = ctx["values"].get(unit)
         if want and n not in want:

@@ -189,8 +189,8 @@ def decide(case: dict, state: dict, level: int, mv: list[str], recalled: dict, h
             beh = lean + beh
         if recalled.get("open") or recalled.get("life"):  # asked about something they can share: they answer, if briefly
             beh = [b for b in beh if b not in ("deflects", "asks_back")] or ["guarded_short"]
-            if not any(facts.get(f, {}).get("generates_discomfort") for f in recalled.get("open", [])) and state["distress"] < 60:
-                beh = [b for b in beh if b != "tearful_disclosure"]
+            if not any(facts.get(f, {}).get("generates_discomfort") and not facts[f].get("must_be_asked") for f in recalled.get("open", [])):
+                beh = [b for b in beh if b != "tearful_disclosure"]  # nothing painful the patient may share unasked
         else:
             beh = [b for b in beh if b != "tearful_disclosure"]
         if hurt:

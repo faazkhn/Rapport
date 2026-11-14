@@ -156,7 +156,7 @@ def cmd_round(client, turns, budget, judge=None):
     ctx = [{"messages": t["messages"], "state": t["state_before"], "variant": t["variant"], "recalled": t["recalled"], "twin": t.get("twin")}
            for s in sessions for t in s]
     random.Random(n).shuffle(ctx)
-    base = {**cur, "examples_k": 2, "library_upto": upto}
+    base = {**{k: v for k, v in cur.items() if k not in ("scores", "scores_by_run", "decision", "status")}, "examples_k": 2, "library_upto": upto}
     best, info = optimize.propose(base, ctx, client, budget, seed=n, judge=judge)
     print(f"  GEPA {info}", flush=True)
     doc = {**base, "id": f"v{n}", "parent": cur["id"], "created": time.strftime("%Y-%m-%d %H:%M"), "status": "candidate",
