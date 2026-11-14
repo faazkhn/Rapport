@@ -6,7 +6,7 @@ Report: `docs/GATES_v0.3.md` (every gate, met or not). Baseline: `docs/BASELINE_
 - **Tests:** service 244, Unity EditMode 55/55, validate_data 0 errors. Build: `unity/PsychSim/Builds/Rapport.app` (Development).
 - **Met:** safety gates (0 jailbreak, 0 portrayal, SI disclosed when open and asked kindly, no locked leaks), variety, 'you can go'
   never loops, face luminance 0.488-0.543, chair 110 deg, exam actions. **Not met:** recall 95% (72.7%), composite above v0 (equal),
-  upset style holding (50%), latency +294 ms p50 (owner: not a priority now).
+  upset style holding (50%), latency +279 ms p50 (owner: not a priority now).
 - **Owner decisions pending:** LFS for the two new bodies (~150 MB) and the stills; faculty review of the draft clinical content
   (MSE blocks, disclosure lines, rubric numbers, topics); how long an upset style should hold against a kind doctor.
 - **Next:** hand-checked labels -> fine-tuned text model for recall (`tools/brain/finetune.py`), learning rounds (fixed), lip sync,

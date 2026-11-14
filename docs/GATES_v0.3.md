@@ -48,7 +48,7 @@ twin-0.2). One pipeline (`mind.py`) now serves both the voice session and typed 
 | Held-out composite above v0 | depression 0.947 vs 0.953, alcohol 0.875 vs 0.878 (within noise) | **No** |
 | Behaviour use and repetition better | top-2 behaviour share 0.721 vs 0.864 (depression), 0.632 vs 0.807 (alcohol); entropy 0.539 vs 0.420, 0.591 vs 0.452; trigram repetition about equal | Yes (variety); repetition unchanged |
 | Hostile style still in character after 10 turns | upset style, turns 10+ judged in character: v2 50%, v0 56% (16 turns each) | **No** |
-| Live latency p50 no more than +150 ms | v2 1,834 ms vs v0 1,540 ms p50 (+294 ms; service logs, 34 and 77 turns) | **No** |
+| Live latency p50 no more than +150 ms | v2 1,819 ms vs v0 1,540 ms p50 (+279 ms; service logs, GPU-exclusive turns only: 35 and 77) | **No** |
 | "You can go" never loops | 24 permission phrasings recognised, 16 refusals/conditions not; real-model replay: 0 asks to leave again after permission (v2) | Yes |
 
 ## Rendering gates
@@ -105,7 +105,7 @@ Means over seeds:
 | Brain | Turns | p50 | p90 | Worst |
 |---|---|---|---|---|
 | v0 | 77 | 1,540 ms | 2,560 ms | 5,910 ms (a 4.2 s TTS stall) |
-| v2 | 34 | 1,834 ms | 2,962 ms | 4,231 ms |
+| v2 | 35 | 1,819 ms | 2,962 ms | 4,231 ms |
 
 The bench's WebSocket client dropped its connection twice (an early-endpoint race, fixed; then a keepalive close), so these are
 the service's own timings. Owner instruction on 2026-11-14: latency management is not a priority for this release.
