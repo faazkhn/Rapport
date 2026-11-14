@@ -1,11 +1,5 @@
 \documentclass[conference]{IEEEtran}
-\usepackage[T1]{fontenc}
-\usepackage{amsmath,amssymb}
-\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{url}
-\usepackage[hidelinks]{hyperref}
-\graphicspath{{../figures/}}
+\input{../shared/style}
 
 \begin{document}
 
@@ -18,17 +12,18 @@ Email: faazkhn1000@gmail.com}}
 \maketitle
 
 \begin{abstract}
-A simulated psychiatric patient must recognise which of its memories a trainee's question touches before deciding whether trust
-allows it to answer. Keyword tags miss paraphrases, and in a patient simulator each missed risk question is a safety defect: a
-version that failed to match ``thoughts that life isn't worth living'' denied a death wish it should have disclosed. We built a blind
-benchmark of 512 doctor lines over four psychiatric cases, written from each fact's clinical meaning by a writer who never saw the
-tags, split into a tuning half and a test half. Keyword recall found 35.1\% of risk-fact questions on the test half. Hybrid matching
-(keyword tags plus a 33-million-parameter sentence encoder over authored and generated probe questions, with trust locks applied
-after matching) found 72.7\% at 15.2\% false risk hits and 2.3\,ms per line on CPU. Training-free heads whose weights are set by hand
-to the mean embedding of clinician-written prototype questions raised risk recall to 77.9\% at 21.2\% false hits. The target of 95\%
-was not reached. Two lessons stand out: the same configuration scored 90.7\% on the tuning half, so a tuning half used to write
-probes and set thresholds overstates recall badly; and a threshold tuned for recall alone (100\% on the tuning half at 34\% false risk
-hits) made the patient volunteer suicidal thoughts unasked in held-out conversations, so recall must be tuned under a precision cap.
+Before a simulated psychiatric patient can decide whether to answer a question, it has to work out which of its memories the question is
+about. Students ask the same thing in many different ways (``Have you thought about ending your life?'', ``Do you ever feel you'd be better off
+not around?'', ``Any dark thoughts lately?''). If the patient misses a question about suicide, it may wrongly deny something it should share, which
+is a safety problem in a teaching tool. We built a blind test of 512 doctor questions over four psychiatric cases, written by a separate writer
+who knew only what each memory means and never saw the matching rules. We split it into a half for tuning and a half kept for the final test.
+Matching by keywords found 35.1\% of risk-related questions in the test half. Our hybrid method, keywords plus a small 33-million-parameter
+sentence model that compares meanings, found 72.7\% while wrongly matching 15.2\% of non-risk questions, in about 2\,ms per question on an
+ordinary processor. Weights that we set by hand, without any training, raised this to 77.9\% at 21.2\% wrong matches. None of these reached our
+target of 95\%. We report two lessons. First, the same method scored 90.7\% on the tuning half, so a tuning half that is also used to write
+examples gives a badly over-optimistic number. Second, tuning only to find more risk questions (100\% on the tuning half, but wrongly matching
+34\% of other questions) made the patient start talking about suicide when asked about sleep. Recall must be tuned with a limit on wrong
+matches.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -36,98 +31,224 @@ semantic matching, sentence embeddings, paraphrase robustness, simulated patient
 \end{IEEEkeywords}
 
 \section{Introduction}
-LLM patient simulators increasingly separate what the patient knows from what it may say: memory items carry a trust threshold and
-are revealed only when the doctor asks and trust allows \cite{sabour2026patientact,wang2024patient,lee2025psyche}. The match from the
-doctor's words to a memory item is the first step of that chain, and it is usually treated as solved, either by keyword tags or by
-letting the language model decide. In the Rapport simulator a keyword matcher was the source of every major bug found in evaluation:
-``life isn't worth living'', ``wouldn't wake up'' and ``tablets or anything at home'' each missed the item they asked about, and one of
-them let a learned patient version deny a passive death wish that should have been disclosed. Adding tags fixed each case and did
-not scale.
+Many simulated-patient systems separate what the patient \emph{knows} from what it may \emph{say}: each memory has a trust level, and the patient
+shares it only when the doctor asks and trust allows \cite{sabour2026patientact,wang2024patient,lee2025psyche}. The first step in that chain is
+matching the doctor's words to the right memory. It is usually treated as easy, done either with keyword lists or by letting the language
+model decide.
 
-The constraint is unusual for semantic matching. The matcher runs on every spoken turn on the same laptop as a language model and
-speech synthesis, so it must take milliseconds on CPU; it must never put a locked item's text anywhere the model or the client can
-see it; and its two error types have different costs. A missed risk question can suppress a required disclosure; a false risk hit
-makes the patient evasive about something innocent, or, worse, invites it to talk about suicide when asked about sleep.
+In the Rapport simulator, keyword matching caused every serious bug found during evaluation. ``Thoughts that life \emph{isn't} worth living'',
+``wishing you \emph{wouldn't} wake up'' and ``tablets or anything at home'' each missed the memory they were asking about. One of these misses
+let a patient deny a passive death wish that it should have disclosed. Adding keywords fixed each case, but there is no end to the ways people
+phrase a question.
 
-Contributions: (i) a blind paraphrase benchmark with a tuning/test split and a precision measure specific to risk
-(Section~\ref{sec:bench}); (ii) hybrid lexical--embedding recall with trust locks applied after matching and a ``strong match'' tier that
-alone may force a disclosure (Section~\ref{sec:method}); (iii) training-free heads with hand-set weights; (iv) measurements, including a
-large tuning-to-test gap and two failed trained alternatives (Section~\ref{sec:results}).
+Three things make this matching problem unusual:
+\begin{itemize}
+\item \textbf{It must be fast and local.} It runs on every spoken turn, on the same laptop as a language model and a voice, so it must take
+milliseconds on an ordinary processor.
+\item \textbf{It must not leak.} The text of a locked memory must never go anywhere the language model or the user can see it.
+\item \textbf{Its two kinds of mistake cost different things.} Missing a suicide question can suppress a required disclosure. Wrongly matching
+an innocent question to a suicide memory makes the patient evasive about something harmless, or worse, invites it to talk about suicide when asked
+about sleep.
+\end{itemize}
 
-\section{Benchmark}\label{sec:bench}
-A writer agent with no access to the repository received only a description of each case's facts (identity, kind and what the patient
-knows) and wrote doctor lines that ask about them, under rules: at least four lines per fact and twelve per risk fact; a mix of
-textbook, indirect, clumsy, colloquial Indian English and euphemistic phrasings; most lines avoiding the fact's own key words; every
-line understandable alone; and ``none'' lines (greetings, small talk, pure empathy) that ask about nothing. It confirmed it read
-nothing else. The result is 512 lines over four cases (176 depression, 154 alcohol withdrawal, 104 and 78 for two ward stations), 38
-``none'' lines and 249 marked hard by the writer. Each line lists the facts a careful clinician would agree it asks about; labels are
-narrow, so a matcher that also returns a neighbouring fact is not penalised on recall but counts towards extra hits. The split is the
-parity of the line's CRC-32: the even (dev) half may be used for anything, the odd (test) half only for reported numbers.
+\textbf{Contributions.} (1) A blind benchmark of doctor questions with a strict tuning/test split and a measure of wrong risk matches
+(Section~\ref{sec:bench}). (2) A hybrid matching method with trust locks applied \emph{after} matching, and a separate ``clearly asked'' level
+that alone can force a disclosure (Section~\ref{sec:method}). (3) Hand-set weights that need no training. (4) Honest results: a large gap between
+tuning and test, an unsafe tuning choice, and two trained methods that did not beat the simple rules (Section~\ref{sec:results}).
 
-\textbf{Measures.} \emph{Recall} is the share of (line, expected fact) pairs where the fact is matched; \emph{risk recall} restricts this to
-facts of kind risk (suicidal thoughts, plans, means, withdrawal fits, anger at home; 77 test pairs). \emph{Risk false hits} is the share of
-lines that ask about no risk fact but match one. We also report the share of ``none'' lines that match anything.
+\section{How Meaning-Based Matching Works}
+A \emph{sentence model} turns a sentence into a list of 384 numbers (a vector). Sentences with similar meanings get vectors that point in similar
+directions. The \emph{cosine similarity} of two vectors runs from $-1$ to $1$; in practice it runs from about 0.6 for unrelated questions to above
+0.9 for near-copies. To match a doctor's question to a memory, we compare it with several example questions for that memory (``probes'') and keep
+the highest similarity.
+
+\textbf{A real example.} For the question ``Have you ever felt like you'd be better off not being around?'', asked of the depression patient, the
+five closest memories were: ``no plan or attempt'' (0.805), ``wish not to wake up'' (0.800), ``the main complaint'' (0.783), ``feels a burden''
+(0.768) and ``what keeps her going'' (0.742). The right answer (the death wish) is second, only 0.005 behind a related memory. This is why simple
+cut-offs are hard to set: the right memory and its neighbours often score almost the same.
+
+\section{The Benchmark}\label{sec:bench}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[node distance=3.5mm]
+\tikzset{b/.style={box=#1, text width=32mm}}
+\node[b=gray!10] (a) {Case descriptions: what each\\memory means (no keywords)};
+\node[b=orange!12, below=of a] (b) {Separate writer (no access\\to the code or keywords)};
+\node[b=cyan!8, below=of b] (c) {512 doctor questions, each\\labelled with the memories it asks};
+\node[decision, below=of c] (d) {Line's checksum\\even?};
+\node[b=yellow!15, below left=4mm and -6mm of d, text width=22mm] (dev) {Dev half: write\\examples, set cut-offs};
+\node[b=green!12, below right=4mm and -6mm of d, text width=22mm] (test) {Test half: final\\numbers only};
+\draw[->] (a) -- (b); \draw[->] (b) -- (c); \draw[->] (c) -- (d);
+\draw[->] (d) -| node[lab, above, pos=0.2]{yes} (dev); \draw[->] (d) -| node[lab, above, pos=0.2]{no} (test);
+\end{tikzpicture}
+\caption{How the blind benchmark was built and split.}
+\label{fig:bench}
+\end{figure}
+
+Fig.~\ref{fig:bench} shows how the benchmark was made. A writer (an AI agent with no access to the code) was given only a description of each
+case's memories: who the patient is, the kind of each memory, and what the patient knows. It was asked to write questions a real doctor might
+ask about each memory, with rules: at least four per memory and twelve per risk memory; a mix of textbook, gentle and indirect, clumsy, colloquial
+Indian English and euphemistic wording; most lines avoiding the memory's own key words; every line understandable on its own; and some ``none''
+lines (greetings, small talk, pure empathy) that ask about nothing. It confirmed it read nothing else.
+
+The result has 512 lines over four cases (176 depression, 154 alcohol withdrawal, 104 and 78 for two ward stations), including 38 ``none'' lines;
+the writer marked 249 as hard. Table~\ref{tab:examples} shows examples. Labels are narrow: a matcher that also returns a neighbouring memory is not
+penalised on recall, but those extras count as wrong matches. The split uses the CRC-32 checksum of each line: even lines form the \emph{dev} half,
+which may be used for anything; odd lines form the \emph{test} half, used only for the numbers we report.
+
+\textbf{Measures.} \emph{Recall} is the share of (question, expected memory) pairs where the memory is found. \emph{Risk recall} counts only risk
+memories (suicidal thoughts, plans, means, withdrawal fits, anger at home), 77 pairs in the test half. \emph{Risk false hits} is the share of
+questions that ask about no risk memory but are matched to one. We also report how many ``none'' lines match anything.
+
+\begin{table}[t]
+\caption{Benchmark lines from the test half, and what each method found}
+\label{tab:examples}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}Ylc@{}}
+\toprule
+Doctor's line (expected memory) & Keywords & Hybrid\\
+\midrule
+Have you been saving up medicines or bought anything harmful? (no plan or means) & missed & found\\
+Have you decided on a day or a method? (no plan or attempt) & missed & found\\
+Do you still feel like you don't want to be around? (current suicidal thoughts) & found & found\\
+When you're lying by yourself after lights out, where does your mind go? (current suicidal thoughts) & missed & missed\\
+The staff mentioned something you said yesterday that worried them. Can we talk about it? (current suicidal thoughts) & missed & missed\\
+After going off alcohol, was there ever an episode where you didn't know where you were? (withdrawal fit) & missed & missed\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{Method}\label{sec:method}
-\textbf{Lexical layer.} Each fact carries short activation tags; a line's words are crudely stemmed, possessives are folded, and a fact
-scores 2 per matched phrase tag and 1 per single-word tag.
 
-\textbf{Embedding layer.} A sentence encoder (bge-small-en-v1.5 \cite{xiao2023cpack}, 33\,M parameters, ONNX on CPU, CLS pooling)
-embeds every probe of every fact once when the case loads. A fact's probes are authored doctor questions (4--12 per fact), about 50
-doctor lines per fact generated offline by a different language model from the fact's \emph{topic} (with the fact text given only as
-background never to be stated), the tags, and the fact text. The similarity of a line to a fact is the maximum cosine over its probes.
-A fact is recalled when it is a lexical hit, or its similarity passes $\theta_{\text{hit}}$ (or $\theta_{\text{risk}}$ for risk facts),
-or it is the best match by a margin above a floor. A line that is clearly about risk also recalls every risk fact within a small
-margin of the best one, because a locked risk hit only makes the patient evasive.
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[node distance=3.5mm and 4mm]
+\tikzset{b/.style={box=#1, text width=24mm}}
+\node[b=gray!10] (q) {Doctor's question};
+\node[b=cyan!8] (lex) at ($(q)+(-15mm,-12mm)$) {Keywords\\(phrase 2, word 1)};
+\node[b=orange!12] (emb) at ($(q)+(15mm,-12mm)$) {Sentence model:\\best probe match};
+\node[b=cyan!8, text width=34mm] (rule) at ($(q)+(0,-25mm)$) {Match rules: cut-offs,\\clear winner, risk domain};
+\node[b=cyan!8, below=of rule] (lock) {Apply trust locks};
+\node[b=green!12, text width=19mm] (open) at ($(lock)+(-23mm,-13mm)$) {Open: may\\be shared};
+\node[b=red!8, text width=19mm] (locked) at ($(lock)+(0,-13mm)$) {Locked: only a\\discomfort signal};
+\node[b=yellow!15, text width=19mm] (strong) at ($(lock)+(23mm,-13mm)$) {``Clearly asked'':\\may force disclosure};
+\draw[->] (q) -- (lex); \draw[->] (q) -- (emb); \draw[->] (lex) -- (rule); \draw[->] (emb) -- (rule); \draw[->] (rule) -- (lock);
+\draw[->] (lock) -- (open); \draw[->] (lock) -- (locked); \draw[->] (lock) -- (strong);
+\end{tikzpicture}
+\caption{How a doctor's question is matched to the patient's memories. Matching ignores trust; the locks are applied afterwards.}
+\label{fig:recall}
+\end{figure}
 
-\textbf{Locks after matching.} Matching is independent of trust; the open/locked split is applied afterwards, so a paraphrased question
-about a locked item yields only a discomfort signal, and locked text never enters the prompt.
+Fig.~\ref{fig:recall} shows the method.
 
-\textbf{Strong matches.} A second, stricter tier (a lexical hit or similarity $\ge 0.83$) marks what the doctor \emph{clearly} asked.
-Only strong matches may force the patient to disclose an open risk item or count as a risk question for the turn's state update; a
-recall-level match on a risk fact never does.
+\textbf{Keyword layer.} Each memory has short keyword tags. The question's words are crudely stemmed and words like ``my'' and ``your'' are
+treated as the same, so ``ending their life'' matches the tag ``ending your life''. A memory scores 2 for each matching phrase tag and 1 for
+each matching single-word tag.
 
-\textbf{Hand-set heads (no training).} For five risk topics (suicidal thoughts, plans, means, harm to others, withdrawal history) we
-wrote 10--17 prototype questions from clinical practice and set the head's weight vector by hand to their normalised mean embedding,
-$w_k = \bar{e}_k/\lVert\bar{e}_k\rVert$. A line with $w_k^\top e(u)\ge 0.76$ (one threshold, picked by hand from the dev curve) strongly
-matches the facts tagged with topic $k$. There is no gradient step and no model-generated label.
+\textbf{Sentence-model layer.} We use bge-small-en-v1.5 \cite{xiao2023cpack}, a 33-million-parameter sentence model, run on the processor (not the
+graphics chip). When a case loads, it turns every probe of every memory into a vector, once. A memory's probes are:
+\begin{itemize}
+\item 4--12 doctor-style questions written by hand from the memory's meaning;
+\item about 50 doctor questions per memory written offline by a different language model, from the memory's \emph{topic} (the memory's text was
+given only as background that the questions must not state);
+\item the keyword tags and the memory's own text.
+\end{itemize}
+
+\textbf{Match rules.} A memory is matched if any of these hold: a keyword hit; similarity above 0.83 (0.78 for risk memories); or it is the best
+match by at least 0.02 and above 0.76. If a question is clearly about risk, every risk memory within 0.06 of the best one is matched too,
+because a locked risk match only makes the patient evasive. These values were chosen on the dev half (Table~\ref{tab:thresh}).
+
+\begin{table}[t]
+\caption{Cut-offs used (chosen on the dev half)}
+\label{tab:thresh}
+\centering
+\footnotesize
+\begin{tabular}{@{}lc@{}}
+\toprule
+Rule & Value\\
+\midrule
+Match on similarity alone & $\ge 0.83$\\
+Match a risk memory & $\ge 0.78$\\
+Best match, clear winner & $\ge 0.76$ and ahead by $\ge 0.02$\\
+Risk domain: other risk memories & $\ge 0.66$ and within 0.06 of the best\\
+``Clearly asked'' (may force disclosure) & keyword hit or $\ge 0.83$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Locks after matching.} Matching does not look at trust. The open/locked split is applied afterwards. So a cleverly reworded question about a
+locked memory still produces only a discomfort signal, and locked text never enters the prompt.
+
+\textbf{``Clearly asked''.} A stricter level marks what the doctor clearly asked about: a keyword hit or a similarity of at least 0.83. Only this
+level may force the patient to disclose an unlocked risk memory, or count as a ``risk question'' for the patient's state. An ordinary match on a risk
+memory never does.
+
+\textbf{Hand-set heads (no training).} For five risk topics (suicidal thoughts, plans, means, harm to others, withdrawal) we wrote 10--17
+example questions from clinical practice. Each topic's weight vector is simply the average of their vectors, scaled to length one:
+\begin{equation}
+w_k = \bar{e}_k / \lVert \bar{e}_k \rVert, \qquad \text{match if } w_k^\top e(u) \ge 0.76 .
+\end{equation}
+A question that passes the threshold is ``clearly asked'' for the memories tagged with that topic. There is no training step and no label made by a
+model. The threshold was picked by hand from the dev curve (Table~\ref{tab:hand}).
+
+\begin{table}[t]
+\caption{Hand-set heads: choosing the threshold on the dev half}
+\label{tab:hand}
+\centering
+\footnotesize
+\begin{tabular}{@{}ccc@{}}
+\toprule
+Threshold & Dev risk recall & Dev risk false hits\\
+\midrule
+0.70 & 97.3\% & 38.9\%\\
+0.72 & 96.0\% & 29.9\%\\
+0.74 & 96.0\% & 24.8\%\\
+\textbf{0.76} & \textbf{96.0\%} & \textbf{15.9\%}\\
+0.78 & 93.3\% & 14.6\%\\
+0.80 & 93.3\% & 12.7\%\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Results}\label{sec:results}
 
 \begin{table}[t]
-\caption{Rank of the correct fact by probe similarity (dev half)}
+\caption{Rank of the correct memory by probe similarity (dev half)}
 \label{tab:ablation}
 \centering
 \footnotesize
 \begin{tabular}{@{}llcc@{}}
 \toprule
-Encoder & Probes & Top-1 & Top-3\\
+Sentence model & Probes & Top-1 & Top-3\\
 \midrule
-MiniLM-L6 \cite{wang2020minilm} & fact text & 0.534 & 0.777\\
+MiniLM-L6 \cite{wang2020minilm} & memory text & 0.534 & 0.777\\
 MiniLM-L6 & text + label + tags & 0.580 & 0.857\\
-MiniLM-L6 & authored questions & 0.706 & 0.866\\
+MiniLM-L6 & hand-written questions & 0.706 & 0.866\\
 MiniLM-L6 & questions + tags + text & 0.714 & 0.874\\
-bge-small & authored questions & 0.744 & 0.916\\
+bge-small & hand-written questions & 0.744 & 0.916\\
 bge-small & questions + tags + text & 0.739 & \textbf{0.933}\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Probes and encoder.} Questions match questions far better than they match fact statements (Table~\ref{tab:ablation}):
-authored doctor-style probes raised top-1 rank accuracy from 0.53 to 0.71 for MiniLM \cite{wang2020minilm,reimers2019sentencebert}, and
-bge-small \cite{xiao2023cpack} reached 0.93 top-3. bge-small took about 2\,ms per line for the whole recall step in isolation.
+\textbf{Questions match questions.} Comparing a question with example \emph{questions} works much better than comparing it with the memory's
+\emph{statement} (Table~\ref{tab:ablation}). Hand-written probes raised the share of questions whose correct memory ranked first from 0.53 to 0.71
+for MiniLM \cite{wang2020minilm,reimers2019sentencebert}, and bge-small \cite{xiao2023cpack} put the correct memory in the top three 93\% of the
+time. The whole matching step took about 2\,ms per question.
 
 \begin{table}[t]
-\caption{Recall on the test half (never tuned on)}
+\caption{Recall on the test half (never used for tuning)}
 \label{tab:test}
 \centering
 \footnotesize
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-Matcher & All & Risk & Risk false hits & None hit\\
+Method & All & Risk & Risk false hits & ``None'' hit\\
 \midrule
-Keyword tags (v0) & 41.3\% & 35.1\% & 6.1\% & 22.7\%\\
-Hybrid (chosen point) & 73.3\% & 72.7\% & 15.2\% & 22.7\%\\
+Keywords only & 41.3\% & 35.1\% & 6.1\% & 22.7\%\\
+Hybrid & 73.3\% & 72.7\% & 15.2\% & 22.7\%\\
 Hybrid + hand-set heads & 74.9\% & 77.9\% & 21.2\% & 22.7\%\\
 \bottomrule
 \end{tabular}
@@ -136,46 +257,93 @@ Hybrid + hand-set heads & 74.9\% & 77.9\% & 21.2\% & 22.7\%\\
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{fig_recall_front.pdf}
-\caption{Risk recall against risk false hits. Grey: the tuning front on the dev half. Coloured: test-half results. The chosen point
-loses 18 points of recall from dev to test.}
+\caption{Risk recall against wrong risk matches. Grey: the trade-off on the dev half. Coloured: the test half. The chosen setting loses 18 points of
+recall between dev and test.}
 \label{fig:front}
 \end{figure}
 
-\textbf{Test results.} Table~\ref{tab:test}: hybrid matching doubled risk recall over tags at about two and a half times the false
-risk hits, and hand-set heads added 5.2 points of recall for 6 more points of false hits. The 95\% target was missed. The ``none'' rate
-did not move: every one of those false hits came from a tag (``tell me'', ``morning'' in ``Good morning'', ``today''), and
-the embedding layer added no new false line.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_recall_byfact.pdf}
+\caption{Recall per risk memory on the test half (red line: the 95\% target).}
+\label{fig:byfact}
+\end{figure}
 
-\textbf{The tuning-to-test gap.} The chosen configuration scored 90.7\% risk recall at 12.7\% false hits on the dev half and 72.7\%
-at 15.2\% on the test half (Fig.~\ref{fig:front}). An earlier configuration, tuned on dev after we had also added dev-inspired probes,
-scored 98.7\% on dev and 72.7\% on test. The dev half was used twice (to write probes and to set five thresholds) on about 75 risk
-pairs, which is enough to overfit.
+\textbf{Test results.} Table~\ref{tab:test}: the hybrid method doubled risk recall compared with keywords, at about two and a half times the wrong
+risk matches. Hand-set heads added 5.2 points of recall for 6.0 more points of wrong matches. The 95\% target was missed. Fig.~\ref{fig:byfact}
+breaks risk recall down by memory: questions about the depression patient's death wish and means were found most often (6 of 7, 7 of 8);
+questions about anger at home, the passive death thought and plans in the alcohol case were found least (4 of 7, 3 of 5, 5 of 8). Every wrong
+match on a ``none'' line came from a keyword (``tell me'', ``morning'' in ``Good morning'', ``today''); the sentence model added no new wrong line.
 
-\textbf{Recall-only tuning is unsafe.} An automatic re-tune that maximised dev risk recall chose a risk threshold that matched 34\% of
-non-risk dev lines. In held-out conversations the patient model then treated ``How have you been sleeping, and how is your appetite?''
-as a suicide question (the ``wouldn't wake up'' probes are close to sleep questions), answered about sleep but not appetite, and in
-three of 98 turns volunteered the death wish unasked. Separating recall from strong matches and capping false risk hits fixed it.
+\textbf{Why questions were missed.} Table~\ref{tab:misses} groups the 21 missed risk questions in the test half by type, with real examples.
+Most are euphemisms without any risk words, questions about a situation rather than the thought itself, or open questions that leave the topic to
+the patient. A real clinician would recognise all of them as risk questions.
 
-\textbf{Trained alternatives that did not beat the rules.} (a) Linear heads on the frozen encoder, trained on 3,670 lines labelled by a
-judge model (3,301 written by simulated clinician, student and provocateur doctors, 369 from session logs): the judge agreed with the
-generator's intended topic on only 50.1\% of lines, and the heads reached a manner micro-F1 of 0.32 against 0.20 for keyword rules
-but a topic micro-F1 of 0.66 against 0.69 for the language-model tagger on 381 judge-labelled held-out lines. A patient version using
-them scored lower held-out. (b) A risk-topic detector trained on the generator's intended topics alone reached 0.87 recall but 0.35
-precision for ``any risk'' in five-fold cross-validation. Noisy labels, not model capacity, were the limit.
+\begin{table}[t]
+\caption{Missed risk questions on the test half, by type}
+\label{tab:misses}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}lY@{}}
+\toprule
+Type & Real example (expected memory)\\
+\midrule
+Euphemism & ``Do you ever feel like you just want it all to stop?'' (death wish)\\
+Situation, not thought & ``If these feelings got worse tonight, do you think you would do anything about them?'' (no plan)\\
+Open question & ``In your lowest moment recently, what was going through your mind?'' (passive death thought)\\
+Other people's angle & ``Have you ever thought your family would manage better if you weren't there?'' (passive death thought)\\
+Matched a nearby topic & ``Have you googled anything about overdoses?'' $\to$ matched substance use instead (no means)\\
+Indirect action & ``Have you ever swallowed something or cut yourself in a bad moment?'' (no plan or means)\\
+Physical wording & ``Do things ever get physical at home?'' $\to$ matched consequences (anger at home)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{The gap between tuning and test.} The chosen setting scored 90.7\% risk recall on the dev half and 72.7\% on the test half
+(Fig.~\ref{fig:front}). An earlier setting, tuned after we had also written probes inspired by dev-half misses, scored 98.7\% on dev and 72.7\% on
+test. The dev half was used twice (to write probes and to set five cut-offs) on only about 75 risk pairs, which is enough to fit the dev half
+closely without improving on new questions.
+
+\textbf{Some generated probes were off-topic.} We checked the questions the other language model wrote for risk memories: by a simple word list,
+46\% (245 of 533) contain no risk-related word at all. Some of those are fair indirect questions (``Have you felt that life has lost its meaning?''),
+but some are plainly off-topic lead-ins, for example ``Before we continue, could you tell me a bit about how you have been sleeping lately?'' listed
+as a probe for the death wish. This explains why sleep questions matched suicide memories, and shows that generated probes need a quality filter.
+
+\textbf{Tuning for recall alone is unsafe.} An automatic re-tune that tried only to maximise dev risk recall picked a risk cut-off that matched 34\%
+of non-risk dev questions. In held-out conversations the patient then treated ``How have you been sleeping, and how is your appetite?'' as a
+suicide question, answered about sleep but not appetite, and in 3 of 98 turns mentioned the death wish without being asked. Separating ``matched''
+from ``clearly asked'' and capping wrong risk matches fixed it.
+
+\textbf{Trained methods that did not beat the rules.} (a) We trained small classifiers on top of the frozen sentence model using 3,670 questions
+labelled by a judge model (3,301 written by simulated clinicians, students and provocateurs, and 369 from the developer's own test sessions). The
+judge agreed with the topic each question was written for only 50.1\% of the time. The classifiers read the \emph{manner} of a question better than
+keyword rules (F1 0.32 vs 0.20) but its \emph{topic} worse than the language-model tagger (0.66 vs 0.69), and a patient version using them scored
+lower in held-out tests. (b) A risk-topic detector trained only on the intended topics found 87\% of risk questions in cross-validation, but only 35\%
+of what it flagged really was a risk question. The labels, not the model size, were the limit.
 
 \section{Discussion}
-For a safety-relevant matcher, three practices mattered more than the encoder: a blind test set written without the tags; reporting
-false risk hits next to risk recall; and a separate strict tier for actions with consequences (forcing a disclosure). Hand-set heads are
-attractive when labels are scarce or noisy: they cost minutes, are fully inspectable, and keep fact text out of any weights, but here
-they bought little. The next step is a small hand-checked label set and a fine-tuned encoder; the code for it exists but was not run.
+\textbf{Practical lessons for builders.}
+\begin{enumerate}
+\item Write the test questions \emph{blind}, from what the memory means, never from the matching rules.
+\item Keep a test half that is never touched; report it, not the tuning half.
+\item Always report wrong risk matches next to risk recall.
+\item Use a stricter ``clearly asked'' level for anything with consequences, such as forcing a disclosure.
+\item Compare questions with example questions, not with statements.
+\item Check generated examples for topic before using them.
+\end{enumerate}
+Hand-set heads are attractive when labels are few or noisy: they take minutes, anyone can read them, and they keep memory text out of any trained
+weights. Here they helped only a little. The next step is a small, hand-checked set of labels and a fine-tuned sentence model; the code exists but
+was not run for this paper.
 
-\textbf{Limitations.} One writer produced the benchmark, and its labels are narrow; about 75 risk pairs per half make each recall figure
-uncertain by several points; four cases in one language variety; the judge-labelled gold set was not hand-checked; latency was measured
-on one laptop. Session logs used for training were the developer's own play-tests; the pipeline now admits only consented logs.
+\textbf{Limitations.} One writer produced the benchmark, with narrow labels. About 75 risk pairs per half means each recall figure is uncertain by
+several points. There are four cases, all in one variety of English. The judge-labelled set used for the trained classifiers was not checked by
+hand. Speed was measured on one laptop. The session logs used for training were the developer's own tests; the pipeline now only accepts logs from
+sessions where consent was recorded.
 
 \section{Conclusion}
-Hybrid matching with trust locks after matching doubles paraphrase recall of risk questions on a blind test set at modest cost, but
-falls well short of what a safety gate needs, and a tuning half reused for probe writing overstates it by nearly twenty points.
+Combining keywords with a small sentence model, and applying trust locks after matching, doubles the recall of suicide-related questions asked in
+new words, at little cost in time. It still falls well short of what a safety gate needs, and a tuning half reused for writing examples makes it
+look nearly twenty points better than it is.
 
 \bibliographystyle{IEEEtran}
 \bibliography{../shared/refs}
