@@ -245,6 +245,9 @@
     "Why did the company doctor send you?",
     "What made you come to see me?",
     "Tell me what's been troubling you."
+   ],
+   "topics": [
+    "ask_presenting_complaint"
    ]
   },
   {
@@ -273,6 +276,10 @@
     "Was there a time when you felt fine?",
     "Did something happen around the time it began?",
     "Has it been getting better or worse since it started?"
+   ],
+   "topics": [
+    "ask_onset_duration",
+    "ask_presenting_complaint"
    ]
   },
   {
@@ -304,6 +311,9 @@
     "What is a typical day like for you emotionally?",
     "Do you feel empty inside?",
     "Have you been crying?"
+   ],
+   "topics": [
+    "ask_mood"
    ]
   },
   {
@@ -338,6 +348,9 @@
     "Do you still meet your friends?",
     "Is there anything you look forward to?",
     "Do you still do {hobby}?"
+   ],
+   "topics": [
+    "ask_anhedonia"
    ]
   },
   {
@@ -364,6 +377,9 @@
     "Do you wake up early?",
     "Do you feel rested in the morning?",
     "Any trouble falling or staying asleep?"
+   ],
+   "topics": [
+    "ask_sleep"
    ]
   },
   {
@@ -390,6 +406,9 @@
     "Have you lost weight?",
     "Do your clothes feel loose?",
     "Are you skipping meals?"
+   ],
+   "topics": [
+    "ask_appetite"
    ]
   },
   {
@@ -418,6 +437,10 @@
     "Do you feel exhausted?",
     "Have you been making mistakes at work?",
     "Can you keep up with your work?"
+   ],
+   "topics": [
+    "ask_energy",
+    "ask_concentration"
    ]
   },
   {
@@ -448,6 +471,9 @@
     "Do you feel like a burden?",
     "Do you feel you have let people down?",
     "Do you feel worthless?"
+   ],
+   "topics": [
+    "ask_mood"
    ]
   },
   {
@@ -477,6 +503,10 @@
     "Is your mind racing?",
     "Do you feel on edge?",
     "Any panic or fear?"
+   ],
+   "topics": [
+    "ask_mood",
+    "ask_presenting_complaint"
    ]
   },
   {
@@ -508,6 +538,9 @@
     "Are there money worries?",
     "Does your family know how you feel?",
     "Any stress in your life right now?"
+   ],
+   "topics": [
+    "ask_social_history"
    ]
   },
   {
@@ -532,6 +565,9 @@
     "Has anyone in the family been treated for nerves?",
     "Any illness that runs in the family?",
     "Has anyone in your family had something like this?"
+   ],
+   "topics": [
+    "ask_family_history"
    ]
   },
   {
@@ -579,7 +615,10 @@
     "Have you thought about not being here any more?",
     "Do you sometimes want to disappear forever?"
    ],
-   "disclosure_line": "Some nights... I wish I just wouldn't wake up in the morning. It comes a few times a week, then it passes."
+   "disclosure_line": "Some nights... I wish I just wouldn't wake up in the morning. It comes a few times a week, then it passes.",
+   "topics": [
+    "ask_suicidal_ideation"
+   ]
   },
   {
    "id": "f_no_plan_no_attempt",
@@ -615,7 +654,10 @@
     "Do you intend to act on these thoughts?",
     "Have you done anything to prepare?"
    ],
-   "disclosure_line": "No... I've never planned anything, and I've never tried to hurt myself. I wouldn't do that."
+   "disclosure_line": "No... I've never planned anything, and I've never tried to hurt myself. I wouldn't do that.",
+   "topics": [
+    "ask_suicide_plan"
+   ]
   },
   {
    "id": "f_no_means",
@@ -650,7 +692,10 @@
     "Have you looked up ways to do it?",
     "Is there anything at home you might use?"
    ],
-   "disclosure_line": "No, there's nothing like that at home. I haven't looked anything up."
+   "disclosure_line": "No, there's nothing like that at home. I haven't looked anything up.",
+   "topics": [
+    "ask_suicide_means"
+   ]
   },
   {
    "id": "f_protective",
@@ -683,6 +728,9 @@
     "Who is there for you?",
     "Is there anyone you can talk to?",
     "What gives you hope?"
+   ],
+   "topics": [
+    "ask_protective_factors"
    ]
   },
   {
@@ -712,6 +760,10 @@
     "How much coffee do you drink?",
     "Have you ever tried cannabis?",
     "Do you chew tobacco?"
+   ],
+   "topics": [
+    "ask_substance_alcohol",
+    "ask_substance_drugs"
    ]
   },
   {
@@ -739,6 +791,10 @@
     "Do you feel watched or followed?",
     "Does anyone control your thoughts?",
     "Do you have any strange experiences?"
+   ],
+   "topics": [
+    "ask_hallucinations",
+    "ask_delusions"
    ]
   },
   {
@@ -766,6 +822,9 @@
     "Have you had any mental health treatment in the past?",
     "Have you ever needed very little sleep and felt great?",
     "Have you seen a counsellor before?"
+   ],
+   "topics": [
+    "ask_psych_history"
    ]
   },
   {
@@ -798,6 +857,12 @@
     "Have you had any blood tests?",
     "Any major illnesses or operations?",
     "Has anything traumatic ever happened to you?"
+   ],
+   "topics": [
+    "ask_medical_history",
+    "ask_medication_history",
+    "ask_allergies",
+    "ask_trauma"
    ]
   },
   {
@@ -823,6 +888,9 @@
     "Are you sexually active?",
     "Do you use contraception?",
     "When was your last period?"
+   ],
+   "topics": [
+    "ask_pregnancy"
    ]
   }
  ],

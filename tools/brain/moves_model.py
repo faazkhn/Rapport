@@ -6,6 +6,9 @@ adds well under 1 ms a turn on CPU. Labels = the rubric's moves plus the intents
                          to a held-out line -> tests/brain/train_labelled.jsonl
   moves_model.py gold    label the held-out lines the same way (paraphrase test half + tests/llm-eval/*/*.yaml) -> tests/brain/gold.jsonl;
                          a sample must be hand-checked before the numbers are trusted (tests/brain/gold_review.md)
+  moves_model.py label2  two smaller passes instead of one long list: the TOPIC asked about (the debrief's intents) and the MANNER
+                         (rubric moves); generated lines are kept only where the judge's topic agrees with the generator's target
+                         -> tests/brain/train2.jsonl; held-out lines the same way -> tests/brain/gold2.jsonl (+ gold2_review.md)
   moves_model.py train   fit one logistic regression per label, thresholds by cross-validation -> server/patient-service/learned/models/<id>.npz
   moves_model.py eval    micro/macro F1 on the gold set: classifier vs the lexical rubric (moves) and vs the LLM tagger (intents)
 Usage: server/patient-service/.venv/bin/python tools/brain/moves_model.py label|gold|train|eval [--url ...] [--id moves-v1]
@@ -93,6 +96,67 @@ def cmd_label(client):
     agree = sum(r["target"] in lab for r, lab in zip(rows, labs) if lab is not None and "target" in r) / max(1, sum("target" in r for r in rows))
     print(f"labelled {sum(lab is not None for lab in labs)}/{len(rows)} lines ({len(logs)} from logs); judge agrees with the generator's "
           f"target on {agree:.1%}")
+
+
+MANNER = ["greeting", "open_question", "closed_question", "empathy", "explain_reason", "apology", "offer_choice", "summarise", "judgement",
+          "abuse", "threat", "premature_reassurance", "jargon", "stacked", "rushed", "jailbreak", "meta_ai", "off_topic"]
+TOPIC_SYSTEM = """You label which clinical TOPIC a doctor's line asks about in a psychiatric interview (India). Return every topic the line
+asks about (usually one; two if it asks two things; none for greetings, small talk or pure empathy). Topics:
+{labels}
+Answer with the JSON only."""
+MANNER_SYSTEM = """You label HOW a doctor's line is said in a psychiatric interview (India), not what it asks about. Return every label
+that fits (usually one or two). Labels:
+{labels}
+Answer with the JSON only."""
+
+
+def _pass(client, lines, system, labs):
+    d = _desc()
+    system = system.format(labels="\n".join(f"- {x}: {d.get(x, x.replace('_', ' '))}" for x in labs))
+    schema = {"type": "object", "additionalProperties": False, "required": ["labels"],
+              "properties": {"labels": {"type": "array", "maxItems": 4, "items": {"type": "string", "enum": labs}}}}
+    with ThreadPoolExecutor(2) as ex:
+        res = list(ex.map(lambda x: ask_json(client, system, f"Doctor's line: {x}", schema, {"labels": []}, 150), lines))
+    return [sorted(set(r["labels"])) if not r.get("judge_error") else None for r in res]
+
+
+def topic_ids() -> list[str]:
+    return [i["id"] for i in brain.intents() if i["id"] not in MANNER and i["id"] not in ("empathy_statement", "summarise", "check_understanding",
+                                                                                        "greet_introduce", "interrupt", "judgmental_language",
+                                                                                        "threaten_coerce", "offer_choice", "open_question",
+                                                                                        "explain_confidentiality")]
+
+
+def label2(client, rows: list[dict]) -> list[dict]:
+    lines = [r["line"] for r in rows]
+    topics, manner = _pass(client, lines, TOPIC_SYSTEM, topic_ids()), _pass(client, lines, MANNER_SYSTEM, MANNER)
+    out = []
+    for r, t, m in zip(rows, topics, manner):
+        if t is None or m is None:
+            continue
+        tgt = r.get("target")
+        if tgt and tgt in topic_ids() and tgt not in t:  # the generator wrote it for this topic, the judge disagrees: too noisy to train on
+            continue
+        if tgt and tgt in MANNER and tgt not in m:
+            continue
+        out.append({**r, "topics": t, "manner": m})
+    return out
+
+
+def cmd_label2(client):
+    gen = [json.loads(x) for x in (OUT / "gen_moves.jsonl").read_text().splitlines() if x.strip()]
+    logs = gen_lines.drop_near_held_out(log_lines(), gen_lines.held_out_lines())
+    rows = [{"line": g["line"], "source": f"gen:{g['kind']}", "target": g["target"]} for g in gen] + [{"line": x, "source": "log"} for x in logs]
+    train = label2(client, rows)
+    (OUT / "train2.jsonl").write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in train))
+    print(f"train2: kept {len(train)}/{len(rows)} lines (judge agrees with the generator's target)")
+    gold = label2(client, gold_lines())
+    (OUT / "gold2.jsonl").write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in gold))
+    rng = np.random.default_rng(1)
+    sample = sorted(rng.choice(len(gold), size=min(80, len(gold)), replace=False))
+    (OUT / "gold2_review.md").write_text("# Hand check of the two-pass gold labels (80-line sample)\n\n| Line | Topics | Manner | Check |\n|---|---|---|---|\n"
+                                         + "".join(f"| {gold[i]['line']} | {', '.join(gold[i]['topics'])} | {', '.join(gold[i]['manner'])} | |\n" for i in sample))
+    print(f"gold2: {len(gold)} lines")
 
 
 def gold_lines() -> list[dict]:
@@ -183,7 +247,7 @@ def cmd_eval(model_id, client):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["label", "gold", "train", "eval"])
+    ap.add_argument("cmd", choices=["label", "gold", "train", "eval", "label2"])
     ap.add_argument("--url", default="http://127.0.0.1:8081/v1", help="the judge (labels)")
     ap.add_argument("--tagger-url", default="http://127.0.0.1:8080/v1", help="the patient's llama-server (LLM tagger baseline in eval)")
     ap.add_argument("--id", default="moves-v1")
@@ -193,7 +257,7 @@ def main():
     if a.cmd == "eval":
         return cmd_eval(a.id, OpenAI(base_url=a.tagger_url, api_key="local", timeout=120, max_retries=1))
     client = OpenAI(base_url=a.url, api_key="local", timeout=300, max_retries=1)
-    cmd_label(client) if a.cmd == "label" else cmd_gold(client)
+    {"label": cmd_label, "gold": cmd_gold, "label2": cmd_label2}[a.cmd](client)
 
 
 if __name__ == "__main__":

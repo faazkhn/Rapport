@@ -312,6 +312,10 @@
     "How are you feeling now?",
     "You've packed your bag; what's going on?",
     "What can I do for you?"
+   ],
+   "topics": [
+    "ask_presenting_complaint",
+    "explore_reasons"
    ]
   },
   {
@@ -336,6 +340,10 @@
     "What is bothering you about being here?",
     "What is it like for you on the ward?",
     "Is anything here upsetting you?"
+   ],
+   "topics": [
+    "explore_reasons",
+    "ask_sleep"
    ]
   },
   {
@@ -359,6 +367,10 @@
     "Does your manager know you're here?",
     "Is there something you need to get back to?",
     "Are you worried about your job?"
+   ],
+   "topics": [
+    "explore_reasons",
+    "ask_social_history"
    ]
   },
   {
@@ -381,6 +393,10 @@
     "Do you feel embarrassed to be here?",
     "Who knows that you're here?",
     "Does being here make you feel ashamed?"
+   ],
+   "topics": [
+    "ask_mood",
+    "explore_reasons"
    ]
   },
   {
@@ -404,6 +420,11 @@
     "Are you sleeping and eating?",
     "Do you still feel low?",
     "How are the evenings for you?"
+   ],
+   "topics": [
+    "ask_mood",
+    "ask_sleep",
+    "ask_appetite"
    ]
   },
   {
@@ -432,6 +453,10 @@
     "Did you go somewhere high that night?",
     "Were you thinking of jumping?",
     "What did your friend find?"
+   ],
+   "topics": [
+    "ask_suicidal_ideation",
+    "ask_suicide_plan"
    ]
   },
   {
@@ -474,7 +499,10 @@
     "Do you have thoughts of harming yourself now?",
     "Do you still wish you weren't here?"
    ],
-   "disclosure_line": "At night, when I'm alone... the thoughts still come. I've thought about the terrace again. I haven't decided anything."
+   "disclosure_line": "At night, when I'm alone... the thoughts still come. I've thought about the terrace again. I haven't decided anything.",
+   "topics": [
+    "ask_suicidal_ideation"
+   ]
   },
   {
    "id": "f_means",
@@ -508,6 +536,10 @@
     "Would you be alone at home?",
     "Is there anything at home you could use to hurt yourself?",
     "Where would you go if you left today?"
+   ],
+   "topics": [
+    "ask_suicide_means",
+    "ask_social_history"
    ]
   },
   {
@@ -536,6 +568,9 @@
     "What would help you stay another night?",
     "What stops you from acting on those thoughts?",
     "Who do you turn to?"
+   ],
+   "topics": [
+    "ask_protective_factors"
    ]
   },
   {
@@ -559,6 +594,9 @@
     "What would you do if the thoughts came back at home?",
     "Do you think you are unwell?",
     "Can you tell me what the risks are of leaving?"
+   ],
+   "topics": [
+    "assess_capacity"
    ]
   },
   {
@@ -579,6 +617,10 @@
     "Do you use any drugs?",
     "Do you smoke?",
     "Any substances?"
+   ],
+   "topics": [
+    "ask_substance_alcohol",
+    "ask_substance_drugs"
    ]
   },
   {
@@ -601,6 +643,9 @@
     "Have you started any treatment here?",
     "How do you feel about the medicine?",
     "Any side effects from the tablets?"
+   ],
+   "topics": [
+    "ask_medication_history"
    ]
   }
  ],

@@ -232,6 +232,9 @@
     "Why did you come today?",
     "Tell me about the shaking hands.",
     "What has been the problem?"
+   ],
+   "topics": [
+    "ask_presenting_complaint"
    ]
   },
   {
@@ -260,6 +263,9 @@
     "Do you take drinks in the evening?",
     "Tell me about your drinking.",
     "Do you have a drink to unwind?"
+   ],
+   "topics": [
+    "ask_substance_alcohol"
    ]
   },
   {
@@ -294,6 +300,9 @@
     "What do you drink and how much?",
     "Do you need more now to feel the same?",
     "How many years have you been drinking this much?"
+   ],
+   "topics": [
+    "ask_substance_alcohol"
    ]
   },
   {
@@ -319,6 +328,9 @@
     "Did you drink last night?",
     "Have you had anything to drink today?",
     "When did you last drink alcohol?"
+   ],
+   "topics": [
+    "ask_last_use"
    ]
   },
   {
@@ -347,6 +359,10 @@
     "Do you wake up shaky?",
     "Do you need a drink to steady your hands?",
     "Do you keep a bottle somewhere?"
+   ],
+   "topics": [
+    "ask_withdrawal_history",
+    "ask_substance_alcohol"
    ]
   },
   {
@@ -386,7 +402,11 @@
     "Did you ever end up in hospital after stopping?",
     "Have you bitten your tongue or lost consciousness?"
    ],
-   "disclosure_line": "Last Diwali I tried to stop on my own. On the second day I had a fit... I fell, bit my tongue. They said it was from stopping."
+   "disclosure_line": "Last Diwali I tried to stop on my own. On the second day I had a fit... I fell, bit my tongue. They said it was from stopping.",
+   "topics": [
+    "ask_withdrawal_history",
+    "ask_medical_history"
+   ]
   },
   {
    "id": "f_control",
@@ -413,6 +433,11 @@
     "Do you get cravings?",
     "Can you control your drinking?",
     "Have you tried to stop and failed?"
+   ],
+   "topics": [
+    "ask_substance_alcohol",
+    "ask_withdrawal_history",
+    "explore_reasons"
    ]
   },
   {
@@ -444,6 +469,9 @@
     "Any money problems because of drinking?",
     "Have you had any accidents?",
     "Has anyone warned you about it?"
+   ],
+   "topics": [
+    "ask_social_history"
    ]
   },
   {
@@ -473,6 +501,11 @@
     "Has a doctor talked to you about your liver?",
     "Do you take any medicines?",
     "Any allergies?"
+   ],
+   "topics": [
+    "ask_medical_history",
+    "ask_medication_history",
+    "ask_allergies"
    ]
   },
   {
@@ -504,6 +537,10 @@
     "Do you feel tense?",
     "How do you sleep?",
     "Do you feel anxious?"
+   ],
+   "topics": [
+    "ask_mood",
+    "ask_sleep"
    ]
   },
   {
@@ -541,7 +578,10 @@
     "Have you ever felt like giving up on life?",
     "Have you thought about suicide?"
    ],
-   "disclosure_line": "Once... last month, after a fight, when I was drunk. I thought everyone would be better off without me. By morning it was gone."
+   "disclosure_line": "Once... last month, after a fight, when I was drunk. I thought everyone would be better off without me. By morning it was gone.",
+   "topics": [
+    "ask_suicidal_ideation"
+   ]
   },
   {
    "id": "f_no_plan_no_means",
@@ -574,7 +614,11 @@
     "Would you act on those thoughts?",
     "Is there anything at home you could use to harm yourself?"
    ],
-   "disclosure_line": "No, I've never tried anything, and there's nothing like that at home. I wouldn't, because of my daughter."
+   "disclosure_line": "No, I've never tried anything, and there's nothing like that at home. I wouldn't, because of my daughter.",
+   "topics": [
+    "ask_suicide_plan",
+    "ask_suicide_means"
+   ]
   },
   {
    "id": "f_protective",
@@ -603,6 +647,10 @@
     "What are your reasons to stop drinking?",
     "Who matters most to you?",
     "Who can you turn to?"
+   ],
+   "topics": [
+    "ask_protective_factors",
+    "ask_social_history"
    ]
   },
   {
@@ -630,6 +678,9 @@
     "Do you take sleeping pills?",
     "Any cannabis?",
     "Any other substances?"
+   ],
+   "topics": [
+    "ask_substance_drugs"
    ]
   },
   {
@@ -655,6 +706,9 @@
     "Any illness in the family?",
     "How did your father die?",
     "Has anyone in your family had problems with alcohol?"
+   ],
+   "topics": [
+    "ask_family_history"
    ]
   },
   {
@@ -683,6 +737,11 @@
     "Have you ever felt very high?",
     "Do you hear voices?",
     "Any past mental health problems?"
+   ],
+   "topics": [
+    "ask_psych_history",
+    "ask_hallucinations",
+    "ask_delusions"
    ]
   },
   {
@@ -716,6 +775,11 @@
     "Have you had thoughts of harming anyone?",
     "Have you ever hit your wife or child?",
     "Do things get out of hand at home when you have been drinking?"
+   ],
+   "topics": [
+    "ask_homicidal_ideation",
+    "ask_social_history",
+    "ask_trauma"
    ]
   },
   {
@@ -747,6 +811,9 @@
     "What worries you about your drinking?",
     "Do you think drinking is a problem?",
     "Are you ready to make a change?"
+   ],
+   "topics": [
+    "explore_reasons"
    ]
   }
  ],

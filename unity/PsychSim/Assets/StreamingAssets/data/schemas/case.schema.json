@@ -389,6 +389,13 @@
       "type": "string",
       "minLength": 1,
       "description": "Risk facts: how the patient says it when asked kindly with the fact open; the consistency check speaks it instead of a flat denial. Wording only, same meaning as text."
+     },
+     "topics": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Intent ids of the clinical topics that ask about this memory; the Digital Twin's text model recalls the memory when it reads one of these topics in the doctor's line (twin-0.2)."
      }
     }
    }

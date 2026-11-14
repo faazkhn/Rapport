@@ -16,7 +16,7 @@ import rubric
 import stream
 import twin
 
-FEATURES = ("hybrid_recall", "rubric", "memory", "consistency", "mse", "improvise", "move_model")
+FEATURES = ("hybrid_recall", "rubric", "memory", "consistency", "mse", "improvise", "move_model", "text_model")
 _models: dict = {}
 
 
@@ -27,6 +27,35 @@ def move_model(model_id: str):
         p = learning.DIR / "models" / f"{model_id}.npz"
         _models[model_id] = dict(np.load(p, allow_pickle=False)) if model_id.replace("-", "").isalnum() and p.exists() else None
     return _models[model_id]
+
+
+def text_model(model_id: str):
+    """The fine-tuned topic/manner model (tools/brain/finetune.py -> learned/models/<id>.onnx), or None if it is not there."""
+    key = ("tm", model_id)
+    if key not in _models:
+        _models[key] = None
+        p = learning.DIR / "models"
+        if model_id.replace("-", "").isalnum() and (p / f"{model_id}.onnx").exists():
+            import json
+            import onnxruntime as ort
+            from tokenizers import Tokenizer
+            tok = Tokenizer.from_file(str(p / f"{model_id}-tokenizer" / "tokenizer.json"))
+            tok.enable_truncation(48)
+            meta = json.loads((p / f"{model_id}.json").read_text())
+            _models[key] = {"sess": ort.InferenceSession(str(p / f"{model_id}.onnx"), providers=["CPUExecutionProvider"]), "tok": tok, **meta}
+    return _models[key]
+
+
+def read_line(model: dict, text: str) -> dict:
+    """What the doctor's line asks about (topics) and how it is said (manner), by the fine-tuned model; a few ms on CPU."""
+    import numpy as np
+    e = model["tok"].encode(text)
+    ids, mask = np.array([e.ids], np.int64), np.array([e.attention_mask], np.int64)
+    p = 1 / (1 + np.exp(-model["sess"].run(None, {"input_ids": ids, "attention_mask": mask})[0][0]))
+    labs = model["topics"] + model["manner"]
+    hit = [lab for lab, x, t in zip(labs, p, model["thresholds"]) if x >= t]
+    return {"topics": [x for x in hit if x in model["topics"]], "manner": [x for x in hit if x in model["manner"]],
+            "p": {lab: round(float(x), 3) for lab, x in zip(labs, p) if x >= 0.2}}
 
 
 def classify(model: dict, text: str, qvec=None) -> list[str]:
@@ -110,16 +139,21 @@ def prepare(case: dict, state: dict, mind: dict, messages: list[dict], elapsed_m
     qvec = twin.embed([doctor]) if (not lexical or model) and doctor.strip() else None  # one embedding for recall and the classifier
     qvec = qvec[0] if qvec is not None else None
     sims = {} if lexical else twin.similarities(case, doctor, qvec)
-    recalled = twin.recall(case, st["trust"], doctor, lexical=lexical, sims=sims)
+    tm = text_model(v.get("text_model", "tm-v1")) if "text_model" in on else None
+    read = read_line(tm, doctor) if tm and doctor.strip() else None
+    topics = read["topics"] if read else None
+    recalled = twin.recall(case, st["trust"], doctor, lexical=lexical, sims=sims, topics=topics)
     mv, plan = [], None
     if "rubric" in on:
         rep = memory.repeated(mind["memory"], recalled, mind["turn"]) if "memory" in on else False
         text_moves = None
-        if model is not None and qvec is not None:  # the classifier replaces the lexical patterns; context moves stay in code
+        if read and "manner" in v.get("text_model_use", ["topics"]):
+            text_moves = [m for m in read["manner"] if m in rubric.table()["moves"]]
+        elif model is not None and qvec is not None:  # the classifier replaces the lexical patterns; context moves stay in code
             text_moves = [m for m in classify(model, doctor, qvec) if m in rubric.table()["moves"]]
         mv = rubric.moves(doctor, recalled, case, rep, mind.get("interrupted", False), prev_doctor, text_moves)
         st = rubric.pre_step(st, mv, case)
-        recalled = twin.recall(case, st["trust"], doctor, lexical=lexical, sims=sims)  # the step may open a lock; no new embedding
+        recalled = twin.recall(case, st["trust"], doctor, lexical=lexical, sims=sims, topics=topics)  # the step may open a lock
         level = rubric.resistance(mind["resistance"], mv, case, st["trust"], mind["calm"])
         if not mind["ended"] and _should_end(case, {**mind, "hurt_turns": mind["hurt_turns"] + [mind["turn"]] * bool(rubric.HURTFUL & set(mv))}, st, mv):
             events = events + [_end_event(case)]

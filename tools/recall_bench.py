@@ -28,16 +28,21 @@ def rows(split: str) -> list[dict]:
     return out if split == "all" else [r for r in out if split_of(r["line"]) == split]
 
 
-def run(split="test", lexical=False) -> dict:
+def run(split="test", lexical=False, text_model: str | None = None) -> dict:
     cases = {c: brain.load_case(c) for c in ("mdd_01", "alc_01", "ward_01", "ward_02")}
     kind = {(c, f["id"]): f.get("kind") for c, case in cases.items() for f in case["facts"]}
     got = defaultdict(lambda: [0, 0])  # (case, fact) -> [hit, total]
+    tm = None
+    if text_model:
+        import mind
+        tm = mind.text_model(text_model)
+        assert tm, f"no text model {text_model}"
     none_fp = none_n = extra = hits_n = risk_fp = nonrisk_n = 0
     ms, misses = [], []
     for r in rows(split):
         case = cases[r["case"]]
         t = time.perf_counter()
-        rec = twin.recall(case, 100, r["line"], lexical=lexical)
+        rec = twin.recall(case, 100, r["line"], lexical=lexical, topics=mind.read_line(tm, r["line"])["topics"] if tm else None)
         ms.append((time.perf_counter() - t) * 1000)
         hit = set(rec["open"]) | set(rec["locked_hit"])
         if not r["expect"]:
@@ -73,10 +78,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="test", choices=["test", "dev", "all"])
     ap.add_argument("--lexical", action="store_true", help="tags only (brain v0)")
+    ap.add_argument("--text-model", help="also use the fine-tuned topic model (learned/models/<id>.onnx)")
     ap.add_argument("--misses", action="store_true")
     ap.add_argument("--json")
     a = ap.parse_args()
-    r = run(a.split, a.lexical)
+    r = run(a.split, a.lexical, a.text_model)
     if a.misses:
         for c, f, line, hit in r["misses"]:
             print(f"MISS {c} {f}: {line!r} -> {hit}")

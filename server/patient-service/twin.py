@@ -141,7 +141,8 @@ def similarities(case: dict, doctor_text: str, qvec=None) -> dict[str, float]:
     return dict(zip(ids, best.tolist()))
 
 
-def recall(case: dict, trust: float, doctor_text: str, limit: int = 3, lexical: bool = False, sims: dict | None = None) -> dict:
+def recall(case: dict, trust: float, doctor_text: str, limit: int = 3, lexical: bool = False, sims: dict | None = None,
+           topics: list[str] | None = None) -> dict:
     """Memory items the doctor's words touch: tag matches plus embedding matches (lexical=True: tags only, brain v0). Open ones
     (trust_min <= trust) come best first, at most `limit`; locked ones are only reported as hits, never their content. Trust locks
     apply after matching, so a paraphrase of a locked question is still only a discomfort signal. `strong`: hits by a tag or a
@@ -176,6 +177,11 @@ def recall(case: dict, trust: float, doctor_text: str, limit: int = 3, lexical: 
         hits = {fid: sims.get(fid, 0.0) + 0.05 * lex.get(fid, 0) for fid in hits}
     else:
         hits = {fid: float(s) for fid, s in lex.items()}
+    if topics:  # the fine-tuned text model read these clinical topics in the line: the facts they ask about come to mind (strong)
+        for f in case["facts"]:
+            if set(f.get("topics", [])) & set(topics):
+                hits[f["id"]] = max(hits.get(f["id"], 0.0), sims.get(f["id"], 0.0)) + 0.1
+                strong.add(f["id"])
     facts = sorted((f for f in case["facts"] if f["id"] in hits), key=lambda f: -hits[f["id"]])
     open_ = [f["id"] for f in facts if f["trust_min"] <= trust][:limit]
     locked = [f["id"] for f in facts if f["trust_min"] > trust]

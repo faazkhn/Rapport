@@ -252,6 +252,10 @@
     "How are you feeling today?",
     "What is going on?",
     "Can you tell me why you're refusing the medicine?"
+   ],
+   "topics": [
+    "ask_presenting_complaint",
+    "explore_reasons"
    ]
   },
   {
@@ -276,6 +280,10 @@
     "Did the tablets have side effects?",
     "How did the medicine make you feel?",
     "Did you put on weight?"
+   ],
+   "topics": [
+    "ask_medication_history",
+    "explore_reasons"
    ]
   },
   {
@@ -305,6 +313,10 @@
     "Do you think someone is putting something in your food or medicine?",
     "Why do you only eat food from home?",
     "Is anyone against you?"
+   ],
+   "topics": [
+    "ask_delusions",
+    "explore_reasons"
    ]
   },
   {
@@ -331,6 +343,9 @@
     "Do you see or hear things others don't?",
     "What do you hear at night?",
     "Do the voices say anything to you?"
+   ],
+   "topics": [
+    "ask_hallucinations"
    ]
   },
   {
@@ -355,6 +370,9 @@
     "What are you studying?",
     "Are you worried about your studies?",
     "What do your parents expect of you?"
+   ],
+   "topics": [
+    "ask_social_history"
    ]
   },
   {
@@ -390,6 +408,10 @@
     "Have you thought about ending your life?",
     "What would you do if you felt in danger?",
     "Do you ever want to hurt the people who are after you?"
+   ],
+   "topics": [
+    "ask_suicidal_ideation",
+    "ask_homicidal_ideation"
    ]
   },
   {
@@ -415,6 +437,9 @@
     "Do you think you are unwell?",
     "What do you think would happen if you didn't take them?",
     "Can you tell me in your own words what I explained?"
+   ],
+   "topics": [
+    "assess_capacity"
    ]
   },
   {
@@ -441,6 +466,9 @@
     "Would you take it if your mother brought it?",
     "What would you like us to do instead?",
     "Who would you like to talk to first?"
+   ],
+   "topics": [
+    "explore_reasons"
    ]
   },
   {
@@ -470,6 +498,10 @@
     "Do you use any drugs?",
     "Do you smoke?",
     "Have you ever used ganja?"
+   ],
+   "topics": [
+    "ask_substance_drugs",
+    "ask_substance_alcohol"
    ]
   },
   {
@@ -489,6 +521,10 @@
     "Any allergies?",
     "Do you have any illnesses?",
     "Any health problems?"
+   ],
+   "topics": [
+    "ask_medical_history",
+    "ask_allergies"
    ]
   }
  ],
