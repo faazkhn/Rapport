@@ -1,0 +1,231 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{../figures/}}
+
+\begin{document}
+
+\title{An Integrated, On-Device Architecture for Patient-Specific Embodied Psychiatric Simulation}
+
+\author{\IEEEauthorblockN{Faaz Khan Mohammad}
+\IEEEauthorblockA{Rapport project\\
+Email: faazkhn1000@gmail.com}}
+
+\maketitle
+
+\begin{abstract}
+A spoken, embodied psychiatric patient must hear the doctor, decide, speak with fitting emotion and move like a person, within the
+pause a human would leave, without sending a learner's voice off the device. We describe the architecture of Rapport, which runs that
+loop on one laptop: voice activity and turn-end detection, speculative speech recognition, a patient model that decides in code
+before a single structured call to a local 4-billion-parameter language model, streamed per-sentence speech synthesis with an
+emotion instruction and a playback hold, and a Unity body whose face, gaze, posture and gestures are driven by the patient model's
+per-turn state. Patient specificity is data, not code: a case schema with trust-gated memory, a mental-status block and an answer
+key, seeded variation of neutral details and six conversation styles that never touch the answer key, scripted ward events, and four
+rigged bodies of two sexes. Typed and spoken turns share one decision pipeline; the client carries a server-signed copy of the
+patient's mind. On an Apple M5 Pro the median time from the doctor stopping to patient audio is 1.54\,s with the earlier patient
+model and 1.82\,s with the decision layer; a bake-off kept Gemma 4 E4B over Qwen3.5-4B and -9B on latency and an indicative quality check. A
+rendering pass moved the camera to conversation distance and brought face luminance of all four bodies into the 0.45--0.60 target
+(0.49--0.54, from 0.29--0.44).
+\end{abstract}
+
+\begin{IEEEkeywords}
+virtual patients, embodied conversational agents, speech interfaces, on-device language models, medical simulation, system architecture
+\end{IEEEkeywords}
+
+\section{Introduction}
+Psychiatric assessment depends on what text cannot carry: speech rate, latency before answering, affect, gaze and posture. Embodied
+virtual patients for psychiatric interviews predate language models \cite{dupuy2020guidelines}; recent systems give 3D patients an LLM
+to choose actions \cite{voigt2025llmpowered} or hold serious-illness conversations \cite{haut2025ai}, and LLM patient simulation with
+structured feedback has improved students' clinical decisions in a randomised trial \cite{brugge2024llm}. Most psychiatric LLM
+patients remain text chat \cite{wang2024patient,lee2025psyche,sabour2026patientact}. Building a spoken one raises three engineering
+constraints at once: latency (a spoken reply must start within a couple of seconds), privacy (learner speech should stay on the
+device), and specificity (each case is a different person with fixed clinical truths). This paper describes how Rapport meets them in one
+integrated architecture; a companion paper describes the patient model and its validation, and another the recall component.
+
+\section{Architecture}
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[node distance=3mm and 3.5mm, b/.style={draw, rounded corners=2pt, align=center, font=\scriptsize, minimum height=8mm, text width=19mm, fill=#1}, b/.default=white, >={Stealth[length=1.8mm]}]
+\node[b=green!10] (mic) {Microphone\\32 ms PCM frames};
+\node[b=cyan!8, right=of mic] (vad) {VAD (Silero) +\\Smart Turn v3};
+\node[b=cyan!8, right=of vad] (stt) {Speculative STT\\(Parakeet TDT)};
+\node[b=cyan!8, right=of stt] (mind) {Patient model\\(decide in code)};
+\node[b=orange!12, right=of mind] (llm) {Gemma 4 E4B\\llama.cpp, JSON grammar};
+\node[b=cyan!8, right=of llm] (split) {Stream parser,\\sentence split, checks};
+\node[b=cyan!8, below=7mm of split] (tts) {Qwen3-TTS VoiceDesign\\+ playback hold};
+\node[b=green!10, left=of tts] (play) {Unity audio,\\lip sync};
+\node[b=green!10, left=of play] (body) {Body language,\\face, gaze, breathing};
+\node[b=green!10, left=of body] (exam) {Exam actions\\(router in service, IK in Unity)};
+\node[b=green!10, left=of exam] (twin) {Examiner view\\(LAN, read-only)};
+\node[b=cyan!8, above=7mm of mind] (case) {Case data: memory, MSE,\\answer key, slots, styles, events};
+\draw[->] (mic) -- (vad); \draw[->] (vad) -- (stt); \draw[->] (stt) -- (mind); \draw[->] (mind) -- (llm); \draw[->] (llm) -- (split);
+\draw[->] (split) -- (tts); \draw[->] (tts) -- (play); \draw[->] (case) -- (mind);
+\draw[->, dashed] (mind.south) -- ++(0,-3.5mm) coordinate (b0) -| (body.north);
+\draw[->, dashed] (b0) -| (exam.north);
+\draw[->, dashed] (b0) -| (twin.north);
+\node[font=\tiny, anchor=south east, fill=white, inner sep=0.5pt] at ($(mind.south)+(-1mm,-3.2mm)$) {per-turn state};
+
+\end{tikzpicture}
+\caption{Rapport's turn loop on one laptop. Blue: Python patient service; orange: the language model; green: Unity client and the
+examiner's browser. Solid: the critical path from the doctor's last word to the patient's first audio. Dashed: per-turn state sent to
+the body, the exam actions and the examiner view. Only the read-only examiner view is served to the local network.}
+\label{fig:arch}
+\end{figure*}
+
+\subsection{Processes and data flow}
+Three processes run on one Apple M5 Pro (24\,GB): a Unity~6 client (3D room, patient, interface, microphone capture, lip sync), a
+Python patient service, and llama.cpp \cite{llamacpp} serving Gemma 4 E4B (4-bit) with a JSON grammar (Fig.~\ref{fig:arch}). The
+client streams 32\,ms microphone frames over one WebSocket per session. A voice-activity detector proposes an end of speech; a
+turn-end model confirms it; speech recognition starts speculatively at the first pause so its result is usually ready when the turn
+ends. The patient model then decides in code (memory recall with trust locks, the doctor's move, resistance, the behaviour shortlist,
+episodic memory) and makes one structured, streamed call. The reply's fields are ordered so behaviour and emotion arrive before the
+words; a streaming parser cuts the utterance into sentences, each checked for consistency and sent to speech synthesis while later
+sentences are still being generated.
+
+\subsection{One pipeline for typed and spoken turns}
+The same decision pipeline serves the voice session and a typed HTTP endpoint used by the client's text fallback and by evaluation.
+Each turn returns the new patient state and the patient's mind (mood, episodic memory, resistance, fired events); the client sends the
+mind back on the next request. The service signs it with a keyed hash and accepts only minds it issued, so a client can neither
+forge memory nor inject prompt text, and an invalid or oversized blob starts a fresh mind. Before this change the typed path skipped
+ward events, the trust step and the mood update; a safety review found it also silently dropped the mind, so memory never persisted.
+
+\subsection{Speech out}
+Speech uses Qwen3-TTS 1.7B VoiceDesign, whose voice is defined by a text instruction (case voice description plus the turn's emotion),
+with KittenTTS as fallback. Two findings shaped the design. First, rebuilding the instruction per sentence changed the speaker
+mid-reply, because with this model the instruction \emph{is} the voice; it is now built once per reply, and carries the reaction the
+patient model decided before the call, scaled by distress or agitation. Second, synthesis runs at about 0.53 of real time alone but
+near 1.0 while the language model shares the GPU, so audio streamed from the first chunk ran dry mid-word. The service holds each
+sentence until the audio buffered ahead outlasts the estimated remainder of its synthesis. The model ignores a speed parameter, so
+pressured or slowed speech is carried by pace words in the instruction and a pitch-preserving time stretch.
+
+\subsection{Body}
+Four Character Creator bodies of two sexes share one skeleton and face shapes. A per-turn snapshot from the patient model (emotion,
+reaction, intensity, behaviour, resistance and state) drives a body-language component: lean, slump, head pitch, turn and tilt,
+shoulders, fidgeting, a knee bounce, gestures and face presets, blended and scaled by intensity, yielding to physical-examination
+actions and standing (Fig.~\ref{fig:body}). Idle life runs continuously: blinks at about 17 a minute with occasional doubles, eye
+saccades, breathing that quickens with anxiety or anger, posture shifts every 8--20\,s, gaze wandering while the patient ``thinks'',
+nods while the doctor talks, and eye contact that rises with trust and falls with shame. Physical-examination requests (``hold out your
+hands'', ``roll up your sleeves'', ``stand and walk'') are routed by rules, not the model: on 385 test utterances the router chose the
+exact action and slots in every case with no false triggers on 56 negatives, though one author wrote both rules and tests.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_body_language.pdf}
+\caption{Body language driven by the patient model's emotion at high intensity (one frame each from a scripted sequence, Arjun's body).}
+\label{fig:body}
+\end{figure*}
+
+\subsection{Examiner view and privacy}
+A browser view shows the patient model's state live: trust, distress, agitation, engagement, the mood trajectory, memory items
+unlocking as trust rises, and a code-built reason for each reply. It can be opened from a second device on the same network; every other
+endpoint answers only the host. No audio or transcript leaves the laptop.
+
+\section{Patient Specificity as Data}
+A case is a JSON document validated by a schema. It holds the patient's identity and body and voice variants; memory items with trust
+thresholds, kinds, recall probes and the clinical topics that ask about them; a mental-status block (allowed emotions, intensity cap,
+thought form, insight); a starting state and drift; observable cues; physical findings with trust-gated actions; rating-scale scores;
+banned clinical words; a formulation; and a hidden answer key (diagnosis, differentials, required and critical questions, safe and
+unsafe prescriptions, disposition). Four draft stations exist: moderate depression, two acute-ward scenarios (a patient who wants to
+leave under India's Mental Healthcare Act \cite{mhca2017}; a patient refusing tablets) and alcohol dependence with early withdrawal
+\cite{nice2010cg100}.
+
+\textbf{Seeded patients.} A seed picks one option for each neutral slot (a hobby, a sibling's name, a home town) and one of six
+conversation styles (plain, reserved, eager to please, upset, talkative, tangential \cite{wang2024patient}), from a pure function of
+case, seed and generator version. Across 40 seeds the answer key, scales, exam findings, every trust threshold and all risk items stay
+identical to the authored case. Styles split into what the model sees (a label, a description, example lines) and what code does
+(start offsets, trust and agitation gains, a word cap).
+
+\textbf{Ward events.} Code decides when an event happens (a shout in the corridor, the patient standing up when agitation passes 65, a
+message from the patient's mother) and the model only plays it, from a stage direction that the speech checks never let it read out.
+Against a coercive typed doctor the ward patient's trust fell from 25 to 0 and agitation rose from 45 to 92; against a de-escalating
+doctor trust rose to 70 and agitation fell to 25. A tester found that telling the patient ``You're free to go home'' could leave
+them asking to leave again in a loop; permission is now recognised in 24 everyday phrasings (and refused in 16 conditional or negated
+ones), and once given, a request to leave is dropped before speech. A replay on the real model showed no repeat request after
+permission.
+
+\section{Results}
+\textbf{Latency.} Table~\ref{tab:lat} and Fig.~\ref{fig:lat} report the time from the doctor's last speech sample to the patient's first
+audio, from the service's per-turn timing log, with nothing else on the GPU. The decision layer added 279\,ms at the median, mostly in
+the first token (+134\,ms) and speech recognition wait (+70\,ms). The language-model bake-off kept Gemma 4 E4B: with Qwen3.5-4B and
+Qwen3.5-9B as the patient, replies were slower (medians 2.19\,s and 2.88\,s), and on one held-out seed the judge flagged 53 and 62
+unsupported claims, against 1--8 per seed for Gemma. The judges differ (Gemma judged the Qwen patients, Qwen3.5-9B judged Gemma, so
+that no model judges itself), so the flag counts are indicative, not a controlled comparison.
+
+\begin{table}[t]
+\caption{Latency per stage, median ms (GPU-exclusive turns)}
+\label{tab:lat}
+\centering
+\footnotesize
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Stage & v0 & v2 & Q3.5-4B & Q3.5-9B\\
+\midrule
+Turn-end detection & 277 & 278 & 278 & 279\\
+STT wait after turn end & 72 & 142 & 156 & 180\\
+LLM first token & 276 & 410 & 424 & 599\\
+LLM first sentence & 848 & 937 & 950 & 1385\\
+TTS first audio & 296 & 350 & 758 & 983\\
+\midrule
+\textbf{Audio ready, p50} & \textbf{1540} & \textbf{1819} & \textbf{2186} & \textbf{2882}\\
+Audio ready, p90 & 2560 & 2962 & 2824 & 4126\\
+Turns & 80 & 37 & 22 & 22\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_latency.pdf}
+\caption{Distribution of doctor-stop to patient-audio time.}
+\label{fig:lat}
+\end{figure}
+
+\textbf{Rendering.} The baseline doctor camera framed a wide shot with the face about 67 pixels across, faces darker than the room, and
+every patient turned away (the seat faced about 156 degrees from the doctor). The patient's seat now faces the doctor at 110 degrees,
+the camera uses a 30-degree vertical field of view (face about 142 pixels), and a soft key light on a rendering layer reaches only the
+patients. Face luminance moved into the target band for all four bodies (Fig.~\ref{fig:lum}, Fig.~\ref{fig:stills}) with no blown pixels.
+The tighter view also exposed hair and eyes culled by mis-set mesh bounds on two imported bodies, fixed by computing bounds from bones.
+Off-screen rendering at 1920$\times$1080 took 6.4--8.1\,ms per frame in the editor; the 60\,fps check in the built application during a
+live turn has not been run.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_luminance.pdf}
+\caption{Face mean luminance of the four bodies; green band: target.}
+\label{fig:lum}
+\end{figure}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_stills.pdf}
+\caption{The doctor's view before and after the rendering pass (same body).}
+\label{fig:stills}
+\end{figure*}
+
+\section{Discussion and Limitations}
+The architecture's main trade is between deciding more in code and starting to speak sooner: each check that runs before speech is
+cheap, but holding a whole reply on risk turns (so a denial can be replaced) and the longer per-turn prompt cost time. A median of
+1.8\,s sits near a thoughtful human pause for a low-mood patient but misses a 1.2\,s target for brisker cases. Limits: one laptop model was
+measured; lip sync remains weak (the mouth opens mostly from the jaw bone); skin, eye and hair shading are still the standard
+pipeline; the latency benchmark's client dropped its connection twice, so latency is taken from the service's log; and no learner study
+has been run.
+
+\section{Conclusion}
+A spoken, embodied psychiatric patient can run privately on one laptop with a structure in which data defines the patient, code
+decides, a local model speaks, and the body reads the same decision the voice does.
+
+\section*{Ethics}
+No human participants or patient data were involved. Voices are designed from text, not cloned; clinical content is draft pending
+faculty review.
+
+\bibliographystyle{IEEEtran}
+\bibliography{../shared/refs}
+
+\end{document}

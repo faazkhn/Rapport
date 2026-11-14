@@ -1,0 +1,208 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{../figures/}}
+
+\begin{document}
+
+\title{Rapport: An Embodied, On-Device Psychiatric Standardised Patient Driven by a Research-Grounded Digital Twin}
+
+\author{\IEEEauthorblockN{Faaz Khan Mohammad}
+\IEEEauthorblockA{Rapport project\\
+Email: faazkhn1000@gmail.com}}
+
+\maketitle
+
+\begin{abstract}
+Psychiatric OSCE training depends on standardised patients who can portray guarded, slowly unfolding presentations, but trained
+actors are scarce and inconsistent, and current LLM patient simulators are text-only, cloud-hosted and stateless about trust and mood.
+We present Rapport, a voice-driven 3D standardised patient that runs fully on a single laptop. Its behaviour is set by a Digital Twin:
+an explicit, inspectable model of the patient's formulation, trust-gated memory, appraisal, mood and behaviour choice, synthesised from
+published LLM patient simulators. The current version decides in code (the doctor's move, a trust step, resistance and a shortlist of
+behaviours) before one structured call to a local language model voices the decision, and checks every sentence before it is spoken.
+Physical examination requests are routed by rules (385 test utterances, 100\% exact, 0 false triggers); an examiner-facing view shows
+the Twin's state live. Four draft stations (moderate depression, two acute-ward scenarios, alcohol dependence with withdrawal) run on
+four rigged bodies whose posture, gaze and expressions follow the Twin's per-turn emotion, with seeded patients and six conversation
+styles. On an Apple M5 Pro with Gemma 4 E4B and an emotional text-designed voice, median doctor-stop-to-patient-audio latency is
+1.82\,s. On 14 held-out conversations over three seeds, judged by a different model and hand-reviewed, the Twin raised no
+jailbreak or portrayal failures, disclosed suicidal ideation whenever it was open and asked kindly, and used behaviour far more evenly
+than its predecessor at equal accuracy. The debrief scores the learner against what the patient actually showed and said. Faculty
+realism ratings and a learner pilot are pending.
+\end{abstract}
+
+\begin{IEEEkeywords}
+standardised patients, OSCE, psychiatry education, virtual patients, large language models, on-device AI
+\end{IEEEkeywords}
+
+\section{Introduction}
+The psychiatric interview is learned by doing: a trainee must notice slowed speech and averted gaze, ask open questions, earn enough
+trust for a patient to disclose passive death wishes, and assess risk, all within a timed OSCE station \cite{harden1975osce}.
+Standardised patient actors make this possible but are costly, unevenly available and hard to keep consistent across examinees
+\cite{piot2021simulation}. LLM-based patient simulators have grown quickly, and psychiatric ones now model cognitive formulations,
+resistance and trust-gated disclosure \cite{wang2024patient,lee2025psyche,sabour2026patientact}. Three gaps remain for OSCE use:
+\emph{embodiment} (most simulators are text chat, but assessment depends on speech rate, latency, affect and posture), a
+\emph{real-time constraint} (rich patient agents make several LLM calls per turn, too slow for spoken dialogue on local hardware), and
+\emph{inspectability and privacy} (examiners cannot see why a simulated patient disclosed or withheld, and cloud models send learner
+audio off-site).
+
+Contributions:
+C1, Rapport, an on-device, voice-driven 3D standardised patient for psychiatry and addiction OSCEs (four draft stations, four rigged
+bodies, seeded patients with six conversation styles);
+C2, the Digital Twin, an explicit patient-mind model that unifies components of published simulators and decides in code before a
+single LLM call;
+C3, a fast and slow path that keeps one structured call on the critical path, with measured latency and a playback hold for streamed
+speech on a shared GPU;
+C4, an examiner-facing live view of the Twin;
+C5, embodied physical examination and body language driven by the Twin;
+C6, a literature-grounded learner assessment;
+C7, an evaluation suite and release gates on invented facts, jailbreaks, portrayal and safety, with a gated learning loop.
+
+\section{Related Work}
+\textbf{Psychiatric LLM patients.} Chen et al.\ built clinician-validated chatbots for depression interviews \cite{chen2023llmempowered};
+PATIENT-$\Psi$ grounds patients in expert cognitive models with six conversation styles \cite{wang2024patient}; PSYCHE builds an
+MSE-based construct for evaluating assessment agents \cite{lee2025psyche}; PatientAct adds trust-gated memory, reactions and
+resistance \cite{sabour2026patientact}, and PatientHub packages many simulators \cite{sabour2026patienthub}; Roleplay-doh lets experts
+steer a patient through principles \cite{louie2024roleplaydoh}. \textbf{Learning simulators.} EvoPatient coevolves doctor and patient with
+a vetted experience library \cite{du2024llms}; MedAgentSim and Agent Hospital evolve agents in simulated clinics
+\cite{almansoori2025selfevolving,li2024agent}. \textbf{Embodied and voice patients.} Design guidelines for psychiatric virtual patients
+predate LLMs \cite{dupuy2020guidelines}; recent LLM-driven 3D patients include Voigt et al.\ \cite{voigt2025llmpowered} and SOPHIE
+\cite{haut2025ai}; SimPatient and MedSimAI add formative feedback \cite{steenstra2025scaffolding,hicke2025medsimai}.
+\textbf{Evaluation and outcomes.} LLM judges scale but are biased \cite{zheng2023judging}; a randomised trial found LLM patient simulation
+with structured feedback improves students' decisions \cite{brugge2024llm}; LLMs scoring OSCE transcripts match experts within one
+point 67--87\% of the time \cite{geathers2025benchmarking}; a 2026 meta-analysis supports AI virtual patients for psychiatric interview
+training \cite{kilincel2026meta}. \textbf{Digital brains.} The Brain/MINDS Digital Brain programme \cite{brainminds} builds data-driven brain
+models; the Twin is not a neural model and borrows its theories only as behavioural mechanisms (for example, trust as a
+prediction-error update).
+
+\section{System}
+\textbf{Architecture.} Three processes on one laptop: a Unity~6 client (room, patient, interface, microphone, lip sync), a Python patient
+service (voice-activity and turn-end detection, speculative speech recognition, the Twin, a rules-based exam router, speech synthesis
+with Qwen3-TTS VoiceDesign and a KittenTTS fallback), and llama.cpp \cite{llamacpp} serving Gemma 4 E4B with a JSON grammar. No audio or
+text leaves the device; only the read-only Twin view is served to the local network.
+
+\textbf{Case representation.} A case holds identity and body and voice variants; clinical facts with trust thresholds, recall probes and
+the topics that ask about them; a mental-status block; starting state and drift; observable cues; exam findings with trust-gated
+actions; rating-scale scores (PHQ-9 and GAD-7, or AUDIT and CIWA-Ar); banned clinical words; a 5Ps formulation; and a hidden answer key
+(diagnosis, differentials, required and critical intents, safe and unsafe prescriptions, disposition). Neutral slots and one of six
+conversation styles can be drawn from a seed while the answer key stays fixed; ward stations add scripted events whose timing code
+decides.
+
+\textbf{The Digital Twin.} Each turn: (1) recall memory items by tags and by sentence-embedding similarity, then apply trust locks, so a
+locked match yields only a discomfort signal; (2) read the doctor's move (empathy, judgement, jargon, a risk question and others),
+step trust before recall, update a resistance level by explicit softening rules and shortlist the behaviours and reactions allowed;
+(3) one structured LLM call that may only choose within the shortlist, with behaviour and emotion generated before the words; (4) check
+each sentence in code before speech (wrong numbers and names corrected, the death wish never spoken when locked or unasked, never
+flatly denied when open and asked kindly); (5) update state, mood (pleasure, arousal, dominance \cite{mehrabian1996pad}) and an
+episodic memory of what was asked, said, promised and hurt. The design and its validation are detailed in a companion paper.
+
+\textbf{Latency engineering.} Five changes cut median lag from 3.0\,s to 1.6\,s with KittenTTS: the deliberate pause for psychomotor
+slowing absorbs compute; a no-thinking template removed stray reasoning that blocked the grammar; bounded schema fields; next-turn
+prompt prefill while the doctor speaks; and a shorter silence threshold. A playback hold keeps streamed Qwen3-TTS speech unbroken when
+synthesis and the language model share the GPU.
+
+\textbf{Examiner view.} A browser view shows gauges, a mood plot, the memory ladder unlocking as trust rises, the formulation and a
+one-line, code-built reason for each reply; it can be opened from a second device on the same network.
+
+\textbf{Embodiment.} Requests such as ``hold out your hands'' are routed by rules, gated by trust and agitation, queued, held until
+``relax'' and played with inverse kinematics (forearm twist, runtime sleeve roll, tremor at about 10\,Hz or 5--6\,Hz in withdrawal,
+sweating). A body-language component turns the Twin's emotion and intensity into lean, slump, head movement, fidgeting, gestures and
+facial expression, with idle blinks, saccades, breathing, posture shifts and eye contact that follows trust (Fig.~\ref{fig:bodies}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_bodies.pdf}
+\caption{The four bodies from the doctor's seat after the v0.3 rendering pass (face luminance 0.49--0.54).}
+\label{fig:bodies}
+\end{figure}
+
+\textbf{Learner assessment and debrief.} The debrief is scored in code from what happened, risk first (risk 30, observation 20, history 12,
+communication 12, diagnosis 13, management 13). Risk items score 1 when asked and answered, 0.6 when asked before the patient trusted the
+doctor, 0 with a critical error when not asked, and no risk category is printed \cite{nice2022ng225}. Expected mental-status signs are
+those the patient visibly showed for at least 5\,s; recording signs that were not there costs marks. Communication uses six items from
+the Master Interview Rating Scale and Calgary--Cambridge guides \cite{simmenroth2014calgary}, minus judgmental lines, real interruptions,
+jargon and stacked questions. Formative AI examiner notes quote the learner's own lines, every quote checked against the transcript, and
+never enter the score.
+
+\section{Evaluation Design}
+\begin{table}[t]
+\caption{Research questions}
+\label{tab:rq}
+\centering
+\footnotesize
+\begin{tabularx}{\columnwidth}{@{}lX X@{}}
+\toprule
+RQ & Question & Measure (status)\\
+\midrule
+RQ1 & Fast enough for spoken dialogue? & Doctor-stop to patient audio per stage (measured)\\
+RQ2 & Faithful to the case? & Invented facts, locked leaks, paraphrase recall (measured, automated)\\
+RQ3 & Realistic? & Faculty blind ratings and A/B (A/B page built; not rated)\\
+RQ4 & Safe? & Jailbreak, risk disclosure, safety review (measured)\\
+RQ5 & Helps learners? & Interview rubric, MSE and diagnosis accuracy, usability (pending ethics)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+Table~\ref{tab:rq} lists the questions. Studies with people need ethics approval first. Automated evaluation uses 14 scripted held-out
+conversations (12 depression, 2 alcohol) on three sampling seeds, judged by a model different from the patient's, with every flag
+hand-reviewed; a 512-line blind paraphrase set for recall; and an adversarial review by an agent with no prior context.
+
+\section{Results}
+\textbf{RQ1, latency.} Median lag fell from 3.0\,s to 1.6\,s through the latency engineering above (KittenTTS, 26 turns). With the emotional
+voice and the current Twin it is 1.82\,s (p90 2.96\,s, 37 turns), against 1.54\,s for the previous Twin (80 turns); the 1.2\,s target is
+not met. Barge-in stops patient audio in 47--63\,ms.
+
+\begin{table}[t]
+\caption{Held-out results, previous Twin (v0) and current Twin (v2), three seeds}
+\label{tab:res}
+\centering
+\footnotesize
+\begin{tabular}{@{}lcc@{}}
+\toprule
+& v0 & v2\\
+\midrule
+Composite, depression / alcohol & 0.953 / 0.878 & 0.947 / 0.875\\
+Top-2 behaviour share (lower: varied) & 0.86 / 0.81 & 0.72 / 0.63\\
+Resistance appropriate & 0.92 / 0.67 & 0.94 / 0.70\\
+Jailbreak / portrayal failures & 1 / 0 & 0 / 0\\
+SI disclosed when open, asked kindly & all runs & all runs\\
+Risk recall on paraphrases (test) & 35.1\% & 72.7\%\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{RQ2 and RQ4, fidelity and safety.} Table~\ref{tab:res} compares the Twins. The current Twin held every safety gate with accuracy
+equal to its predecessor and much more varied behaviour; of 14 invented-fact flags, 12 were false positives on hand review and 2 minor.
+Earlier automated results also stand: the previous Twin's suite gave 100\% valid output and 0 invented facts after review (18 of 18
+flags false positives); one character break to a ``this is a simulation'' probe was found and fixed; a learned version was rejected
+because it denied suicidal thoughts at trust 70, traced to a recall tag bug; across four conversation styles the death wish was
+disclosed in 8 of 8 kind asks with no locked fact leaked; and in the ward station a coercive doctor drove trust from 25 to 0 while a
+de-escalating one raised it to 70. A fresh-context safety review of the current Twin found ten defects (for example, the raw text of a
+reply whose every sentence the checks had dropped still reached the client); all were fixed and tested before the results above.
+
+\textbf{RQ3 and RQ5.} No faculty ratings or learner data yet; a ten-pair blind A/B page of held-out replies is prepared.
+
+\section{Discussion, Limitations and Ethics}
+Moving the patient's decisions into code made its behaviour auditable and its safety properties testable, and the body now reads the
+same decision as the voice. Limitations: four draft stations, with psychosis, mania and anxiety untested; clinical content, trust
+thresholds and the debrief cut-offs are drafts pending faculty validation; the Twin is brain-inspired, not a neural simulation; LLM judges
+are biased and flags were hand-reviewed by the developer, not faculty; the exam router's accuracy is optimistic because one author wrote
+the rules and tests; paraphrase recall of risk items (72.7\%) is below what a safety gate needs; an upset conversation style does not yet
+hold past ten turns; all tests ran on one high-end laptop; non-verbal behaviour of the learner is not assessed.
+
+\textbf{Ethics.} No real patient data is stored. Learner speech never becomes patient facts, and learner sessions feed learning only with
+consent. Suicide-related content carries a content note and a debrief with teaching points. Voices are designed from text, not cloned.
+Staged demonstrations use pre-scripted replies and must be disclosed as such.
+
+\section{Conclusion}
+Rapport shows that a spoken, embodied psychiatric standardised patient can run privately on one laptop, with a patient mind whose
+decisions an examiner can inspect and a reviewer can test. Whether it is realistic and useful enough to teach with is the next
+question, and it needs clinicians and learners to answer.
+
+\bibliographystyle{IEEEtran}
+\bibliography{../shared/refs}
+
+\end{document}
