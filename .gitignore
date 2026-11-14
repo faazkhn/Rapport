@@ -41,3 +41,5 @@ docs/listening/*.wav
 art/Amber/
 art/RealisticMan/
 Realistic+man_Blend.zip
+tests/overnight/rerun/bench_audio/
+tests/overnight/bench_audio/

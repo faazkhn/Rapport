@@ -10,3 +10,13 @@
 - 2026-11-14 08:06:51 end latency_v2 (owner: ignore latency management; GPU shared from now)
 - 2026-11-14 08:11:49 end latency_v2 rc=143
 - 2026-11-14 08:11:54 start heldout_v2_mdd_01
+- 2026-11-14 08:56:36 end heldout_v2_mdd_01 rc=0
+- 2026-11-14 08:56:36 start heldout_v2_alc_01
+- 2026-11-14 09:05:30 end heldout_v2_alc_01 rc=0
+- 2026-11-14 09:05:30 final run finished
+- 2026-11-14 09:08:13 style_v0 rc=0
+- 2026-11-14 09:08:38 style_hold_v0 rc=0
+- 2026-11-14 09:11:09 style_v2 rc=0
+- 2026-11-14 09:11:34 style_hold_v2 rc=0
+- 2026-11-14 09:11:34 style runs finished
+- 2026-11-14 09:13:23 leave replay done

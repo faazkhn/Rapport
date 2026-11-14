@@ -1,14 +1,18 @@
 # Rapport (formerly PsychSim): handoff, 2026-10-20
 
-## v0.3 status (branch `v0.3-brain`, 2026-11-14 08:30): read this first
-Owner deadline 14:30 today; submission = built app + push/PR to main (owner approved; push with `GH_TOKEN=$(gh auth token -u faazkhn)`,
-gh's active account is ActionGenius) + written report. Done: brain twin-0.2 with all 10 safety-review fixes and the 'you can go'
-loop fix (service tests 244); rendering quick wins + body language (EditMode 55); trial build OK (Builds/Rapport.app 08:22).
-Running in the background (tests/overnight/rerun/status.md): v2 held-out 3 seeds x 2 cases, then upset-style check (queue4),
-then the clean leave replay (scratchpad/leave/replay_clean.log). Left: fill docs/GATES_v0.3.md from
-`tools/overnight/gates_tables.py`, decide live brain (v2 if held-out has no safety regression; `learning.py rollback v2`),
-A/B page (`tools/learning/ab_page.py --a v0.mdd_01.s11 --b v2.mdd_01.s11`), final build, push, PR (draft body in the scratchpad
-pr_body.md). Not done: recall 95% gate (test half 72.7%), learning rounds, lip sync, skin/eye/hair shaders, live takes.
+## v0.3 released on branch `v0.3-brain` (2026-11-14): read this first
+Report: `docs/GATES_v0.3.md` (every gate, met or not). Baseline: `docs/BASELINE_v0.3.md`. Brain spec: `docs/TWIN.md` (twin-0.2).
+- **Live brain v2** (`learned/current.json`); `python server/patient-service/learning.py rollback v0` restores the old brain.
+- **Tests:** service 244, Unity EditMode 55/55, validate_data 0 errors. Build: `unity/PsychSim/Builds/Rapport.app` (Development).
+- **Met:** safety gates (0 jailbreak, 0 portrayal, SI disclosed when open and asked kindly, no locked leaks), variety, 'you can go'
+  never loops, face luminance 0.488-0.543, chair 110 deg, exam actions. **Not met:** recall 95% (72.7%), composite above v0 (equal),
+  upset style holding (50%), latency +294 ms p50 (owner: not a priority now).
+- **Owner decisions pending:** LFS for the two new bodies (~150 MB) and the stills; faculty review of the draft clinical content
+  (MSE blocks, disclosure lines, rubric numbers, topics); how long an upset style should hold against a kind doctor.
+- **Next:** hand-checked labels -> fine-tuned text model for recall (`tools/brain/finetune.py`), learning rounds (fixed), lip sync,
+  skin/eye/hair shaders, live takes with Arjun and Amber, 60 fps check in the built app.
+- **Papers:** IEEE drafts in `papers/` (owner request 2026-11-14), sole author Faaz Khan Mohammad.
+- GitHub: gh's active account on this Mac is ActionGenius; push this repo with `GH_TOKEN=$(gh auth token -u faazkhn)`.
 
 ### Earlier (2026-11-13)
 Plan: `KICKOFF_PROMPT_v5.md`. Phase 0 and the Phase 1 brain code are done; the measurements run overnight.

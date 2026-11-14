@@ -1,0 +1,113 @@
+female  0 lag   5672 ms | vad 503 stt 101 ttft 691 sent1 1226 tts1 2592 srv 5651 pause 0
+female  1 lag   1678 ms | vad 272 stt 295 ttft 283 sent1 772 tts1 305 srv 1645 pause 0
+female  2 lag   3149 ms | vad 1216 stt 0 ttft 282 sent1 807 tts1 1059 srv 3082 pause 0
+female  3 lag   1475 ms | vad 277 stt 61 ttft 223 sent1 853 tts1 281 srv 1473 pause 0
+female  4 lag   1447 ms | vad 273 stt 57 ttft 220 sent1 754 tts1 296 srv 1381 pause 0
+female  5 lag   1484 ms | vad 277 stt 71 ttft 282 sent1 822 tts1 279 srv 1451 pause 0
+female  6 lag   1436 ms | vad 276 stt 58 ttft 346 sent1 854 tts1 277 srv 1467 pause 0
+female  7 lag   2414 ms | vad 1217 stt 0 ttft 387 sent1 880 tts1 282 srv 2380 pause 0
+female  8 lag   1470 ms | vad 274 stt 74 ttft 266 sent1 807 tts1 281 srv 1436 pause 0
+female  9 lag   1439 ms | vad 277 stt 66 ttft 276 sent1 808 tts1 285 srv 1437 pause 0
+female 10 lag   1591 ms | vad 273 stt 56 ttft 305 sent1 910 tts1 285 srv 1525 pause 0
+female 11 lag   1522 ms | vad 274 stt 57 ttft 368 sent1 878 tts1 278 srv 1488 pause 0
+female 12 lag   1558 ms | vad 276 stt 62 ttft 287 sent1 862 tts1 291 srv 1492 pause 0
+female 13 lag   1429 ms | vad 273 stt 61 ttft 219 sent1 746 tts1 282 srv 1364 pause 0
+female 14 lag   1610 ms | vad 277 stt 61 ttft 276 sent1 896 tts1 308 srv 1543 pause 0
+female 15 lag   5880 ms | vad 297 stt 495 ttft 284 sent1 881 tts1 4235 srv 5910 pause 0
+female 16 lag   1736 ms | vad 271 stt 179 ttft 285 sent1 898 tts1 354 srv 1703 pause 0
+female 17 lag   1638 ms | vad 279 stt 61 ttft 391 sent1 1033 tts1 295 srv 1668 pause 0
+female 18 lag   1563 ms | vad 277 stt 64 ttft 273 sent1 863 tts1 292 srv 1498 pause 0
+female 19 lag   1181 ms | vad 272 stt 72 ttft 159 sent1 585 tts1 281 srv 1211 pause 0
+female 20 early endpoint (reply started before the doctor's line ended); skipped
+female 21 lag   1645 ms | vad 278 stt 52 ttft 371 sent1 955 tts1 290 srv 1576 pause 0
+female 22 lag   1635 ms | vad 277 stt 60 ttft 364 sent1 977 tts1 286 srv 1601 pause 0
+female 23 lag   1515 ms | vad 279 stt 57 ttft 269 sent1 866 tts1 279 srv 1482 pause 0
+female 24 lag   1351 ms | vad 276 stt 53 ttft 199 sent1 738 tts1 281 srv 1350 pause 0
+female 25 lag   1368 ms | vad 276 stt 57 ttft 197 sent1 688 tts1 280 srv 1302 pause 0
+male  0 lag   1327 ms | vad 276 stt 38 ttft 174 sent1 663 tts1 283 srv 1261 pause 0
+male  1 lag   1436 ms | vad 281 stt 66 ttft 274 sent1 777 tts1 276 srv 1402 pause 0
+male  2 lag   2376 ms | vad 1215 stt 0 ttft 296 sent1 796 tts1 297 srv 2310 pause 0
+male  3 lag   1511 ms | vad 278 stt 59 ttft 220 sent1 859 tts1 278 srv 1475 pause 0
+male  4 lag   1520 ms | vad 277 stt 49 ttft 221 sent1 769 tts1 357 srv 1454 pause 0
+male  5 lag   2054 ms | vad 276 stt 61 ttft 274 sent1 837 tts1 845 srv 2020 pause 0
+male  6 lag   1580 ms | vad 282 stt 162 ttft 295 sent1 875 tts1 290 srv 1610 pause 0
+male  7 lag   2919 ms | vad 1215 stt 0 ttft 374 sent1 865 tts1 794 srv 2877 pause 0
+male  8 lag   1601 ms | vad 279 stt 171 ttft 261 sent1 823 tts1 295 srv 1568 pause 0
+male  9 lag   1413 ms | vad 278 stt 73 ttft 267 sent1 775 tts1 285 srv 1412 pause 0
+male 10 lag   2299 ms | vad 278 stt 219 ttft 367 sent1 981 tts1 754 srv 2233 pause 0
+male 11 lag   1613 ms | vad 275 stt 168 ttft 353 sent1 825 tts1 309 srv 1579 pause 0
+male 12 lag   1608 ms | vad 275 stt 112 ttft 282 sent1 833 tts1 321 srv 1542 pause 0
+male 13 lag   1659 ms | vad 282 stt 149 ttft 342 sent1 846 tts1 315 srv 1594 pause 0
+male 14 lag   2184 ms | vad 281 stt 80 ttft 272 sent1 887 tts1 869 srv 2117 pause 0
+male 15 lag   1437 ms | vad 278 stt 139 ttft 216 sent1 764 tts1 287 srv 1469 pause 0
+male 16 lag   1576 ms | vad 281 stt 79 ttft 239 sent1 869 tts1 309 srv 1540 pause 0
+male 17 lag   1697 ms | vad 277 stt 158 ttft 380 sent1 978 tts1 312 srv 1727 pause 0
+male 18 lag   1517 ms | vad 278 stt 164 ttft 219 sent1 726 tts1 283 srv 1451 pause 0
+male 19 lag   1270 ms | vad 279 stt 64 ttft 207 sent1 630 tts1 326 srv 1301 pause 0
+male 20 early endpoint (reply started before the doctor's line ended); skipped
+male 21 lag   1688 ms | vad 276 stt 109 ttft 362 sent1 945 tts1 291 srv 1623 pause 0
+male 22 lag   3028 ms | vad 275 stt 314 ttft 327 sent1 930 tts1 1471 srv 2991 pause 0
+male 23 lag   1612 ms | vad 276 stt 148 ttft 268 sent1 862 tts1 290 srv 1577 pause 0
+male 24 lag   1338 ms | vad 276 stt 62 ttft 198 sent1 702 tts1 296 srv 1336 pause 0
+male 25 lag   1401 ms | vad 277 stt 83 ttft 192 sent1 601 tts1 370 srv 1332 pause 0
+Traceback (most recent call last):
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/faazkhn/Documents/Med/tools/latency/ws_bench.py", line 153, in <module>
+    main()
+  File "/Users/faazkhn/Documents/Med/tools/latency/ws_bench.py", line 140, in main
+    asyncio.run(run(a.url, wavs, lines, ["female", "male"][r % 2], a.barge if r == a.runs - 1 else 0, results))
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/Documents/Med/tools/latency/ws_bench.py", line 117, in run
+    t_stop, ev = await wait("stop")
+                 ^^^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/Documents/Med/tools/latency/ws_bench.py", line 78, in wait
+    ts, m = await asyncio.wait_for(q.get(), timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/tasks.py", line 519, in wait_for
+    async with timeouts.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/timeouts.py", line 115, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+Task exception was never retrieved
+future: <Task finished name='Task-9' coro=<run.<locals>.reader() done, defined at /Users/faazkhn/Documents/Med/tools/latency/ws_bench.py:55> exception=ConnectionClosedError(Close(code=1011, reason=''), Close(code=<CloseCode.INTERNAL_ERROR: 1011>, reason=''), False)>
+Traceback (most recent call last):
+  File "/Users/faazkhn/Documents/Med/tools/latency/ws_bench.py", line 56, in reader
+    async for m in ws:
+  File "/Users/faazkhn/documents/med/server/patient-service/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 237, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/documents/med/server/patient-service/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 317, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: sent 1011 (internal error); then received 1011 (internal error)
+Task exception was never retrieved
+future: <Task finished name='Task-10' coro=<run.<locals>.mic_task() done, defined at /Users/faazkhn/Documents/Med/tools/latency/ws_bench.py:59> exception=ConnectionClosedError(Close(code=1011, reason=''), Close(code=<CloseCode.INTERNAL_ERROR: 1011>, reason=''), False)>
+Traceback (most recent call last):
+  File "/Users/faazkhn/Documents/Med/tools/latency/ws_bench.py", line 66, in mic_task
+    await ws.send(frame.tobytes())
+  File "/Users/faazkhn/documents/med/server/patient-service/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 480, in send
+    async with self.send_context():
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/documents/med/server/patient-service/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 960, in send_context
+    raise self.protocol.close_exc from original_exc
+websockets.exceptions.ConnectionClosedError: sent 1011 (internal error); then received 1011 (internal error)
