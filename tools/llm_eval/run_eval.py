@@ -25,15 +25,15 @@ def run_conv(conv, case_id, client, model, style=None):
         raise SystemExit(f"style {style!r} is not in {case_id}'s styles_allowed")
     case = brain.load_case(case_id, conv["variant"], seed)
     state = {**case["state_start"], **conv.get("start_state", {})}
-    msgs, out = [], []
+    msgs, out, mind = [], [], None
     for i, line in enumerate(conv["turns"], 1):
         msgs.append({"role": "doctor", "text": line})
         t = time.perf_counter()
         r = brain.generate_reply({"case_id": case_id, "variant": conv["variant"], "messages": msgs, "state": state,
-                                  "elapsed_min": i * 1.0, "model": model, "seed": seed}, client=client)
+                                  "elapsed_min": i * 1.0, "model": model, "seed": seed, "twin": mind}, client=client)
         dt = round((time.perf_counter() - t) * 1000)
-        new = twin.update(state, twin.pad_from(state), r, case)[0] if seed is not None else brain.apply_turn(state, r)
-        out.append({"turn": i, "doctor": line, "state_before": state, "state_after": new, "reply": {k: v for k, v in r.items() if k != "meta"},
+        new, mind = r["state"], r["twin"]  # one brain: the service's own state update, mind carried between turns
+        out.append({"turn": i, "doctor": line, "state_before": state, "state_after": new, "reply": {k: v for k, v in r.items() if k not in ("meta", "twin")},
                     "meta": r["meta"], "wall_ms": dt})
         if r["utterance"]:
             msgs.append({"role": "patient", "text": r["utterance"]})
