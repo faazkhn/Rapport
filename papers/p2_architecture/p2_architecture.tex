@@ -1,13 +1,13 @@
-\documentclass[conference]{IEEEtran}
+\documentclass[journal]{IEEEtran}
 \input{../shared/style}
 
 \begin{document}
 
 \title{An Integrated, On-Device Architecture for Patient-Specific Embodied Psychiatric Simulation}
 
-\author{\IEEEauthorblockN{Faaz Khan Mohammad}
-\IEEEauthorblockA{Rapport project\\
-Email: faazkhn1000@gmail.com}}
+\author{Faaz~Khan~Mohammad%
+\thanks{F. K. Mohammad is with the Rapport project (e-mail: faazkhn1000@gmail.com).}}
+\markboth{Preprint, November 2026}{Mohammad: Integrated Patient-Specific Simulation Architecture}
 
 \maketitle
 
@@ -185,7 +185,7 @@ rises; and a one-line reason for each reply written by code (for example ``Mood 
 trust 55); showed discomfort.''). An examiner can open it on a second laptop on the same network. Nothing else on the service answers other
 devices.
 
-\subsection{One brain for typed and spoken turns}
+\subsection{One brain for typed and spoken turns}\label{sec:paths}
 
 \begin{figure}[t]
 \centering
@@ -209,6 +209,50 @@ state and its \emph{mind}: mood, the memory of the conversation, resistance and 
 the next request. The service signs it with a secret key and accepts only minds it issued, so a client can neither invent memories nor slip
 instructions into the prompt; a changed or oversized mind simply starts fresh. Before this change, typed turns skipped events, the trust step and
 the mood update, and an independent review found that the mind was also silently thrown away, so the typed patient forgot everything each turn.
+
+\subsection{Hearing when the doctor has finished}
+Deciding when the doctor has stopped talking is the first delay in every turn. A fixed silence is a poor rule: too long for a finished sentence,
+too short for a doctor who pauses to think. The service listens with Silero voice-activity detection. After 200\,ms of silence it asks a small
+turn-end model (Smart Turn v3, about 12\,ms on the processor) whether the sentence sounds finished; if it does, the turn ends there, and if not,
+it keeps listening up to a hard limit. At the same 200\,ms point it starts transcribing the audio so far with Parakeet, speculatively; if the
+doctor carries on, that transcript is thrown away. The student can also hold a key to talk, which skips detection entirely.
+
+\subsection{How the parts talk to each other}
+The client and the service share one WebSocket per session (Table~\ref{tab:proto}). Microphone audio goes up as raw 32\,ms frames; everything
+else is small JSON messages. The typed path uses one HTTP call instead, and carries the patient's memory between turns in a signed envelope
+(Section~\ref{sec:paths}).
+
+\begin{table}[t]
+\caption{Messages on the session connection}
+\label{tab:proto}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}lY@{}}
+\toprule
+Message & Meaning\\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Client to service}}\\
+start & Case, patient seed and mode; the service loads the case and pre-reads the fixed prompt\\
+audio frames & 32\,ms of 16\,kHz microphone audio\\
+ptt\_begin / ptt\_end & Push-to-talk pressed and released\\
+hands\_free & Switch to automatic turn-end detection\\
+text & A typed doctor line instead of speech\\
+state & Slow drift of the patient's state between turns (clamped by the service)\\
+stop & The student talked over the patient: stop speaking now\\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Service to client}}\\
+listening, thinking, speaking & What the patient is doing, for the interface\\
+transcript & What the service heard the doctor say\\
+sentence & One sentence of the reply with its audio, emotion and cues, sent as soon as it is ready\\
+reply & The whole reply when it is complete\\
+exam & An examination action to perform, refuse or ask about (``Which hand?'')\\
+brain\_snapshot & The Twin's state, for the body and the examiner view\\
+intents & What the doctor's line covered, for the debrief\\
+patient\_ended & The patient has ended the interview\\
+timing & Per-stage timings for the benchmark\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{The Patient Is Data}
 
@@ -335,6 +379,134 @@ Turns measured & 80 & 37 & 22 & 22\\
 \label{fig:lat}
 \end{figure}
 
+\subsection{How the speed was won}
+Table~\ref{tab:history} follows the median time to the patient's first audio through the project. The first measurement, 3.0\,s, came before any
+tuning, and a deliberate pause for a slowed patient was added \emph{on top}, so the patient started about 4.9\,s after the doctor stopped. Five
+changes brought it to 1.6\,s: (1) the deliberate pause now runs \emph{during} the computing time instead of after it, saving up to 1.9\,s;
+(2) a chat template that stops the model from opening a hidden ``thinking'' section, which had blocked the reply format and run some turns to
+the token limit; (3) limits on every list and number in the reply, so lists could not grow until the cap; (4) pre-reading the next turn's
+prompt while the doctor is still talking; and (5) a shorter end-of-turn silence. Switching to the more expressive voice cost about 0.7\,s at
+first, because speech synthesis and the language model then shared the graphics chip. Turn-end detection with Smart Turn ended finished sentences
+about 200\,ms sooner but saved nothing overall, because the speculative transcript started at the same moment and was not ready yet. Moving the
+part of the prompt known before the doctor speaks in front of the doctor's words saved 100--140\,ms on the first token.
+
+\begin{table}[t]
+\caption{Median time to the patient's first audio over the project (ms)}
+\label{tab:history}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}Yrrr@{}}
+\toprule
+Stage of the project (turns) & Median & p90 & First token\\
+\midrule
+Baseline, light voice (52) & 3,046 & 4,100 & 1,099\\
+After the five speed fixes (26) & 1,616 & 1,796 & 224\\
+Expressive voice, speculative transcript (26) & 2,326 & 3,018 & 402\\
++ turn-end model, prompt reordered (26) & 2,164 & 4,024 & 273\\
+v0.3, previous Twin v0 (80) & 1,540 & 2,560 & 276\\
+v0.3, current Twin v2 (37) & 1,819 & 2,962 & 410\\
+\bottomrule
+\end{tabularx}
+\\[1mm]\raggedright\scriptsize Single runs on one laptop; the p90 swings by several hundred ms between repeated runs, so only large differences are meaningful.
+\end{table}
+
+\subsection{Choosing the models}
+\textbf{Language model.} Table~\ref{tab:bench} gives raw speeds on the laptop. Gemma 4 E2B is about 1.8 times faster at writing, and with the
+template fix it produced valid output on every one of 24 test conversations with no character breaks. Gemma 4 E4B was kept because its replies
+were clearly better on the same scripted interview (terser and more in character), and its speed is enough once the prompt is cached. Cloud models
+were considered as a fallback for slower laptops and rejected for the default: they send the conversation off the device, one free service could
+not stream structured output, and another's free tier may use prompts for training.
+
+\begin{table}[t]
+\caption{Raw model speed on the laptop (tokens per second, 4-bit)}
+\label{tab:bench}
+\centering
+\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Model & Reading the prompt & Writing\\
+\midrule
+Gemma 4 E2B & 2,497 & 68.5\\
+Gemma 4 E4B (patient) & 1,463 & 38.1\\
+Qwen3.5 4B & 1,569 & 39.0\\
+Qwen3.5 9B (judge) & 711 & 22.4\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Voice.} The voice was chosen by a rule fixed before testing: an open licence (MIT, Apache or BSD), word accuracy at least 0.93 when the
+output is transcribed back, first audio within 450\,ms, and faster than real time with margin (real-time factor at most 0.8); among the models
+that pass, the largest difference between a sad and an anxious reading of the same sentence wins. Table~\ref{tab:tts} shows the result. Three
+other candidates could not be tested because the laptop was offline that day; they are untested, not rejected, and two others were excluded on
+licence grounds. The chosen model builds the voice from a description on every call, so the same speaker can drift: across eight neutral lines its
+median pitch spread over 6.7 semitones, against 2.1 for the light voice. Fixing the random seed for each session, and building the description
+once per reply, keeps one speaker.
+
+\begin{table}[t]
+\caption{Voice bake-off (idle graphics chip)}
+\label{tab:tts}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Model & First audio & RTF & Words & Emotion gap & Styled\\
+\midrule
+KittenTTS mini & 410\,ms & 0.08 & 1.00 & 0.67 & no\\
+Qwen3-TTS 1.7B VoiceDesign & 174\,ms & 0.57 & 1.00 & 3.92 & yes\\
+\bottomrule
+\end{tabular}
+\\[1mm]\raggedright\scriptsize RTF: real-time factor. Emotion gap: pitch and loudness distance between a sad and an anxious reading (a proxy, not a
+judgement of naturalness).
+\end{table}
+
+\subsection{The examination rules in detail}
+The rules map a doctor's words to ordered actions with details: \emph{hold out hands} (which hand, palms up or down), \emph{show forearms},
+\emph{roll up sleeves}, \emph{look at the light}, \emph{follow my finger}, \emph{open mouth}, \emph{stick out tongue}, \emph{stand up},
+\emph{sit down}, \emph{walk a few steps} and \emph{relax}. If a detail is missing the patient asks (``Which hand?'') and the doctor's next line
+completes the action. The test set of 385 sentences was written before the rules and includes 56 sentences that only look like requests (``walk
+me through what happened'', ``stand up for yourself''). Matching takes 0.01\,ms. Table~\ref{tab:cam} shows the camera shot used for each action.
+
+\begin{table}[t]
+\caption{Camera shots}
+\label{tab:cam}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}lY@{}}
+\toprule
+Shot & Setting\\
+\midrule
+Doctor's view (default) & Seated eye height 1.2\,m, about 1.5\,m from the patient, 30$^\circ$ field of view: head to waist, face about 200
+pixels tall at 1080p; follows the patient's head; the student can look around within limits\\
+Lean in & Scroll: 0.25\,m closer over 0.4\,s, 26$^\circ$\\
+Hands & Centre of the hands, 0.85\,m, 32$^\circ$\\
+Forearms & Centre of the forearms, 0.9\,m, 34$^\circ$\\
+Eyes & Between the eyes, 0.45\,m, 22$^\circ$\\
+Face and tongue & Jaw and head, 0.5\,m, 24$^\circ$\\
+Whole body & From the doctor's seat, 70$^\circ$ (the room is only about 1.1\,m deep)\\
+\bottomrule
+\end{tabularx}
+\\[1mm]\raggedright\scriptsize Shots blend over 0.6\,s; a close-up starts only if its action is still running after 0.3\,s, so ``please have a seat''
+to a seated patient never cuts.
+\end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_camera_grid.pdf}
+\caption{Camera shots for the doctor's view and the examination close-ups. Stills from the October 2026 build, before the doctor's view was
+narrowed to a 30$^\circ$ field of view in v0.3 (Fig.~\ref{fig:stills} shows the current view).}
+\label{fig:camgrid}
+\end{figure*}
+
+Fig.~\ref{fig:camgrid} shows the shots.
+
+\subsection{Lighting}
+The room is lit like a bright, warm consulting room: daylight through a window (5,000\,K key light from the doctor's side), a warm ceiling lamp
+(3,200\,K, baked), a soft rim light to separate the patient from the wall, and, new in this version, a small face light that touches only the
+patient. Indirect light is baked once (two bounces), so only three lights are computed live and only the key light casts live shadows. One
+mistake is worth passing on: setting a light's colour from a colour-temperature conversion that returns linear values made 3,200\,K look like
+about 2,000\,K, far too orange; the engine's own colour-temperature mode is correct.
+
 \subsection{How the patient looks}
 Before the rendering pass, the doctor's camera showed a wide shot with the face only about 67 pixels wide, the faces were darker than the room,
 and every patient sat turned away (their seat faced about 156 degrees from the doctor). Now the seat faces the doctor at 110 degrees, the camera
@@ -376,6 +548,13 @@ this as an ``early turn end'' and carries on.
 \item \textbf{The voice changed speaker mid-reply}, because the voice description changed between sentences.
 \end{itemize}
 
+\subsection{Software quality}
+The patient service has 244 automated tests, including one for each defect found by the independent safety review; the Unity client has 55
+editor tests. Four architecture decisions are recorded with their reasons and
+the options rejected: the Digital Twin's split between code and model, turn detection (Smart Turn adopted, a larger voice-agent framework not),
+the product name, and the learning loop. Every brain version can be rolled back with one command, and the old brain's tests still pass when it is
+live.
+
 \section{Discussion and Limitations}
 The main trade-off is between deciding more in code and starting to speak sooner. Each check is cheap, but holding a whole reply back on a risk
 turn (so a denial can be replaced) and the longer prompt both cost time. A median of 1.8\,s is close to the thoughtful pause of a low-mood
@@ -389,6 +568,13 @@ the body reads the same decision as the voice. Each of these choices made a clas
 \section*{Ethics}
 No human participants or real patient data were involved. Voices are designed from written descriptions, not copied from real people. All clinical
 content is draft until faculty review it.
+
+\appendices
+\section{System requirements and set-up}
+Measured on an Apple M5 Pro with 24\,GB of memory; the voice model alone peaked at 8.1\,GB in the bake-off, so a machine with less
+memory may not fit the expressive voice alongside the language model. The model server (llama.cpp with Metal) runs with flash attention,
+all layers on the graphics chip and two parallel slots. Benchmarks use \texttt{tools/latency/ws\_bench.py}, which plays synthesised Indian-English doctor lines
+into the real session connection as 32\,ms frames and never uses the microphone; results in this paper come from the service's own timing log.
 
 \bibliographystyle{IEEEtran}
 \bibliography{../shared/refs}

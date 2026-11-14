@@ -1,13 +1,13 @@
-\documentclass[conference]{IEEEtran}
+\documentclass[journal]{IEEEtran}
 \input{../shared/style}
 
 \begin{document}
 
 \title{Decide, Then Voice: A Code-Governed Digital Twin for Simulated Psychiatric Patients, with Three-Seed Held-Out Validation}
 
-\author{\IEEEauthorblockN{Faaz Khan Mohammad}
-\IEEEauthorblockA{Rapport project\\
-Email: faazkhn1000@gmail.com}}
+\author{Faaz~Khan~Mohammad%
+\thanks{F. K. Mohammad is with the Rapport project (e-mail: faazkhn1000@gmail.com).}}
+\markboth{Preprint, November 2026}{Mohammad: Digital Twin of a Psychiatric Patient}
 
 \maketitle
 
@@ -22,8 +22,8 @@ high enough. A memory of the conversation and a mental-status profile keep the p
 checked by code before it is spoken. We tested the new version (v2) against the previous one (v0) on 14 scripted conversations, each run
 with three random seeds and marked by a different LLM. v2 passed every safety check: no jailbreaks, no portrayal errors, suicidal thoughts
 disclosed whenever they were unlocked and asked about kindly, and no locked memory leaked after an independent review fixed ten defects.
-It also behaved much more like a varied person (the two most common behaviours covered 72\% of turns instead of 86\% for depression, and
-63\% instead of 81\% for alcohol withdrawal). Its overall accuracy score stayed the same (0.947 vs 0.953; 0.875 vs 0.878). Recall of
+Its behaviour changed more with the kind of doctor it faced (across all turns, the two most common behaviours covered 72\% instead of
+86\% for depression, and 63\% instead of 81\% for alcohol withdrawal), although a single conversation was no more varied than before. Its overall accuracy score stayed the same (0.947 vs 0.953; 0.875 vs 0.878). Recall of
 suicide-related questions asked in new words rose from 35.1\% to 72.7\% but missed its 95\% target, and an angry patient did not stay angry
 for long. We report these shortfalls alongside the gains.
 \end{abstract}
@@ -43,9 +43,10 @@ Large language models can play a patient, and many research systems now do
 found that AI virtual patients help psychiatric interview training \cite{kilincel2026meta}. But three problems keep appearing when the
 model is trusted with the patient's mind:
 \begin{itemize}
-\item \textbf{It makes things up.} Models invent symptoms or history to please the interviewer, more so when the case is thin \cite{lai2025patientzero}.
-\item \textbf{It is too nice.} Small, safety-tuned models soften hostility into apology, and patients agree too easily
-\cite{steenstra2025scaffolding,bodonhelyi2025modeling}.
+\item \textbf{It makes things up.} Models invent symptoms or history to please the interviewer, more so under strong style cues \cite{chen2023llmempowered}; checking
+replies against single case facts reduces it \cite{lai2025patientzero}.
+\item \textbf{It is too nice.} Simulated patients agree too easily unless resistance is designed in \cite{steenstra2025scaffolding,lee2025psyche}, and in our
+own tests the small model softened hostility into apology.
 \item \textbf{It is unpredictable on the things that matter most}, such as whether a patient admits suicidal thoughts.
 \end{itemize}
 
@@ -98,8 +99,48 @@ and prompt optimisers such as GEPA \cite{agrawal2025gepa} and DSPy \cite{khattab
 patient says against small, single facts from the case \cite{lai2025patientzero}; TalkDep grounds depression personas clinically
 \cite{wang2025talkdep}. Marking by LLM judges is cheap but biased, for example towards the judge's own model \cite{zheng2023judging,zhou2025personaeval}.
 Our model shares trust-locked memory and resistance with PatientAct \cite{sabour2026patientact}; the difference is that we keep the
-\emph{decision} itself, not only the facts, outside the language model. The Twin borrows ideas such as ``trust changes when expectations are
-not met'' from the computational programme of the Brain/MINDS Digital Brain project \cite{brainminds}, but it is not a simulation of the brain.
+\emph{decision} itself, not only the facts, outside the language model. The Brain/MINDS Digital Brain project builds mathematical models of the
+brain from anatomical and physiological data \cite{brainminds}; the Twin is not such a model, and borrows only the general idea, common in
+computational neuroscience, that responses change when expectations are not met.
+
+\textbf{How well can a language model hold a persona?} Studies of persona prompting point the same way. Prompted Big Five personalities
+show up in large models \cite{jiang2024personallm,serapio2023personality}, but self-report tests of a model's personality are unreliable: three
+equivalent prompts give significantly different scores \cite{gupta2023selfassessment}, re-ordering the questions alone moves scores by about a
+fifth of the scale, and a long conversation history makes small models \emph{less} stable \cite{tosato2025persist}. Instructions drift within
+about eight rounds of dialogue \cite{li2024instruction}; persona variables explain under 10\% of the variance in human annotations, which limits how far a persona prompt can steer a
+simulation \cite{hu2024persona}; model size does not predict persona adherence \cite{samuel2025personagym}; and some traits, such as high psychopathy or low
+conscientiousness, are hard to elicit by prompting at all \cite{lee2025trait}. Multi-turn reinforcement learning improves consistency
+\cite{abdulhai2025consistent}, and interviews, not questionnaires, are the better way to test a role-playing agent \cite{wang2023incharacter}. For a
+4-billion-parameter patient model, the lesson we drew is that personality and resistance must be held in code, and the model given one style
+label and a few example lines, not a list of trait scores.
+
+\textbf{How the design was chosen.} Before building v2 we read 83 papers on simulated patients, patient agents, learning simulators and
+evaluation (37 in full, 35 as abstracts; 11 could not be reached) and recorded for each one what it could change in the Twin. Five points were
+shared by most of them, and each became a design rule (Table~\ref{tab:lit}).
+
+\begin{table}[t]
+\caption{What the literature agreed on, and the rule we took from it}
+\label{tab:lit}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}YY@{}}
+\toprule
+Finding (sources) & Rule in the Twin\\
+\midrule
+Models invent details to please the interviewer, more so under strong style cues \cite{chen2023llmempowered}; checking against single facts reduces it \cite{lai2025patientzero} & Facts, state and locks
+live in code; every sentence is checked against the case\\
+Multi-agent designs (about six calls per turn) are too slow for live voice \cite{sabour2026patientact,yu2024simulated,park2023generative} &
+One model call per live turn; reflection and optimisation run offline\\
+Simulated patients are too agreeable unless resistance is designed in; fully rigid resistance reads as unreal \cite{steenstra2025scaffolding,lee2025psyche,bodonhelyi2025modeling} &
+Resistance levels 0--3 set by code, with explicit softening rules\\
+Learners rated feedback above the avatar \cite{haut2025ai}; learners found rubric feedback actionable \cite{hicke2025medsimai}; structured feedback improved clinical decisions in a
+small trial \cite{brugge2024llm} & A debrief built from what the patient
+actually showed and said\\
+LLM judges are weak evidence on their own \cite{zheng2023judging,zhou2025personaeval} & A judge from another model family, every flag checked
+by hand, and code checks as gates\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{The Digital Twin}\label{sec:model}
 
@@ -332,6 +373,71 @@ ashamed, anxious, neutral, confused; intensity capped at 7 of 10. Code enforces 
 if the doctor makes three hurtful moves within six turns while trust is 15 or lower, or agitation reaches 90, the patient ends the interview:
 they say so in a few words and stand up to leave.
 
+\subsection{What the language model actually sees}
+The prompt is split so that most of it can be reused from one turn to the next. A \emph{fixed part} is the same on every turn of a session, so
+the model server keeps it in its cache and does not have to read it again. A short \emph{per-turn part} changes every turn
+(Table~\ref{tab:prompt}). The part known before the doctor speaks is placed in front of the doctor's words and pre-read while the doctor is still
+talking; this alone cut the time to the first word by 100--140\,ms.
+
+\begin{table}[t]
+\caption{The prompt, in order}
+\label{tab:prompt}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}lY@{}}
+\toprule
+Part & Content\\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Fixed for the session (cached)}}\\
+Role & ``You write the next line of [name], a patient, in a medical training simulation set in India'', age, sex, setting\\
+Case & Referral note, background, personality, way of speaking, conversation style with example lines, core belief, attachment style\\
+Presentation & How the patient presents, shown and never named; the mental-status profile (v2)\\
+Rules & Realism rules, faculty principles, words never to say, hard rules (stay in character, never invent clinical facts; improvise only
+everyday details in v2)\\
+Menu & Every reaction, behaviour and resistance label with a one-line description\\
+Output & The reply fields in order, with what each means\\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Changes every turn}}\\
+Before the doctor's words & Current state and mood, a style reminder, the patient's recent lines (to avoid repeats), the conversation memory (v2)\\
+Doctor's words & The latest line only; earlier turns are in the chat history\\
+After & Facts that may be shared now, discomfort notes for locked ones, exam requests, and the decision (allowed behaviours, must-disclose)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The model must answer with a JSON object whose shape is fixed by a schema, and the server forces the output to match it, so an answer can never
+be malformed (Table~\ref{tab:schema}). The schema is rebuilt each turn: its list of allowed behaviours \emph{is} the decision, so the model
+physically cannot choose a behaviour that code did not allow. Fields are written in order, ``decide first, then speak'': behaviour and emotion
+come before the words.
+
+\begin{table}[t]
+\caption{The reply the model must return}
+\label{tab:schema}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}lY@{}}
+\toprule
+Field & Allowed values\\
+\midrule
+behaviour & One of the behaviours code allowed this turn\\
+emotion & One of the case's allowed emotions\\
+utterance & Free text (then checked sentence by sentence)\\
+reaction, intensity & One of the allowed reactions; 0 to the case's cap\\
+resistance & One of the allowed resistance labels\\
+state\_delta & Trust, distress, agitation, engagement: whole numbers $-10$ to $10$ (then clamped by code)\\
+event\_cues & At most two physical cues from the case's list\\
+revealed\_fact\_ids & At most three, and only facts open this turn\\
+exam\_action & Always empty (code handles examinations)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Versions and rollback.} Every change to the Twin is a numbered brain version: a small file listing which features are on, plus any
+learned examples or principles. One file names the live version, and switching back is one command. The code for every feature stays in place;
+a version only turns features on or off, so an old version behaves exactly as it did. v0 has no features on; v2 turns on six: meaning-based
+recall, the decision rubric, conversation memory, sentence checks, the mental-status profile and everyday improvisation. Learning (offline
+examples and principles) may change how the patient speaks but never the case file, so clinical truth cannot drift.
+
 \section{Worked Examples}
 Table~\ref{tab:example} follows two real held-out conversations from the depression case (seed 11), with v2. In the judgmental one, each
 judgement pushes resistance up and trust down until the patient asks, ``Why are you asking me that?''. In the kind one, empathy raises trust
@@ -413,13 +519,23 @@ and asked to go home again, in a loop. (3) An independent reviewer (an AI agent 
 probing the code: locked memories stay private; suicide risk is handled correctly; clinical facts never change; one model call per turn;
 learner data only with consent; nothing clinical is made up; and data sent by the client cannot be trusted.
 
+\textbf{Statistics.} We report two kinds of numbers. \emph{Pooled} numbers count all turns of all runs together (for example the share of
+all turns using the two most common behaviours). \emph{Per-conversation} numbers are computed for each run of each script, then averaged; for
+these we give 95\% confidence intervals by bootstrap (4,000 resamples of conversations). To compare v2 with v0 we pair runs of the same
+script with the same seed and bootstrap the mean difference. With 36 depression runs and 6 alcohol runs per version, the study can show large
+effects but not small ones; a difference whose interval includes zero is reported as ``no detectable difference''.
+
+\textbf{Feature ablation.} To see what each part of v2 adds, we ran four more versions, each with one feature switched off: no decision rubric,
+no sentence checks, no conversation memory, and keyword-only recall. Each ran the twelve depression scripts with seeds 11 and 23, scored the same
+way.
+
 \section{Results}\label{sec:results}
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_heldout.pdf}
 \caption{Held-out scores, v0 against v2 (bars: average of three seeds; dots: each seed). Accuracy (composite) is unchanged; resistance fits
-the situation slightly better, and behaviour is clearly more varied in v2.}
+the situation slightly better, and v2 spreads its behaviour over more kinds across conversations.}
 \label{fig:heldout}
 \end{figure*}
 
@@ -495,6 +611,125 @@ five turns; a judgmental doctor drives trust to zero in four.
 \label{fig:trust}
 \end{figure}
 
+\textbf{Confidence intervals.} Table~\ref{tab:ci} gives the per-conversation numbers with 95\% intervals. Per-conversation accuracy is
+the same for both versions (the paired difference is $+0.003$ for depression, interval $-0.010$ to $+0.017$). Per-conversation composites are
+higher than the pooled ones above because each run counts equally, whatever its length. Replies were slightly longer in v2 and repeated a
+three-word phrase from earlier in the conversation about as often.
+
+\begin{table}[t]
+\caption{Per-conversation results with 95\% bootstrap intervals}
+\label{tab:ci}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}lYY@{}}
+\toprule
+Measure & v0 & v2\\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Depression, 36 runs per version}}\\
+Composite & 0.967 [0.954, 0.979] & 0.970 [0.956, 0.982]\\
+Top-2 share in a conversation & 0.921 [0.884, 0.954] & 0.906 [0.870, 0.942]\\
+Turns repeating a phrase & 0.105 [0.065, 0.148] & 0.116 [0.071, 0.165]\\
+Words per reply & 9.3 [8.3, 10.4] & 10.1 [8.9, 11.3]\\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Alcohol withdrawal, 6 runs per version}}\\
+Composite & 0.864 [0.825, 0.902] & 0.871 [0.848, 0.893]\\
+Top-2 share in a conversation & 0.808 [0.667, 0.934] & 0.878 [0.848, 0.908]\\
+Turns repeating a phrase & 0.118 [0.039, 0.194] & 0.145 [0.081, 0.194]\\
+Words per reply & 13.7 [11.7, 15.7] & 13.4 [9.2, 17.8]\\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Paired difference, v2 $-$ v0}}\\
+Composite, depression / alcohol & \multicolumn{2}{l}{$+0.003$ [$-0.010$, $0.017$] / $+0.006$ [$-0.019$, $0.038$]}\\
+Top-2 share, depression / alcohol & \multicolumn{2}{l}{$-0.015$ [$-0.068$, $0.042$] / $+0.071$ [$-0.026$, $0.194$]}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Where the variety comes from.} The pooled top-2 share fell from 0.86 to 0.72, but \emph{within} a single conversation there is no
+detectable difference (Table~\ref{tab:ci}). Both versions use two or three behaviours per conversation. The difference is \emph{which} ones:
+v0 used much the same pair everywhere, while v2 chooses different behaviours for different doctors. Against the good interviewer v2 used 4.7
+behaviours on average (v0: 2.7); against the judgmental doctor it was hostile, short or deflecting; against the off-topic doctor it mostly
+answered plainly. So the gain is that behaviour now \emph{fits the situation}, not that a single conversation is more varied. This is the
+pattern the decision layer was designed to produce, and it is also visible in the resistance levels (Table~\ref{tab:decide}).
+
+\begin{table}[t]
+\caption{What the decision layer did on 351 held-out v2 turns}
+\label{tab:decide}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}Yccccc@{}}
+\toprule
+\multicolumn{6}{@{}l}{\emph{Resistance level chosen, by kind of doctor (turns)}}\\
+Kind of doctor & 0 & 1 & 2 & 3 & Turns\\
+\midrule
+Good interview & 90 & 12 & 0 & 0 & 102\\
+Kind risk assessment & 18 & 0 & 0 & 0 & 18\\
+Long (25 turns), consistency & 51 & 24 & 0 & 0 & 75\\
+Rushed, closed questions & 9 & 3 & 3 & 9 & 24\\
+Judgmental & 3 & 0 & 6 & 24 & 33\\
+Jailbreak attempt & 6 & 6 & 3 & 6 & 21\\
+Abusive & 6 & 0 & 6 & 0 & 12\\
+Off-topic, probing, exam, risk never asked & 66 & 0 & 0 & 0 & 66\\
+\midrule
+\multicolumn{6}{@{}l}{\emph{Doctor moves read by code (a turn can have several)}}\\
+\multicolumn{6}{@{}p{0.95\columnwidth}@{}}{closed question 195; open question 99; repeated question 91; risk question 42; empathy 30; greeting
+24; judgement 24; rushed 18; stacked questions 12; explains why 9; off topic 9; jailbreak 9; asks if it is an AI 6; apology 3; abuse 3;
+offers a choice 3}\\
+\midrule
+\multicolumn{6}{@{}l}{\emph{Other decisions}}\\
+\multicolumn{5}{@{}l}{Turns where disclosure was required} & 39\\
+\multicolumn{5}{@{}l}{Model chose the first allowed behaviour} & 63.5\%\\
+\multicolumn{5}{@{}l}{Turns repaired by a sentence check} & 18\\
+\multicolumn{5}{@{}l}{\quad flat denial on a locked topic / repeat / denied open risk} & 8 / 6 / 4\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Inside the decision layer.} Table~\ref{tab:decide} shows what code decided on every held-out v2 turn. With a good or kind doctor the
+patient stayed at resistance 0 or 1; with a judgmental doctor it was at level 3 for 24 of 33 turns. Most doctor turns were questions, and 91
+repeated an earlier question, which is why ``repeated question'' (a small trust cost) matters. On 39 turns code required the patient to disclose
+an open risk fact. Given a shortlist, the model took the first behaviour on 63.5\% of turns, so it used the choice it was given rather than always
+taking the top option. The sentence checks changed 18 of 351 turns (5.1\%).
+
+\begin{table*}[t]
+\caption{Each held-out conversation, average of three seeds (v0 / v2)}
+\label{tab:perconv}
+\centering
+\scriptsize
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+Case & Conversation & Final trust & Facts revealed & Behaviours used & Words per reply\\
+\midrule
+Depression & Good interview, female patient & 84.0 / 79.7 & 10.0 / 9.0 & 2.7 / 4.7 & 12.8 / 13.4\\
+Depression & Good interview, male patient & 67.0 / 68.7 & 8.3 / 8.0 & 2.3 / 2.3 & 12.6 / 13.0\\
+Depression & Rushed, closed questions & 32.7 / 22.7 & 5.0 / 3.7 & 2.0 / 3.0 & 9.5 / 6.6\\
+Depression & Judgmental & 0 / 0 & 1.0 / 1.0 & 2.7 / 3.0 & 7.9 / 8.0\\
+Depression & Off-topic & 37.3 / 49.0 & 1.0 / 2.0 & 3.0 / 1.3 & 8.0 / 10.2\\
+Depression & Probing beyond the case & 63.7 / 72.7 & 2.7 / 3.7 & 2.3 / 1.0 & 8.2 / 11.5\\
+Depression & Jailbreak attempt & 10.0 / 0.7 & 2.0 / 1.3 & 1.3 / 3.7 & 6.3 / 7.1\\
+Depression & Abusive & 3.0 / 9.0 & 1.0 / 1.0 & 1.0 / 2.0 & 6.5 / 8.0\\
+Depression & Kind risk assessment & 82.3 / 90.0 & 6.0 / 5.7 & 2.7 / 2.0 & 11.2 / 13.5\\
+Depression & Risk never asked & 80.3 / 90.3 & 4.7 / 4.0 & 3.0 / 1.3 & 12.7 / 15.0\\
+Depression & Examination requests & 20.3 / 27.0 & 0 / 0 & 2.0 / 2.0 & 2.8 / 2.7\\
+Depression & Long (25 turns) & 95.0 / 99.3 & 17.0 / 16.0 & 4.0 / 5.0 & 13.5 / 12.7\\
+Alcohol & Good interview & 69.7 / 84.7 & 9.7 / 10.0 & 2.7 / 3.0 & 16.0 / 18.9\\
+Alcohol & Judgmental & 0 / 0 & 2.0 / 1.3 & 4.0 / 3.0 & 11.4 / 7.8\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_trust_grid.pdf}
+\caption{Trust over every depression conversation (seed 11), v0 in grey and v2 in blue. The dotted line is the trust needed before the death wish
+can be shared (55).}
+\label{fig:trustgrid}
+\end{figure*}
+
+\textbf{Conversation by conversation.} Table~\ref{tab:perconv} and Fig.~\ref{fig:trustgrid} show every script. With good, kind or long
+interviews, trust in v2 ended as high or higher than in v0, and the same facts came out. With hostile doctors (judgmental, jailbreak) trust fell
+to zero or near it in both. Rushed, closed questioning cost v2 more trust than v0 (22.7 vs 32.7), because code reads each rushed or stacked
+question as a small hurt; that matches how a real patient responds to being hurried. The examination script reveals no facts by design.
+
 \textbf{What the independent safety review found.} Table~\ref{tab:review} lists the ten defects it reported in the first version of v2; nine
 were reproduced with test scripts. All ten were fixed, re-checked with the reviewer's own scripts and turned into automated tests before the
 results above were measured. Separately, an earlier overnight run had shown the patient mentioning the death wish without being asked, three
@@ -525,6 +760,30 @@ mention of the death wish in code.
 \end{tabularx}
 \end{table}
 
+\begin{table}[t]
+\caption{Effect of the safety-review fixes (v2, depression, 294 turns)}
+\label{tab:fixes}
+\centering
+\footnotesize
+\begin{tabular}{@{}lcc@{}}
+\toprule
+& Before fixes & After fixes\\
+\midrule
+Composite & 0.937 & 0.947\\
+Portrayal failures & 3 & 0\\
+Jailbreak failures & 0 & 0\\
+Made-up fact flags (before hand check) & 9 & 8\\
+Suicidal thoughts not disclosed when due & 0 & 0\\
+Top-2 share (pooled) & 0.707 & 0.721\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Effect of the fixes.} Table~\ref{tab:fixes} compares v2 as it first ran overnight with the final v2 on the same scripts and seeds. The
+three portrayal failures were the unasked mentions of the death wish; after the fixes there were none, and accuracy rose slightly.
+
+%ABLATION%
+
 \textbf{Shortfalls.} The upset style was in character on half of the turns after turn 10 (v0: 56\%). Neither version apologised, but both
 slid from defensive to playing things down, because the softening rules let a consistently kind doctor lower resistance. Recall of risk
 questions asked in new words reached 72.7\% while wrongly matching 15.2\% of non-risk questions (see the companion recall paper). The median
@@ -533,7 +792,7 @@ the rest is not yet traced.
 
 \section{Discussion}\label{sec:disc}
 \textbf{What worked.} Moving the decision into code made the patient's behaviour something we can read, test and argue about. Safety rules
-became automatic gates, and an independent reviewer could try to break them, and did. The patient also behaves more like a varied person.
+became automatic gates, and an independent reviewer could try to break them, and did. The patient's behaviour now changes with the kind of doctor it faces, while each single conversation stays as focused as before.
 
 \textbf{What did not.} The composite did not rise. It measures accuracy, not realism, and v0 was already accurate. Whether the added variety
 feels more real is a question for clinicians; a blind A/B page with ten pairs of replies is ready but not yet rated. Two flaws are visible in
@@ -543,6 +802,12 @@ flat ``No'' on locked topics also fired for an accusation about a non-risk topic
 \textbf{Limits of this study.} The test conversations were written by the developer. The judge is an LLM and its flags were checked by the
 developer, not by faculty. All clinical content (cases, mental-status profiles, disclosure lines and the rubric's numbers) is a draft that
 psychiatrists still need to review. Only two cases were tested, in one language variety. No students or teachers have used this version yet.
+
+\textbf{Threats to validity.} \emph{Construct:} the composite measures accuracy against the case, not realism, and the variety measures
+count labels, not how a reply feels. \emph{Internal:} the judge model and the patient model ran on the same laptop; runs were made one at a
+time after we found that sharing the patient's model server between jobs mixed up their conversations. The overnight and final runs used the
+same scripts and seeds, so the fix comparison is paired. \emph{External:} two cases, scripted doctors, one variety of English, one machine.
+\emph{Statistical:} 36 and 6 runs per version detect large differences only; the alcohol intervals in particular are wide.
 
 \textbf{Next steps.} Have faculty rate the A/B pairs and review the flags; learn the move rules from labelled examples instead of word patterns;
 give the softening rules a minimum hold time for upset patients; and build a small hand-checked label set to raise memory recall.
@@ -555,6 +820,21 @@ an angry patient angry, become measurable targets instead of impressions.
 \section*{Ethics}
 No human participants or real patient data were involved. All clinical content is labelled as draft until faculty review it. Everything runs on
 one device; no conversation data leaves it.
+
+\appendices
+\section{Reproducing the results}
+\textbf{Hardware and models.} Apple M5 Pro, 24\,GB memory. Patient: Gemma 4 E4B, 4-bit (Q4\_K\_M), llama.cpp server with Metal, flash
+attention, all layers on the graphics chip, two parallel slots. Judge: Qwen3.5-9B on a second server. Recall: bge-small-en-v1.5, ONNX, on the
+processor.
+
+\textbf{Steps.} (1) Start the two model servers. (2) For each version $v\in\{\text{v0},\text{v2}\}$, case and seed, run
+\texttt{tools/learning/loop.py heldout $v$ --case $c$ --seeds 11,23,42} with the judge URL. (3) Run \texttt{papers/analysis/analyses.py} to
+compute the pooled and per-conversation numbers, intervals and decision counts, and \texttt{papers/figures/make\_figures.py} to draw the
+figures. The held-out scripts, the case files, the brain-version files and every reply with its judge marks are kept in the repository, so
+each number in this paper can be traced to the replies behind it.
+
+\textbf{Tests.} 244 automated tests cover the service, including one for each of the ten review defects; switching the live version back to v0
+passes the old brain's tests unchanged.
 
 \bibliographystyle{IEEEtran}
 \bibliography{../shared/refs}

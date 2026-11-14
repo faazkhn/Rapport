@@ -1,13 +1,13 @@
-\documentclass[conference]{IEEEtran}
+\documentclass[journal]{IEEEtran}
 \input{../shared/style}
 
 \begin{document}
 
 \title{Rapport: An Embodied, On-Device Psychiatric Standardised Patient Driven by a Research-Grounded Digital Twin}
 
-\author{\IEEEauthorblockN{Faaz Khan Mohammad}
-\IEEEauthorblockA{Rapport project\\
-Email: faazkhn1000@gmail.com}}
+\author{Faaz~Khan~Mohammad%
+\thanks{F. K. Mohammad is with the Rapport project (e-mail: faazkhn1000@gmail.com).}}
+\markboth{Preprint, November 2026}{Mohammad: Rapport: An Embodied Psychiatric Standardised Patient}
 
 \maketitle
 
@@ -23,8 +23,8 @@ Requests for a physical examination (``hold out your hands'') are recognised by 
 an examiner can watch the Twin's state live. Four draft stations (moderate depression, two ward scenarios and alcohol withdrawal) run on four patient
 bodies, with patients that vary by seed and six conversation styles. On an Apple M5 Pro laptop the patient starts speaking a median 1.82\,s after the
 student stops. In 14 held-out conversations, each run three times and marked by a different AI model and then by hand, the Twin had no jailbreak or
-portrayal failures, disclosed suicidal thoughts every time they were unlocked and asked about kindly, and behaved more like a varied person than its
-previous version, with equal accuracy. The debrief scores the student on what the patient actually showed and said. Ratings by psychiatry faculty
+portrayal failures, disclosed suicidal thoughts every time they were unlocked and asked about kindly, and matched its behaviour to the kind of doctor
+it faced more than its previous version did, with equal accuracy. The debrief scores the student on what the patient actually showed and said. Ratings by psychiatry faculty
 and a student pilot are still to come.
 \end{abstract}
 
@@ -66,13 +66,60 @@ PatientHub collects many simulators \cite{sabour2026patienthub}; Roleplay-doh le
 \cite{louie2024roleplaydoh}. \textbf{Patients that learn.} EvoPatient improves patients through simulated doctor--patient practice and a checked
 library of past replies \cite{du2024llms}; MedAgentSim and Agent Hospital evolve agents in simulated clinics \cite{almansoori2025selfevolving,li2024agent}.
 \textbf{Patients with bodies and voices.} Design guidelines for psychiatric virtual patients predate language models \cite{dupuy2020guidelines};
-recent language-model 3D patients include Voigt et al.\ \cite{voigt2025llmpowered} and SOPHIE \cite{haut2025ai}; SimPatient and MedSimAI add feedback
+recent language-model patients that act beyond text or appear as a lifelike avatar include Voigt et al.\ \cite{voigt2025llmpowered} and
+SOPHIE \cite{haut2025ai}; SimPatient and MedSimAI add feedback
 on the student's performance \cite{steenstra2025scaffolding,hicke2025medsimai}. \textbf{Does it help?} A randomised trial found that patient simulation
 with structured feedback improved students' clinical decisions \cite{brugge2024llm}; AI scoring of OSCE interview transcripts agrees with experts
 within one point 67--87\% of the time \cite{geathers2025benchmarking}; a 2026 meta-analysis supports AI virtual patients for psychiatric interview training
 \cite{kilincel2026meta}. AI judges are cheap but biased \cite{zheng2023judging}. \textbf{Digital brains.} The Brain/MINDS Digital Brain programme
-\cite{brainminds} builds data-driven models of the brain; the Twin is not a brain model and only borrows its ideas as behaviour rules (for example, trust
-changes when expectations are not met).
+builds mathematical models of the brain from anatomical and physiological data \cite{brainminds}; the Twin is not a brain model, and borrows
+only the general idea that responses change when expectations are not met.
+
+\section{How the Design Was Grounded in Evidence}
+\textbf{Review method.} Before and during building, we reviewed 83 papers on simulated patients, patient agents, learning simulators, persona
+fidelity and the evaluation of clinical interviews. 37 were read in full, 35 as abstracts, and 11 could not be reached (publisher paywall or not
+found); none of the unreachable ones shaped a decision. For each paper we recorded what it could change in Rapport and gave a verdict: adopt
+(1), adapt the idea (21), idea only (38) or skip (23). Code was reused only under permissive licences (MIT, Apache, BSD); papers whose code is
+AGPL, non-commercial or unlicensed contributed ideas only. A second review covered personality, randomised patients and ward scenarios, and a
+third covered how to assess the learner.
+
+\textbf{What we took, and what we rejected.} Table~\ref{tab:built} lists the main design choices with the evidence behind each. Three ideas
+were deliberately rejected: multi-agent pipelines with several model calls per turn (too slow for spoken conversation), fine-tuning on real or
+expert dialogues (out of scope, and no consented real data exists), and reuse of code under restrictive licences.
+
+\begin{table}[t]
+\caption{Design choices and the evidence behind them}
+\label{tab:built}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}YY@{}}
+\toprule
+Evidence & What Rapport does\\
+\midrule
+Memories with trust levels, reactions and resistance labels \cite{sabour2026patientact} & Trust-locked memories; a locked memory gives
+only a discomfort signal\\
+``Feel first, speak second'' \cite{sabour2026patientact} & Behaviour and emotion are chosen before the words\\
+Patients too agreeable unless resistance is designed \cite{steenstra2025scaffolding,lee2025psyche}; too rigid is unreal
+\cite{bodonhelyi2025modeling} & Resistance 0--3 in code with softening rules\\
+Mental Status Exam constructs and failure modes \cite{lee2025psyche} & A mental-status profile per case, enforced by code\\
+Six conversation styles \cite{wang2024patient} & Seeded patients with one style per session\\
+Check replies against single facts \cite{lai2025patientzero} & Every sentence checked against the case before it is spoken\\
+Readable, slightly exaggerated cues from a fixed map; free-written cues get repetitive \cite{haut2025ai,bodonhelyi2025modeling} & A fixed
+emotion-to-body map\\
+Learn offline, keep a change only if a replay shows it helps \cite{du2024llms,li2024agent,agrawal2025gepa} & Versioned learning loop with gates
+and rollback\\
+Expert-written principles reduce awkward replies \cite{louie2024roleplaydoh} & Case-level principles in the prompt\\
+Quote-based rubric feedback \cite{hicke2025medsimai} & Debrief comments quote the student's own lines\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Personality: vary the person, not the answer.} Persona prompting is fragile in small models: self-report personality scores shift with
+question order and conversation history \cite{tosato2025persist}, and instructions drift within about eight rounds \cite{li2024instruction}.
+So Rapport gives the model one conversation style with a few example lines, and holds the rest (trust steps, disclosure levels, length bands)
+in code. Synthetic-patient generators such as Synthea build the full history first and render it afterwards \cite{walonoski2018synthea}; human
+standardised-patient programmes likewise let several actors play one case while the case stays fixed. Rapport follows the same rule: a seed
+changes the everyday details and the style, never the answer key.
 
 \section{What a Student Experiences}
 
@@ -121,6 +168,35 @@ drinking and the fit; plan supervised withdrawal \cite{nice2010cg100}.\\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\begin{table}[t]
+\caption{The four case files at a glance}
+\label{tab:casestats}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+& Depression & Go home & Tablets & Alcohol\\
+\midrule
+Memories & 20 & 12 & 10 & 18\\
+\quad of which risk & 3 & 3 & 1 & 4\\
+Open at the start & 14 & 7 & 4 & 11\\
+Starting trust & 30 & 25 & 25 & 30\\
+Trust for risk memories & 55 & 40--55 & 30 & 35--45\\
+Visible cues & 8 & 5 & 4 & 5\\
+Ward or timed events & 1 & 6 & 4 & 1\\
+Topics expected & 15 & 10 & 10 & 14\\
+Rating scales & PHQ-9 & PHQ-9 & -- & AUDIT\\
+& GAD-7 & GAD-7 & & CIWA-Ar\\
+Time limit (min) & 15 & 10 & 10 & 15\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:casestats} compares the four cases. In the depression case, 14 of 20 memories are open from the start and the three risk memories
+need trust 55, so a student has to build rapport before the passive death wish can come out. In the alcohol case the past withdrawal fit opens
+at trust 35, because a patient will usually mention a fit if asked plainly, but missing it is a critical error.
 
 \section{System}
 \subsection{Overview}
@@ -178,11 +254,30 @@ language model and the voice share the graphics chip.
 A web page shows the Twin live: gauges for trust, distress, agitation and engagement, a mood plot, memories unlocking as trust rises, the formulation, and a
 one-line reason for each reply written by code. An examiner can watch it on a second laptop.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{../../docs/media/twin/twin3d_regions.jpg}
+\caption{The examiner view. The Twin's state (what the patient heard and said, reaction, resistance, behaviour, mood, arousal and
+body cues) is shown around a 3D brain as a display
+metaphor; the regions are labels for parts of the Twin, not a model of brain activity.}
+\label{fig:examiner}
+\end{figure}
+
+Fig.~\ref{fig:examiner} shows the examiner view.
+
 \subsection{Body and examination}
 Requests such as ``hold out your hands'' are recognised by rules, allowed or refused by trust and agitation, queued, held until ``relax'', and acted out
 with inverse kinematics: palms turn, sleeves roll up, held hands show a fine tremor (about 10\,Hz) or a coarse withdrawal tremor (5--6\,Hz), and sweat
 shows as a sheen. Between words the patient blinks, breathes, shifts in the chair and looks at or away from the doctor depending on trust; when the Twin
-decides an emotion, the body leans in (anger), fidgets (anxiety), slumps and looks down (sadness) or smiles (happiness) (Fig.~\ref{fig:bodies}).
+decides an emotion, the body leans in (anger), fidgets (anxiety), slumps and looks down (sadness) or smiles (happiness) (Fig.~\ref{fig:bodies}). Fig.~\ref{fig:hands} shows an examination request as the student sees it.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{../../docs/media/camera/camera_hands.jpg}
+\caption{``Hold out your hands, palms down'': the close-up camera, the patient's held hands, and the student's panel (push-to-talk, chat,
+MSE, diagnosis, prescription and disposition tabs).}
+\label{fig:hands}
+\end{figure}
 
 \begin{figure}[t]
 \centering
@@ -214,6 +309,39 @@ jargon and stacked questions.
 \end{itemize}
 The debrief ends with a global rating, the three most important things to try next time with words to use, and comments that quote the student's own
 lines. Optional AI examiner notes rate eight verbal items; every quote is checked against the transcript, and the notes never change the score.
+
+\begin{table}[t]
+\caption{Evidence behind the debrief}
+\label{tab:debriefev}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}YY@{}}
+\toprule
+Evidence & Change in Rapport\\
+\midrule
+NICE NG225: no risk tools or low/medium/high labels to predict suicide or decide care \cite{nice2022ng225} & Risk is a list of items assessed;
+no category is printed\\
+C-SSRS: wish to be dead, then active thoughts, method, intent, plan, behaviour \cite{posner2011cssrs} & Plan and means unlock after the death
+wish; partial credit when asked too early\\
+Safety planning: warning signs, coping, contacts, crisis lines, a safe environment \cite{stanley2012safety} & A safety plan is the required
+disposition when there are suicidal thoughts\\
+Indian depression guideline: assess ideation, plan, means, past attempts, protective factors; screen for bipolarity
+\cite{tripathi2026depression} & Answer key and teaching points of the depression case\\
+NICE CG100: admit for supervised withdrawal if there is a high risk of fits or delirium \cite{nice2010cg100} & Past withdrawal fit is a critical item;
+supervised withdrawal required\\
+LLM scoring of OSCE interviews agrees exactly with experts only 27--44\% of the time; non-verbal items unreliable \cite{geathers2025benchmarking}
+& AI examiner notes are verbal-only, quote-checked and never scored\\
+Learners rated feedback above the avatar \cite{haut2025ai}; structured feedback improved history taking \cite{brugge2024llm} & The debrief leads
+with three concrete changes and words to try\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Why the debrief looks the way it does.} Table~\ref{tab:debriefev} links each part of the debrief to its evidence. Two choices matter
+most. First, \emph{asking is not the same as finding out}: a risk question asked before the patient trusts the student gets a deflection, so it
+earns partial credit and the debrief says to come back to it, which teaches the real skill. Second, \emph{critical items can fail a candidate
+whatever the total}: a checklist total can hide a dangerous omission, so a missed risk item or a missed withdrawal fit is reported as a
+critical error next to the score, and the global rating sits beside the checklist rather than inside it.
 
 \section{Evaluation Design}
 \begin{table}[t]
@@ -269,8 +397,9 @@ the student talks over the patient, the patient stops within 47--63\,ms.
 \caption{Held-out results, previous Twin (v0) and current Twin (v2), three seeds}
 \label{tab:res}
 \centering
-\footnotesize
-\begin{tabular}{@{}lcc@{}}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{@{}Ycc@{}}
 \toprule
 & v0 & v2\\
 \midrule
@@ -281,11 +410,11 @@ Jailbreak / portrayal failures & 1 / 0 & 0 / 0\\
 Suicidal thoughts disclosed when unlocked, asked kindly & every run & every run\\
 Risk questions in new words found (test set) & 35.1\% & 72.7\%\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-\textbf{RQ2 and RQ4, staying true and safe.} Table~\ref{tab:res} compares the two Twins. The current Twin passed every safety check with the same accuracy
-and much more varied behaviour. Of 14 flags for made-up facts, 12 were false alarms and 2 were minor real issues. Earlier automated results still stand:
+\textbf{RQ2 and RQ4, staying true and safe.} Table~\ref{tab:res} compares the two Twins. The current Twin passed every safety check with the same accuracy,
+and chose different behaviours for different doctors (within one conversation it was no more varied). Of 14 flags for made-up facts, 12 were false alarms and 2 were minor real issues. Earlier automated results still stand:
 the previous Twin's tests showed 100\% valid output and no made-up facts after review (18 of 18 flags were false alarms); one character break (``Yes, I
 know'' to ``This is just a simulation, right?'') was found and fixed; a learned version was rejected because it denied suicidal thoughts at high trust,
 which was traced to a missing keyword; across four conversation styles the death wish was disclosed in 8 of 8 kind requests with no locked memory
@@ -337,6 +466,17 @@ Lip sync and skin, eye and hair shading & More lifelike face up close\\
 Rapport shows that a spoken, embodied psychiatric standardised patient can run privately on one laptop, with a patient mind whose decisions an examiner
 can see and a reviewer can test. Whether it is real enough, and useful enough, to teach with is the next question (Table~\ref{tab:next}), and it needs
 psychiatrists and students to answer it.
+
+\appendices
+\section{What a seed changes}
+A seed picks one option for each everyday ``slot'' in the case and one conversation style allowed by the case. For the depression case the slots
+include a hobby (for example Carnatic singing or badminton), a younger brother's name and a home town; every option is written by hand, so
+nothing clinical can change. The answer key, the memories' trust levels, the rating-scale scores and the risk items are the same for every seed.
+Assessment mode uses the authored style for every student so that marks are comparable; practice mode allows any style.
+
+\section{Reproducing the evaluation}
+All held-out scripts, case files, brain versions, judge marks and analysis scripts are in the repository. The companion papers give the commands
+for the held-out runs, the recall benchmark and the timing benchmark.
 
 \bibliographystyle{IEEEtran}
 \bibliography{../shared/refs}

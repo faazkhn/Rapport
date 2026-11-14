@@ -1,0 +1,17 @@
+{
+  "id": "v2nc",
+  "parent": "v2",
+  "created": "2026-11-14 17:42",
+  "realism_rules": null,
+  "examples_k": 0,
+  "notes": "ablation: v2 without consistency checks",
+  "features": [
+    "hybrid_recall",
+    "rubric",
+    "memory",
+    "mse",
+    "improvise"
+  ],
+  "status": "ablation",
+  "scores": {}
+}

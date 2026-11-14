@@ -1,0 +1,424 @@
+{
+ "reimers2019sentencebert": {
+  "status": "Exists",
+  "where": "arXiv:1908.10084",
+  "title_match": true,
+  "first_author": "Nils Reimers",
+  "year_source": "2019",
+  "year_bib": "2019"
+ },
+ "wang2020minilm": {
+  "status": "Exists",
+  "where": "arXiv:2002.10957",
+  "title_match": true,
+  "first_author": "Wenhui Wang",
+  "year_source": "2020",
+  "year_bib": "2020"
+ },
+ "park2023generative": {
+  "status": "Exists",
+  "where": "arXiv:2304.03442",
+  "title_match": true,
+  "first_author": "Joon Sung Park",
+  "year_source": "2023",
+  "year_bib": "2023"
+ },
+ "chen2023llmempowered": {
+  "status": "Exists",
+  "where": "arXiv:2305.13614",
+  "title_match": true,
+  "first_author": "Siyuan Chen",
+  "year_source": "2023",
+  "year_bib": "2023"
+ },
+ "zheng2023judging": {
+  "status": "Exists",
+  "where": "arXiv:2306.05685",
+  "title_match": true,
+  "first_author": "Lianmin Zheng",
+  "year_source": "2023",
+  "year_bib": "2023"
+ },
+ "xiao2023cpack": {
+  "status": "Exists",
+  "where": "arXiv:2309.07597",
+  "title_match": true,
+  "first_author": "Shitao Xiao",
+  "year_source": "2023",
+  "year_bib": "2023"
+ },
+ "khattab2023dspy": {
+  "status": "Exists",
+  "where": "arXiv:2310.03714",
+  "title_match": true,
+  "first_author": "Omar Khattab",
+  "year_source": "2023",
+  "year_bib": "2023"
+ },
+ "li2024agent": {
+  "status": "Exists",
+  "where": "arXiv:2405.02957",
+  "title_match": true,
+  "first_author": "Junkai Li",
+  "year_source": "2024",
+  "year_bib": "2024"
+ },
+ "wang2024patient": {
+  "status": "Exists",
+  "where": "arXiv:2405.19660",
+  "title_match": true,
+  "first_author": "Ruiyi Wang",
+  "year_source": "2024",
+  "year_bib": "2024"
+ },
+ "louie2024roleplaydoh": {
+  "status": "Exists",
+  "where": "arXiv:2407.00870",
+  "title_match": true,
+  "first_author": "Ryan Louie",
+  "year_source": "2024",
+  "year_bib": "2024"
+ },
+ "yu2024simulated": {
+  "status": "Exists",
+  "where": "arXiv:2409.18924",
+  "title_match": true,
+  "first_author": "Huizi Yu",
+  "year_source": "2024",
+  "year_bib": "2024"
+ },
+ "du2024llms": {
+  "status": "Exists",
+  "where": "arXiv:2412.11716",
+  "title_match": true,
+  "first_author": "Zhuoyun Du",
+  "year_source": "2024",
+  "year_bib": "2024"
+ },
+ "lee2025psyche": {
+  "status": "Exists",
+  "where": "arXiv:2501.01594",
+  "title_match": true,
+  "first_author": "Jingoo Lee",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "geathers2025benchmarking": {
+  "status": "Exists",
+  "where": "arXiv:2501.13957",
+  "title_match": true,
+  "first_author": "Jadon Geathers",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "steenstra2025scaffolding": {
+  "status": "Exists",
+  "where": "arXiv:2502.18673",
+  "title_match": true,
+  "first_author": "Ian Steenstra",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "hicke2025medsimai": {
+  "status": "Exists",
+  "where": "arXiv:2503.05793",
+  "title_match": true,
+  "first_author": "Yann Hicke",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "bodonhelyi2025modeling": {
+  "status": "Exists",
+  "where": "arXiv:2503.22250",
+  "title_match": true,
+  "first_author": "Anna Bodonhelyi",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "almansoori2025selfevolving": {
+  "status": "Exists",
+  "where": "arXiv:2503.22678",
+  "title_match": true,
+  "first_author": "Mohammad Almansoori",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "haut2025ai": {
+  "status": "Exists",
+  "where": "arXiv:2505.02694",
+  "title_match": true,
+  "first_author": "Kurtis Haut",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "agrawal2025gepa": {
+  "status": "Exists",
+  "where": "arXiv:2507.19457",
+  "title_match": true,
+  "first_author": "Lakshya A Agrawal",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "wang2025talkdep": {
+  "status": "Exists",
+  "where": "arXiv:2508.04248",
+  "title_match": true,
+  "first_author": "Xi Wang",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "zhou2025personaeval": {
+  "status": "Exists",
+  "where": "arXiv:2508.10014",
+  "title_match": true,
+  "first_author": "Lingfeng Zhou",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "voigt2025llmpowered": {
+  "status": "Exists",
+  "where": "arXiv:2508.13943",
+  "title_match": true,
+  "first_author": "Henrik Voigt",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "lai2025patientzero": {
+  "status": "Exists",
+  "where": "arXiv:2509.11078",
+  "title_match": true,
+  "first_author": "Yunghwei Lai",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "sabour2026patienthub": {
+  "status": "Exists",
+  "where": "arXiv:2602.11684",
+  "title_match": true,
+  "first_author": "Sahand Sabour",
+  "year_source": "2026",
+  "year_bib": "2026"
+ },
+ "sabour2026patientact": {
+  "status": "Exists",
+  "where": "arXiv:2608.12750",
+  "title_match": true,
+  "first_author": "Sahand Sabour",
+  "year_source": "2026",
+  "year_bib": "2026"
+ },
+ "jiang2024personallm": {
+  "status": "Exists",
+  "where": "arXiv:2305.02547",
+  "title_match": true,
+  "first_author": "Hang Jiang",
+  "year_source": "2023",
+  "year_bib": "2023"
+ },
+ "tosato2025persist": {
+  "status": "Exists",
+  "where": "arXiv:2508.04826",
+  "title_match": true,
+  "first_author": "Tommaso Tosato",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "li2024instruction": {
+  "status": "Exists",
+  "where": "arXiv:2402.10962",
+  "title_match": true,
+  "first_author": "Kenneth Li",
+  "year_source": "2024",
+  "year_bib": "2024"
+ },
+ "abdulhai2025consistent": {
+  "status": "Exists",
+  "where": "arXiv:2511.00222",
+  "title_match": true,
+  "first_author": "Marwa Abdulhai",
+  "year_source": "2025",
+  "year_bib": "2025"
+ },
+ "lee2025trait": {
+  "status": "Exists",
+  "where": "arXiv:2406.14703",
+  "title_match": true,
+  "first_author": "Seungbeen Lee",
+  "year_source": "2024",
+  "year_bib": "2024"
+ },
+ "samuel2025personagym": {
+  "status": "Exists",
+  "where": "arXiv:2407.18416",
+  "title_match": true,
+  "first_author": "Vinay Samuel",
+  "year_source": "2024",
+  "year_bib": "2024"
+ },
+ "gupta2023selfassessment": {
+  "status": "Exists",
+  "where": "arXiv:2309.08163",
+  "title_match": true,
+  "first_author": "Akshat Gupta",
+  "year_source": "2023",
+  "year_bib": "2023"
+ },
+ "serapio2023personality": {
+  "status": "Exists",
+  "where": "arXiv:2307.00184",
+  "title_match": true,
+  "first_author": "Greg Serapio-Garc\u00eda",
+  "year_source": "2023",
+  "year_bib": "2023"
+ },
+ "hu2024persona": {
+  "status": "Exists",
+  "where": "arXiv:2402.10811",
+  "title_match": true,
+  "first_author": "Tiancheng Hu",
+  "year_source": "2024",
+  "year_bib": "2024"
+ },
+ "wang2023incharacter": {
+  "status": "Exists",
+  "where": "arXiv:2310.17976",
+  "title_match": true,
+  "first_author": "Xintao Wang",
+  "year_source": "2023",
+  "year_bib": "2023"
+ },
+ "wang2022e5": {
+  "status": "Exists",
+  "where": "arXiv:2212.03533",
+  "title_match": true,
+  "first_author": "Liang Wang",
+  "year_source": "2022",
+  "year_bib": "2022"
+ },
+ "thakur2021beir": {
+  "status": "Exists",
+  "where": "arXiv:2104.08663",
+  "title_match": true,
+  "first_author": "Nandan Thakur",
+  "year_source": "2021",
+  "year_bib": "2021"
+ },
+ "karpukhin2020dpr": {
+  "status": "Exists",
+  "where": "arXiv:2004.04906",
+  "title_match": true,
+  "first_author": "Vladimir Karpukhin",
+  "year_source": "2020",
+  "year_bib": "2020"
+ },
+ "zhang2019paws": {
+  "status": "Exists",
+  "where": "arXiv:1904.01130",
+  "title_match": true,
+  "first_author": "Yuan Zhang",
+  "year_source": "2019",
+  "year_bib": "2019"
+ },
+ "muennighoff2022mteb": {
+  "status": "Exists",
+  "where": "arXiv:2210.07316",
+  "title_match": true,
+  "first_author": "Niklas Muennighoff",
+  "year_source": "2022",
+  "year_bib": "2022"
+ },
+ "gao2021simcse": {
+  "status": "Exists",
+  "where": "arXiv:2104.08821",
+  "title_match": true,
+  "first_author": "Tianyu Gao",
+  "year_source": "2021",
+  "year_bib": "2021"
+ },
+ "brainminds": {
+  "status": "Exists (URL resolves)",
+  "where": "https://brainminds.jp/en/research/222",
+  "http": 200
+ },
+ "brugge2024llm": {
+  "status": "Check by hand",
+  "where": "no DOI, arXiv id or URL",
+  "title": "Large language models improve clinical decision making of medical students through patient"
+ },
+ "dupuy2020guidelines": {
+  "status": "Check by hand",
+  "where": "no DOI, arXiv id or URL",
+  "title": "Guidelines for the design of a virtual patient for psychiatric interview training"
+ },
+ "harden1975osce": {
+  "status": "Check by hand",
+  "where": "no DOI, arXiv id or URL",
+  "title": "Assessment of clinical competence using objective structured examination"
+ },
+ "kilincel2026meta": {
+  "status": "Check by hand",
+  "where": "no DOI, arXiv id or URL",
+  "title": "Effectiveness of AI-enhanced virtual patients for psychiatric interview training in health"
+ },
+ "llamacpp": {
+  "status": "Exists (URL resolves)",
+  "where": "https://github.com/ggml-org/llama.cpp",
+  "http": 200
+ },
+ "mehrabian1996pad": {
+  "status": "Check by hand",
+  "where": "no DOI, arXiv id or URL",
+  "title": "Pleasure-arousal-dominance: A general framework for describing and measuring individual di"
+ },
+ "mhca2017": {
+  "status": "Check by hand",
+  "where": "no DOI, arXiv id or URL",
+  "title": ""
+ },
+ "nice2010cg100": {
+  "status": "Exists (URL resolves)",
+  "where": "https://www.nice.org.uk/guidance/cg100",
+  "http": 200
+ },
+ "nice2022ng225": {
+  "status": "Exists (URL resolves)",
+  "where": "https://www.nice.org.uk/guidance/ng225",
+  "http": 200
+ },
+ "piot2021simulation": {
+  "status": "Check by hand",
+  "where": "no DOI, arXiv id or URL",
+  "title": "Simulation Training in Psychiatry for Medical Education: A Review"
+ },
+ "posner2011cssrs": {
+  "status": "Exists",
+  "where": "doi:10.1176/appi.ajp.2011.10111704",
+  "first_author": "Posner",
+  "year_source": "2011",
+  "year_bib": "2011"
+ },
+ "simmenroth2014calgary": {
+  "status": "Check by hand",
+  "where": "no DOI, arXiv id or URL",
+  "title": "Psychometric properties of the Calgary Cambridge guides to assess communication skills of "
+ },
+ "stanley2012safety": {
+  "status": "Exists",
+  "where": "doi:10.1016/j.cbpra.2011.01.001",
+  "first_author": "Stanley",
+  "year_source": "2012",
+  "year_bib": "2012"
+ },
+ "tripathi2026depression": {
+  "status": "Check by hand",
+  "where": "no DOI, arXiv id or URL",
+  "title": "Clinical practice guideline for assessment and management of depression in India"
+ },
+ "walonoski2018synthea": {
+  "status": "Exists",
+  "where": "doi:10.1093/jamia/ocx079",
+  "first_author": "Walonoski",
+  "year_source": "2017",
+  "year_bib": "2018"
+ }
+}
