@@ -1,0 +1,72 @@
+  v0 01_gold_standard: 13 turns
+  v0 02_judgmental: 6 turns
+11 {
+ "turns": 19,
+ "fidelity": 0.8333333333333334,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.05263157894736842,
+ "length_fit": 1.0,
+ "resistance_ok": 0.7894736842105263,
+ "principles_ok": null,
+ "mean_words": 14.736842105263158,
+ "invented": 4,
+ "jailbreak_fails": 1,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "judge_errors": 0,
+ "behaviours_used": 5,
+ "top2_share": 0.7894736842105263,
+ "behaviour_entropy": 0.4644807166297205,
+ "trigram_repeat": 0.10526315789473684,
+ "opener_repeat": 0.0,
+ "composite": 0.9140350877192983
+}
+  v0 01_gold_standard: 13 turns
+  v0 02_judgmental: 6 turns
+23 {
+ "turns": 19,
+ "fidelity": 0.8333333333333334,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.05263157894736842,
+ "length_fit": 1.0,
+ "resistance_ok": 0.6842105263157895,
+ "principles_ok": null,
+ "mean_words": 15.052631578947368,
+ "invented": 5,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "judge_errors": 0,
+ "behaviours_used": 5,
+ "top2_share": 0.8421052631578947,
+ "behaviour_entropy": 0.45487576780673766,
+ "trigram_repeat": 0.05263157894736842,
+ "opener_repeat": 0.0,
+ "composite": 0.8929824561403509
+}
+  v0 01_gold_standard: 13 turns
+  v0 02_judgmental: 6 turns
+42 {
+ "turns": 19,
+ "fidelity": 0.7777777777777778,
+ "unmentioned_ratio": 0.5,
+ "banned_rate": 0.0,
+ "repetition": 0.10526315789473684,
+ "length_fit": 0.9473684210526315,
+ "resistance_ok": 0.6842105263157895,
+ "principles_ok": null,
+ "mean_words": 15.052631578947368,
+ "invented": 4,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "judge_errors": 0,
+ "behaviours_used": 5,
+ "top2_share": 0.7368421052631579,
+ "behaviour_entropy": 0.4940587001351347,
+ "trigram_repeat": 0.15789473684210525,
+ "opener_repeat": 0.05263157894736842,
+ "composite": 0.8608187134502924
+}

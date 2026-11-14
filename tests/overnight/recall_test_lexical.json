@@ -1,0 +1,1039 @@
+{
+ "split": "test",
+ "lexical_only": true,
+ "fact_recall": 0.413,
+ "n": 247,
+ "risk_recall": 0.351,
+ "risk_n": 77,
+ "risk_by_fact": {
+  "alc_01/f_anger_home": "2/7",
+  "alc_01/f_no_plan_no_means": "2/8",
+  "alc_01/f_passive_si": "1/5",
+  "alc_01/f_withdrawal_seizure": "1/3",
+  "mdd_01/f_no_means": "1/8",
+  "mdd_01/f_no_plan_no_attempt": "1/10",
+  "mdd_01/f_passive_si": "3/7",
+  "ward_01/f_current_si": "7/10",
+  "ward_01/f_means": "2/5",
+  "ward_01/f_terrace": "4/8",
+  "ward_02/f_risk": "3/6"
+ },
+ "none_false_hit": 0.227,
+ "none_n": 22,
+ "risk_false_hit": 0.061,
+ "nonrisk_n": 165,
+ "extra_per_line": 0.48,
+ "ms_p50": 0.23,
+ "ms_max": 0.81,
+ "misses": [
+  [
+   "mdd_01",
+   "f_pc",
+   "What's brought you here to see me today?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_pc",
+   "Was it your own idea to come today, or did somebody send you?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_onset",
+   "Is this the first time in your life you've felt this way?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_mood",
+   "How are your spirits these days?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_mood",
+   "Have you been tearful at all?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_anhedonia",
+   "Do you have any hobbies? Have you kept them up?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_anhedonia",
+   "How do you spend your weekends now?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_sleep",
+   "Any trouble dropping off, or is it more that you're up long before the alarm?",
+   [
+    "f_no_mania_no_psych_hx"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_sleep",
+   "Do you feel refreshed when you get up in the morning?",
+   [
+    "f_mood"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_appetite",
+   "Have people remarked that you're looking thinner?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_energy_concentration",
+   "Can you follow a film or read a page without your mind drifting off?",
+   [
+    "f_no_psychosis"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_energy_concentration",
+   "Do you find you get worn out easily, even by small tasks?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_energy_concentration",
+   "Has your performance at the office slipped at all?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_guilt",
+   "Do you ever feel you've let people down?",
+   [
+    "f_mood"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_guilt",
+   "How is your self-confidence?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_guilt",
+   "Are you being hard on yourself?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_guilt",
+   "Do you feel guilty about anything?",
+   [
+    "f_mood"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_anxiety",
+   "Does your head keep buzzing with thoughts when you're trying to switch off?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_anxiety",
+   "Is there something you keep fretting about over and over?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_work_family",
+   "How do you get along with your boss?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_work_family",
+   "What are the main stresses in your life right now?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_family_history",
+   "Has anybody among your blood relations taken their own life or tried to?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_family_history",
+   "Is there anyone at home who drinks heavily?",
+   [
+    "f_substances",
+    "f_work_family"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_passive_si",
+   "Do you ever feel like you just want it all to stop?",
+   [
+    "f_mood"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_passive_si",
+   "Are you having thoughts of doing something to yourself?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_passive_si",
+   "Do you ever go to bed hoping the next day won't come?",
+   [
+    "f_sleep"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_passive_si",
+   "Has dying been on your mind at all?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_plan_no_attempt",
+   "Have you ever hurt yourself on purpose, like cutting or anything of that sort?",
+   [
+    "f_passive_si"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_no_plan_no_attempt",
+   "Do you intend to act on these thoughts of dying?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_plan_no_attempt",
+   "Has there been a time in the past when you did something to injure yourself?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_plan_no_attempt",
+   "Is there any chance you might do something drastic?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_plan_no_attempt",
+   "Have you ever taken an overdose or done anything like that?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_plan_no_attempt",
+   "Have you got as far as writing a note or saying goodbye to anyone?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_plan_no_attempt",
+   "If these feelings got worse tonight, do you think you would do anything about them?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_plan_no_attempt",
+   "Do you feel safe with yourself right now?",
+   [
+    "f_mood"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_no_plan_no_attempt",
+   "Have you decided on a day or a method?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_means",
+   "Is there anything in your flat that you could use to harm yourself?",
+   [
+    "f_passive_si"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_no_means",
+   "Have you been collecting medicines?",
+   [
+    "f_medical"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_no_means",
+   "Do you keep any medicines in the house, even ordinary ones like paracetamol strips?",
+   [
+    "f_medical"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_no_means",
+   "Any pesticide, rat poison, phenyl or anything like that lying around where you stay?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_means",
+   "Do you have access to anything dangerous?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_means",
+   "Have you been reading up on methods online?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_means",
+   "Have you googled anything about overdoses or how much of a drug is dangerous?",
+   [
+    "f_substances"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_protective",
+   "Is there someone you can talk to when things get bad?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_protective",
+   "What are your reasons for living?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_protective",
+   "Is the person you share the flat with someone you can lean on?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_protective",
+   "What gives you hope, even a little?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_protective",
+   "Is there anything that makes you hold on?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_substances",
+   "How much tea or coffee do you have in a day?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_substances",
+   "Do you use anything to help you relax or cope, a peg, a cigarette, any pills?",
+   [
+    "f_anhedonia"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_no_psychosis",
+   "Has your mind been playing tricks on you?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_psychosis",
+   "Do you ever feel that your thoughts or actions are not your own, as if some outside force is in charge?",
+   [
+    "f_mood"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_no_mania_no_psych_hx",
+   "Have you ever had a spell where you felt on top of the world and hardly needed any sleep?",
+   [
+    "f_sleep"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_no_mania_no_psych_hx",
+   "Have you ever been on antidepressants or any tablets for your mood?",
+   [
+    "f_medical",
+    "f_mood"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_no_mania_no_psych_hx",
+   "Have there been times when you were far more talkative, spending freely and bursting with ideas?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_mania_no_psych_hx",
+   "Have you ever had therapy or talked to anyone professionally about your feelings?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_medical",
+   "Any operations or hospital admissions in the past?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_pregnancy",
+   "Are you in a physical relationship at present?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_pregnancy",
+   "Are you using any birth control?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_pc",
+   "Whose idea was it to come here?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_drinking_minimised",
+   "Would you call yourself a social drinker?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_drinking_quantity",
+   "Tell me a little about your drinking.",
+   [
+    "f_drinking_minimised",
+    "f_pc"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_drinking_minimised",
+   "How many pegs would you have on a typical day?",
+   [
+    "f_drinking_quantity"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_drinking_minimised",
+   "What do you usually have, and how much of it goes in one sitting?",
+   [
+    "f_drinking_quantity"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_drinking_quantity",
+   "Can you hold your liquor better now than you could a few years ago?",
+   [
+    "f_drinking_minimised"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_morning_drinking",
+   "How do you feel when you get up, before you've had anything?",
+   [
+    "f_mood",
+    "f_psych_history"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_withdrawal_seizure",
+   "Have you ever passed out and found afterwards that you had bitten your tongue or wet yourself?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_withdrawal_seizure",
+   "After going off alcohol, was there ever an episode where you didn't know where you were or what day it was?",
+   [
+    "f_drinking_minimised"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_control",
+   "Have you ever tried to cut down?",
+   [
+    "f_no_plan_no_means",
+    "f_withdrawal_seizure"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_control",
+   "Do you get a strong urge for it at a particular time of day?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_control",
+   "Do you end up having more than you planned?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_control",
+   "Have you made promises to yourself about limiting it, and how did those go?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_consequences",
+   "Have you ever driven after drinking?",
+   [
+    "f_drinking_minimised"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_liver_medical",
+   "Any drug allergies?",
+   [
+    "f_other_substances"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_liver_medical",
+   "Any jaundice, stomach pain or vomiting of blood ever?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_liver_medical",
+   "Have you had your LFTs checked?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_passive_si",
+   "Have you ever thought your family would manage better if you weren't there?",
+   [
+    "f_consequences",
+    "f_control",
+    "f_protective"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_passive_si",
+   "Do you ever feel you are just a burden on everybody?",
+   [
+    "f_mood"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_passive_si",
+   "In your lowest moment recently, what was going through your mind?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_passive_si",
+   "Have you ever felt like not being around any more?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_no_plan_no_means",
+   "Have you ever done something drastic to yourself, even when drunk?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_no_plan_no_means",
+   "Did you ever go beyond just thinking about dying and actually take a step towards it?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_no_plan_no_means",
+   "If a thought of finishing yourself came, would you act on it?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_no_plan_no_means",
+   "Have you ever swallowed something or cut yourself in a bad moment?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_no_plan_no_means",
+   "Have you been saving up medicines or bought anything harmful?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_no_plan_no_means",
+   "What would stop you from taking your own life?",
+   [
+    "f_motivation"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_protective",
+   "What would stop you from taking your own life?",
+   [
+    "f_motivation"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_protective",
+   "Who is there for you at home?",
+   [
+    "f_consequences"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_protective",
+   "Will your employer give you time off if you need to be admitted?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_family_history",
+   "Tell me about your father's health.",
+   [
+    "f_pc"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_family_history",
+   "Does drinking run in the family?",
+   [
+    "f_consequences",
+    "f_drinking_minimised",
+    "f_protective"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_family_history",
+   "Has any close relative had liver disease?",
+   [
+    "f_liver_medical"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_psych_history",
+   "Have you ever been to a de-addiction centre or a counsellor?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_psych_history",
+   "Have you ever had a stretch of days feeling extremely energetic and cheerful for no reason?",
+   [
+    "f_mood"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_psych_history",
+   "Have there been times when you were overactive, sleeping very little and still full of plans?",
+   [
+    "f_mood",
+    "f_no_plan_no_means",
+    "f_pc"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_anger_home",
+   "Do things ever get physical at home?",
+   [
+    "f_consequences"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_anger_home",
+   "Is your daughter safe when you've had a few?",
+   [
+    "f_protective"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_anger_home",
+   "What are you like when you're drunk? Would your family say you change?",
+   [
+    "f_consequences",
+    "f_motivation",
+    "f_protective"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_anger_home",
+   "Has anyone at home ever been frightened of you?",
+   [
+    "f_consequences"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_anger_home",
+   "Have you ever raised your hand on your child or your partner?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_motivation",
+   "Do you think you have a problem with alcohol?",
+   [
+    "f_drinking_minimised"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_motivation",
+   "Would you be willing to come into hospital for a few days so we can take you off it safely?",
+   [
+    "f_withdrawal_seizure"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_motivation",
+   "On a scale of one to ten, how important is it to you to give this up?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_pc",
+   "The nurses tell me you've packed your bag. What's going on?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_pc",
+   "Do you feel you still need to be in hospital?",
+   [
+    "f_current_si",
+    "f_mood"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_reasons_ward",
+   "Is it noisy where your bed is?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_reasons_job",
+   "Why do you want to go so urgently?",
+   [
+    "f_pc",
+    "f_reasons_ward"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_reasons_job",
+   "Is there something outside that you need to get back to?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_reasons_job",
+   "Is there a deadline or review coming up at your company?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_shame",
+   "Some people feel embarrassed about being in a place like this. Is that part of it for you?",
+   [
+    "f_mood"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_mood",
+   "Have you been crying much?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_terrace",
+   "What do you think would have happened if your friend had not come?",
+   [
+    "f_capacity"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_terrace",
+   "How close did you come to ending your life last week?",
+   [
+    "f_current_si"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_terrace",
+   "Before your friend reached you, how long had you been up on top of the building?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_terrace",
+   "I've read the notes, but I'd like to hear from you: why were you admitted?",
+   [
+    "f_pc",
+    "f_reasons_ward"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_current_si",
+   "When you're lying by yourself after lights out, where does your mind go?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_current_si",
+   "Are you having any urge to do something to yourself these days?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_current_si",
+   "The staff mentioned something you said yesterday that worried them. Can we talk about it?",
+   [
+    "f_capacity",
+    "f_reasons_job"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_means",
+   "If the thoughts came back once you were discharged, how easy would it be to get up to the top of the building?",
+   [
+    "f_current_si"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_means",
+   "Tell me about your living arrangements right now.",
+   [
+    "f_current_si"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_means",
+   "Does the building have a watchman or any barrier on the stairs to the top floor?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_protective",
+   "What has stopped you from acting on these thoughts so far?",
+   [
+    "f_current_si"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_protective",
+   "Who are the people you would not want to hurt?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_capacity",
+   "How will you cope if things get bad again once you're out?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_capacity",
+   "Let me check we are on the same page: what did I just explain about the dangers of leaving early?",
+   []
+  ],
+  [
+   "ward_01",
+   "f_meds",
+   "Do you have any worries about taking an antidepressant?",
+   [
+    "f_capacity",
+    "f_reasons_job"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_meds",
+   "Some people fear that these medicines will change their personality. Is that a concern for you?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_pc",
+   "Do you feel you need any treatment?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_pc",
+   "Are you managing to get a proper night's rest on the ward?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_pc",
+   "Would you rather I left you in peace just now?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_side_effects",
+   "Was there something about the medicine that you didn't like the feel of?",
+   [
+    "f_pc"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_poison",
+   "Do you think there is something wrong with the tablets we are giving you?",
+   [
+    "f_pc"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_poison",
+   "Do you feel someone is trying to harm you?",
+   [
+    "f_risk"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_poison",
+   "Do you think somebody has tampered with your medicine?",
+   [
+    "f_pc"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_poison",
+   "Are there any disputes over property or business among your relatives?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_voices",
+   "Are your ears picking up things that others around you don't seem to notice?",
+   [
+    "f_alternatives",
+    "f_risk"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_college",
+   "How are your studies going?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_risk",
+   "Have you thought of leaving the ward without telling us?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_risk",
+   "Have you ever felt life is not worth living?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_risk",
+   "Do you feel you might need to defend yourself against anyone?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_capacity_understand",
+   "Why do you think we admitted you?",
+   [
+    "f_pc"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_substances",
+   "Have you tried anything with your hostel friends, like joints or pills?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_substances",
+   "Did you ever take any stuff at parties?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_medical",
+   "Do you have any physical illnesses?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_medical",
+   "Are you allergic to anything?",
+   []
+  ]
+ ]
+}

@@ -1,0 +1,70 @@
+# Overnight queue 2026-11-13 23:17:40
+# Overnight queue 2026-11-13 23:19:16
+- 2026-11-14 00:41:18 earlier jobs finished
+- 2026-11-14 00:41:18 start recall_tune
+- 2026-11-14 00:41:55 end recall_tune rc=0
+- 2026-11-14 00:41:55 start recall_test
+- 2026-11-14 00:42:06 end recall_test rc=0
+- 2026-11-14 00:42:06 start recall_test_lexical
+- 2026-11-14 00:42:06 end recall_test_lexical rc=0
+- 2026-11-14 00:42:06 start recall_dev
+- 2026-11-14 00:42:16 end recall_dev rc=0
+- 2026-11-14 00:42:16 start heldout_v2_mdd_01
+- 2026-11-14 01:25:22 end heldout_v2_mdd_01 rc=0
+- 2026-11-14 01:25:22 start heldout_v2_alc_01
+- 2026-11-14 01:33:49 end heldout_v2_alc_01 rc=0
+- 2026-11-14 01:33:49 start heldout_v0_mdd_01
+- 2026-11-14 02:15:41 end heldout_v0_mdd_01 rc=0
+- 2026-11-14 02:15:41 start heldout_v0_alc_01
+- 2026-11-14 02:24:14 end heldout_v0_alc_01 rc=0
+- 2026-11-14 02:24:14 start latency_v0
+- 2026-11-14 02:28:25 end latency_v0 rc=1
+- 2026-11-14 02:28:25 start latency_v2
+- 2026-11-14 02:32:28 end latency_v2 rc=1
+- 2026-11-14 02:32:28 start stills_baseline
+- 2026-11-14 02:32:39 end stills_baseline rc=0
+- 2026-11-14 02:32:39 start luminance_female_20s_a
+- 2026-11-14 02:32:39 end luminance_female_20s_a rc=1
+- 2026-11-14 02:32:40 start luminance_female_20s_b
+- 2026-11-14 02:32:40 end luminance_female_20s_b rc=1
+- 2026-11-14 02:32:40 start luminance_male_20s_a
+- 2026-11-14 02:32:40 end luminance_male_20s_a rc=1
+- 2026-11-14 02:32:40 start luminance_male_30s_a
+- 2026-11-14 02:32:40 end luminance_male_30s_a rc=1
+- 2026-11-14 02:32:43 start moves_label
+- 2026-11-14 03:00:15 end moves_label rc=0
+- 2026-11-14 03:00:15 start moves_gold
+- 2026-11-14 03:02:36 end moves_gold rc=0
+- 2026-11-14 03:02:36 start moves_train
+- 2026-11-14 03:03:01 end moves_train rc=0
+- 2026-11-14 03:03:01 start moves_eval
+- 2026-11-14 03:06:27 end moves_eval rc=0
+- 2026-11-14 03:06:27 start make_v3
+- 2026-11-14 03:06:27 end make_v3 rc=0
+- 2026-11-14 03:06:27 start heldout_v3_mdd_01
+- 2026-11-14 03:48:51 end heldout_v3_mdd_01 rc=0
+- 2026-11-14 03:48:51 start heldout_v3_alc_01
+- 2026-11-14 03:57:21 end heldout_v3_alc_01 rc=0
+- 2026-11-14 03:57:32 start bakeoff_q4_heldout
+- 2026-11-14 04:09:03 end bakeoff_q4_heldout rc=0
+- 2026-11-14 04:09:03 start bakeoff_q4_latency
+- 2026-11-14 04:13:19 end bakeoff_q4_latency rc=1
+- 2026-11-14 04:13:37 start bakeoff_q9_heldout
+- 2026-11-14 04:28:26 end bakeoff_q9_heldout rc=0
+- 2026-11-14 04:28:26 start bakeoff_q9_latency
+- 2026-11-14 04:33:07 end bakeoff_q9_latency rc=1
+- 2026-11-14 04:33:18 start learning_round_1
+- 2026-11-14 04:45:55 end learning_round_1 rc=0
+- 2026-11-14 04:45:55 start learning_round_2
+- 2026-11-14 04:57:59 end learning_round_2 rc=0
+- 2026-11-14 04:57:59 start learning_round_3
+- 2026-11-14 05:10:26 end learning_round_3 rc=0
+- 2026-11-14 05:10:26 start learning_round_4
+- 2026-11-14 05:20:30 end learning_round_4 rc=0
+- 2026-11-14 05:20:30 start learning_round_5
+- 2026-11-14 05:34:38 end learning_round_5 rc=0
+- 2026-11-14 05:34:38 start learning_report
+- 2026-11-14 05:34:38 end learning_report rc=0
+- 2026-11-14 05:34:39 queue finished
+# Overnight queue 2026-11-14 07:30:55
+# Overnight queue 2026-11-14 07:53:47
