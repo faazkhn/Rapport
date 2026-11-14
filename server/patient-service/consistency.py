@@ -28,6 +28,11 @@ LEAK_PHRASES = re.compile(r"\b(no point (in )?living|rather (not be alive|be dea
                           r"(live|be alive)|tired of (living|being alive)|better off dead|life (isn'?t|is not) worth)", re.I)
 HEDGE = re.compile(r"\b(maybe|sometimes|some nights|once|don'?t know|not sure|rather not|why|can we|something else|hard to say|I mean)\b", re.I)
 APOLOGY = re.compile(r"^\s*((I'?m |I am )?(so |really |very )?sorry|I apologi[sz]e|you'?re (right|correct)|thank you|thanks)\b,?\s*(doctor|sir|madam|ma'?am)?[,.!]*\s*", re.I)
+# asking to leave, said again after the doctor already let the patient go: the loop a tester hit ("You can go" -> "I want to go home")
+LEAVE_ASK = re.compile(r"\b(I (really |just )?(want|need|have) to (go|leave|get out)( home| now| today)?|let me (go|leave|out)|I('m| am) not staying|"
+                       r"discharge me|I (don'?t|do not) want to (stay|be here)|I should (go|be at) home|take me home|send me home|"
+                       r"I('m| am) going (home|now)|can I (please )?go( home)?\b(?! then)|when can I (go|leave))", re.I)
+LEFT_LINE = "So... I can really go? Okay. What happens now?"
 EVASIVE = ["I... I don't really want to talk about that right now.", "Why are you asking me that?",
            "That's... I don't know. Can we talk about something else?"]
 
@@ -48,7 +53,7 @@ def si_facts(case: dict) -> list[dict]:
     return [f for f in case["facts"] if is_si(f)]
 
 
-def context(case: dict, trust: float, recalled: dict, plan: dict | None, mem: dict | None, improvise: bool) -> dict:
+def context(case: dict, trust: float, recalled: dict, plan: dict | None, mem: dict | None, improvise: bool, left: bool = False) -> dict:
     """What the sentence checks need for this turn, computed once."""
     facts = {f["id"]: f for f in case["facts"]}
     life = {m["id"]: m for m in case.get("life", [])}
@@ -62,7 +67,7 @@ def context(case: dict, trust: float, recalled: dict, plan: dict | None, mem: di
             "si_asked": any(f["id"] in recalled.get("strong", []) for f in si_facts(case)),
             "si_told": any(e["kind"] == "told" and {f["id"] for f in si_facts(case)} & set(e["facts"]) for e in (mem or {}).get("episodes", [])),
             "fixed": memory.case_names(case), "names": dict((mem or {}).get("names", {})), "improvise": improvise,
-            "known": memory.known_names(case), "plan": plan or {}}
+            "known": memory.known_names(case), "plan": plan or {}, "left": left}
 
 
 def check_sentence(sentence: str, ctx: dict, earlier: list[str] | None = None) -> tuple[str, list[dict]]:
@@ -74,6 +79,8 @@ def check_sentence(sentence: str, ctx: dict, earlier: list[str] | None = None) -
             return "", [{"kind": "locked_leak"}]
         if not ctx.get("si_asked", True) and not ctx.get("si_told", True):  # must_be_asked: never volunteered
             return "", [{"kind": "volunteered_risk"}]
+    if ctx.get("left") and LEAVE_ASK.search(s):  # the doctor already said they can go: never ask again
+        return "", clashes + [{"kind": "asks_to_leave_again", "said": sentence}]
     for n, unit, tok in _pairs(s):
         want = ctx["values"].get(unit)
         if want and n not in want:

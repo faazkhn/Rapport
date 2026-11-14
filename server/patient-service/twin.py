@@ -288,17 +288,23 @@ def update(state: dict, mood: dict, reply: dict, case: dict, start: dict | None 
 
 # ---------- ward events (docs/literature/personalities-and-randomized-patients.md, R9) ----------
 
-_LEAVE_OK = re.compile(r"\b(you (can|may|could|are free to|'re free to) (now )?(go|leave)|you('re| are) (free to go|discharged|good to go)|"
-                       r"(go|get) (back )?(to your )?home|(go|leave) (right )?now|leave (my|the|this) (room|cabin|office)|get out|"
-                       r"i('ll| will|'m going to| am going to) (let you go|discharge you|send you home)|we('re| are) done|"
-                       r"(appointment|consultation) is (done|over|finished))\b")
+_LEAVE_OK = re.compile(r"\b(you (can|may|could|are free to|'re free to|are allowed to|'re allowed to) (now )?(go|leave|head (back )?home)|"
+                       r"you('re| are) (free to go|discharged|good to go|free|allowed to go)|(go|get|head) (back )?(to your )?home|"
+                       r"(go|leave) (right )?now|leave (my|the|this) (room|cabin|office|ward|hospital)|get out|off you go|go ahead and (go|leave)|"
+                       r"i('ll| will|'m going to| am going to|'m| am) (let(ting)? you go|discharg(e|ing) you|send(ing)? you home)|"
+                       r"(we('re| are)|i('m| am)) done|(appointment|consultation|interview|session) is (done|over|finished)|"
+                       r"nobody('s| is) (stopping|keeping) you|no one('s| is) (stopping|keeping) you)\b")
+_LEAVE_BARE = re.compile(r"^(fine|ok|okay|alright|all right|sure|yes)?[,.]? *(go|leave|go home)( then| now| ahead)?[ .!]*$")
 _LEAVE_BLOCK = re.compile(r"\b(can't|cannot|can not|not|won't|don't|unless|until|if|when|once|after|before|want to|wanna)\b")
+
+
+_PERMISSIVE_IF = re.compile(r"\b(if|when) you (want|like|wish|prefer)( to)?\b|\bnobody('s| is)\b|\bno one('s| is)\b")
 
 
 def allows_leave(text: str) -> bool:
     """The doctor tells the patient they may go (a statement, not a question, a condition or a refusal). Lexical, so it is known
-    before the reply is generated: intents are tagged only after the voice stream."""
-    return any(_LEAVE_OK.search(s) and not _LEAVE_BLOCK.search(s)
+    before the reply is generated: intents are tagged only after the voice stream. "If you want" is permission, not a condition."""
+    return any((_LEAVE_OK.search(s) or _LEAVE_BARE.match(s)) and not _LEAVE_BLOCK.search(_PERMISSIVE_IF.sub("", s))
                for s in re.split(r"(?<=[.!?])\s+", text.lower().replace("’", "'")) if s and not s.rstrip().endswith("?"))
 
 

@@ -210,7 +210,8 @@ def prepare(case: dict, state: dict, mind: dict, messages: list[dict], elapsed_m
     turn = {"turn": mind["turn"], "doctor": doctor, "start": start, "state": st, "exam": exam, "events": events, "recalled": recalled,
             "moves": mv, "plan": plan, "allowed": allowed, "schema": schema, "messages": msgs, "examples": examples, "version": v,
             "features": sorted(on), "memory_lines": mem_lines, "clashes": []}
-    turn["ctx"] = consistency.context(case, st["trust"], recalled, plan, mind["memory"], "improvise" in on) if "consistency" in on else None
+    turn["ctx"] = (consistency.context(case, st["trust"], recalled, plan, mind["memory"], "improvise" in on, left="leave_granted" in mind["fired"])
+                   if "consistency" in on else None)
     return turn
 
 
@@ -305,7 +306,12 @@ def finish(case: dict, mind: dict, turn: dict, reply: dict, spoken_ok: bool = Tr
     return new
 
 
-def fallback_text(case: dict) -> str:
+def safe_line(case: dict, turn: dict) -> str:
+    """What to say when the checks dropped every sentence: never the dropped words."""
+    if turn["ctx"] and turn["ctx"].get("left"):
+        return consistency.LEFT_LINE
+    if (turn["plan"] or {}).get("evasive"):
+        return consistency.EVASIVE[0]
     return random.choice(case["fallback_lines"])
 
 

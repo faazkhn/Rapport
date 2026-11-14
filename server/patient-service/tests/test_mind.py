@@ -224,3 +224,20 @@ def test_pre_step_and_events_stay_inside_one_turns_clamp():
     st = {**ward["state_start"], "trust": 43.0}
     t = mind.prepare(ward, st, mind.new(ward, st), [{"role": "doctor", "text": "Thank you for telling me, that sounds so hard. I'm here."}], 7.5, version=V2)
     assert t["state"]["trust"] <= 43 + brain.load_json("state_rules.json")["clamp_per_turn"]
+
+
+def test_told_they_can_go_never_asks_again():
+    """Tester 2026-11-14: "You're free to go home" -> the patient denied it and asked to go home again, in a loop."""
+    import twin
+    for line in ("You're free to go home.", "Fine. Go.", "You can head home.", "Go home if you want.", "Alright then, off you go."):
+        assert twin.allows_leave(line), line
+    for line in ("You can't go home.", "If you feel better you can go.", "Go ahead, tell me what happened."):
+        assert not twin.allows_leave(line), line
+    ctx = consistency.context(CASE, 30, {"open": []}, None, None, False, left=True)
+    assert consistency.check_sentence("I want to go home.", ctx)[0] == ""
+    assert consistency.check_sentence("Okay. Thank you, doctor.", ctx)[0]
+    ward = brain.load_case("ward_01")
+    req = {"case_id": "ward_01", "messages": [{"role": "doctor", "text": "You're free to go home."}], "state": ward["state_start"]}
+    out = brain.generate_reply(req, client=FakeClient([_reply(utterance="I want to go home. Please.")]), tagger=lambda: [], version=V2)
+    assert "go home" not in out["utterance"].lower() or out["utterance"] == consistency.LEFT_LINE
+    assert "leave_granted" in out["twin"]["fired"]

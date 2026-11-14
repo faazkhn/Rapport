@@ -481,8 +481,7 @@ class Session:
             meta["guard_dropped"] += [{"kind": "fact", "id": i, "reason": "word_cap"} for i in reply["revealed_fact_ids"]]
             reply["revealed_fact_ids"] = []
         if not spoken and not cancel.is_set() and not events:  # every sentence was dropped by the checks: say a safe line instead
-            safe = consistency.EVASIVE[0] if (turn["plan"] or {}).get("evasive") else random.choice(case["fallback_lines"])
-            await speak(safe, checked=True)
+            await speak(mind.safe_line(case, turn), checked=True)
             meta["fallback"] = True
         reply["utterance"] = " ".join(spoken)  # only what was said: a dropped sentence never reaches the client, history or memory
         if cancel.is_set():

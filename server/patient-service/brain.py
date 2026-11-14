@@ -802,7 +802,7 @@ def generate_reply(req: dict, client=None, tagger=None, version: dict | None = N
         meta["guard_dropped"] += [{"kind": "banned_word", "id": w, "reason": "sentence removed"} for w in banned if w not in
                                   {d["id"] for d in meta["guard_dropped"] if d["kind"] == "banned_word"}]
         if not out["utterance"].strip():  # every sentence was dropped
-            out["utterance"] = random.choice(case["fallback_lines"])
+            out["utterance"] = mind_mod.safe_line(case, turn)
             meta["fallback"] = True
         out, capped = apply_word_cap(out, style(case)["word_cap"])
         meta["guard_dropped"] += capped
