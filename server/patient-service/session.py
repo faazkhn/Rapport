@@ -351,13 +351,14 @@ class Session:
         voice_id = case["patient"]["voice_id"]
         parser, splitter = stream.UtteranceStream(), stream.SentenceSplitter(first_clause=True)
         spoken, dropped_banned, held, idx = [], [], [], 0
+        instr = None
         word_cap, capped = brain.style(case)["word_cap"], False
         marks = {"ttft": None, "first_sentence": None, "tts_first_ms": None, "audio_start": None}
         err = None
         flushed = False
 
         async def speak(sentence, checked=False):
-            nonlocal idx, capped
+            nonlocal idx, capped, instr
             if not checked:
                 sentence, hits = mind.speakable(case, turn, sentence, spoken, earlier)
                 dropped_banned.extend(hits)
@@ -371,7 +372,12 @@ class Session:
                 capped = True
                 return
             t = time.monotonic()
-            first = await self._first_chunk(loop, sentence, voice_id, speed, voice.instruction(case, voice.labels_so_far(parser.buf)))
+            if instr is None:  # one instruction for the whole reply: with VoiceDesign the instruction is the speaker
+                labels = voice.labels_so_far(parser.buf)
+                if turn["plan"]:  # twin-0.2: the reaction is decided before the call, so the voice carries it from the first word
+                    labels.setdefault("reaction", turn["plan"]["reactions"][0])
+                instr = voice.instruction(case, labels, max(state["distress"], state["agitation"]) / 100, speed)
+            first = await self._first_chunk(loop, sentence, voice_id, speed, instr)
             if first is None or cancel.is_set():
                 return
             chunks, audio = first

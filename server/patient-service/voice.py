@@ -24,15 +24,33 @@ def labels_so_far(buf: str) -> dict:
     return {k: v for k, v in _LABEL.findall(buf)}
 
 
-def instruction(case: dict, labels: dict) -> str:
-    """The case's voice description plus how this line sounds, from the expression map; unknown labels add nothing."""
+def instruction(case: dict, labels: dict, strength: float | None = None, speed: float = 1.0) -> str:
+    """The case's voice description plus how this line sounds, from the expression map; unknown labels add nothing.
+    strength 0-1 (how distressed or agitated the patient is) scales the feeling; speed adds pace words, since Qwen3-TTS has no
+    speed control. The session builds this once per reply: with VoiceDesign the instruction is the voice, so changing it between
+    sentences changed the speaker."""
     import brain
     m = brain.load_json("brain/expression_map.json")
     parts = [m.get("emotions", {}).get(labels.get("emotion"))]
     parts += [(m[g].get(labels.get(k)) or {}).get("voice") for g, k in (("behaviours", "behaviour"), ("reactions", "reaction"))]
     desc = case["patient"].get("voice_description", "")
     parts = [p for p in parts if p]
+    if parts and strength is not None:
+        parts[0] = ("a little " if strength < 0.35 else "clearly " if strength < 0.7 else "very ") + parts[0]
+    if speed >= 1.1:
+        parts.append("speaking fast, words tumbling out")
+    elif speed <= 0.9:
+        parts.append("speaking slowly, with small pauses")
     return f"{desc} In this line: {'; '.join(parts)}." if parts else desc
+
+
+def stretch(audio, speed: float):
+    """Pitch-preserving time stretch for a speed factor the TTS cannot follow (pressured or slowed speech); off within +-5%."""
+    if abs(speed - 1.0) < 0.05 or len(audio) < 2048:
+        return audio
+    import librosa
+    import numpy as np
+    return np.asarray(librosa.effects.time_stretch(np.asarray(audio, dtype=np.float32), rate=speed), dtype=np.float32)
 
 
 SPEECH_CPS = 13  # the designed voices speak ~13-16 characters a second; the low end overestimates a sentence, so it holds longer
@@ -73,12 +91,12 @@ class QwenDesign:
         self.seed = 1234
 
     def stream(self, text, voice_id, speed, instruction=""):
-        # shortcut: speed is ignored (no speed control); pace comes from the instruction. Resample if pressured speech needs it.
+        """Pace comes from the instruction's words and, past +-5%, a pitch-preserving stretch of each chunk."""
         import mlx.core as mx
         import numpy as np
         mx.random.seed(self.seed)
         for r in self.model.generate(text=text, instruct=instruction or "A natural, calm adult voice.", lang_code="english", stream=True, streaming_interval=0.4):
-            yield np.asarray(r.audio, dtype=np.float32).reshape(-1)
+            yield stretch(np.asarray(r.audio, dtype=np.float32).reshape(-1), speed)
 
 
 def load(name: str, kitten_fn):
