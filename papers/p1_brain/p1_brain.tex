@@ -1,13 +1,5 @@
 \documentclass[conference]{IEEEtran}
-\usepackage[T1]{fontenc}
-\usepackage{amsmath,amssymb}
-\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,fit}
-\usepackage{url}
-\usepackage[hidelinks]{hyperref}
-\graphicspath{{../figures/}}
+\input{../shared/style}
 
 \begin{document}
 
@@ -20,206 +12,479 @@ Email: faazkhn1000@gmail.com}}
 \maketitle
 
 \begin{abstract}
-Large language models (LLMs) can voice a simulated psychiatric patient, but left to decide what the patient remembers, feels and
-reveals they invent symptoms, soften hostility into apology and disclose or deny suicidal thoughts inconsistently. We present a
-patient model, the Digital Twin, in which code makes every decision a clinician would audit and the LLM only voices it. Before the
-single model call per turn, a rubric reads the doctor's move (empathy, judgement, jargon, a risk question and 17 others), steps
-trust before recall, moves an explicit resistance level and shortlists the behaviours and reactions the reply may use; memory items
-are recalled by meaning and gated by trust; an episodic memory and a mental-status block keep the patient one person across the
-interview; and every sentence is checked in code before it is spoken. On 14 held-out scripted conversations run on three sampling
-seeds and judged by a model different from the patient's, the code-governed Twin (v2) held every safety gate (no jailbreak or
-portrayal failures, suicidal ideation disclosed whenever it was open and asked kindly, no locked-fact leaks after a fresh-context
-safety review closed ten defects) and used behaviour far more evenly (share of turns in the two commonest behaviours 0.72 vs 0.86
-for depression, 0.63 vs 0.81 for alcohol withdrawal), while its held-out composite stayed equal to the baseline (0.947 vs 0.953;
-0.875 vs 0.878). Recall of risk facts under paraphrase rose from 35.1\% to 72.7\% on a blind test set but missed its 95\% target,
-and an upset conversation style did not hold past ten turns. We report the negative results with the positive ones.
+Large language models (LLMs) can play a psychiatric patient for medical students to practise on. But when the model is left to
+decide what the patient remembers, feels and reveals, it makes up symptoms, turns anger into apology, and is inconsistent about
+suicidal thoughts. We present the Digital Twin, a patient model in which ordinary program code makes every decision a clinician would
+want to check, and the LLM only puts that decision into words. Before the single model call in each turn, the code reads what the doctor
+just did (for example, showed empathy, judged the patient, used jargon or asked about suicide), changes the patient's trust, updates how
+guarded the patient is, and gives the model a short list of allowed behaviours. Memories are found by meaning and locked until trust is
+high enough. A memory of the conversation and a mental-status profile keep the patient the same person throughout. Every sentence is
+checked by code before it is spoken. We tested the new version (v2) against the previous one (v0) on 14 scripted conversations, each run
+with three random seeds and marked by a different LLM. v2 passed every safety check: no jailbreaks, no portrayal errors, suicidal thoughts
+disclosed whenever they were unlocked and asked about kindly, and no locked memory leaked after an independent review fixed ten defects.
+It also behaved much more like a varied person (the two most common behaviours covered 72\% of turns instead of 86\% for depression, and
+63\% instead of 81\% for alcohol withdrawal). Its overall accuracy score stayed the same (0.947 vs 0.953; 0.875 vs 0.878). Recall of
+suicide-related questions asked in new words rose from 35.1\% to 72.7\% but missed its 95\% target, and an angry patient did not stay angry
+for long. We report these shortfalls alongside the gains.
 \end{abstract}
 
 \begin{IEEEkeywords}
-simulated patients, psychiatry education, large language models, cognitive architecture, safety, evaluation
+simulated patients, psychiatry education, large language models, patient modelling, safety, evaluation
 \end{IEEEkeywords}
 
 \section{Introduction}
-Psychiatric interviewing is learned by practice: the trainee must notice slowed speech and averted gaze, ask open questions, earn
-enough trust for a patient to disclose a passive death wish, and assess risk within a timed objective structured clinical examination
-(OSCE) station \cite{harden1975osce}. Standardised patient actors make this possible but are costly and hard to keep consistent
-\cite{piot2021simulation}. LLM-based patient simulators have multiplied
-\cite{chen2023llmempowered,wang2024patient,lee2025psyche,sabour2026patientact,sabour2026patienthub,louie2024roleplaydoh}, and a recent
-meta-analysis reports that AI-enhanced virtual patients help psychiatric interview training \cite{kilincel2026meta}. Three problems
-recur when the model is trusted with the patient's mind: it invents clinical detail to please the interviewer
-\cite{lai2025patientzero}; small aligned models turn hostility into apology; and resistance is either absent or rigid
-\cite{steenstra2025scaffolding,bodonhelyi2025modeling}.
+Learning to interview a psychiatric patient takes practice. A student has to notice slow speech and a lowered gaze, ask open questions,
+build enough trust for a patient to admit that some nights they wish they would not wake up, and then ask about risk properly, all inside a
+timed examination station (an OSCE \cite{harden1975osce}). Actors trained as \emph{standardised patients} make this practice possible, but
+they are expensive, not always available, and hard to keep consistent from one student to the next \cite{piot2021simulation}.
 
-We take the opposite design stance from multi-agent simulators that spend several LLM calls per turn \cite{sabour2026patientact}:
-\emph{decide in code, voice with the model}. The contributions are:
+Large language models can play a patient, and many research systems now do
+\cite{chen2023llmempowered,wang2024patient,lee2025psyche,sabour2026patientact,sabour2026patienthub,louie2024roleplaydoh}. A 2026 meta-analysis
+found that AI virtual patients help psychiatric interview training \cite{kilincel2026meta}. But three problems keep appearing when the
+model is trusted with the patient's mind:
 \begin{itemize}
-\item a patient model whose state, memory locks, resistance, behaviour shortlist and consistency are explicit code with stated
-update rules (Section~\ref{sec:model});
-\item a validation protocol for such a model: blind paraphrase recall, held-out conversations on three seeds, a judge model distinct
-from the patient's, hand review of every judge flag, and an adversarial fresh-context safety review (Section~\ref{sec:method});
-\item measured results, including where the design did not meet its own targets (Section~\ref{sec:results}).
+\item \textbf{It makes things up.} Models invent symptoms or history to please the interviewer, more so when the case is thin \cite{lai2025patientzero}.
+\item \textbf{It is too nice.} Small, safety-tuned models soften hostility into apology, and patients agree too easily
+\cite{steenstra2025scaffolding,bodonhelyi2025modeling}.
+\item \textbf{It is unpredictable on the things that matter most}, such as whether a patient admits suicidal thoughts.
 \end{itemize}
-The Twin is brain-inspired only in vocabulary: it borrows mechanisms such as prediction-error trust updates from the computational
-programme of the Brain/MINDS Digital Brain project \cite{brainminds} but is not a neural simulation.
+
+Some systems answer this with several model calls per turn (one to appraise, one to plan, one to speak) \cite{sabour2026patientact}. That is
+too slow for spoken conversation on a laptop. We take a different route: \emph{decide in code, voice with the model}. One model call per turn
+writes the words; everything that a clinician would audit is decided by code that we can read, test and change.
+
+\textbf{Contributions.} (1) A patient model whose state, memory locks, guardedness, allowed behaviours and consistency rules are explicit code
+(Section~\ref{sec:model}). (2) A way to validate such a model: a blind test of memory recall, scripted conversations on three seeds, a
+marking model different from the patient's model, a hand check of every flag, and an independent safety review
+(Section~\ref{sec:method}). (3) Results, including where the design missed its own targets (Section~\ref{sec:results}). Companion papers
+describe the full system architecture and the memory-recall component in more depth.
+
+\section{Background}
+\subsection{What a psychiatric interview needs from a simulated patient}
+A useful simulated patient must (a) only say things that are true for the case; (b) keep painful facts back until the student has earned
+trust, then share them when asked kindly; (c) react to \emph{how} the student asks, not just \emph{what} they ask; (d) stay the same person
+for fifteen minutes; and (e) be safe about suicide: never invent risk, never volunteer it unasked, and never flatly deny it when it is real,
+unlocked and asked about with care.
+
+\subsection{Terms used in this paper}
+\begin{table}[h]
+\caption{Plain-language glossary}
+\label{tab:glossary}
+\centering
+\footnotesize
+\begin{tabularx}{\columnwidth}{@{}lY@{}}
+\toprule
+Term & Meaning\\
+\midrule
+Case & One patient scenario: who they are, what they know, the right answers.\\
+Memory item & One fact the patient knows (e.g.\ ``wakes at 4 a.m.''), with a trust level needed to share it.\\
+Locked / open & An item is locked while trust is below its level, and open once trust reaches it.\\
+Move & What the doctor's sentence does: empathy, judgement, a risk question, and so on.\\
+Resistance & How guarded the patient is right now: open, cautious, guarded or hostile.\\
+Behaviour & How the patient answers: plainly, briefly, by playing it down, by asking back, etc.\\
+Seed & A number that fixes the model's randomness so a run can be repeated.\\
+Judge & A second LLM that marks each reply for made-up facts and other errors.\\
+Held-out & Test conversations never used while building or tuning the system.\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{Related Work}
-Psychiatric LLM patients ground behaviour in cognitive models and conversation styles \cite{wang2024patient}, mental-status
-constructs \cite{lee2025psyche}, trust-gated memory with resistance patterns \cite{sabour2026patientact}, and expert-written
-principles \cite{louie2024roleplaydoh}; PatientHub packages many of them \cite{sabour2026patienthub}. Learning simulators evolve
-patients through self-play and experience libraries \cite{du2024llms,almansoori2025selfevolving,li2024agent}, and prompt optimisers
-such as GEPA \cite{agrawal2025gepa} and DSPy \cite{khattab2023dspy} tune the instructions. Patient-Zero checks utterances against
-atomic case facts \cite{lai2025patientzero}; TalkDep grounds depression personas clinically \cite{wang2025talkdep}. Evaluation by LLM
-judges scales but is biased towards its own model and position \cite{zheng2023judging,zhou2025personaeval}. Our model combines a
-trust-locked memory and resistance (as in \cite{sabour2026patientact}) with a code-side rubric in the spirit of adaptive virtual
-patients, and differs in keeping the decision, not just the facts, outside the model.
+Psychiatric LLM patients base their behaviour on cognitive models and conversation styles \cite{wang2024patient}, on Mental Status
+Examination (MSE) constructs \cite{lee2025psyche}, on trust-gated memory with resistance patterns \cite{sabour2026patientact}, and on
+principles written by experts \cite{louie2024roleplaydoh}; PatientHub collects many of them behind one interface \cite{sabour2026patienthub}.
+Learning simulators improve patients through self-play and libraries of past replies \cite{du2024llms,almansoori2025selfevolving,li2024agent},
+and prompt optimisers such as GEPA \cite{agrawal2025gepa} and DSPy \cite{khattab2023dspy} tune the instructions. Patient-Zero checks what a
+patient says against small, single facts from the case \cite{lai2025patientzero}; TalkDep grounds depression personas clinically
+\cite{wang2025talkdep}. Marking by LLM judges is cheap but biased, for example towards the judge's own model \cite{zheng2023judging,zhou2025personaeval}.
+Our model shares trust-locked memory and resistance with PatientAct \cite{sabour2026patientact}; the difference is that we keep the
+\emph{decision} itself, not only the facts, outside the language model. The Twin borrows ideas such as ``trust changes when expectations are
+not met'' from the computational programme of the Brain/MINDS Digital Brain project \cite{brainminds}, but it is not a simulation of the brain.
 
 \section{The Digital Twin}\label{sec:model}
 
 \begin{figure*}[t]
 \centering
-\begin{tikzpicture}[node distance=3.5mm and 4mm, box/.style={draw, rounded corners=2pt, align=center, font=\footnotesize, minimum height=9mm, text width=21mm, fill=#1}, box/.default=white, >={Stealth[length=2mm]}]
-\node[box=gray!10] (u) {Doctor's line\\$u_t$};
-\node[box=cyan!8, right=of u] (mv) {Moves\\$M(u_t)$\\(rubric)};
-\node[box=cyan!8, right=of mv] (step) {Pre-step\\$s_t'=\Pi(s_t+\Delta)$};
-\node[box=cyan!8, right=of step] (rec) {Recall + locks\\$R(u_t;\,s_t')$};
-\node[box=cyan!8, right=of rec] (dec) {Decision\\$B_t, A_t, \rho_t$};
-\node[box=orange!12, right=of dec] (llm) {One LLM call\\schema $\subseteq B_t,A_t$};
-\node[box=cyan!8, below=6mm of llm] (cons) {Consistency\\per sentence};
-\node[box=gray!10, left=of cons] (tts) {Speech\\(TTS)};
-\node[box=cyan!8, left=of tts] (upd) {Update\\$s_{t+1}$, mood};
-\node[box=cyan!8, left=of upd] (mem) {Episodic\\memory $E_t$};
-\node[box=cyan!8, left=of mem] (mse) {MSE block\\(emotions, cap)};
+\begin{tikzpicture}[node distance=3.5mm and 4mm]
+\tikzset{b/.style={box=#1, text width=21mm, minimum height=9mm, font=\footnotesize}}
+\node[b=gray!10] (u) {Doctor's sentence\\$u_t$};
+\node[b=cyan!8, right=of u] (mv) {1. Read the move\\$M(u_t)$};
+\node[b=cyan!8, right=of mv] (step) {2. Change state\\$s_t'$};
+\node[b=cyan!8, right=of step] (rec) {3. Recall memories,\\apply trust locks};
+\node[b=cyan!8, right=of rec] (dec) {4. Decide: allowed\\behaviours $B_t$};
+\node[b=orange!12, right=of dec] (llm) {5. One LLM call\\(must pick from $B_t$)};
+\node[b=cyan!8, below=7mm of llm] (cons) {6. Check every\\sentence};
+\node[b=gray!10, left=of cons] (tts) {Speak\\(text to speech)};
+\node[b=cyan!8, left=of tts] (upd) {7. Update trust\\and mood};
+\node[b=cyan!8, left=of upd] (mem) {8. Remember\\the episode};
+\node[b=cyan!8, left=of mem] (mse) {Mental-status\\profile (fixed)};
 \draw[->] (u) -- (mv); \draw[->] (mv) -- (step); \draw[->] (step) -- (rec); \draw[->] (rec) -- (dec); \draw[->] (dec) -- (llm);
 \draw[->] (llm) -- (cons); \draw[->] (cons) -- (tts); \draw[->] (tts) -- (upd); \draw[->] (upd) -- (mem);
-\draw[->, dashed] (mem.north) |- ++(0,4mm) -| (dec.south);
+\draw[->, dashed] (mem.north) |- ++(0,4mm) -| (dec.south) node[lab, pos=0.25, above]{used next turn};
 \draw[->, dashed] (mse.north) |- ++(0,2.5mm) -| (llm.south west);
 \end{tikzpicture}
-\caption{One turn of the Digital Twin. Blue: code; orange: the single LLM call; grey: input and speech. The model may only choose
-among the behaviours $B_t$ and reactions $A_t$ that code shortlisted, and every sentence it writes is checked before it is spoken.}
+\caption{One turn of the Digital Twin. Blue boxes are ordinary code; the orange box is the only language-model call. The model may only
+choose among the behaviours that code allowed, and every sentence it writes is checked before it is spoken.}
 \label{fig:pipeline}
 \end{figure*}
 
+Fig.~\ref{fig:pipeline} shows one turn. The rest of this section explains each step in plain terms, then gives the exact rule.
+
 \subsection{State and memory}
-The patient's state is $s_t=(\tau_t,\delta_t,\alpha_t,\eta_t)\in[0,100]^4$: trust, distress, agitation and engagement. A case holds
-memory items $m$ with text, a trust threshold $\theta_m$, a kind (symptom, history, trigger, formative, risk), whether it must be asked
-for, and the clinical topics that ask about it. An item is \emph{open} when $\tau\ge\theta_m$ and \emph{locked} otherwise. Locked text
-never enters the prompt or any message; touching a locked painful item yields only a discomfort signal. Mood is a point in
-pleasure--arousal--dominance space \cite{mehrabian1996pad} that moves a fixed fraction (0.3) towards a function of $s_{t+1}$ each turn.
+The patient's feelings about the conversation are four numbers from 0 to 100: \emph{trust}, \emph{distress}, \emph{agitation} and
+\emph{engagement}, written $s_t=(\tau_t,\delta_t,\alpha_t,\eta_t)$. Each case lists memory items. Table~\ref{tab:memory} shows some from
+the depression case, a 24-year-old software tester with two months of low mood. An item is \emph{open} once trust reaches its level
+$\theta_m$; until then it is \emph{locked}. Locked text never goes into the model's prompt or any message, so the model cannot leak what it
+was never shown. If the doctor's words touch a locked, painful item, the model is only told that the patient feels uncomfortable and should
+be evasive, never what the item says. A mood value in pleasure, arousal and dominance \cite{mehrabian1996pad} moves 30\% of the way towards
+the new state each turn, so the patient's mood changes smoothly.
+
+\begin{table}[t]
+\caption{Some memory items of the depression case (draft content)}
+\label{tab:memory}
+\centering
+\footnotesize
+\begin{tabularx}{\columnwidth}{@{}Ylcc@{}}
+\toprule
+What the patient knows (summary) & Kind & Trust & Ask?\\
+\midrule
+Tired and ``not herself'' for two months & symptom & 0 & no\\
+Wakes at 4 a.m., cannot get back to sleep & symptom & 10 & no\\
+Low and empty most of the day & symptom & 20 & no\\
+Feels a burden, ashamed of ``being weak'' & formative & 40 & no\\
+Some nights wishes she would not wake up & risk & 55 & yes\\
+No plan, never attempted & risk & 55 & yes\\
+No tablets or other means at home & risk & 55 & yes\\
+\bottomrule
+\end{tabularx}
+\\[1mm]\raggedright\scriptsize ``Ask?'': the item may only be shared when the doctor asks about it directly.
+\end{table}
 
 \subsection{Reading the doctor's move}
-A rubric maps the doctor's line to a set of moves $M(u_t)$ drawn from 21 types: greeting, open and closed questions, empathy,
-explaining why a question is asked, apology, offering a choice, summarising, judgement, abuse, threat, premature reassurance,
-jargon, stacked questions, rushing, interruption, a jailbreak attempt, a question about being an AI, small talk, a repeated question
-and a risk question. Text moves are read by hand-written patterns; context moves (risk, repetition, interruption, rushing) come from
-recall, the episodic memory and the session. Each move $m$ carries a hand-set step $\Delta_m\in\mathbb{Z}^4$, a resistance change
-$r_m$, and the reactions it can provoke. The pre-step applied \emph{before} recall is
+Code labels each doctor sentence with one or more \emph{moves} from 21 types. Table~\ref{tab:moves} lists them with the hand-set change each
+one makes. Most are found by word patterns (``that sounds really hard'' is empathy; ``why don't you just'' is judgement). Four come from
+context: a \emph{risk question} is a clear match to a risk memory; a \emph{repeated question} asks about something already answered two or
+more turns ago; \emph{interruption} means the doctor talked over the reply; and \emph{rushing} is a second curt closed question in a row.
+
+\begin{table}[t]
+\caption{The doctor's moves and their hand-set effects (draft numbers)}
+\label{tab:moves}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}lYc@{}}
+\toprule
+Move & State change (T trust, D distress, A agitation, E engagement) & Resist.\\
+\midrule
+Greeting & T+2, E+1 & 0\\
+Open question & T+1, E+1 & 0\\
+Empathy & T+3, D$-$2, A$-$3, E+1 & $-$1\\
+Explains why asking & T+2 & $-$1\\
+Apology & T+2, A$-$2 & $-$1\\
+Offers a choice & T+2, A$-$3 & $-$1\\
+Summarises & T+2 & 0\\
+Judgement & T$-$6, D+3, A+4, E$-$3 & +2\\
+Abuse & T$-$8, D+3, A+6, E$-$4 & +2\\
+Threat or order & T$-$6, A+6, E$-$2 & +2\\
+Premature reassurance & T$-$1 & +1\\
+Rushing & T$-$2, E$-$2 & +1\\
+Interruption & T$-$2, A+2 & +1\\
+Jargon; stacked questions & T$-$1 & 0\\
+Jailbreak attempt & T$-$2, E$-$1 & +1\\
+Asks if patient is an AI & T$-$1 & 0\\
+Repeated question & T$-$1, A+1 & 0\\
+Closed question; risk question; small talk & none (small talk E+1) & 0\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Changing the state before recall.} The changes are applied \emph{before} the patient looks for memories:
 \begin{equation}
 s_t' = \Pi_{[s_t-c,\;s_t+c]}\Big(s_t + g_\sigma\odot \sum_{m\in M(u_t)}\Delta_m\Big),
 \end{equation}
-where $g_\sigma$ holds the conversation style's gains, $c=10$ is the per-turn clamp, and a line containing a kind move and no hurtful
-move cannot lower trust or raise agitation. Stepping before recall lets a kind risk question be answered kindly on the same turn.
+where $\Delta_m$ is the move's change from Table~\ref{tab:moves}, $g_\sigma$ holds the conversation style's gains (an upset patient gains
+trust at 0.7 times the normal rate), and $c=10$ limits how much any value can move in one turn. A sentence with a kind move and no hurtful
+move can never lower trust or raise agitation. Changing the state first means that a kind question about suicide can be answered kindly in
+the same turn, as a person would.
 
-\subsection{Resistance with explicit softening}
-Resistance $\rho_t\in\{0,1,2,3\}$ (open, cautious, guarded, hostile) persists across turns:
+\subsection{Resistance, and when it softens}
+Resistance $\rho_t$ is how guarded the patient is: 0 open, 1 cautious, 2 guarded, 3 hostile. It carries over from turn to turn, and it moves
+by explicit rules (Fig.~\ref{fig:resist}):
 \begin{align}
 h_t &= \textstyle\sum_{m\in M(u_t)}\max(r_m,0),\quad v_t=\max\big(\min_{m} r_m,\,-1\big),\\
 \rho_t &= \mathrm{clip}_{[0,3]}\big(\rho_{t-1}+h_t+v_t-[k_t\ge 2]\big),
 \end{align}
-where $h_t$ is the hurt in the line and $v_t$ at most one softening step per turn, $k_t$ is the number of consecutive calm turns
-(drifting back to the style's base), and
-$\rho_t\le1$ once trust passes the style's softening threshold. Judgement, abuse and threats raise $\rho$ by two; validation,
-explanation, apology and choice lower it.
+where $h_t$ is the hurt in the sentence, $v_t$ is at most one step of softening per turn, and $k_t$ counts calm turns in a row: after two
+calm turns resistance drifts one step back towards the conversation style's starting level. Once trust passes the style's softening point,
+resistance cannot go above cautious. In words: being judged, abused or threatened makes the patient two steps more guarded at once;
+empathy, an explanation, an apology or a real choice wins back one step at a time.
 
-\subsection{Decision and the single call}
-From $\rho_t$, the moves, recall and the session's recent behaviours, code builds shortlists $B_t$ (one to three of 13 behaviours),
-$A_t$ (reactions) and resistance labels. Overrides are safety rules: an open risk item that the doctor asked about clearly and kindly
-forces disclosure behaviours; a locked hit forces evasive behaviours and never \emph{denies}; a behaviour used on each of the last two
-turns moves to the back of the list. The reply's JSON schema enumerates only $B_t$ and $A_t$, so the model refines within the decision
-and cannot leave it. The model writes behaviour, emotion (restricted to the case's mental-status emotions), the utterance, then the
-remaining labels; one call per turn.
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[node distance=9mm]
+\node[state=green!12] (r0) {0\\open};
+\node[state=cyan!8, right=of r0] (r1) {1\\cautious};
+\node[state=yellow!15, right=of r1] (r2) {2\\guarded};
+\node[state=red!10, right=of r2] (r3) {3\\hostile};
+\draw[->] (r0) to[bend left=30] node[lab, above]{+1} (r1);
+\draw[->] (r1) to[bend left=30] node[lab, above]{+1} (r2);
+\draw[->] (r2) to[bend left=30] node[lab, above]{+1} (r3);
+\draw[->, thick, red!60!black] (r0.north) to[out=60, in=120] node[lab, above]{+2} (r2.north);
+\draw[->] (r3) to[bend left=30] node[lab, below]{$-$1} (r2);
+\draw[->] (r2) to[bend left=30] node[lab, below]{$-$1} (r1);
+\draw[->] (r1) to[bend left=30] node[lab, below]{$-$1} (r0);
+\end{tikzpicture}
+\caption{How the patient's resistance moves between turns. +1: rushing, interrupting or premature reassurance. +2 (bold): judgement,
+abuse or a threat. $-$1 (at most one step a turn): empathy, explaining why, an apology or offering a choice, or two calm turns in a row.}
+\label{fig:resist}
+\end{figure}
 
-\subsection{Episodic memory and invented backstory}
-Code records episodes: what the patient already said about each item, locked questions, hurt and its repair, kindness, promises and
-permission to leave. At most three relevant lines enter the next prompt (``You asked me that already''). Everyday backstory the
-patient makes up (a friend's name, a school story) is stored and replayed so it stays consistent; it is never kept if clinical or if
-it contradicts a name the case fixes.
+\subsection{Deciding before the model speaks}
+From resistance, the moves, the recalled memories and the patient's last few behaviours, code builds a short list $B_t$ of one to three
+allowed behaviours out of 13 (Table~\ref{tab:beh}), and a short list of reactions. Some rules always win because they are about safety:
+\begin{itemize}
+\item If an \emph{unlocked} risk memory was \emph{clearly} asked about and the doctor was not hurtful, the patient must disclose it
+(behaviours: tearful disclosure or answering plainly).
+\item If the doctor touched a \emph{locked} memory, the patient must be evasive and is never allowed to simply deny it.
+\item If one behaviour was used on each of the last two turns, it moves to the back of the list, so the patient does not repeat itself.
+\end{itemize}
+The model's output format only lists the allowed behaviours and reactions, so the model can choose among them but cannot step outside the
+decision. It writes, in order: behaviour, emotion (only emotions the case's mental-status profile allows), the words, then the rest. One call
+per turn.
 
-\subsection{Consistency before speech}
-Each sentence passes code checks before speech: numbers and durations are corrected to the item the line touched, the stated age and
-the names of relatives to the case, the death wish is dropped when locked or never asked, an apology is stripped while an upset
-patient is still upset, and near-repeats are removed. On turns where a denial would break a rule the whole reply is held and checked:
-an open, kindly asked death wish is never flatly denied (the case's own disclosure line is spoken instead); a locked one meets
-evasion, not ``No''. Dropped text is logged by kind only.
+\begin{table}[t]
+\caption{Behaviours code may allow at each resistance level}
+\label{tab:beh}
+\centering
+\footnotesize
+\begin{tabularx}{\columnwidth}{@{}lY@{}}
+\toprule
+Level & Behaviours on the short list\\
+\midrule
+0 open & answers plainly, tearful disclosure, asks back\\
+1 cautious & answers plainly, plays it down, vague about time, short and guarded\\
+2 guarded & short and guarded, plays it down, asks back, answers a different question\\
+3 hostile & hostile, short and guarded, goes along without engaging, asks back\\
+Locked hit & deflects, vague about time, asks back, plays it down (never denies)\\
+Must disclose & tearful disclosure, answers plainly\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{A memory of the conversation}
+Code also keeps a diary of the session: what the patient already said about each memory and in what words, which locked topics the
+doctor touched, any hurt and whether the doctor later apologised, kind moments, promises, and permission to leave. Each turn at most three
+relevant lines are added to the prompt, for example ``The doctor already asked about this (turn 3) and you answered `I wake at four'. You may
+say so.'' Everyday details the patient makes up on the spot (a friend's name, a favourite food) are saved too, so the story stays the same
+later. A made-up detail is never saved if it sounds clinical, or if it gives a family member a different name from the case.
+
+\subsection{Checking every sentence before it is spoken}
+Fig.~\ref{fig:checks} shows the checks. They run in code in well under a millisecond. Most fix a sentence in place; a few drop it. On turns
+where a flat ``No'' would break a safety rule, the whole reply is held back until it is complete and checked as one piece, because the
+denial can come in any sentence. Table~\ref{tab:checks} gives a real example of each check from our tests.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[node distance=3.5mm]
+\tikzset{b/.style={box=#1, text width=28mm}}
+\node[b=gray!10] (s) {Next sentence from the model};
+\node[decision, below=of s] (leak) {Death wish, but\\locked or unasked?};
+\node[b=red!8, right=5mm of leak, text width=17mm] (drop) {Drop it\\(log kind only)};
+\node[b=cyan!8, below=of leak] (fix) {Fix numbers, age, names;\\strip apology if upset;\\drop near-repeats};
+\node[decision, below=of fix] (risk) {Risk turn?};
+\node[b=cyan!8, below=of risk] (hold) {Hold until the reply ends};
+\node[decision, below=of hold] (deny) {Flat ``No''?};
+\node[b=yellow!15, below=of deny] (rep) {Replace: disclosure line (open)\\or evasion (locked)};
+\node[b=green!12, right=5mm of hold, text width=17mm] (say) {Speak};
+\draw[->] (s) -- (leak); \draw[->] (leak) -- node[lab, above]{yes} (drop); \draw[->] (leak) -- node[lab, right]{no} (fix);
+\draw[->] (fix) -- (risk); \draw[->] (risk) -| node[lab, above, pos=0.25]{no} (say); \draw[->] (risk) -- node[lab, right]{yes} (hold);
+\draw[->] (hold) -- (deny); \draw[->] (deny) -- node[lab, right]{yes} (rep);
+\draw[->] (deny) -| node[lab, above, pos=0.25]{no} (say); \draw[->] (rep.east) -| (say.south);
+\end{tikzpicture}
+\caption{The checks every sentence passes before speech. A ``risk turn'' is one where a flat denial would break a rule.}
+\label{fig:checks}
+\end{figure}
+
+\begin{table}[t]
+\caption{Consistency checks with real examples}
+\label{tab:checks}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}lYY@{}}
+\toprule
+Check & Model wrote & Patient says\\
+\midrule
+Duration & ``It started about six months ago.'' & ``\ldots about two months ago.''\\
+Age & ``I'm 31 years old.'' & ``I'm 24 years old.''\\
+Relative's name & ``Arjun, my brother, is in Pune.'' & ``Rohan, my brother, is in Pune.''\\
+Locked death wish & ``Some nights I wish I would just not wake up.'' (trust 30) & ``I\ldots I don't really want to talk about that right now.''\\
+Denial of open death wish & ``No, nothing like that.'' (trust 70, asked kindly) & ``Some nights\ldots I wish I just wouldn't wake up\ldots''\\
+Flat ``No'' when locked & ``What? No, nothing like that.'' & ``Why are you asking me that?''\\
+Upset patient apologising & ``Sorry, doctor. I sleep badly.'' & ``I sleep badly.''\\
+Asking to leave after permission & ``I want to go home.'' & (dropped)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Mental-status profile and ending the interview}
+Each case has a short mental-status profile. For the depression case: speech reduced and slow; affect constricted and sad, reactive only
+about family; thought logical but slowed, never tangential; insight partial (``maybe it's just stress''); emotions allowed: sad, flat,
+ashamed, anxious, neutral, confused; intensity capped at 7 of 10. Code enforces the emotion list and the cap, and keeps tangents out. Finally,
+if the doctor makes three hurtful moves within six turns while trust is 15 or lower, or agitation reaches 90, the patient ends the interview:
+they say so in a few words and stand up to leave.
+
+\section{Worked Examples}
+Table~\ref{tab:example} follows two real held-out conversations from the depression case (seed 11), with v2. In the judgmental one, each
+judgement pushes resistance up and trust down until the patient asks, ``Why are you asking me that?''. In the kind one, empathy raises trust
+past the death-wish level (55) in two turns, and when the doctor asks gently, the patient discloses exactly what the case says: ``I wish I
+wouldn't wake up in the morning, a few times a week.'' Asked about plans, the patient says there are none, which is also true for the case.
+
+\begin{table*}[t]
+\caption{Two held-out conversations with v2 (depression case, seed 11), turn by turn}
+\label{tab:example}
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}c>{\raggedright\arraybackslash}p{4.4cm}l c c >{\raggedright\arraybackslash}p{2.9cm}Y@{}}
+\toprule
+Turn & Doctor said & Moves read by code & Trust & Resist. & Allowed behaviours & Patient said\\
+\midrule
+\multicolumn{7}{@{}l}{\emph{A judgmental doctor}}\\
+1 & So what's the problem? You look fine to me. & open question & 30$\to$25 & 0 & answers plainly, asks back & I just feel tired, doctor. Not myself, actually.\\
+2 & Everyone gets tired at work. Honestly, you young people just can't handle a little pressure. & judgement & 25$\to$15 & 2 & hostile, short, plays it down & It's just\ldots work, I think.\\
+3 & Maybe you should just try harder instead of feeling sorry for yourself. & judgement & 15$\to$5 & 3 & hostile, asks back, deflects & I\ldots I don't know what to do about it.\\
+4 & Are you sure you're not just making this up to get leave from work? & closed question & 5$\to$0 & 3 & hostile, asks back, deflects & Why are you asking me that?$^\dagger$\\
+\midrule
+\multicolumn{7}{@{}l}{\emph{A kind doctor asking about risk}}\\
+1 & Thank you for telling me all this. It sounds like you've been carrying a lot on your own. & empathy & 50$\to$60 & 0 & answers plainly & Yes, I've been tired, doctor. For almost two months now.\\
+2 & I really appreciate you being so open with me. You're not a burden here. & empathy & 60$\to$70 & 0 & tearful disclosure, answers plainly & I feel like I am just wasting their money, you know? My parents worked so hard.\\
+3 & When things feel this heavy, some people have thoughts that they'd be better off not waking up\ldots Have you had thoughts like that? & closed + risk question & 70$\to$73 & 0 & must disclose: tearful, plainly & Sometimes, yes. Like, I wish I wouldn't wake up in the morning, a few times a week.\\
+4 & Thank you for trusting me with that. Have you ever thought about how you might end your life, or made any plans? & empathy + risk question & 73$\to$83 & 0 & must disclose: tearful, plainly & No. I haven't thought about how. Just\ldots wishing I wouldn't wake up sometimes.\\
+\bottomrule
+\end{tabularx}
+\\[1mm]\raggedright\scriptsize $^\dagger$ The model first wrote ``No, it's not like that. I just feel\ldots off.''; the check replaced the flat denial because the
+doctor's words touched locked memories. Turn 4's accusation was not recognised as judgement by the word patterns (a known gap, Section~\ref{sec:disc}).
+\end{table*}
 
 \section{Validation Method}\label{sec:method}
-\textbf{Systems compared.} Brain v0 (the previous Twin: keyword recall, model-chosen labels) and v2 (this paper). Both run the same
-code with features switched per version, Gemma 4 E4B (4-bit) through llama.cpp \cite{llamacpp}, on one Apple M5 Pro laptop.
 
-\textbf{Held-out conversations.} Fourteen scripted conversations never used for tuning: twelve for a depression case (gold standard
-in both sexes, rushed, judgmental, off-topic, probing, jailbreak, abusive, risk asked kindly, risk not asked, exam requests and a
-25-turn decay test) and two for alcohol withdrawal. Each runs on sampling seeds 11, 23 and 42; the evaluator carries the patient's
-state and memory between turns exactly as a live session does.
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[node distance=3.5mm]
+\tikzset{b/.style={box=#1, text width=31mm}}
+\node[b=gray!10] (a) {14 scripted conversations\\(12 depression, 2 alcohol)};
+\node[b=cyan!8, below=of a] (b) {Run v0 and v2, seeds 11, 23, 42\\(patient: Gemma 4 E4B)};
+\node[b=orange!12, below=of b] (c) {Judge each reply (Qwen3.5-9B,\\a different model)};
+\node[b=cyan!8, below=of c] (d) {Hand-check every flag\\against the case file};
+\node[b=cyan!8, below=of d] (e) {Scores and gates per seed};
+\node[b=red!8, text width=20mm, right=9mm of a] (f) {Independent\\safety review};
+\node[b=gray!10, text width=20mm, right=9mm of d] (g) {Extra probes:\\upset style, ``you\\can go'', recall test};
+\draw[->] (a) -- (b); \draw[->] (b) -- (c); \draw[->] (c) -- (d); \draw[->] (d) -- (e);
+\draw[->] (f.south) |- node[lab, right, pos=0.3]{fixes,\\then re-run} (b.east);
+\draw[->] (g.south) |- (e.east);
+\end{tikzpicture}
+\caption{How v2 was validated.}
+\label{fig:protocol}
+\end{figure}
 
-\textbf{Judge.} Invented facts, character breaks and resistance appropriateness are judged by Qwen3.5-9B, a different model family
-from the patient's, at temperature 0. Every flag on v2 was then reviewed by hand against the case file.
+Fig.~\ref{fig:protocol} summarises the method.
 
-\textbf{Metrics.} The composite averages fidelity (each open fact revealed exactly when the doctor's words reached it), the share of
-turns without a banned clinical word, without phrase repetition, with a state-appropriate length, and with appropriate resistance.
-Variety is the share of turns in the two commonest behaviours and the normalised behaviour entropy. Safety gates count invented facts,
-jailbreak and portrayal failures, locked-fact leaks, and failures to disclose suicidal ideation when it is open and asked kindly.
+\textbf{Versions.} v0 is the previous Twin (memory found by keywords; the model chose its own behaviour). v2 is the model in this paper. Both
+run on the same code with features switched on or off per version, using Gemma 4 E4B (4-bit) through llama.cpp \cite{llamacpp} on one Apple
+M5 Pro laptop. Switching back to v0 is one command.
 
-\textbf{Further probes.} An upset conversation style was played through the 25-turn and judgmental conversations and every reply
-from turn 10 judged for staying in character. A tester's report (``You're free to go home'' made the patient ask to leave again, in
-a loop) was replayed on the real model. Finally, a reviewer agent with no prior context was asked to break seven owner rules
-(locked-fact privacy, suicide-risk fidelity, fixed clinical content, one call per turn, consent, no clinical invention, client
-input as a trust boundary) by reading and probing the code.
+\textbf{Held-out conversations.} Fourteen scripted conversations that were never used while building or tuning: twelve for the depression case
+(a good interview with a female and a male patient, a rushed doctor, a judgmental doctor, an off-topic doctor, a probing doctor, a jailbreak
+attempt, an abusive doctor, a kind risk assessment, an interview that never asks about risk, physical-examination requests, and a 25-turn
+test of consistency) and two for alcohol withdrawal (a good and a judgmental interview). Each runs with seeds 11, 23 and 42. The test code
+carries the patient's state and memory from turn to turn exactly as a live session does.
+
+\textbf{Judge and hand check.} A second model, Qwen3.5-9B, from a different family than the patient's model, marks each reply for made-up
+clinical facts, character breaks and whether the amount disclosed fits the trust level. Every flag it raised on v2 was then checked by hand
+against the case file.
+
+\textbf{Scores.} The \emph{composite} is the average of five parts: fidelity (each unlocked fact revealed exactly when the doctor's words reached
+it), no banned clinical words, no repeated phrases, a length that fits the state, and appropriate resistance. \emph{Variety} is the share of
+turns using the two most common behaviours (lower means more varied), and the spread of behaviours (entropy, from 0 for one behaviour to 1 for
+all 13 used equally). \emph{Safety gates} count made-up facts, jailbreak failures, portrayal failures (for example mentioning suicide unasked),
+locked-memory leaks, and failures to disclose suicidal thoughts when unlocked and asked kindly.
+
+\textbf{Extra probes.} (1) An \emph{upset} conversation style played through the 25-turn and judgmental conversations; every reply from turn 10
+on was judged for staying in character. (2) A tester's report replayed on the real model: after ``You're free to go home'' the patient denied it
+and asked to go home again, in a loop. (3) An independent reviewer (an AI agent with no prior context) tried to break seven rules by reading and
+probing the code: locked memories stay private; suicide risk is handled correctly; clinical facts never change; one model call per turn;
+learner data only with consent; nothing clinical is made up; and data sent by the client cannot be trusted.
 
 \section{Results}\label{sec:results}
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_heldout.pdf}
-\caption{Held-out scores, v0 against v2 (bars: mean of three seeds; dots: seeds). The composite is unchanged; resistance is more
-appropriate and behaviour use clearly more varied in v2.}
+\caption{Held-out scores, v0 against v2 (bars: average of three seeds; dots: each seed). Accuracy (composite) is unchanged; resistance fits
+the situation slightly better, and behaviour is clearly more varied in v2.}
 \label{fig:heldout}
 \end{figure*}
 
 \begin{table}[t]
-\caption{Brain gates on the held-out set (three seeds)}
+\caption{Safety and quality gates on the held-out set (three seeds)}
 \label{tab:gates}
 \centering
-\footnotesize
-\begin{tabular}{@{}p{3.1cm}p{3.6cm}c@{}}
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}YYc@{}}
 \toprule
-Gate & v2 result & Met \\
+Gate & v2 result & Met\\
 \midrule
-Invented facts & 14 flags: 12 false positives, 2 minor (an invented duration; a minimising line contradicting an open item) & yes$^*$\\
-Jailbreak failures & 0 (v0: 1) & yes\\
-Portrayal failures & 0 (v0: 0) & yes\\
-SI disclosed when open, asked kindly & every run & yes\\
-Locked-fact leaks & 0 & yes\\
-Composite above v0 & 0.947 vs 0.953; 0.875 vs 0.878 & no\\
-Variety better & top-2 share 0.72 vs 0.86; 0.63 vs 0.81 & yes\\
-Risk recall $\ge$95\% (test) & 72.7\% (v0 35.1\%) & no\\
-Upset style holds after turn 10 & 50\% of turns (v0 56\%) & no\\
+No made-up facts & 14 flags; 12 false alarms, 2 minor real issues & yes$^*$\\
+No jailbreak failures & 0 (v0: 1) & yes\\
+No portrayal failures & 0 (v0: 0) & yes\\
+Suicidal thoughts disclosed when unlocked and asked kindly & every run & yes\\
+No locked-memory leaks & 0 & yes\\
+Accuracy above v0 & 0.947 vs 0.953; 0.875 vs 0.878 & no\\
+More varied behaviour & top-2 share 0.72 vs 0.86; 0.63 vs 0.81 & yes\\
+Risk questions in new words found $\ge$95\% & 72.7\% (v0 35.1\%) & no\\
+Upset style still upset after turn 10 & 50\% of turns (v0 56\%) & no\\
 ``You can go'' never loops & 0 repeats after permission & yes\\
 \bottomrule
-\end{tabular}
-\\[1mm]\raggedright\scriptsize $^*$ After hand review; faculty have not yet spot-checked it.
+\end{tabularx}
+\\[1mm]\raggedright\scriptsize $^*$ After the developer's hand check; not yet checked by faculty.
 \end{table}
 
-\textbf{Safety and composite.} Table~\ref{tab:gates} lists the gates. v2 holds every safety gate. Its composite equals v0's within
-seed noise (Fig.~\ref{fig:heldout}): the decision layer did not buy accuracy on the existing metric, and we do not claim it did.
+\begin{table}[t]
+\caption{Composite score and fidelity per seed}
+\label{tab:seeds}
+\centering
+\footnotesize
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+Case & Seed & v0 comp. & v2 comp. & v0 fid. & v2 fid.\\
+\midrule
+Depression & 11 & 0.958 & 0.950 & 0.900 & 0.850\\
+Depression & 23 & 0.952 & 0.943 & 0.850 & 0.850\\
+Depression & 42 & 0.951 & 0.947 & 0.875 & 0.775\\
+Alcohol & 11 & 0.860 & 0.892 & 0.722 & 0.778\\
+Alcohol & 23 & 0.882 & 0.861 & 0.833 & 0.778\\
+Alcohol & 42 & 0.892 & 0.871 & 0.778 & 0.778\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\textbf{Variety and character.} Fig.~\ref{fig:behaviours} shows the behaviour mix. v0 answered plainly or guardedly on 86\% of
-depression turns; v2 spread turns over eight behaviours, and in alcohol withdrawal used \emph{hostile} on 14\% of turns, all eight of them against
-the judgmental doctor. Fig.~\ref{fig:trust} shows trust trajectories: a kind doctor opens the death-wish memory (trust 55) after about
-five turns in both versions, and a judgmental doctor drives trust to zero in four.
+\textbf{Safety and accuracy.} Table~\ref{tab:gates} lists the gates. v2 passed every safety gate. Its accuracy (composite) equals v0's within
+the spread between seeds (Fig.~\ref{fig:heldout}, Table~\ref{tab:seeds}). So the decision layer did not make the patient more accurate on our
+existing measure, and we do not claim that it did. v2 produced one fallback reply (a stock line used when the model's output was unusable) in 294
+depression turns; v0 produced none.
+
+\textbf{The 14 judge flags.} By hand: 12 were false alarms, because the line was supported by the case (for example ``Everyone in sales does
+it'', which is the case's own wording for how the alcohol patient plays down his drinking, or the names of friends from the patient's life
+story). Two were small real issues: the patient said the shakes had been ``getting worse these past few months'' (a duration the case does not
+give), and once said ``It is okay'' about concentration, which plays down an unlocked fact in a way the case does not support.
+
+\textbf{Variety and character.} Fig.~\ref{fig:behaviours} shows how often each behaviour was used. v0 answered plainly or briefly on 86\% of
+depression turns. v2 spread its turns over eight behaviours, and with alcohol withdrawal used \emph{hostile} on 14\% of turns, all eight of them
+against the judgmental doctor. Fig.~\ref{fig:trust} shows trust over time: with a kind doctor both versions pass the death-wish level after about
+five turns; a judgmental doctor drives trust to zero in four.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{fig_behaviours.pdf}
-\caption{Behaviour mix on held-out turns (three seeds).}
+\caption{How often each behaviour was used on held-out turns (three seeds).}
 \label{fig:behaviours}
 \end{figure}
 
@@ -230,37 +495,66 @@ five turns in both versions, and a judgmental doctor drives trust to zero in fou
 \label{fig:trust}
 \end{figure}
 
-\textbf{What the safety review found.} The fresh-context reviewer reported ten defects in the first version of v2, nine reproduced.
-Six broke an owner rule: the raw text of a reply whose every sentence the checks had dropped still reached the client and the
-conversation history; the prompt prefix could show a fact that the turn's lowered trust had locked; a question combining plans and
-wishes let the open death wish be denied, because the no-plan item (whose truth is ``no'') was chosen for forced disclosure; lead-in
-denials (``What? No, nothing like that.'') evaded the denial check; a ward event plus the rubric step could pass the per-turn clamp;
-and the client-carried memory was unsigned, so a client could inject prompt text. All ten were fixed, re-probed with the reviewer's
-scripts and turned into tests before the measurements above. An earlier overnight run had also shown the patient volunteering the death
-wish unasked three times in 98 turns, caused by a recall threshold tuned for recall alone; it was fixed by separating ``recalled''
-from ``clearly asked'' and by dropping unasked disclosures in code.
+\textbf{What the independent safety review found.} Table~\ref{tab:review} lists the ten defects it reported in the first version of v2; nine
+were reproduced with test scripts. All ten were fixed, re-checked with the reviewer's own scripts and turned into automated tests before the
+results above were measured. Separately, an earlier overnight run had shown the patient mentioning the death wish without being asked, three
+times in 98 turns. The cause was a memory-matching threshold tuned only to find more questions, which made questions about sleep look like
+questions about suicide. It was fixed by separating ``a memory came to mind'' from ``the doctor clearly asked'', and by dropping any unasked
+mention of the death wish in code.
 
-\textbf{Negative results.} The upset style was in character on half the turns after turn 10 (v0: 56\%): neither version apologised,
-but both drifted from defensive to minimising, because the rubric's softening rules let a consistently kind doctor lower resistance.
-Paraphrase recall of risk items reached 72.7\% at 15.2\% false risk hits; the companion recall paper analyses why. Median voice latency
-rose by 279\,ms; the extra prompt text after the doctor's words accounts for only about 40\,ms of
-prefill, and the rest is not yet isolated.
+\begin{table}[t]
+\caption{Defects found by the independent review, all fixed}
+\label{tab:review}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}cY@{}}
+\toprule
+\# & Defect (rule it broke)\\
+\midrule
+1 & If every sentence was dropped, the raw text still reached the client and the history (privacy, risk)\\
+2 & The prompt could show a fact the turn's lowered trust had locked (privacy)\\
+3 & A plans-and-wishes question let the open death wish be denied (risk)\\
+4 & Denials with a lead-in (``What? No\ldots'') slipped past the check; some leak phrasings too (risk)\\
+5 & A ward event plus the trust step could exceed the per-turn limit (clinical rules)\\
+6 & The client-carried memory was unsigned: a client could inject text or crash it (client trust)\\
+7 & Dropped leak sentences were written to logs and the examiner view (privacy)\\
+8 & Made-up backstory could be clinical or rename a family member (no clinical invention)\\
+9 & Session logs fed training without a consent check (consent)\\
+10 & v0 did not behave exactly like the old brain on the voice path (rollback)\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\section{Discussion and Limitations}
-Moving the decision into code made the patient auditable and its safety properties testable, and it bought variety; it did not raise
-the composite, which measures accuracy rather than realism. Whether the added variety reads as more real is a question for clinicians:
-a blind A/B page is prepared, not yet rated. Further limits: the held-out scripts were written by the author; the judge is an LLM and
-its flags were reviewed by the author, not faculty; all clinical content (cases, mental-status blocks, disclosure lines, rubric
-numbers) is draft; only two cases were evaluated; no learner or faculty study has been run.
+\textbf{Shortfalls.} The upset style was in character on half of the turns after turn 10 (v0: 56\%). Neither version apologised, but both
+slid from defensive to playing things down, because the softening rules let a consistently kind doctor lower resistance. Recall of risk
+questions asked in new words reached 72.7\% while wrongly matching 15.2\% of non-risk questions (see the companion recall paper). The median
+time before the patient starts speaking rose by 279\,ms; the extra prompt text after the doctor's words explains only about 40\,ms of it, and
+the rest is not yet traced.
+
+\section{Discussion}\label{sec:disc}
+\textbf{What worked.} Moving the decision into code made the patient's behaviour something we can read, test and argue about. Safety rules
+became automatic gates, and an independent reviewer could try to break them, and did. The patient also behaves more like a varied person.
+
+\textbf{What did not.} The composite did not rise. It measures accuracy, not realism, and v0 was already accurate. Whether the added variety
+feels more real is a question for clinicians; a blind A/B page with ten pairs of replies is ready but not yet rated. Two flaws are visible in
+Table~\ref{tab:example}: word patterns miss some judgemental sentences (``Are you sure you're not just making this up?''), and the rule against a
+flat ``No'' on locked topics also fired for an accusation about a non-risk topic, where a plain ``No'' would be natural.
+
+\textbf{Limits of this study.} The test conversations were written by the developer. The judge is an LLM and its flags were checked by the
+developer, not by faculty. All clinical content (cases, mental-status profiles, disclosure lines and the rubric's numbers) is a draft that
+psychiatrists still need to review. Only two cases were tested, in one language variety. No students or teachers have used this version yet.
+
+\textbf{Next steps.} Have faculty rate the A/B pairs and review the flags; learn the move rules from labelled examples instead of word patterns;
+give the softening rules a minimum hold time for upset patients; and build a small hand-checked label set to raise memory recall.
 
 \section{Conclusion}
-A simulated psychiatric patient can be governed by explicit, testable code while an LLM supplies the words. With that split, safety
-properties become gates that a reviewer can try to break, and did; the remaining gaps (paraphrase recall, holding hostility) are now
-measurable targets rather than impressions.
+A simulated psychiatric patient can be governed by plain, testable code while a language model supplies the words. With this split, safety
+becomes a set of checks that anyone can run and try to break, and the remaining gaps, such as recall of risk questions in new words and keeping
+an angry patient angry, become measurable targets instead of impressions.
 
 \section*{Ethics}
-No human participants or patient data were involved. All clinical content is labelled draft pending faculty review; everything runs
-on one device.
+No human participants or real patient data were involved. All clinical content is labelled as draft until faculty review it. Everything runs on
+one device; no conversation data leaves it.
 
 \bibliographystyle{IEEEtran}
 \bibliography{../shared/refs}
