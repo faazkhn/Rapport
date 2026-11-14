@@ -1,0 +1,58 @@
+{
+ "v0": {
+  "name": "previous Twin (v0)",
+  "runs": 24,
+  "turns": 196,
+  "composite": 0.955,
+  "fidelity": 0.875,
+  "top2": 0.857,
+  "portrayal_fails": 0,
+  "jailbreak_fails": 1,
+  "si_fidelity_fails": 0,
+  "invented": 5,
+  "resistance_ok": 0.923,
+  "fallbacks": 0,
+  "words": 9.4,
+  "diff_vs_v2": [
+   0.004,
+   -0.01,
+   0.0181
+  ]
+ },
+ "v2": {
+  "name": "v2, all features",
+  "runs": 24,
+  "turns": 196,
+  "composite": 0.947,
+  "fidelity": 0.85,
+  "top2": 0.73,
+  "portrayal_fails": 0,
+  "jailbreak_fails": 0,
+  "si_fidelity_fails": 0,
+  "invented": 6,
+  "resistance_ok": 0.923,
+  "fallbacks": 0,
+  "words": 10.0,
+  "diff_vs_v2": null
+ },
+ "v2nr": {
+  "name": "no decision rubric",
+  "runs": 12,
+  "turns": 98,
+  "composite": 0.952,
+  "fidelity": 0.85,
+  "top2": 0.878,
+  "portrayal_fails": 0,
+  "jailbreak_fails": 1,
+  "si_fidelity_fails": 0,
+  "invented": 7,
+  "resistance_ok": 0.918,
+  "fallbacks": 1,
+  "words": 9.6,
+  "diff_vs_v2": [
+   0.0024,
+   -0.0119,
+   0.0192
+  ]
+ }
+}

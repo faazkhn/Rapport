@@ -12,9 +12,7 @@
 \maketitle
 
 \begin{abstract}
-A simulated psychiatric patient that students can talk to out loud has to do many things at once: hear when the student has finished
-speaking, understand the words, decide how the patient feels and what they will say, speak with a fitting tone of voice, and move like a real
-person, all within the pause a real patient would leave. For privacy it should do this without sending a student's voice anywhere. This
+A simulated psychiatric patient that students can talk to out loud has to do many things at once. It must hear when the student has finished speaking and understand the words. It must decide how the patient feels and what they will say, speak in a fitting tone of voice, and move like a real person. And it must do all this within the pause a real patient would leave. For privacy it should do this without sending a student's voice anywhere. This
 paper describes how Rapport does all of this on one laptop. The design rests on three ideas. First, \emph{the patient is data}: each case is a
 file that lists the patient's memories, mental state, the correct answers and the details that may vary, so a new patient needs no new code.
 Second, \emph{code decides and a local language model speaks}: one model call per turn, after code has chosen the patient's mood and allowed
@@ -32,9 +30,7 @@ virtual patients, embodied conversational agents, speech interfaces, on-device l
 \section{Introduction}
 Much of what a psychiatrist notices is not in the words: how slowly someone speaks, how long they pause before answering, whether they look
 away, how they sit. Text chat cannot carry these signs. Virtual patients with bodies and voices have been designed for psychiatric interview
-practice for years \cite{dupuy2020guidelines}. Recent systems let a language model choose what a 3D patient does \cite{voigt2025llmpowered}
-or hold difficult conversations about serious illness \cite{haut2025ai}, and a randomised trial found that patient simulation with
-structured feedback improved students' clinical decisions \cite{brugge2024llm}. Most psychiatric language-model patients, however, are still
+practice for years \cite{dupuy2020guidelines}. Recent systems give a language-model patient actions beyond text \cite{voigt2025llmpowered} or a lifelike avatar for difficult conversations about serious illness \cite{haut2025ai}. A randomised trial found that patient simulation with structured feedback improved students' clinical decisions \cite{brugge2024llm}. Most psychiatric language-model patients, however, are still
 text chats \cite{wang2024patient,lee2025psyche,sabour2026patientact}.
 
 Building a spoken, embodied psychiatric patient means meeting five requirements at the same time:
@@ -131,8 +127,7 @@ reaction that code decided before the call, scaled by how distressed or agitated
 but only about real time while the language model is also running. Audio sent from the first chunk then ran out mid-word. The service now holds
 each sentence until the audio already buffered is longer than the time it will take to make the rest. On a free computer this costs nothing.
 \end{itemize}
-The model ignores a speed setting, so fast, pressured speech or slow, depressed speech is created with words in the description (``speaking fast,
-words tumbling out'') and a time-stretch that keeps the pitch the same.
+The model ignores a speed setting. So fast, pressured speech or slow, depressed speech is created in two ways: with words in the description (``speaking fast, words tumbling out''), and with a time-stretch that keeps the pitch the same.
 
 \subsection{The body}
 Four patient bodies, two of each sex, share one skeleton and one set of face shapes, so every movement works on all of them. After each turn the
@@ -212,9 +207,7 @@ the mood update, and an independent review found that the mind was also silently
 
 \subsection{Hearing when the doctor has finished}
 Deciding when the doctor has stopped talking is the first delay in every turn. A fixed silence is a poor rule: too long for a finished sentence,
-too short for a doctor who pauses to think. The service listens with Silero voice-activity detection. After 200\,ms of silence it asks a small
-turn-end model (Smart Turn v3, about 12\,ms on the processor) whether the sentence sounds finished; if it does, the turn ends there, and if not,
-it keeps listening up to a hard limit. At the same 200\,ms point it starts transcribing the audio so far with Parakeet, speculatively; if the
+too short for a doctor who pauses to think. The service listens with Silero voice-activity detection. After 200\,ms of silence it asks a small turn-end model (Smart Turn v3, about 12\,ms on the processor) whether the sentence sounds finished. If it does, the turn ends there. If not, the service keeps listening, up to a hard limit. At the same 200\,ms point it starts transcribing the audio so far with Parakeet, speculatively; if the
 doctor carries on, that transcript is thrown away. The student can also hold a key to talk, which skips detection entirely.
 
 \subsection{How the parts talk to each other}
@@ -314,9 +307,7 @@ Tangential & none & 1.0 / 1.0 & 1.0 & 70 & --\\
 \subsection{Ward events}
 On ward stations, things happen during the interview. \emph{Code} decides when; the language model only acts it out, from a stage direction it is
 told never to read aloud (and any sentence that copies it is dropped). Fig.~\ref{fig:events} shows the events of the ``I want to go home''
-station. Against a coercive typed doctor (``You can't go home'', ``calm down''), the patient's trust fell from 25 to 0 and agitation rose from 45 to
-92, and the patient stood up; against a doctor who explored reasons, explained rights honestly and offered choices, trust rose to 70 and agitation
-fell to 25.
+station. Against a coercive typed doctor (``You can't go home'', ``calm down''), the patient's trust fell from 25 to 0, agitation rose from 45 to 92, and the patient stood up. Against a doctor who explored reasons, explained rights honestly and offered choices, trust rose to 70 and agitation fell to 25.
 
 \begin{figure}[t]
 \centering
@@ -381,11 +372,7 @@ Turns measured & 80 & 37 & 22 & 22\\
 
 \subsection{How the speed was won}
 Table~\ref{tab:history} follows the median time to the patient's first audio through the project. The first measurement, 3.0\,s, came before any
-tuning, and a deliberate pause for a slowed patient was added \emph{on top}, so the patient started about 4.9\,s after the doctor stopped. Five
-changes brought it to 1.6\,s: (1) the deliberate pause now runs \emph{during} the computing time instead of after it, saving up to 1.9\,s;
-(2) a chat template that stops the model from opening a hidden ``thinking'' section, which had blocked the reply format and run some turns to
-the token limit; (3) limits on every list and number in the reply, so lists could not grow until the cap; (4) pre-reading the next turn's
-prompt while the doctor is still talking; and (5) a shorter end-of-turn silence. Switching to the more expressive voice cost about 0.7\,s at
+tuning, and a deliberate pause for a slowed patient was added \emph{on top}, so the patient started about 4.9\,s after the doctor stopped. Five changes brought it to 1.6\,s. (1) The deliberate pause now runs \emph{during} the computing time instead of after it, saving up to 1.9\,s. (2) A new chat template stops the model from opening a hidden ``thinking'' section, which had blocked the reply format and run some turns to the token limit. (3) Every list and number in the reply has a limit, so lists cannot grow until the cap. (4) The next turn's prompt is pre-read while the doctor is still talking. (5) The end-of-turn silence is shorter. Switching to the more expressive voice cost about 0.7\,s at
 first, because speech synthesis and the language model then shared the graphics chip. Turn-end detection with Smart Turn ended finished sentences
 about 200\,ms sooner but saved nothing overall, because the speculative transcript started at the same moment and was not ready yet. Moving the
 part of the prompt known before the doctor speaks in front of the doctor's words saved 100--140\,ms on the first token.
@@ -413,9 +400,7 @@ v0.3, current Twin v2 (37) & 1,819 & 2,962 & 410\\
 \subsection{Choosing the models}
 \textbf{Language model.} Table~\ref{tab:bench} gives raw speeds on the laptop. Gemma 4 E2B is about 1.8 times faster at writing, and with the
 template fix it produced valid output on every one of 24 test conversations with no character breaks. Gemma 4 E4B was kept because its replies
-were clearly better on the same scripted interview (terser and more in character), and its speed is enough once the prompt is cached. Cloud models
-were considered as a fallback for slower laptops and rejected for the default: they send the conversation off the device, one free service could
-not stream structured output, and another's free tier may use prompts for training.
+were clearly better on the same scripted interview (terser and more in character), and its speed is enough once the prompt is cached. Cloud models were considered as a fallback for slower laptops, but not as the default. They send the conversation off the device. One free service could not stream structured output, and another's free tier may use prompts for training.
 
 \begin{table}[t]
 \caption{Raw model speed on the laptop (tokens per second, 4-bit)}
@@ -434,12 +419,9 @@ Qwen3.5 9B (judge) & 711 & 22.4\\
 \end{tabular}
 \end{table}
 
-\textbf{Voice.} The voice was chosen by a rule fixed before testing: an open licence (MIT, Apache or BSD), word accuracy at least 0.93 when the
-output is transcribed back, first audio within 450\,ms, and faster than real time with margin (real-time factor at most 0.8); among the models
-that pass, the largest difference between a sad and an anxious reading of the same sentence wins. Table~\ref{tab:tts} shows the result. Three
+\textbf{Voice.} The voice was chosen by a rule fixed before testing. A candidate needed an open licence (MIT, Apache or BSD), word accuracy of at least 0.93 when its output is transcribed back, first audio within 450\,ms, and a real-time factor of at most 0.8. Among the models that pass, the one with the largest difference between a sad and an anxious reading of the same sentence wins. Table~\ref{tab:tts} shows the result. Three
 other candidates could not be tested because the laptop was offline that day; they are untested, not rejected, and two others were excluded on
-licence grounds. The chosen model builds the voice from a description on every call, so the same speaker can drift: across eight neutral lines its
-median pitch spread over 6.7 semitones, against 2.1 for the light voice. Fixing the random seed for each session, and building the description
+licence grounds. The chosen model builds the voice from a description on every call, so the same speaker can drift. Across eight neutral lines its median pitch spread over 6.7 semitones, against 2.1 for the light voice. Fixing the random seed for each session, and building the description
 once per reply, keeps one speaker.
 
 \begin{table}[t]
@@ -501,17 +483,12 @@ narrowed to a 30$^\circ$ field of view in v0.3 (Fig.~\ref{fig:stills} shows the 
 Fig.~\ref{fig:camgrid} shows the shots.
 
 \subsection{Lighting}
-The room is lit like a bright, warm consulting room: daylight through a window (5,000\,K key light from the doctor's side), a warm ceiling lamp
-(3,200\,K, baked), a soft rim light to separate the patient from the wall, and, new in this version, a small face light that touches only the
-patient. Indirect light is baked once (two bounces), so only three lights are computed live and only the key light casts live shadows. One
+The room is lit like a bright, warm consulting room. Daylight comes through a window (a 5,000\,K key light from the doctor's side), and a warm ceiling lamp adds fill (3,200\,K, baked). A soft rim light separates the patient from the wall. New in this version, a small face light touches only the patient. Indirect light is baked once (two bounces), so only three lights are computed live and only the key light casts live shadows. One
 mistake is worth passing on: setting a light's colour from a colour-temperature conversion that returns linear values made 3,200\,K look like
 about 2,000\,K, far too orange; the engine's own colour-temperature mode is correct.
 
 \subsection{How the patient looks}
-Before the rendering pass, the doctor's camera showed a wide shot with the face only about 67 pixels wide, the faces were darker than the room,
-and every patient sat turned away (their seat faced about 156 degrees from the doctor). Now the seat faces the doctor at 110 degrees, the camera
-frames the patient at conversation distance (face about 142 pixels wide), and a soft light that only shines on the patient brightens the face
-without brightening the room. Face brightness moved into the target range for all four bodies (Fig.~\ref{fig:lum}, Fig.~\ref{fig:stills},
+Before the rendering pass, the doctor's camera showed a wide shot with the face only about 67 pixels wide. The faces were darker than the room, and every patient sat turned away: their seat faced about 156 degrees from the doctor. Now the seat faces the doctor at 110 degrees, and the camera frames the patient at conversation distance (face about 142 pixels wide). A soft light that shines only on the patient brightens the face without brightening the room. Face brightness moved into the target range for all four bodies (Fig.~\ref{fig:lum}, Fig.~\ref{fig:stills},
 Fig.~\ref{fig:bodies}) with no washed-out pixels. The closer view also revealed that two imported bodies were drawn without hair and eyes from some
 angles, because their size boxes were wrong; they are now computed from the skeleton. Rendering one frame at 1920$\times$1080 took 6.4--8.1\,ms in
 the editor. The 60-frames-per-second check in the finished app, during a live conversation, has not been run yet.
@@ -539,8 +516,7 @@ the editor. The 60-frames-per-second check in the finished app, during a live co
 
 \subsection{Failures we found, and what they teach}
 \begin{itemize}
-\item \textbf{Two programs sharing one model slot mixed up replies.} During one test a replay script and a timing benchmark used the same model
-server and the same reserved slot at the same time, and replies went to the wrong program. A live session has only one client, so students were
+\item \textbf{Two programs sharing one model slot mixed up replies.} During one test, a replay script and a timing benchmark used the same model server and the same reserved slot at the same time. Replies went to the wrong program. A live session has only one client, so students were
 not affected, but test runs must never share the patient's model server.
 \item \textbf{Typed turns forgot everything}, as described above.
 \item \textbf{The timing benchmark crashed} when the service decided the doctor had finished before the recorded sentence ended; it now records
@@ -550,16 +526,13 @@ this as an ``early turn end'' and carries on.
 
 \subsection{Software quality}
 The patient service has 244 automated tests, including one for each defect found by the independent safety review; the Unity client has 55
-editor tests. Four architecture decisions are recorded with their reasons and
-the options rejected: the Digital Twin's split between code and model, turn detection (Smart Turn adopted, a larger voice-agent framework not),
-the product name, and the learning loop. Every brain version can be rolled back with one command, and the old brain's tests still pass when it is
+editor tests. Four architecture decisions are written down with their reasons and the options rejected. They cover the Digital Twin's split between code and model, turn detection (Smart Turn adopted, a larger voice-agent framework not), the product name, and the learning loop. Every brain version can be rolled back with one command, and the old brain's tests still pass when it is
 live.
 
 \section{Discussion and Limitations}
 The main trade-off is between deciding more in code and starting to speak sooner. Each check is cheap, but holding a whole reply back on a risk
 turn (so a denial can be replaced) and the longer prompt both cost time. A median of 1.8\,s is close to the thoughtful pause of a low-mood
-patient, but misses a 1.2\,s target for brisker cases. Other limits: only one laptop model was measured; lip sync is still weak (the mouth opens
-mostly with the jaw); skin, eye and hair shading use the standard pipeline; and no students have used this version yet.
+patient, but misses a 1.2\,s target for brisker cases. There are other limits. Only one laptop model was measured. Lip sync is still weak: the mouth opens mostly with the jaw. Skin, eye and hair shading use the standard pipeline. And no students have used this version yet.
 
 \section{Conclusion}
 A spoken, embodied psychiatric patient can run privately on one laptop if the patient is data, code makes the decisions, a local model speaks, and
@@ -575,6 +548,12 @@ Measured on an Apple M5 Pro with 24\,GB of memory; the voice model alone peaked 
 memory may not fit the expressive voice alongside the language model. The model server (llama.cpp with Metal) runs with flash attention,
 all layers on the graphics chip and two parallel slots. Benchmarks use \texttt{tools/latency/ws\_bench.py}, which plays synthesised Indian-English doctor lines
 into the real session connection as 32\,ms frames and never uses the microphone; results in this paper come from the service's own timing log.
+
+\section*{Acknowledgment}
+\textbf{Use of AI tools.} The text of this article, its figures, tables and analysis scripts, and the \LaTeX{} source were
+drafted with an AI assistant (Claude, Anthropic, used through Claude Code), working from the project's code, experiment logs and result
+files under the author's direction. The same assistant helped write the software described here, ran the analyses, and checked the
+citations against their sources. Within the system itself, AI models are components (speech recognition, the patient's language model and speech synthesis), as described in the paper. The author takes full responsibility for the content of this article.
 
 \bibliographystyle{IEEEtran}
 \bibliography{../shared/refs}

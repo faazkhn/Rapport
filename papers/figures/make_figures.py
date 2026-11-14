@@ -198,12 +198,6 @@ def body_strip():
     plt.close(fig)
 
 
-if __name__ == "__main__":
-    for f in (heldout, behaviours, trust, recall_front, latency, luminance, stills, body_strip):
-        f()
-        print("ok", f.__name__)
-
-
 def turn_timeline():
     """One spoken turn, median stage times (ms) from the GPU-exclusive service log, v0 and v2 (Table in paper 2)."""
     stages = [("Turn-end detection", 277, 278), ("STT wait", 72, 142), ("LLM first token", 276, 410),
@@ -261,69 +255,7 @@ def debrief_weights():
 
 
 if __name__ == "__main__":
-    for f in (heldout, behaviours, trust, recall_front, latency, luminance, stills, body_strip):
-        f()
-        print("ok", f.__name__)
-
-
-def turn_timeline():
-    """One spoken turn, median stage times (ms) from the GPU-exclusive service log, v0 and v2 (Table in paper 2)."""
-    stages = [("Turn-end detection", 277, 278), ("STT wait", 72, 142), ("LLM first token", 276, 410),
-              ("LLM first sentence", 572, 527), ("TTS first audio", 296, 350)]
-    fig, ax = plt.subplots(figsize=(7.1, 1.35))
-    cols = ["#95a5a6", "#5dade2", "#e67e22", "#f5b041", "#1f6f8b"]
-    for row, idx, lab in ((1, 1, "v0"), (0, 2, "v2")):
-        left = 0
-        for (name, *v), col in zip(stages, cols):
-            w = v[idx - 1]
-            ax.barh(row, w, left=left, color=col, height=0.55, label=name if row == 1 else None, edgecolor="white", lw=0.5)
-            if w > 160:
-                ax.text(left + w / 2, row, f"{w}", ha="center", va="center", fontsize=6, color="white")
-            left += w
-        ax.text(left + 25, row, f"sum {left} ms", va="center", fontsize=6)
-    ax.set_yticks([1, 0], ["v0", "v2"])
-    ax.set_xlabel("Milliseconds after the doctor stops speaking (medians per stage; their sum differs from the p50 of the total)")
-    ax.legend(ncol=5, frameon=False, fontsize=6, bbox_to_anchor=(0.5, 1.35), loc="upper center")
-    ax.set_xlim(0, 1900)
-    fig.savefig(OUT / "fig_turn_timeline.pdf")
-    plt.close(fig)
-
-
-def recall_byfact():
-    d = json.loads((REPO / "tests/overnight/rerun/recall_test.json").read_text())["risk_by_fact"]
-    names = {"f_anger_home": "anger at home", "f_no_plan_no_means": "no plan or means", "f_passive_si": "death wish",
-             "f_withdrawal_seizure": "withdrawal fit", "f_no_means": "no means", "f_no_plan_no_attempt": "no plan or attempt",
-             "f_current_si": "current suicidal thoughts", "f_means": "means at home", "f_terrace": "the terrace night", "f_risk": "harm to self or others"}
-    rows = sorted(((int(v.split("/")[0]) / int(v.split("/")[1]), k, v) for k, v in d.items()), reverse=True)
-    fig, ax = plt.subplots(figsize=(W1, 2.4))
-    y = np.arange(len(rows))
-    ax.barh(y, [r[0] for r in rows], color=C2, height=0.6)
-    for i, (frac, k, v) in enumerate(rows):
-        ax.text(frac + 0.01, i, v, va="center", fontsize=6)
-    ax.set_yticks(y, [f"{k.split('/')[0]}: {names.get(k.split('/')[1], k)}" for _, k, _ in rows], fontsize=6)
-    ax.invert_yaxis()
-    ax.axvline(0.95, color="#c0392b", lw=0.7, ls=":")
-    ax.set_xlim(0, 1.12)
-    ax.set_xlabel("Recall on the test half (lines found / lines asking)")
-    fig.savefig(OUT / "fig_recall_byfact.pdf")
-    plt.close(fig)
-
-
-def debrief_weights():
-    parts = [("Risk", 30), ("Observation (MSE)", 20), ("Diagnosis", 13), ("Management", 13), ("History", 12), ("Communication", 12)]
-    fig, ax = plt.subplots(figsize=(W1, 0.9))
-    left, cols = 0, ["#c0392b", "#1f6f8b", "#8e44ad", "#16a085", "#7f8c8d", "#f39c12"]
-    for (n, w), c in zip(parts, cols):
-        ax.barh(0, w, left=left, color=c, edgecolor="white")
-        ax.text(left + w / 2, 0, f"{n}\n{w}", ha="center", va="center", fontsize=5.5, color="white")
-        left += w
-    ax.set_xlim(0, 100)
-    ax.axis("off")
-    fig.savefig(OUT / "fig_debrief_weights.pdf")
-    plt.close(fig)
-
-
-if __name__ == "__main__":
-    for f in (turn_timeline, recall_byfact, debrief_weights):
+    for f in (heldout, behaviours, trust, recall_front, latency, luminance, stills, body_strip, turn_timeline, recall_byfact,
+              debrief_weights):
         f()
         print("ok", f.__name__)

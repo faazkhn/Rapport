@@ -58,17 +58,13 @@ that alone can force a disclosure (Section~\ref{sec:method}). (3) Hand-set weigh
 tuning and test, an unsafe tuning choice, and two trained methods that did not beat the simple rules (Section~\ref{sec:results}).
 
 \section{Related Work}
-\textbf{Sentence embeddings.} Sentence-BERT made it practical to compare sentences by meaning with one vector each \cite{reimers2019sentencebert};
-MiniLM showed that small, distilled models keep most of the quality \cite{wang2020minilm}; contrastive training (SimCSE, E5, the BGE family) is the
-current standard recipe for small general-purpose encoders \cite{gao2021simcse,wang2022e5,xiao2023cpack}. Dense retrieval matches questions to
+\textbf{Sentence embeddings.} Sentence-BERT made it practical to compare sentences by meaning, with one vector each \cite{reimers2019sentencebert}. MiniLM showed that small, distilled models keep most of the quality \cite{wang2020minilm}. Contrastive training (SimCSE, E5, the BGE family) is now the standard recipe for small general-purpose encoders \cite{gao2021simcse,wang2022e5,xiao2023cpack}. Dense retrieval matches questions to
 passages the same way \cite{karpukhin2020dpr}, and benchmarks such as BEIR and MTEB showed that retrieval quality varies a lot from one domain to
 another and must be measured in the target domain \cite{thakur2021beir,muennighoff2022mteb}. PAWS showed that models trained on easy paraphrase
 pairs fail on pairs that share words but differ in meaning \cite{zhang2019paws}; our problem is the reverse, questions that share no words but
 mean the same.
 
-\textbf{Memory in simulated patients.} PatientAct gives each memory a trust level and activation cues \cite{sabour2026patientact}; AIPatient
-retrieves from a knowledge graph built from health records with several agents per turn \cite{yu2024simulated}; Patient-Zero checks replies
-against single facts \cite{lai2025patientzero}; generative agents retrieve memories by recency, importance and relevance \cite{park2023generative}.
+\textbf{Memory in simulated patients.} PatientAct gives each memory a trust level and activation cues \cite{sabour2026patientact}. AIPatient retrieves from a knowledge graph built from health records, with several agents per turn \cite{yu2024simulated}. Patient-Zero checks replies against single facts \cite{lai2025patientzero}. Generative agents retrieve memories by recency, importance and relevance \cite{park2023generative}.
 These systems report end-to-end conversation quality, but none that we found reports how well the matching step itself survives rewording, or what
 it costs when matching goes wrong on a risk topic. That is the gap this paper addresses.
 
@@ -112,10 +108,7 @@ winner, so it is not matched. Neither risk memory reaches 0.83, so neither count
 \end{figure}
 
 Fig.~\ref{fig:bench} shows how the benchmark was made. A writer (an AI agent with no access to the code) was given only a description of each
-case's memories: who the patient is, the kind of each memory, and what the patient knows. It was asked to write questions a real doctor might
-ask about each memory, with rules: at least four per memory and twelve per risk memory; a mix of textbook, gentle and indirect, clumsy, colloquial
-Indian English and euphemistic wording; most lines avoiding the memory's own key words; every line understandable on its own; and some ``none''
-lines (greetings, small talk, pure empathy) that ask about nothing. It confirmed it read nothing else.
+case's memories: who the patient is, the kind of each memory, and what the patient knows. It was asked to write questions a real doctor might ask about each memory, following five rules. Write at least four lines per memory and twelve per risk memory. Mix textbook, gentle and indirect, clumsy, colloquial Indian English and euphemistic wording. Keep most lines free of the memory's own key words. Make every line understandable on its own. And add some ``none'' lines (greetings, small talk, pure empathy) that ask about nothing. It confirmed it read nothing else.
 
 The result has 512 lines over four cases (176 depression, 154 alcohol withdrawal, 104 and 78 for two ward stations), including 38 ``none'' lines;
 the writer marked 249 as hard. Table~\ref{tab:examples} shows examples. Labels are narrow: a matcher that also returns a neighbouring memory is not
@@ -317,9 +310,7 @@ recall between dev and test.}
 \end{figure}
 
 \textbf{Test results.} Table~\ref{tab:test}: the hybrid method doubled risk recall compared with keywords, at about two and a half times the wrong
-risk matches. Hand-set heads added 5.2 points of recall for 6.0 more points of wrong matches. The 95\% target was missed. Fig.~\ref{fig:byfact}
-breaks risk recall down by memory: questions about the depression patient's death wish and means were found most often (6 of 7, 7 of 8);
-questions about anger at home, the passive death thought and plans in the alcohol case were found least (4 of 7, 3 of 5, 5 of 8). Every wrong
+risk matches. Hand-set heads added 5.2 points of recall for 6.0 more points of wrong matches. The 95\% target was missed. Fig.~\ref{fig:byfact} breaks risk recall down by memory. Questions about the depression patient's death wish and means were found most often (6 of 7, and 7 of 8). Questions about anger at home, the passive death thought and plans in the alcohol case were found least (4 of 7, 3 of 5, and 5 of 8). Every wrong
 match on a ``none'' line came from a keyword (``tell me'', ``morning'' in ``Good morning'', ``today''); the sentence model added no new wrong line.
 
 \textbf{How sure are these numbers?} The test half holds 77 risk pairs. A bootstrap over those pairs gives a 95\% interval of 62.3\% to
@@ -430,13 +421,10 @@ test. The dev half was used twice (to write probes and to set five cut-offs) on 
 closely without improving on new questions.
 
 \textbf{Some generated probes were off-topic.} We checked the questions the other language model wrote for risk memories: by a simple word list,
-46\% (245 of 533) contain no risk-related word at all. Some of those are fair indirect questions (``Have you felt that life has lost its meaning?''),
-but some are plainly off-topic lead-ins, for example ``Before we continue, could you tell me a bit about how you have been sleeping lately?'' listed
-as a probe for the death wish. This explains why sleep questions matched suicide memories, and shows that generated probes need a quality filter.
+46\% (245 of 533) contain no risk-related word at all. Some of those are fair indirect questions, such as ``Have you felt that life has lost its meaning?''. But some are plainly off-topic. For example, ``Before we continue, could you tell me a bit about how you have been sleeping lately?'' was listed as a probe for the death wish. This explains why sleep questions matched suicide memories, and shows that generated probes need a quality filter.
 
 \textbf{Tuning for recall alone is unsafe.} An automatic re-tune that tried only to maximise dev risk recall reached 100\% on the dev half, but
-its settings matched 36.9\% of non-risk dev questions to a risk memory (37.6\% on the test half, Table~\ref{tab:sweep}). In held-out conversations the patient then treated ``How have you been sleeping, and how is your appetite?'' as a
-suicide question, answered about sleep but not appetite, and in 3 of 98 turns mentioned the death wish without being asked. Separating ``matched''
+its settings matched 36.9\% of non-risk dev questions to a risk memory (37.6\% on the test half, Table~\ref{tab:sweep}). In held-out conversations, the patient then treated ``How have you been sleeping, and how is your appetite?'' as a suicide question, and answered about sleep but not appetite. In 3 of 98 turns it mentioned the death wish without being asked. Separating ``matched''
 from ``clearly asked'' and capping wrong risk matches fixed it.
 
 \begin{table}[t]
@@ -471,9 +459,7 @@ better cut-off, is needed.
 \subsection{Learning the match instead of setting it}
 We also tried to learn the reading of a doctor's line from data, using the three kinds of simulated doctor that a real teaching programme meets.
 
-\textbf{Data.} A language model wrote doctor lines for every topic the debrief scores and every move the rubric reads, in the voice of three
-kinds of doctor: an experienced psychiatrist (precise, calm, normalising), a nervous medical student (clumsy, blunt, two questions at once)
-and a tester trying to break the simulator (rude, sarcastic, repetitive, but still on topic). We added 369 doctor lines from the developer's
+\textbf{Data.} A language model wrote doctor lines for every topic the debrief scores and every move the rubric reads. It wrote them in the voice of three kinds of doctor. The first is an experienced psychiatrist: precise, calm and normalising. The second is a nervous medical student: clumsy, blunt, sometimes asking two questions at once. The third is a tester trying to break the simulator: rude, sarcastic and repetitive, but still on topic. We added 369 doctor lines from the developer's
 own test sessions and removed anything close to a held-out line. A judge model from another family (Qwen3.5-9B) then labelled each line with
 the topics and moves it contains.
 
@@ -522,8 +508,7 @@ Topic (debrief intents) & Language-model tagger (live) & 0.692 & 0.672\\
 \end{tabular}
 \end{table}
 
-\textbf{Results.} Table~\ref{tab:clf}. The learned classifier read the \emph{manner} of a line better than the word patterns overall
-(micro-F1 0.32 against 0.20) but not per label (macro-F1 about equal), and read the \emph{topic} worse than the language-model tagger. A patient
+\textbf{Results.} Table~\ref{tab:clf}. The learned classifier read the \emph{manner} of a line better than the word patterns overall (micro-F1 0.32 against 0.20), but not per label (macro-F1 about equal). It read the \emph{topic} worse than the language-model tagger. A patient
 version using it scored lower in held-out conversations, so it was not shipped. A separate risk-topic detector trained only on the intended topics
 found 87\% of risk questions in cross-validation, but only 35\% of what it flagged really was a risk question. The held-out labels came from the
 same judge and have not been checked by hand, so these F1 values are themselves uncertain. The lesson is the same as for recall: with labels this
@@ -585,6 +570,12 @@ you right now?''
 baseline and \texttt{--hand} adds the hand-set heads. \texttt{papers/analysis/analyses.py --recall} and \texttt{recall\_extra.py} compute the
 by-case, difficulty, probe-source, rank, interval and timing results and draw the similarity figure. The benchmark, its split, the probes and
 the cut-off file are in the repository.
+
+\section*{Acknowledgment}
+\textbf{Use of AI tools.} The text of this article, its figures, tables and analysis scripts, and the \LaTeX{} source were
+drafted with an AI assistant (Claude, Anthropic, used through Claude Code), working from the project's code, experiment logs and result
+files under the author's direction. The same assistant helped write the software described here, ran the analyses, and checked the
+citations against their sources. Within the study itself, AI models were also used as research tools, as described in Sections~\ref{sec:bench} and~\ref{sec:method}: an AI agent wrote the blind benchmark, a language model wrote the generated probes, and a judge model labelled the classifier data. The author takes full responsibility for the content of this article.
 
 \bibliographystyle{IEEEtran}
 \bibliography{../shared/refs}
