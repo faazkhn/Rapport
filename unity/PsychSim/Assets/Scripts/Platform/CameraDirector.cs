@@ -7,7 +7,7 @@ namespace Rapport.Platform
 {
     /// <summary>
     /// The doctor's view through Cinemachine (Phase H), built at runtime so the scene needs no rebuild:
-    /// - the doctor camera: seated eye height, 42° vertical FOV, steered by DesktopRig;
+    /// - the doctor camera: seated eye height, 30° vertical FOV (conversation distance), steered by DesktopRig;
     /// - lean in with the scroll wheel over the room (Space is push-to-talk);
     /// - one close-up camera, placed each frame on the body part of the running exam action, eased in and out by the Brain.
     /// DemoDirector keeps its own separate cinematic camera.
@@ -21,7 +21,7 @@ namespace Rapport.Platform
             public float fov;
         }
 
-        public const float DoctorFov = 42f, LeanFov = 38f, LeanDistance = 0.25f;
+        public const float DoctorFov = 30f, LeanFov = 26f, LeanDistance = 0.25f;  // 30°: head to waist at ~1.5 m, the face ~200 px tall at 1080p
         static readonly Shot Hands = new() { bones = new[] { HumanBodyBones.LeftHand, HumanBodyBones.RightHand }, distance = 0.85f, fov = 32f };
         static readonly Shot Forearms = new() { bones = new[] { HumanBodyBones.LeftLowerArm, HumanBodyBones.RightLowerArm }, distance = 0.9f, fov = 34f };
         static readonly Shot Eyes = new() { bones = new[] { HumanBodyBones.LeftEye, HumanBodyBones.RightEye }, distance = 0.45f, fov = 22f };

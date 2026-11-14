@@ -72,6 +72,7 @@ namespace Rapport.Core
 
         PatientServiceClient http;
         GazeController gaze;
+        BodyLanguage body;
         LipSyncBridge lips;
         Room room;
         float driftAccum, stateSyncAccum, turnStart;
@@ -230,6 +231,8 @@ namespace Rapport.Core
             go.AddComponent<ForearmTwist>().Setup(Patient);
             var sleeves = go.AddComponent<SleeveRoller>();
             sleeves.Setup(Patient);
+            body = go.AddComponent<BodyLanguage>();
+            body.Setup(Patient, Cues, gaze, face);
             Exam = go.AddComponent<ExamController>();
             Exam.Setup(Patient, Cues, gaze, face, room.DoctorAnchor, sleeves);
             Exam.ExamStarted += id => { examsDone.Add(id); Log.Write("exam_started", new { id }); if (cameraDirector) cameraDirector.OnExamStarted(id, Patient); };
@@ -253,6 +256,7 @@ namespace Rapport.Core
             }
             if (stateSyncAccum >= 5f && !Busy && Voice != null) { stateSyncAccum = 0f; _ = Voice.SendState(State.Snapshot()); }  // drift reaches the fact gate
             gaze.Thinking = Voice != null && Voice.State == VoiceState.Thinking;
+            body.Listening = Voice != null && Voice.State == VoiceState.Hearing;
             if (Mode == Mode.Assessment && SessionSeconds >= TimeLimitSeconds && !Busy) { Log.Write("timeout"); Submit(); }  // D4: hard stop
         }
 
@@ -272,7 +276,7 @@ namespace Rapport.Core
                     break;
                 case "reply": OnReply(o); break;
                 case "exam": Exam.Receive(o); Log.Write("exam", o); break;
-                case "brain_snapshot": Log.Write("brain_snapshot", o); break;
+                case "brain_snapshot": Log.Write("brain_snapshot", o); if (body) body.OnSnapshot(o); break;
                 case "patient_ended":  // the patient walked out after repeated abuse (twin-0.2); the learner still submits for the debrief
                     Log.Write("patient_ended", o);
                     if (Voice != null) Voice.SetHandsFree(false);

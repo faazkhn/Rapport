@@ -18,6 +18,9 @@ namespace Rapport.Cues
         public readonly Dictionary<string, float> Live = new();
         public bool Seated;                              // false during the entrance: no seated layers or gaze
         public bool ExamBusy;                            // an ExamController action is running or held: no talk gestures, nods or tear wipes
+        public float MoodSlump, MoodFidget, MoodSlow;    // BodyLanguage (the brain's emotion): floors under the case's own cues
+        public bool Talking => Time.time < talkingUntil;
+        public bool CanMove => Seated && !InExamAction && !ExamBusy;
 
         CaseFile caseFile;
         PatientState state;
@@ -78,6 +81,14 @@ namespace Rapport.Cues
             else if (u.StartsWith("no") && !u.StartsWith("not")) PlayOneShot(lHead, "gesture_head_shake");
         }
 
+        /// <summary>A sharp hand gesture (BodyLanguage, anger): a talk gesture at full weight for about 1.5 s.</summary>
+        public void Gesture()
+        {
+            if (!CanMove || !HasClip("gesture_talk_small_01") || lTalk < 0) return;
+            anim.CrossFade(UnityEngine.Random.value < 0.5f ? "gesture_talk_small_01" : "gesture_talk_small_02", 0.15f, lTalk, 0f);
+            talkingUntil = Mathf.Max(talkingUntil, Time.time + 1.5f);
+        }
+
         /// <summary>Exam action (plan B1) the service accepted: plays its clip; the fine tremor shows on the held-out hands, a squint on the light.</summary>
         public float PlayExamAction(string action)
         {
@@ -113,9 +124,9 @@ namespace Rapport.Cues
                 if (!logged.TryGetValue(c.id, out var last) || Mathf.Abs(v - last) >= 0.1f) { logged[c.id] = v; CueChanged?.Invoke(c.id, v); }
             }
 
-            float slowed = Get("slowed"), tearful = Get("tearful");
+            float slowed = Mathf.Max(Get("slowed"), MoodSlow), tearful = Get("tearful");
             if (Seated) anim.speed = Mathf.Lerp(1f, 0.7f, slowed);  // the entrance owns speed until seated
-            anim.SetFloat("Slumped", Get("slumped"), 0.5f, Time.deltaTime);
+            anim.SetFloat("Slumped", Mathf.Max(Get("slumped"), MoodSlump), 0.5f, Time.deltaTime);
             gaze.AvoidShare = Get("gaze_avoid");
             tremor.FineTremor = Get("tremor_fine");
             tremor.CoarseTremor = Get("tremor_coarse");
@@ -125,7 +136,7 @@ namespace Rapport.Cues
             if (face) face.Scale = 1f - 0.7f * Get("flat_affect");
 
             // layer weights: fidget follows intensity, talk while speaking, one-shots until their clip ends
-            if (lFidget >= 0) layerTarget[lFidget] = Seated && HasClip("cue_fidget_nails_Hands") ? Get("fidget") : 0f;
+            if (lFidget >= 0) layerTarget[lFidget] = Seated && HasClip("cue_fidget_nails_Hands") ? Mathf.Max(Get("fidget"), MoodFidget) : 0f;
             if (lTalk >= 0) layerTarget[lTalk] = Seated && !InExamAction && !ExamBusy && now < talkingUntil && HasClip("gesture_talk_small_01") ? 0.8f : 0f;
             foreach (var l in new[] { lArms, lHead })
                 if (l >= 0 && layerTarget.TryGetValue(l, out var w) && w > 0 && !anim.IsInTransition(l) && anim.GetCurrentAnimatorStateInfo(l).normalizedTime >= 0.95f

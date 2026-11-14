@@ -22,7 +22,7 @@ namespace Rapport.Cues
     {
         public event Action<string> ExamStarted, ExamEnded;
         public readonly ExamQueue Queue = new();
-        public float WalkTurnDeg = -45f;    // Encounter room: the clear floor is to her front-right (world -z), away from the doctor's chair
+        public float WalkTurnDeg = -77f;    // Encounter room: the clear floor (world yaw -135°, toward -z), away from the doctor's chair; her seat faces about -58° since the seat-angle fix (was -90° and -45 here)
         public float WalkSeconds = 1.1f;    // per leg, about 1.2 m of walk_in
 
         // normalized hold poses: action_hold_out_hands 1.5-5.7 s of 8, action_roll_up_sleeves 7.75-10.8 s of 13, action_look_at_light 1.0-4.7 s of 6

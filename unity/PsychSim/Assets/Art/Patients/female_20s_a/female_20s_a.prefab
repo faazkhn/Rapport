@@ -48,9 +48,45 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7107035411542382680, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -7107035411542382680, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -6597378289169086553, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -6597378289169086553, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -272698260703527454, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -272698260703527454, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
       propertyPath: m_Name
       value: female_20s_a
+      objectReference: {fileID: 0}
+    - target: {fileID: 1973094975194804775, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1973094975194804775, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296939745533547459, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2296939745533547459, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
       propertyPath: m_UpdateWhenOffscreen
@@ -60,6 +96,22 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ebec4fe9ea12a4d478b30e4ef14be98f, type: 2}
+    - target: {fileID: 3527831587849921105, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3527831587849921105, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5197118176682910397, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5197118176682910397, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
       propertyPath: m_Controller
       value: 
@@ -73,6 +125,34 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6341416825610861972, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6341416825610861972, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7634479467738841525, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7634479467738841525, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8443775884153234311, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8443775884153234311, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051005867030159785, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051005867030159785, guid: a5cf3dd57502b4a6d9dee85ed35e407f, type: 3}
       propertyPath: m_UpdateWhenOffscreen
       value: 1
       objectReference: {fileID: 0}

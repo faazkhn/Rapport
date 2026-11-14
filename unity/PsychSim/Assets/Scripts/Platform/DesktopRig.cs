@@ -13,8 +13,6 @@ namespace Rapport.Platform
         [SerializeField] InputActionAsset actions;
         [SerializeField] float sensitivity = 0.08f;
         [SerializeField] Vector2 yawLimit = new(-70f, 70f), pitchLimit = new(-35f, 30f);
-        [SerializeField] float followYawOffset = 17f;   // puts the followed target about a third from the left, clear of the side panel
-        [SerializeField] float followPitchOffset = 7f;  // one sixth of the 42° FOV: the patient's eyes sit in the upper third
         public Transform Follow;
         public Transform Target;                        // what it rotates; defaults to its own transform
         InputAction look, hold;
@@ -29,6 +27,15 @@ namespace Rapport.Platform
             baseRot = Target.localRotation;
         }
 
+        /// <summary>The doctor's resting view of the followed head: the head 30% from the left edge (clear of the side panel) and in
+        /// the upper third, at the doctor FOV and 16:9. LightingStills renders through the same pose, so stills match play mode.</summary>
+        public static Quaternion FollowRotation(Vector3 from, Vector3 head, float vfov = CameraDirector.DoctorFov, float aspect = 16f / 9f)
+        {
+            float t = Mathf.Tan(vfov * 0.5f * Mathf.Deg2Rad);
+            float yaw = Mathf.Atan(0.4f * t * aspect) * Mathf.Rad2Deg, pitch = Mathf.Atan(t / 3f) * Mathf.Rad2Deg;
+            return Quaternion.LookRotation(head - from) * Quaternion.Euler(pitch, yaw, 0f);
+        }
+
         void OnEnable() { look.Enable(); hold.Enable(); }
         void OnDisable() { look.Disable(); hold.Disable(); }
 
@@ -38,7 +45,7 @@ namespace Rapport.Platform
             {
                 if (Follow)
                 {
-                    var want = Quaternion.LookRotation(Follow.position - Target.position) * Quaternion.Euler(followPitchOffset, followYawOffset, 0f);
+                    var want = FollowRotation(Target.position, Follow.position);
                     Target.rotation = Quaternion.Slerp(Target.rotation, want, 1f - Mathf.Exp(-Time.deltaTime * 3f));
                 }
                 return;

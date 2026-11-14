@@ -581,5 +581,87 @@ namespace Rapport.Tests
             Assert.IsNull(d("juggle"));
             Assert.IsNull(d(null));
         }
+
+        [Test]
+        public void DoctorView_PutsTheHeadLeftOfCentreInTheUpperThird()
+        {
+            var from = new Vector3(0.3f, 1.2f, -0.4f); var head = new Vector3(-1.1f, 1.25f, 0.2f);
+            foreach (var fov in new[] { Rapport.Platform.CameraDirector.DoctorFov, 42f })
+            {
+                var local = Quaternion.Inverse(Rapport.Platform.DesktopRig.FollowRotation(from, head, fov, 16f / 9f)) * (head - from);
+                float t = Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad);
+                Assert.AreEqual(0.30f, 0.5f + 0.5f * local.x / local.z / (t * 16f / 9f), 0.01f);  // 30% from the left, clear of the side panel
+                Assert.AreEqual(2f / 3f, 0.5f + 0.5f * local.y / local.z / t, 0.01f);           // eyes on the upper third
+            }
+        }
+
+        [Test]
+        public void AngleSeats_TurnsThePatientAboutHerHipsTo110DegreesFromTheDoctor()
+        {
+            var room = new GameObject("Room").transform;
+            Transform Child(string n, Vector3 p, float yaw) { var t = new GameObject(n).transform; t.SetParent(room); t.SetPositionAndRotation(p, Quaternion.Euler(0f, yaw, 0f)); return t; }
+            try
+            {
+                // the exported office: patient faces -X (156° to the doctor), doctor faces her
+                var pat = Child("PatientAnchor", new Vector3(0.576f, 0f, -0.18f), 270f);
+                Child("ChairApproach", pat.position, 270f);
+                var eye = Child("KeyLightTarget", new Vector3(0.858f, 1.193f, -0.185f), 0f);
+                var doc = Child("DoctorAnchor", new Vector3(-0.496f, 1.2f, 0.42f), 114.1f);
+                var hips = pat.position - pat.forward * 0.40f;
+                float eyeToHips = Vector3.Distance(eye.position, hips);
+                Rapport.Editor.EncounterSceneBuilder.AngleSeats(room);
+                Assert.AreEqual(Rapport.Editor.EncounterSceneBuilder.SeatAngle, Vector3.Angle(pat.forward, doc.forward), 0.1f);
+                Assert.Less((pat.position - pat.forward * 0.40f - hips).magnitude, 1e-4f);   // still on the cushion
+                Assert.AreEqual(eyeToHips, Vector3.Distance(eye.position, hips), 1e-4f);          // the key light's target turns with her
+                var toDoc = doc.position - eye.position; toDoc.y = 0f;
+                Assert.Less(Vector3.Angle(pat.forward, toDoc), 15f);                             // she faces the doctor, a little past him
+                Assert.AreEqual(pat.position, room.Find("ChairApproach").position);
+                var (p0, r0) = (pat.position, doc.rotation);
+                Rapport.Editor.EncounterSceneBuilder.AngleSeats(room);                            // idempotent
+                Assert.Less((pat.position - p0).magnitude, 1e-4f);
+                Assert.Less(Quaternion.Angle(doc.rotation, r0), 0.01f);
+            }
+            finally { Object.DestroyImmediate(room.gameObject); }
+        }
+
+        [Test]
+        public void IdleLife_BlinkBreathAndSaccadeTimingsAreNatural()
+        {
+            Assert.AreEqual(0f, Rapport.Cues.FacePresets.BlinkShape(-0.01f));
+            Assert.AreEqual(1f, Rapport.Cues.FacePresets.BlinkShape(0.08f));                  // shut
+            Assert.Greater(Rapport.Cues.FacePresets.BlinkShape(0.17f), 0.3f);                 // opens slower than it closes (70 ms)
+            Assert.Less(Rapport.Cues.FacePresets.BlinkShape(0.26f), 0.05f);                   // open again within 0.27 s
+            Assert.AreEqual(0f, Rapport.Cues.FacePresets.BlinkShape(0.3f));
+            var gaps = Enumerable.Range(1, 400).Select(i => Rapport.Cues.FacePresets.BlinkGap((i * 0.6180339f) % 1f, (i * 0.7548776f) % 1f)).ToList();
+            Assert.That(gaps.All(g => g >= 0.8f && g <= 9f));
+            Assert.AreEqual(3.4f, gaps.Average(), 0.6f);                                       // about 17 blinks a minute
+            Assert.AreEqual(0f, Rapport.Cues.Breathing.Inhale(0f), 1e-4f);
+            Assert.AreEqual(1f, Rapport.Cues.Breathing.Inhale(0.4f), 1e-4f);
+            Assert.AreEqual(Rapport.Cues.Breathing.Inhale(0.2f), Rapport.Cues.Breathing.Inhale(1.2f), 1e-4f);
+            Assert.AreEqual(0.3f, Rapport.Cues.GazeController.SaccadeGap(0f), 1e-4f);
+            Assert.AreEqual(2.5f, Rapport.Cues.GazeController.SaccadeGap(1f), 1e-4f);
+        }
+
+        [Test]
+        public void BodyLanguage_FollowsEmotionIntensityAndTrust()
+        {
+            System.Func<string, float, string, float, Rapport.Cues.BodyLanguage.Targets> f = Rapport.Cues.BodyLanguage.For;
+            var calm = f("neutral", 0f, "", 50f);
+            Assert.AreEqual(0f, calm.lean); Assert.AreEqual(0f, calm.avoid, 1e-4f); Assert.AreEqual(1f, calm.motion);
+            Assert.Greater(f("angry", 1f, "", 50f).lean, 4f);                                  // leans in
+            Assert.Greater(f("neutral", 0.8f, "hostile", 50f).lean, 3f);                       // hostile behaviour reads as anger
+            Assert.AreEqual(f("angry", 1f, "", 50f).lean / 2f, f("angry", 0.5f, "", 50f).lean, 1e-4f);  // scales with intensity
+            var sad = f("sad", 1f, "", 50f);
+            Assert.Greater(sad.headPitch, 8f); Assert.Greater(sad.slump, 0.5f); Assert.Greater(sad.avoid, 0.3f);
+            Assert.Greater(f("ashamed", 1f, "", 50f).avoid, sad.avoid);                      // shame looks away most
+            var anx = f("anxious", 1f, "", 50f);
+            Assert.Greater(anx.fidget, 0.5f); Assert.Greater(anx.knee, 0.5f); Assert.Less(anx.pace, 1f);
+            Assert.Less(f("flat", 1f, "", 50f).motion, 0.5f);
+            Assert.Greater(f("confused", 1f, "", 50f).tilt, 5f);
+            Assert.Less(f("neutral", 0f, "", 100f).avoid, f("neutral", 0f, "", 0f).avoid);   // trust raises eye contact
+            Assert.AreEqual(0f, Rapport.Cues.BodyLanguage.Envelope(-0.1f, 0.3f, 1f, 0.5f));
+            Assert.AreEqual(1f, Rapport.Cues.BodyLanguage.Envelope(0.8f, 0.3f, 1f, 0.5f));
+            Assert.AreEqual(0f, Rapport.Cues.BodyLanguage.Envelope(1.9f, 0.3f, 1f, 0.5f));
+        }
     }
 }
