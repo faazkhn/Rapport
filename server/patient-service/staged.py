@@ -34,14 +34,30 @@ class Script:
         if not wav.exists():
             return t, None
         audio, sr = sf.read(wav, dtype="float32", always_2d=True)
-        audio = audio.mean(axis=1)
-        if sr != self.out_sr:
-            x = np.arange(0, len(audio), sr / self.out_sr)
-            audio = np.interp(x, np.arange(len(audio)), audio).astype(np.float32)
-        return t, audio
+        return t, _resample(audio.mean(axis=1), sr, self.out_sr)
 
     def doctor_line(self) -> str:
         return self.turns[self.i]["doctor"] if self.i < len(self.turns) else ""
+
+
+def _resample(audio, sr: int, out_sr: int):
+    if sr == out_sr:
+        return audio
+    x = np.arange(0, len(audio), sr / out_sr)
+    return np.interp(x, np.arange(len(audio)), audio).astype(np.float32)
+
+
+def doctor_audio(text: str, out_sr: int):
+    """The pre-rendered doctor line (<script dir>/doctor/female_<i>.wav) whose scripted text matches, as float32 mono; else None."""
+    if not PATH:
+        return None
+    d = json.loads(Path(PATH).read_text())
+    for i, t in enumerate(d["turns"]):
+        wav = Path(PATH).parent / "doctor" / f"female_{i}.wav"
+        if t["doctor"].strip() == text.strip() and wav.exists():
+            audio, sr = sf.read(wav, dtype="float32", always_2d=True)
+            return _resample(audio.mean(axis=1), sr, out_sr)
+    return None
 
 
 def reply_of(t: dict) -> dict:

@@ -109,3 +109,23 @@ def test_network_clients_see_only_the_twin():
     with pytest.raises(Exception):
         with lan.websocket_connect("/session"):
             pass
+
+
+def test_tts_serves_staged_doctor_wav(monkeypatch, tmp_path):
+    import json
+
+    import numpy as np
+    import soundfile as sf
+
+    import staged
+    (tmp_path / "doctor").mkdir()
+    (tmp_path / "script.json").write_text(json.dumps({"turns": [{"doctor": "Hello? "}], "arjun_turns": []}))
+    sf.write(tmp_path / "doctor" / "female_0.wav", np.zeros(24000, np.float32), 48000)
+    monkeypatch.setattr(staged, "PATH", str(tmp_path / "script.json"))
+    monkeypatch.setitem(service.tts, "model", None)  # an earlier test may have loaded KittenTTS; a 200 must be the staged WAV
+    c = TestClient(service.app, client=("127.0.0.1", 50000))
+    r = c.post("/tts", json={"text": "Hello?", "voice": "Hugo"})
+    assert r.status_code == 200 and r.headers["content-type"] == "audio/wav"
+    channels, rate = struct.unpack("<HI", r.content[22:28])
+    assert (channels, rate) == (1, service.SAMPLE_RATE) and abs((len(r.content) - 44) / 2 / rate - 0.5) < 0.02
+    assert c.post("/tts", json={"text": "Something else", "voice": "Hugo"}).status_code == 503

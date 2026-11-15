@@ -22,6 +22,7 @@ import examiner
 import learning
 import mock
 import session
+import staged
 import stt
 import twin_bus
 import voice
@@ -264,6 +265,10 @@ async def assess(req: AssessReq):
 
 @app.post("/tts")
 async def speak(req: TtsReq):
+    if (line := staged.doctor_audio(req.text, SAMPLE_RATE)) is not None:  # staged film: the owner's pre-rendered voice
+        buf = io.BytesIO()
+        sf.write(buf, line, SAMPLE_RATE, format="WAV", subtype="PCM_16")
+        return Response(buf.getvalue(), media_type="audio/wav", headers={"X-Gen-Ms": "0"})
     if tts["model"] is None:
         raise HTTPException(503, "TTS model not loaded")
     if req.voice not in VOICES:
