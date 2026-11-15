@@ -8,6 +8,7 @@ pitch movement); exits 1 if any line's transcript match is below 0.9. Unchanged 
 Reference: the owner's 2026-11-03 recording, ~/Downloads/modern-apartment/Video/cii-final/voice/reference-faaz.wav.
 """
 import difflib
+import os
 import json
 import re
 import subprocess
@@ -74,7 +75,7 @@ def main():
             continue
         takes = []
         for take in range(2 * TAKES):
-            mx.random.seed(zlib.crc32(f"doctor:{take}:{say}".encode()))
+            mx.random.seed(zlib.crc32(f"doctor:{take}:{say}{os.environ.get('SALT', '')}".encode()))  # SALT re-rolls a line
             res = list(base.generate(text=say, ref_audio=str(REF), ref_text=REF_TEXT, lang_code="english"))
             a, sr = np.concatenate([np.array(r.audio) for r in res]).astype(np.float32), res[0].sample_rate
             tmp = out / f"take-{take}.wav"

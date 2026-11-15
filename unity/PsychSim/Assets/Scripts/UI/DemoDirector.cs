@@ -20,6 +20,7 @@ namespace Rapport.UI
         public static event Action Finished;
         public static string Variant = "female";
         public static string ScriptPath = "demo/script.json";   // demo/staged/script.json for the staged concept preview
+        public static int MaxTurns = int.MaxValue;   // a short test take stops after this many turns
         public static int? Seed;   // a seeded patient (service brain.load_case); null = the authored one
 
         [Serializable] class Turn { public string doctor, shot; }
@@ -86,8 +87,10 @@ namespace Rapport.UI
             yield return new WaitForSeconds(1.2f);
 
             // shots 5-8: the interview, Dr. Faaz speaking through the mic path
+            int done = 0;
             foreach (var t in cut ? script.arjun_turns : script.turns)
             {
+                if (done++ >= MaxTurns) { MaxTurns = int.MaxValue; yield return new WaitForSeconds(1f); Finished?.Invoke(); yield break; }
                 Shot(t.shot);
                 yield return Wait(em.SpeakDoctorIntoMic(t.doctor));
                 yield return new WaitForSeconds(0.5f);
