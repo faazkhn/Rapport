@@ -1,0 +1,353 @@
+case,line,memory_ids
+mdd_01,"So, Ananya, can you just tell me a bit about how you've been feeling generally over the last couple of months? What's been the main thing that's been bothering you?",f_pc
+mdd_01,"When you say you've been feeling 'not yourself', can you elaborate a little on what that feels like day-to-day? What kind of changes are you noticing?","f_energy_concentration,f_mood,f_pc"
+mdd_01,"About the tiredness, how would you describe it? Is it just being tired, or is it a deeper kind of fatigue?","f_energy_concentration,f_pc,f_sleep"
+mdd_01,"Just to check in, can you walk me through what the experience of feeling tired and 'not yourself' has been like for you?","f_onset,f_pc"
+mdd_01,"So, tell me a little bit about when this feeling, this tiredness, it first started for you? When did things begin to change?",f_onset
+mdd_01,"Can you walk me through the timeline? When did you first notice things were different, like, two months ago, around that time?",f_onset
+mdd_01,"How did this situation, this feeling, start developing? Was it sudden, or did it creep up on you over time?",f_onset
+mdd_01,Can you describe the progression? What was happening right before this started becoming a bigger issue?,f_onset
+mdd_01,"So, how is your general feeling, Ananya? When you think about the day, what comes to mind?",f_mood
+mdd_01,"Tell me a bit more about how you are feeling inside, day-to-day. What's the dominant emotion you're experiencing?",f_mood
+mdd_01,"When you wake up, or during the day, what kind of emotional landscape are you navigating? Is it heavy, or something else?",f_mood
+mdd_01,"If you had to describe the mood you've been in lately, what words would you use? Just tell me what's going through your mind.",f_mood
+mdd_01,"Ananya, when you were singing, what kind of things did you enjoy doing most? Like, what really brought you joy?",f_anhedonia
+mdd_01,"Tell me a little bit about your hobbies, Ananya. What were the things that used to make you feel good?",f_anhedonia
+mdd_01,You mentioned stopping your singing and hanging out with friends. Can you describe what was different about those times? What was the feeling like?,f_anhedonia
+mdd_01,"When you think about things you used to like, even small things, what comes to mind?",f_anhedonia
+mdd_01,"Tell me, how is your sleep pattern lately? Are you finding it difficult to get the deep rest you usually have?",f_sleep
+mdd_01,"When you do sleep, are you finding that you stay asleep easily, or is there something keeping you awake during the night?",f_sleep
+mdd_01,"Are you noticing any particular times when your sleep is disturbed? Like, early morning waking, for example?",f_sleep
+mdd_01,How is the quality of your sleep? Are you feeling refreshed when you wake up in the morning?,f_sleep
+mdd_01,How has your eating been lately? Are you finding it difficult to keep up with your meals?,f_appetite
+mdd_01,Tell me a bit about how you are feeling about your appetite. Is there anything specific about your food intake that concerns you?,f_appetite
+mdd_01,You mentioned losing some weight. How has that affected how you feel day-to-day?,f_appetite
+mdd_01,Are you finding it easy to eat or are you having trouble with hunger these days?,f_appetite
+mdd_01,"So, regarding how things are running for you at work, how is your focus? Are you finding it difficult to concentrate on the tasks?",f_energy_concentration
+mdd_01,"When you are trying to work, do you find that your mind keeps wandering? Is it hard to stick to one thing?",f_energy_concentration
+mdd_01,"Tell me, how is your energy level during the day? Are you feeling drained, even after resting?",f_energy_concentration
+mdd_01,"How is the concentration with the test cases? Are you finding it hard to keep track, or are you making mistakes?",f_energy_concentration
+mdd_01,Tell me a little bit about how you are feeling about yourself lately? What thoughts are going through your head when you are alone?,f_guilt
+mdd_01,"When you feel that weight, what does that feel like inside? Is there anything specific that makes you feel that way?",f_guilt
+mdd_01,We need to talk about how you perceive yourself in this situation. Do you ever think that you are a burden to others?,f_guilt
+mdd_01,Can you share some thoughts about what you think about your role right now? What are your feelings about where you are?,f_guilt
+mdd_01,"Tell me a bit about how you are feeling inside, especially when you are at work. Is there any tension you notice?",f_anxiety
+mdd_01,"When you are worried, what kind of thoughts go through your head? Does it feel overwhelming?",f_anxiety
+mdd_01,"How does this feeling of being keyed up affect your day? For example, does it make it hard to relax?",f_anxiety
+mdd_01,"When you are stressed, do you find yourself worrying about specific things? Like work, or other things?","f_anxiety,f_work_family"
+mdd_01,"So, tell me a little bit about what's happening at work and home? How is that balancing?",f_work_family
+mdd_01,"When things get stressful, what kinds of things tend to worry you the most, you know?","f_anxiety,f_work_family"
+mdd_01,How is the relationship with your manager going? Is that adding to the pressure?,f_work_family
+mdd_01,"Are there any other people in your life, like family members, who you feel you can talk to about this, even if it's just a little bit?",f_work_family
+mdd_01,"Tell me a little bit about your family background, maybe some important things you've grown up with.",f_family_history
+mdd_01,"Are there any significant things happening in your family history, perhaps related to mental well-being or any family patterns?",f_family_history
+mdd_01,"When you think about your family, are there any stories or experiences that stand out to you?",f_family_history
+mdd_01,"Does anyone in your family have a history of any specific health concerns, maybe anything related to stress or emotional challenges?",f_family_history
+mdd_01,"Ananya, when you feel this way, sometimes there are thoughts that... do you notice any thoughts that make you wish things would just stop?",f_passive_si
+mdd_01,"Sometimes when the feeling gets very heavy, do you ever have thoughts about not waking up?",f_passive_si
+mdd_01,"If you are having a particularly rough night, do any thoughts come into your head about just not being awake?",f_passive_si
+mdd_01,"We need to talk about these moments. Are there any times when you think about stopping the awareness, just for a minute?",f_passive_si
+mdd_01,"When the distress peaks, do you ever have thoughts that would make you wish the day wouldn't continue?",f_passive_si
+mdd_01,"Tell me, when you are feeling most overwhelmed, are there any thoughts about escaping, about not being there anymore?",f_passive_si
+mdd_01,Are there any thoughts that you wish you wouldn't have to face the morning?,f_passive_si
+mdd_01,"If you are having those intrusive thoughts, do they ever involve wishing for a cessation, a stopping?",f_passive_si
+mdd_01,"Sometimes, when the feeling is intense, do you experience thoughts about not being awake?",f_passive_si
+mdd_01,"Regarding those moments of wishing things would just pass, are there any thoughts connected to that?",f_passive_si
+mdd_01,Do you ever have thoughts that you would prefer not to wake up?,f_passive_si
+mdd_01,"When you are struggling with sleep, are there any thoughts about just not being conscious in the morning?",f_passive_si
+mdd_01,"Ananya, when you think about the future, what kind of thoughts are running through your mind right now?",f_no_plan_no_attempt
+mdd_01,"I just want to make sure we are clear, are there any thoughts about ending things that you are having?",f_no_plan_no_attempt
+mdd_01,"If things felt overwhelming, is there anything you've considered as a way out?",f_no_plan_no_attempt
+mdd_01,"Just to understand the situation better, have you thought about harming yourself at all?",f_no_plan_no_attempt
+mdd_01,"We are just talking, and I need to know, have you ever thought about taking your life?",f_no_plan_no_attempt
+mdd_01,"Are there any plans, big or small, that you have for what comes next?",f_no_plan_no_attempt
+mdd_01,"Even if it’s just a passing thought, have you ever had any thoughts of ending your life?",f_no_plan_no_attempt
+mdd_01,"Tell me, are there any ways you might consider hurting yourself?",f_no_plan_no_attempt
+mdd_01,"Is there anything you are planning to do, or no plan at all?",f_no_plan_no_attempt
+mdd_01,"No pressure, but just so I know, have you ever thought about self-harm?",f_no_plan_no_attempt
+mdd_01,"Are there any intentions, even fleeting ones, regarding your life right now?",f_no_plan_no_attempt
+mdd_01,"If you are feeling this way, are you thinking about any ways to stop the feelings?",f_no_plan_no_attempt
+mdd_01,"Ananya, just to make sure, have you thought about any ways you might hurt yourself?",f_no_means
+mdd_01,"I just need to check, are there any thoughts about ending things, even fleeting ones?","f_no_means,f_passive_si"
+mdd_01,"Sometimes when things feel really tough, do those thoughts ever become more persistent?","f_no_means,f_passive_si"
+mdd_01,"Are there any specific plans swirling around in your mind right now, Ananya?","f_no_means,f_no_plan_no_attempt"
+mdd_01,"If these feelings get overwhelming, do you have any ideas on what you might do?","f_no_means,f_no_plan_no_attempt"
+mdd_01,"Do you have access to anything, any resources, if you were ever in a crisis?",f_no_means
+mdd_01,"Just so I know, are there any things you keep close by that you might consider?",f_no_means
+mdd_01,"Is there anything you have thought about trying to hurt yourself, even just hypothetically?",f_no_means
+mdd_01,We need to talk about safety. Are there any things you have access to that you might use?,f_no_means
+mdd_01,"Ananya, just to be absolutely clear, are you currently holding any means of self-harm?",f_no_means
+mdd_01,"If you were to act on those wishes, what kind of things are you thinking about?","f_no_means,f_passive_si"
+mdd_01,Are there any pills or other things that you have kept around that you might think about?,f_no_means
+mdd_01,"Tell me a little bit about how you handle things when you feel overwhelmed, you know?",f_protective
+mdd_01,"When you think about getting help, what comes to mind for you? Kya aapne kabhi kisi se baat ki hai?",f_protective
+mdd_01,"If things were different, what would make a difference for you right now?",f_protective
+mdd_01,"Is there anyone in your life, maybe a friend or family member, who you feel comfortable talking to about these feelings?",f_protective
+mdd_01,"Ananya, regarding your daily routine, can you tell me a little bit about what you usually consume? Like, what's your typical diet?",f_substances
+mdd_01,"Tell me, have you taken anything recently, or anything at all, besides your usual coffee?",f_substances
+mdd_01,"Are you taking any medications right now, for anything, maybe for stress or sleep?",f_substances
+mdd_01,"About substances, have you experimented with anything, like any recreational things?",f_substances
+mdd_01,"Ananya, have you ever had any experiences where things felt a bit... different, like hearing things or seeing things that others don't?",f_no_psychosis
+mdd_01,"I just want to check, is there anything at all, like auditory or visual experiences, that you've noticed lately?",f_no_psychosis
+mdd_01,"Regarding your thoughts and perceptions, have you noticed anything unusual, like feeling watched or hearing voices?",f_no_psychosis
+mdd_01,"We need to rule this out completely; have you ever experienced any hallucinations or delusions, you know?",f_no_psychosis
+mdd_01,"Have you ever had any spells where you felt unusually high, maybe full of energy, like you didn't need much sleep?",f_no_mania_no_psych_hx
+mdd_01,"Is there any time when you felt like you had a burst of energy, maybe more than usual, and felt very confident?",f_no_mania_no_psych_hx
+mdd_01,"Thinking back, have you experienced anything like feeling very high, or maybe overly energetic, where you didn't need a lot of rest?",f_no_mania_no_psych_hx
+mdd_01,"Has anything like that happened to you before, where you felt unusually high or full of energy, maybe too much for a while?",f_no_mania_no_psych_hx
+mdd_01,"So, Ananya, regarding your physical health, have you had any other issues lately, anything that might be affecting how you are feeling?",f_medical
+mdd_01,"We've checked your physical health, but I just want to make sure we cover everything. Are there any other medical things we should be aware of?",f_medical
+mdd_01,"Just to be absolutely sure, anything unusual with your body, like maybe a thyroid thing? We checked that, but any other concerns?",f_medical
+mdd_01,"Tell me, besides the tiredness and mood changes, is there anything else physically going on that you haven't mentioned?",f_medical
+mdd_01,"Ananya ji, we need to check on the cycle timings. How are your periods been lately?",f_pregnancy
+mdd_01,"Just to be thorough, have you noticed any changes in your menstrual cycle? Anything unusual?",f_pregnancy
+mdd_01,Is everything with your cycle regular? We just want to make sure everything is fine.,f_pregnancy
+mdd_01,"We should touch upon your reproductive health history, specifically regarding your cycle. Has everything been consistent?",f_pregnancy
+mdd_01,"So, tell me a bit about how things have been feeling for you recently.",
+mdd_01,What has been occupying your thoughts these days?,
+mdd_01,Can you walk me through what a typical day looks like for you right now?,
+mdd_01,"How is your sleep pattern, generally speaking?",
+mdd_01,What are the main things that seem to be causing you distress?,
+mdd_01,When did you first start noticing these changes?,
+alc_01,"So, when these shakes and the sleep difficulties are happening, can you tell me a little bit about what that feels like for you?",f_pc
+alc_01,"Tell me, when you experience these tremors, is it something that happens mostly at certain times of the day?",f_pc
+alc_01,"Could you describe for me, how these shaking sensations interfere with your rest at night?",f_pc
+alc_01,"When you feel these physical symptoms, what is the main thing you notice happening with your hands?",f_pc
+alc_01,"So, tell me a little bit about how you manage your evening routine? Like, what does a typical evening look like for you?",f_drinking_minimised
+alc_01,"When you think about drinking in the evenings, how does that usually feel? Is it a regular thing?",f_drinking_minimised
+alc_01,Can you describe what happens when you have a drink later in the day? How does that fit into your day?,f_drinking_minimised
+alc_01,"Generally speaking, how often do you find yourself having a little something in the evenings?",f_drinking_minimised
+alc_01,"So, when you are having those evenings, how much is that usually, you know?",f_drinking_quantity
+alc_01,"Can you just tell me, roughly, how much you typically consume in those situations?",f_drinking_quantity
+alc_01,"About how many times a week, and on those evenings, what is the usual measure?",f_drinking_quantity
+alc_01,"When you are having those drinks, is it a small amount, or something more substantial?",f_drinking_quantity
+alc_01,"So, tell me, what was the last time you had a drink, just to check things out?",f_last_drink
+alc_01,"Can you just walk me through, what was the last time you had some of that?",f_last_drink
+alc_01,When was the last time you had something to drink? Just so I understand the pattern.,f_last_drink
+alc_01,"Regarding drinking, can you recall the timing of your last intake?",f_last_drink
+alc_01,"So, Kavya, when you wake up in the morning, what's the usual routine like? Sometimes I notice things about what happens right after you wake up.",f_morning_drinking
+alc_01,"Regarding those morning moments, are you noticing anything specific? Like, how does that part of the day feel for you?",f_morning_drinking
+alc_01,Tell me a little bit about those times when you wake up and feel a bit shaky. What does that experience involve?,f_morning_drinking
+alc_01,"When you're up early, is there anything that tends to happen then? Like, any small actions you take or notice?",f_morning_drinking
+alc_01,"Regarding that time when you tried to stop drinking on your own, can you tell me a little more about what happened then?",f_withdrawal_seizure
+alc_01,"When you were trying to reduce your drinking, how did that experience turn out for you?",f_withdrawal_seizure
+alc_01,"That incident last Diwali, what was the experience like for you after you tried to stop?",f_withdrawal_seizure
+alc_01,Tell me about that time when things didn't go as planned when you tried to stop drinking.,f_withdrawal_seizure
+alc_01,What were the immediate effects for you after that attempt to cut down?,f_withdrawal_seizure
+alc_01,Can you elaborate on what happened on that second day after you tried to stop?,f_withdrawal_seizure
+alc_01,We need to understand the outcome of that situation when you tried to manage it independently.,f_withdrawal_seizure
+alc_01,"When you were trying to stop, were there any specific physical reactions you noticed?",f_withdrawal_seizure
+alc_01,That event with the fit and the fall—can you walk me through that experience for me?,f_withdrawal_seizure
+alc_01,How did the body respond when you decided to stop drinking that time?,f_withdrawal_seizure
+alc_01,We are just trying to gather the details about that moment when you tried to manage things differently.,f_withdrawal_seizure
+alc_01,Could you tell me more about the physical event that occurred when you stopped?,f_withdrawal_seizure
+alc_01,"So, Kavya, regarding these habits, how do you feel about the current level of what you're consuming in the evenings?",f_control
+alc_01,"We've talked a bit about how things are going with that, the way you manage your intake, what's your perspective on that right now?",f_control
+alc_01,"When you think about cutting back, what are the main hurdles you see in trying to adjust that routine?",f_control
+alc_01,"Tell me, how do you feel about the attempts you've made to modify things, and what has been the experience like?",f_control
+alc_01,"How has all this been affecting things for you, Kavya?",f_consequences
+alc_01,"Can you tell me a bit about what happens when you try to manage things, you know?","f_consequences,f_control"
+alc_01,"When you try to reduce things, what are the challenges you face?","f_consequences,f_control"
+alc_01,"Tell me, what have been the outcomes when you've tried to change the pattern?",f_consequences
+alc_01,"Doctor: Kavya, regarding those liver enzyme results the doctor mentioned, can you tell me a little more about what the doctor said about that?",f_liver_medical
+alc_01,"Doctor: So, about the tests last month, how did you feel when you heard those numbers? Was it worrying?",f_liver_medical
+alc_01,Doctor: We noted those liver markers. Can you walk me through what the follow-up advice was regarding taking care of that aspect?,f_liver_medical
+alc_01,"Doctor: Regarding the liver health, did you ever discuss that with anyone else, or was that just between you and the doctor?",f_liver_medical
+alc_01,How are you feeling generally these days? Is the mood something you've noticed changing much lately?,f_mood
+alc_01,"When you wake up in the mornings, what sort of feeling or state comes over you?",f_mood
+alc_01,Tell me a bit about your emotional state during the day. Are things feeling tense or low?,f_mood
+alc_01,How would you describe your typical mood? Are you finding it hard to manage these feelings?,f_mood
+alc_01,"Tell me, Kavya, when things feel really overwhelming, have you ever had thoughts that things would be better off without you?",f_passive_si
+alc_01,"Sometimes, when you feel really down or stressed, do any thoughts about leaving or not being around?",f_passive_si
+alc_01,"In times of extreme pressure, have you ever thought about how things might look without you?",f_passive_si
+alc_01,"Are there any moments, perhaps when you feel really helpless, where you have considered other outcomes?",f_passive_si
+alc_01,"When you're feeling particularly low, have you ever had any thoughts about ending things?",f_passive_si
+alc_01,Has there ever been a time when you felt like you could just step away from everything?,f_passive_si
+alc_01,"Even though you mentioned you haven't planned anything, have you ever had fleeting thoughts about that sort of scenario?","f_no_plan_no_means,f_passive_si"
+alc_01,"When things get really tough, have you ever considered that maybe it would be easier if things were different?",f_passive_si
+alc_01,"Thinking about those difficult times, have you ever had any thoughts about self-harm, even just in passing?","f_no_plan_no_means,f_passive_si"
+alc_01,"Have you ever had any thoughts, however brief, about not being here anymore?",f_passive_si
+alc_01,"Regarding those moments when you felt that way, were those just passing thoughts, or did they stick around for a while?",f_passive_si
+alc_01,"If you were to have such thoughts again, what would be the difference this time?",f_passive_si
+alc_01,"Kavya, just to be clear, have you ever thought about things that might be... difficult?",f_no_plan_no_means
+alc_01,"When things feel really overwhelming, is there ever a thought about how to manage that, even just hypothetically?",f_no_plan_no_means
+alc_01,"I just want to check, have you ever considered any options for yourself, no matter how small?",f_no_plan_no_means
+alc_01,"We need to talk about safety. Have you ever, in any scenario, thought about any drastic measures?",f_no_plan_no_means
+alc_01,"Is there anything at all you've ever considered, just as a way to feel a different kind of relief?",f_no_plan_no_means
+alc_01,"Thinking about the future, have you ever entertained the idea of making some big changes for yourself?",f_no_plan_no_means
+alc_01,"Tell me, have you ever thought about ways to stop things, just in case the situation became too much?",f_no_plan_no_means
+alc_01,"Is there anything you've considered, even just as a way to escape the pressure you feel right now?",f_no_plan_no_means
+alc_01,I'm just being thorough. Have you ever had any thoughts about ending things?,f_no_plan_no_means
+alc_01,"When you feel this stressed, have you ever pictured yourself doing something to change the whole situation?",f_no_plan_no_means
+alc_01,"Is there any idea, even a fleeting one, of what you might do if things became unbearable?",f_no_plan_no_means
+alc_01,"Just to be absolutely certain, have you ever thought about any plan, no matter how distant?",f_no_plan_no_means
+alc_01,"Tell me a little bit about who is important to you, Kavya. Who are the people you care about the most?",f_protective
+alc_01,"Who are the people you feel strongly about, and how do they influence your decisions?",f_protective
+alc_01,There are some people in your life who give you a lot of strength. Can you share a bit about that?,f_protective
+alc_01,"Thinking about your daughter, Diya, how does she fit into your life right now?",f_protective
+alc_01,"So, besides the things we've discussed, are there any other substances you've been using, perhaps anything to help you relax or sleep?",f_other_substances
+alc_01,"Just to make sure we cover everything, are you consuming anything else besides the usual cigarettes?",f_other_substances
+alc_01,"Are there any other things, like any medications or other things, that you might be taking right now?",f_other_substances
+alc_01,"Tell me about any other things, you know, anything at all, that you might be using, even just for a little while.",f_other_substances
+alc_01,"Tell me a little bit about your family, maybe who you grew up with? Is there anything important you feel you need to share about your background?",f_family_history
+alc_01,Your father's history... how does that affect you now? What are your thoughts about that part of your family story?,f_family_history
+alc_01,"When you think about your family, is there anything specific about that environment or how things were handled that comes up for you?",f_family_history
+alc_01,"I'm just curious, how does growing up in that family dynamic shape how you see things today?",f_family_history
+alc_01,"Tell me, Kavya, have you ever felt like things were a bit different inside your head, maybe some unusual thoughts or feelings?",f_psych_history
+alc_01,"Just to check, have you had any experiences where your thoughts felt a little... off? Nothing specific, just curious.",f_psych_history
+alc_01,"Regarding your mental well-being, have you ever had a consultation with a counsellor or a doctor about how you were feeling emotionally?",f_psych_history
+alc_01,"Are there any times, perhaps, when you felt overwhelmed or maybe things felt a bit confusing? No pressure to share anything, just an open space.",f_psych_history
+alc_01,"When you feel really stressed, Kavya, how does that energy usually come out? Is it just tension?",f_anger_home
+alc_01,We've talked a bit about how things get heated at home. Can you tell me a bit about those moments when you feel frustrated?,f_anger_home
+alc_01,"Sometimes, when things get tough, do you find yourself reacting in ways that you might not intend? Like, shouting?",f_anger_home
+alc_01,How do you typically manage those moments when you feel the pressure building up between you and your family?,f_anger_home
+alc_01,"Have there been any times recently where you felt like you lost control of your temper, even just a little bit?",f_anger_home
+alc_01,"When you're feeling overwhelmed, is there anything specific that triggers that feeling of anger in your home environment?",f_anger_home
+alc_01,"If we look at the interactions at home, are there any patterns we should be aware of regarding how emotions are expressed?",f_anger_home
+alc_01,How do you feel about the way things are currently flowing with your spouse and your daughter?,f_anger_home
+alc_01,"When you've felt that intense emotion, like frustration, what usually happens next?",f_anger_home
+alc_01,Are there any instances where you feel like you might have expressed yourself too strongly in the past?,f_anger_home
+alc_01,"If we were to map out the emotional landscape at home, where do you see the most friction points?",f_anger_home
+alc_01,"Does that feeling of being angry ever lead to thoughts about harming anyone, even fleetingly?",f_anger_home
+alc_01,"So, Kavya, what makes you think it's time to make a change? Kya aapko lagta hai ki yeh sab manage karna mushkil ho raha hai?",f_motivation
+alc_01,"When you think about stopping, what is the main feeling that comes up for you? What is the thought process there?",f_motivation
+alc_01,Tell me a little about what motivates you right now to seek this help. What is driving you forward?,f_motivation
+alc_01,You mentioned you are ambivalent. Can you elaborate on that feeling? What are the good parts versus the difficult parts of the situation for you?,f_motivation
+alc_01,"So, tell me a bit about what's been going on with your well-being lately.",
+alc_01,How are things feeling for you generally these days?,
+alc_01,Can you walk me through what brings you in today?,
+alc_01,What are your main concerns right now?,
+alc_01,"How has your sleep been, specifically?",
+alc_01,Is there anything else on your mind that you feel is important for us to know?,
+ward_01,"So, tell me a little bit about how things are feeling right now, and what makes you feel like you're ready to go home today.",f_pc
+ward_01,"When you say you feel 'fine now', can you walk me through what that looks like for you, practically speaking?",f_pc
+ward_01,What is the immediate plan you have in mind if we were to process that discharge right now?,f_pc
+ward_01,"Can you elaborate a bit more on what 'fine' means for you in this moment, just so I can understand the whole picture?",f_pc
+ward_01,"So, tell me a little bit about what made it so difficult for you to settle in here, Ananya? What were the things that made the ward environment challenging?",f_reasons_ward
+ward_01,"When you think about the environment here, what are the things that cause you trouble, maybe at night or when you're just trying to rest?",f_reasons_ward
+ward_01,"Can you elaborate a bit on what specifically about being here, the ward situation, is causing you some distress?",f_reasons_ward
+ward_01,"What are the main things that make it hard for you to feel comfortable here, especially regarding sleep or feeling observed?",f_reasons_ward
+ward_01,Tell me a little bit about what's going on with your work situation. Is that causing you a lot of stress?,f_reasons_job
+ward_01,How is everything at work right now? Are there any specific things about your job that are weighing on your mind?,f_reasons_job
+ward_01,You mentioned something about your appraisal. Can you elaborate a bit on how that is affecting you?,f_reasons_job
+ward_01,What are your thoughts regarding your job and what happens if things don't go as planned?,f_reasons_job
+ward_01,"Ananya, you mentioned feeling a bit worried about people finding out about this. Can you tell me a little more about what that worry feels like?",f_shame
+ward_01,It sounds like there's a feeling around being here that's causing you some distress. Is there anything specific you're concerned about regarding how others might perceive this situation?,f_shame
+ward_01,"When you think about others knowing, what is the biggest thing that comes to mind for you right now?",f_shame
+ward_01,"This feeling of shame, it's quite heavy, isn't it? Can we talk a bit about what that means for you in this moment?",f_shame
+ward_01,"So, how are you feeling generally today, Ananya? Is the low feeling staying with you, or is there anything changing?",f_mood
+ward_01,"When you think about the day, how would you describe your mood? Is it heavy, or maybe a bit more numb these days?",f_mood
+ward_01,Tell me a little bit about how your emotions are shifting. Are there moments where things feel a bit lighter?,f_mood
+ward_01,"Compared to when you first came in, how would you rate your emotional state right now? Is it different from yesterday?",f_mood
+ward_01,"Ananya, can you tell me a little bit about what happened the last few nights before you came to the hospital?",f_terrace
+ward_01,"When you were at home, what was going through your mind around those times, especially when it was dark?",f_terrace
+ward_01,I understand you've been having some difficult thoughts. Can you share anything about the situations that were happening before this morning?,f_terrace
+ward_01,We need to understand the context of things. Could you elaborate on what was happening around the time you were feeling the most distressed?,f_terrace
+ward_01,"Regarding the nights leading up to this, were there any specific places or situations that were causing you trouble?",f_terrace
+ward_01,"Tell me, what were your thoughts like when you were up there? Just describing what was going on, okay?",f_terrace
+ward_01,"If you feel comfortable sharing, can you describe what it was like when you were near that area?",f_terrace
+ward_01,"When you were thinking about things, were there any specific scenarios that came to mind?",f_terrace
+ward_01,"Thinking back, what were the circumstances that led you to be in that place?",f_terrace
+ward_01,Can you talk a bit more about that time when you were contemplating things?,f_terrace
+ward_01,We need to explore the details of those moments. What was the situation like then?,f_terrace
+ward_01,"If you feel up to it, can you walk me through what happened concerning those times?",f_terrace
+ward_01,"Ananya, when you're alone at night, what kind of thoughts tend to come up for you?",f_current_si
+ward_01,"Tell me a little bit about what happens in your mind when you are by yourself, especially later in the evening.",f_current_si
+ward_01,How are those thoughts of ending things feeling right now? Are they persistent?,f_current_si
+ward_01,You mentioned thinking about a specific place. Can you tell me more about that experience?,"f_current_si,f_terrace"
+ward_01,"When you think about those situations, what is the outcome? Are you planning anything?",f_current_si
+ward_01,"If you are alone, what is the general feeling or impulse that arises?",f_current_si
+ward_01,Can you describe for me the connection between being alone and those thoughts?,f_current_si
+ward_01,You mentioned telling a nurse something yesterday. Could you elaborate on what that meant?,f_current_si
+ward_01,"When you have these thoughts, is it something that happens often, or only sometimes?",f_current_si
+ward_01,We need to check in on those feelings of wanting to end things when you are by yourself.,f_current_si
+ward_01,Is there anything that makes those thoughts feel more immediate or stronger?,f_current_si
+ward_01,"Just to be clear, are these thoughts of self-harm an immediate plan, or more of a passing thought?",f_current_si
+ward_01,"So, Ananya, regarding where you are staying, is it secure? Kya sab theek hai?",f_means
+ward_01,Tell me a little bit about the situation at your residence. How is the access to your space right now?,f_means
+ward_01,"When you think about being alone, what are the circumstances surrounding that? Any thoughts about what might happen?","f_current_si,f_means"
+ward_01,"If you were to go home tonight, what are the things that make you feel safe, or perhaps, what makes it difficult?","f_means,f_protective"
+ward_01,"About your flat, Ananya, is there anything that makes you feel worried about getting out there or being alone?",f_means
+ward_01,"When you consider leaving, what are the practicalities? Are there any things that might prevent you from going somewhere?",f_means
+ward_01,Can you describe the environment around you when you are thinking about leaving? Anything that might be a barrier?,f_means
+ward_01,"If you were to leave right now, what are the immediate concerns regarding your safety or access?",f_means
+ward_01,Does the way things are set up at home influence what you feel you can do or what you might do?,f_means
+ward_01,"When you think about going somewhere else, what are the things that come up for you regarding that possibility?",f_means
+ward_01,Is there anything about your current living situation that feels like it could complicate things for you?,f_means
+ward_01,"Just to check, are there any specific things about your place that you feel are important to mention regarding your plans?",f_means
+ward_01,"Tell me, Ananya, what would make you feel more comfortable staying here, if that's something you can share?",f_protective
+ward_01,"When you think about things, what are the things that would give you a bit more reassurance about staying here?",f_protective
+ward_01,"If you could change one thing about being here, what would that look like, just for a moment?",f_protective
+ward_01,What makes you feel okay about staying for just a little while longer?,f_protective
+ward_01,"Ananya, can you tell me a little bit about how you feel about this whole situation, and what you think the next steps should be? Kya aapko lagta hai ki aap manage kar sakti hain?",f_capacity
+ward_01,"When we talk about what might happen if you went home right now, what are your thoughts on that? What does 'managing' look like for you?",f_capacity
+ward_01,"We need to understand your perspective on things. If you could describe what you think is possible if you decided to leave the ward now, what are your main concerns?",f_capacity
+ward_01,"Can you elaborate a bit on how you see yourself handling things if you were to go home right now? What is your plan, in your view?",f_capacity
+ward_01,"Ananya, regarding your history, have you used anything, maybe alcohol or any other things, recently?",f_substances
+ward_01,"Tell me about your substance use, anything at all, just so I can get the full picture, okay?",f_substances
+ward_01,"Are you taking anything other than what we've discussed, or any regular medicines?",f_substances
+ward_01,"Just to be clear, are there any substances, like tobacco or recreational things, that you might be using?",f_substances
+ward_01,"So, regarding the medication we started, how is that feeling for you? Koi side effects, something you feel different about?",f_meds
+ward_01,Tell me a little bit about the sertraline. How is it sitting with you these last couple of days?,f_meds
+ward_01,"When we talk about the medication, are you noticing anything specific, any changes in your mood or how you sleep?",f_meds
+ward_01,"Just checking in on the medication plan. Are you feeling okay with how it’s going, or is there anything concerning you about it?",f_meds
+ward_01,"So, tell me a little bit about how things have been feeling for you these last couple of days.",
+ward_01,What is the hardest part of this time for you right now?,
+ward_01,"When you think about what you need most right now, what comes to mind?",
+ward_01,"Can you walk me through what your day usually looks like, from morning till night?",
+ward_01,"Is there anything specific that makes you feel a bit better, even for a little while?",
+ward_01,"How are you managing the different things happening, generally speaking?",
+ward_02,"So, about those medications, Priya. How are you feeling with them right now? Are they making things better, or is there anything about them that's not quite right?",f_pc
+ward_02,I see you're not keen on the medication. Can you tell me a little bit about what you feel when you take them? What's the experience like for you?,"f_pc,f_side_effects"
+ward_02,"When we talk about stopping the medication, what's the main thought process there? What makes you feel like you don't need them?",f_pc
+ward_02,"Tell me, what exactly is it about not wanting the pills that is most important to you at this moment?",f_pc
+ward_02,"So, regarding those medications you tried before, what were the main things you noticed about how they made you feel? Like, what was the experience?",f_side_effects
+ward_02,Tell me a bit more about those times when you were taking the medication. Were there any particular physical changes you experienced?,f_side_effects
+ward_02,"When you took them, did anything stand out? Any side effects that you remember being quite prominent?",f_side_effects
+ward_02,"Could you elaborate a little on those experiences with the medicine? What was the general feeling, you know?",f_side_effects
+ward_02,"So, about those hospital pills, what's the story there? Is there anything specific about how they got into your system?",f_poison
+ward_02,I see you're not keen on taking them. Can you tell me a bit more about why you feel they might have been tampered with?,f_poison
+ward_02,"When you mention the canteen staff and your uncle, what exactly is the concern regarding those medications?",f_poison
+ward_02,"If we look at the situation with the medication, is there anything else you remember about what happened with them?",f_poison
+ward_02,"So, about those sounds you've been hearing, can you tell me a little bit more about what those voices are saying? Kya aap mujhe bata sakti hain?",f_voices
+ward_02,"When these thoughts are present, how do they affect your day? Tell me what happens when those voices are around.",f_voices
+ward_02,"I understand you've been experiencing some auditory experiences. Could you describe what those voices are like, or what they talk about?",f_voices
+ward_02,These voices... they seem to be a big part of what you've been going through. Can you elaborate on the content of those conversations?,f_voices
+ward_02,"So, regarding your studies, how has everything been going at college lately? Is there anything specific bothering you about your academics?",f_college
+ward_02,"You mentioned missing some exams. Can you tell me a bit more about what that situation feels like for you, in terms of your college life?",f_college
+ward_02,"When you think about college, what are the main things that come to mind? Any particular worries related to your studies?",f_college
+ward_02,"How is the pressure from your studies affecting you right now? Like, how is it impacting your day-to-day college experience?",f_college
+ward_02,"So, regarding safety, Priya, if things were to change, what are your thoughts on that? Tell me what you think about being safe.",f_risk
+ward_02,"We need to talk a bit about potential risks, okay? Just so I know what we are looking at. What kind of things come to mind when you think about what might happen?",f_risk
+ward_02,"Are there any situations or thoughts that make you feel like things might get difficult? We just want to make sure we cover everything, right?",f_risk
+ward_02,"If you were to feel unsafe, what would that look like for you? Just tell me, no pressure.",f_risk
+ward_02,"We’ve discussed potential outcomes. When you think about these possibilities, does anything specific stand out to you regarding your well-being?",f_risk
+ward_02,Let's just check in on any thoughts about hurting yourself or anyone else. Is there anything at all weighing on your mind about that?,f_risk
+ward_02,"If there was a moment where you felt really overwhelmed, what would be your usual way of handling that? How do you cope?",f_risk
+ward_02,"We are assessing the risk, Priya. Are there any scenarios where you feel you might act on those thoughts? Just be honest.",f_risk
+ward_02,"When you consider these possibilities, what level of concern does that bring up for you? Is it a big worry or something you just dismiss?",f_risk
+ward_02,"Are there any plans, big or small, that you might have if you felt in distress? Just so we can understand the context.",f_risk
+ward_02,"If you were to feel threatened, what steps would you naturally take? How does that pathway look in your head?",f_risk
+ward_02,"So, overall, are you feeling stable right now, or are there any things that make you feel uneasy about your safety?",f_risk
+ward_02,"So, when we talk about these medications, how do you feel about what we've discussed? Can you tell me what you think about what we are trying to do?",f_capacity_understand
+ward_02,"If I explain things in a different way, does it make a bit more sense for you? Tell me if I'm explaining it correctly.",f_capacity_understand
+ward_02,"When we discuss these steps, are you able to follow along? Can you tell me what the plan is, in your own words?",f_capacity_understand
+ward_02,"Just to check, when I tell you how this might help, do you understand what I mean? Is everything clear?",f_capacity_understand
+ward_02,"So Priya, regarding the medication situation, what are some other things you were thinking about, maybe something different than just stopping the pills?",f_alternatives
+ward_02,"If we were to look at other ways to manage these voices, what kind of support or coping strategies have you considered trying?",f_alternatives
+ward_02,"You mentioned wanting to talk to your mother first. Besides that, have there been any other ways you thought about getting help or support?",f_alternatives
+ward_02,"What if we explore other options for feeling better, something that doesn't involve these specific medicines? Kya aap kuch aur try karna chahti hain?",f_alternatives
+ward_02,"So, regarding the things you've been using, like cannabis, can you tell me a bit more about how that was? Kya hua tha?",f_substances
+ward_02,"We've discussed substances, and I just want to make sure we cover everything. Tell me, when you were using those, what was the situation like?",f_substances
+ward_02,"About substances, has there been anything else, maybe other things you might have been taking, that we haven't talked about yet?",f_substances
+ward_02,"Tell me, about that smoking you mentioned earlier, how often did that happen, and what was the general context?",f_substances
+ward_02,"So, Priya, regarding your physical health, any other things we need to keep in the picture? Is there anything medical going on?",f_medical
+ward_02,"We've covered a few things about your history. Are there any pre-existing conditions, any allergies we should be aware of?",f_medical
+ward_02,"Just to make sure, are there any other physical health matters, maybe any chronic issues we should check?",f_medical
+ward_02,"From a medical standpoint, anything else concerning your body? Like, any specific medical history?",f_medical
+ward_02,"So, let's just take a moment to settle in. How has your day been leading up to this time?",
+ward_02,"Tell me a little bit about what life feels like for you right now, generally speaking.",
+ward_02,"If you could describe the usual rhythm of your days, what would that look like?",
+ward_02,We're just going to talk for a bit. Is there anything specific on your mind right now that you feel like sharing?,
+ward_02,What are some things that bring a bit of comfort to you when things feel a little overwhelming?,
+ward_02,"Let's just explore how things are going, okay? What's on your mind today?",
