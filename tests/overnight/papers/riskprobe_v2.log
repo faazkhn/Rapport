@@ -1,0 +1,4 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+v2 11 {'n': 77, 'trust_ok': 1.0, 'missed_self': 0.519, 'missed_judged': 0.403, 'recall_hit': 0.727, 'missed_judged_when_recalled': 0.286, 'n_when_recalled': 56, 'missed_judged_when_not_recalled': 0.714, 'n_when_not_recalled': 21, 'fallbacks': 1}
+v2 23 {'n': 77, 'trust_ok': 1.0, 'missed_self': 0.519, 'missed_judged': 0.325, 'recall_hit': 0.727, 'missed_judged_when_recalled': 0.232, 'n_when_recalled': 56, 'missed_judged_when_not_recalled': 0.571, 'n_when_not_recalled': 21, 'fallbacks': 1}
+v2 42 {'n': 77, 'trust_ok': 1.0, 'missed_self': 0.519, 'missed_judged': 0.442, 'recall_hit': 0.727, 'missed_judged_when_recalled': 0.339, 'n_when_recalled': 56, 'missed_judged_when_not_recalled': 0.714, 'n_when_not_recalled': 21, 'fallbacks': 2}
