@@ -1,0 +1,49 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+\newcommand{\numCasFalse}{3.7\%}
+\newcommand{\numCasRisk}{93.5\%}
+\newcommand{\numCasShare}{63\%}
+\newcommand{\numCompCIPzero}{[0.969, 0.987]}
+\newcommand{\numCompCIVzero}{[0.954, 0.979]}
+\newcommand{\numCompCIVtwo}{[0.956, 0.982]}
+\newcommand{\numCompPzero}{0.978}
+\newcommand{\numCompVzero}{0.967}
+\newcommand{\numCompVtwo}{0.970}
+\newcommand{\numDiffPzero}{$-0.008$ [$-0.022$, $+0.004$]}
+\newcommand{\numFilterDropped}{240}
+\newcommand{\numFilterTotal}{533}
+\newcommand{\numJailPzero}{6}
+\newcommand{\numJailVzero}{1}
+\newcommand{\numJailVtwo}{0}
+\newcommand{\numLLMfalse}{4.8\%}
+\newcommand{\numLLMmsMed}{416}
+\newcommand{\numLLMmsNinety}{736}
+\newcommand{\numLLMrisk}{94.8\%}
+\newcommand{\numLeaksPzero}{7}
+\newcommand{\numLeaksVzero}{1}
+\newcommand{\numLeaksVtwo}{4}
+\newcommand{\numPortPzero}{0}
+\newcommand{\numPortVzero}{0}
+\newcommand{\numPortVtwo}{0}
+\newcommand{\numRPmissNoRecPzero}{49.2\%}
+\newcommand{\numRPmissNoRecVzero}{57.3\%}
+\newcommand{\numRPmissNoRecVtwo}{66.7\%}
+\newcommand{\numRPmissRecPzero}{46.4\%}
+\newcommand{\numRPmissRecVzero}{24.7\%}
+\newcommand{\numRPmissRecVtwo}{28.6\%}
+\newcommand{\numRPmissPzero}{47.2\%}
+\newcommand{\numRPmissVzero}{45.9\%}
+\newcommand{\numRPmissVtwo}{39.0\%}
+\newcommand{\numRPnPzero}{231}
+\newcommand{\numRPnVzero}{231}
+\newcommand{\numRPnVtwo}{231}
+\newcommand{\numSIfailPzero}{1}
+\newcommand{\numSIfailVzero}{0}
+\newcommand{\numSIfailVtwo}{0}
+\newcommand{\numTurnsPzero}{294}
+\newcommand{\numTurnsVzero}{294}
+\newcommand{\numTurnsVtwo}{294}
+\newcommand{\numWGemmaDep}{47.5\%}
+\newcommand{\numWGemmaLLM}{91.5\%}
+\newcommand{\numWQwenDep}{58.9\%}
+\newcommand{\numWQwenLLM}{87.7\%}
+
