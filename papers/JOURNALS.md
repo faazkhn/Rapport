@@ -43,3 +43,24 @@ chosen), but confirm each in its author guidelines. JAMIA (Q1, SJR 1.870) also f
 Sources: pmejournal.org/about/submissions; jeehp.org author page and editorial (PMC10432825); jair.org/index.php/jair/about/submissions;
 transacl.org/index.php/tacl/about; cljournal.org/submissions.html; doaj.org (journal CSV, 2026-11-14); IEEE Article Processing Charges List
 (2026-07-30); tandfonline.com/journals/imte20/about-this-journal; Scimago SJR 2025 export.
+
+## Combined article (`p5_combined`, 27 pages in IEEE journal layout), checked 2026-11-18
+
+| Journal | Length rule | Fit |
+|---|---|---|
+| IEEE Access | No page limit; APC US$2,160, no overlength charge (ieeeaccess.ieee.org) | Takes the article whole. Gold OA only. |
+| IEEE Transactions on Learning Technologies | Regular papers at most 18 pages; extra pages only at the EiC's discretion, US$200 each (ieee-edusociety.org TLT author resources) | Best topical fit (Q1 Education / E-learning). Needs about 9 pages moved to supplementary material. |
+| IEEE Transactions on Affective Computing | 12 pages; US$220 per overlength page (IEEE 2026 APC list) | Would need a heavy cut to the Twin and its evaluation. |
+| IEEE Transactions on Human-Machine Systems | About 10 pages, up to 4 more at US$175 each (ieeesmc.org) | Too short for the combined article. |
+| IEEE J. Biomedical and Health Informatics | 8 pages, overlength charges after that (see above) | Too short for the combined article. |
+
+Overlap rule: the combined article reuses papers 1--4. If any of them is published first (for example the 8-page conference copies of papers 1 and 4),
+the journal submission must cite it, say what is new, and not be under review at the same time as a separate journal version of the same paper.
+
+## Two-paper split (2026-11-18)
+- **Paper A → Journal of Medical Systems** (Springer). Single-column `sn-jnl`, Vancouver; target about 7,000-8,000 words, 6-8 figures and
+  6-8 tables, the rest in supplementary material. Draft: 4 figures and 8 tables in the main text (more figures could move back from the supplement).
+- **Paper B → Journal of Healthcare Informatics Research** (Springer, same template), about 5,000-6,000 words; JEEHP (diamond OA, Word/NLM) is the
+  alternative and would need the Word conversion route in `venues/`.
+- Re-check each journal's current word, figure and APC rules before submission; they were not re-checked on 2026-11-18.
+- Overlap: A and B cite each other as companion submissions; neither may be under review alongside papers 1-5 or the conference copies.
