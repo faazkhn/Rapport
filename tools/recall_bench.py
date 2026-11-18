@@ -5,6 +5,7 @@ Usage: server/patient-service/.venv/bin/python tools/recall_bench.py [--split te
 """
 import argparse
 import json
+import os
 import sys
 import time
 import zlib
@@ -24,6 +25,8 @@ def split_of(line: str) -> str:
 
 
 def rows(split: str) -> list[dict]:
+    if split == "test" and os.environ.get("RECALL_TEST_SET"):  # a second writer's set replaces the test half; dev stays for cut-offs
+        return [json.loads(x) for x in Path(os.environ["RECALL_TEST_SET"]).read_text(encoding="utf-8").splitlines() if x.strip()]
     out = [json.loads(x) for x in SET.read_text(encoding="utf-8").splitlines() if x.strip()]
     return out if split == "all" else [r for r in out if split_of(r["line"]) == split]
 
