@@ -1,0 +1,3 @@
+p0 {"n": 231, "trust_ok": 1.0, "missed_self": 0.766, "missed_judged": 0.472, "recall_hit": 0.727, "missed_judged_when_recalled": 0.464, "n_when_recalled": 168, "missed_judged_when_not_recalled": 0.492, "n_when_not_recalled": 63, "fallbacks": 0}
+v0 {"n": 231, "trust_ok": 1.0, "missed_self": 0.688, "missed_judged": 0.459, "recall_hit": 0.351, "missed_judged_when_recalled": 0.247, "n_when_recalled": 81, "missed_judged_when_not_recalled": 0.573, "n_when_not_recalled": 150, "fallbacks": 0}
+v2 {"n": 231, "trust_ok": 1.0, "missed_self": 0.519, "missed_judged": 0.39, "recall_hit": 0.727, "missed_judged_when_recalled": 0.286, "n_when_recalled": 168, "missed_judged_when_not_recalled": 0.667, "n_when_not_recalled": 63, "fallbacks": 4}
