@@ -31,8 +31,9 @@ def stats(text):
 
 if __name__ == "__main__":
     worst = int(sys.argv[sys.argv.index("--worst") + 1]) if "--worst" in sys.argv else 0
-    for d in ("p1_brain", "p2_architecture", "p3_recall", "p4_system"):
-        sents, st = stats(prose((Path(__file__).parents[1] / d / f"{d}.tex").read_text()))
-        print(d, st)
+    for d, f in [(d, d) for d in ("p1_brain", "p2_architecture", "p3_recall", "p4_system")] + [
+            ("p1_brain", "p1_brain_conf"), ("p4_system", "p4_system_conf"), ("p5_combined", "p5_combined")]:
+        sents, st = stats(prose((Path(__file__).parents[1] / d / f"{f}.tex").read_text()))
+        print(f, st)
         for s in sorted(sents, key=lambda s: -len(s.split()))[:worst]:
             print("   ", len(s.split()), s[:200])
