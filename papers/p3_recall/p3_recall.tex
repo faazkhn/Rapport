@@ -1,29 +1,28 @@
+\RequirePackage[T1]{fontenc}
 \documentclass[journal]{IEEEtran}
 \input{../shared/style}
 
 \begin{document}
+\raggedbottom
 
 \title{Recall Under Paraphrase for Trust-Locked Patient Memory: A Blind Benchmark, Hybrid Lexical--Embedding Matching and Training-Free Hand-Set Heads}
 
 \author{Faaz~Khan~Mohammad%
-\thanks{F. K. Mohammad is with the Rapport project (e-mail: faazkhn1000@gmail.com).}}
+\thanks{Rapport project. Email faazkhn1000@gmail.com.}}
 \markboth{Preprint, November 2026}{Mohammad: Recall Under Paraphrase for Patient Memory}
 
 \maketitle
 
 \begin{abstract}
-Before a simulated psychiatric patient can decide whether to answer a question, it has to work out which of its memories the question is
-about. Students ask the same thing in many different ways (``Have you thought about ending your life?'', ``Do you ever feel you'd be better off
-not around?'', ``Any dark thoughts lately?''). If the patient misses a question about suicide, it may wrongly deny something it should share, which
-is a safety problem in a teaching tool. We built a blind test of 512 doctor questions over four psychiatric cases, written by a separate writer
-who knew only what each memory means and never saw the matching rules. We split it into a half for tuning and a half kept for the final test.
-Matching by keywords found 35.1\% of risk-related questions in the test half. Our hybrid method, keywords plus a small 33-million-parameter
-sentence model that compares meanings, found 72.7\% while wrongly matching 15.2\% of non-risk questions, in about 2\,ms per question on an
-ordinary processor. Weights that we set by hand, without any training, raised this to 77.9\% at 21.2\% wrong matches. None of these reached our
-target of 95\%. We report two lessons. First, the same method scored 90.7\% on the tuning half, so a tuning half that is also used to write
-examples gives a badly over-optimistic number. Second, tuning only to find more risk questions (100\% on the tuning half, but wrongly matching
-37\% of other questions) made the patient start talking about suicide when asked about sleep. Recall must be tuned with a limit on wrong
-matches.
+A simulated psychiatric patient must identify what a learner is asking about before it can decide whether to disclose a case detail.
+We evaluated this matching step on 512 AI-generated questions across four fictional psychiatric cases. The benchmark writer saw descriptions of the
+case memories but had no access to the matching rules. We reserved 248 questions for development and 264 for testing. On the test set,
+keyword matching recalled 35.1\% of expected risk memories. Adding a small sentence encoder raised recall to 72.7\%, while the share of
+questions about non-risk memories incorrectly matched to a risk memory rose from 6.1\% to 15.2\%. The hybrid matcher took a median of 2.1\,ms per question
+on a laptop CPU. Adding hand-set heads raised recall to 77.9\% and the false-hit rate to 21.2\%. All methods fell short of the 95\% recall
+target. The hybrid matcher scored 90.7\% on the development set, where we also used missed questions to write probes. A separate attempt to
+maximize recall reached 100\% on development data at a 36.9\% false-hit rate. Tested in scripted conversations, that configuration sometimes
+prompted unasked disclosures. The results show why evaluation should report both recall and false hits on held-out questions.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -31,13 +30,12 @@ semantic matching, sentence embeddings, paraphrase robustness, simulated patient
 \end{IEEEkeywords}
 
 \section{Introduction}
-Many simulated-patient systems separate what the patient \emph{knows} from what it may \emph{say}: each memory has a trust level, and the patient
-shares it only when the doctor asks and trust allows \cite{sabour2026patientact}; other psychiatric simulators ground the patient in
-cognitive models or mental-status constructs \cite{wang2024patient,lee2025psyche}. The first step in that chain is
-matching the doctor's words to the right memory. It is usually treated as easy, done either with keyword lists or by letting the language
-model decide.
+PatientAct gives each dynamic memory a minimum trust level and activation cues, and retrieves it when the topic and trust level
+permit disclosure \cite{sabour2026patientact}. Other psychiatric simulators ground their patients in cognitive models or constructs from the
+mental status examination \cite{wang2024patient,lee2025psyche}. When a simulator uses trust-gated memories, it first has to match the
+doctor's words to the right memory.
 
-In the Rapport simulator, keyword matching caused every serious bug found during evaluation. ``Thoughts that life \emph{isn't} worth living'',
+In the Rapport simulator, keyword matching missed several questions about risk during evaluation. ``Thoughts that life \emph{isn't} worth living'',
 ``wishing you \emph{wouldn't} wake up'' and ``tablets or anything at home'' each missed the memory they were asking about. One of these misses
 let a patient deny a passive death wish that it should have disclosed. Adding keywords fixed each case, but there is no end to the ways people
 phrase a question.
@@ -54,22 +52,26 @@ about sleep.
 
 \textbf{Contributions.} (1) A blind benchmark of doctor questions with a strict tuning/test split and a measure of wrong risk matches
 (Section~\ref{sec:bench}). (2) A hybrid matching method with trust locks applied \emph{after} matching, and a separate ``clearly asked'' level
-that alone can force a disclosure (Section~\ref{sec:method}). (3) Hand-set weights that need no training. (4) Honest results: a large gap between
+that alone can force a disclosure (Section~\ref{sec:method}). (3) Hand-set weights that need no training. (4) Measurements of a large gap between
 tuning and test, an unsafe tuning choice, and two trained methods that did not beat the simple rules (Section~\ref{sec:results}).
 
 \section{Related Work}
-\textbf{Sentence embeddings.} Sentence-BERT made it practical to compare sentences by meaning, with one vector each \cite{reimers2019sentencebert}. MiniLM showed that small, distilled models keep most of the quality \cite{wang2020minilm}. Contrastive training (SimCSE, E5, the BGE family) is now the standard recipe for small general-purpose encoders \cite{gao2021simcse,wang2022e5,xiao2023cpack}. Dense retrieval matches questions to
-passages the same way \cite{karpukhin2020dpr}, and benchmarks such as BEIR and MTEB showed that retrieval quality varies a lot from one domain to
-another and must be measured in the target domain \cite{thakur2021beir,muennighoff2022mteb}. PAWS showed that models trained on easy paraphrase
-pairs fail on pairs that share words but differ in meaning \cite{zhang2019paws}; our problem is the reverse, questions that share no words but
-mean the same.
+\textbf{Sentence embeddings.} Sentence-BERT encodes sentences separately so that their vectors can be compared by cosine similarity
+\cite{reimers2019sentencebert}. MiniLM uses self-attention distillation to compress pretrained transformers \cite{wang2020minilm}.
+SimCSE, E5 and BGE use contrastive training to learn text embeddings \cite{gao2021simcse,wang2022e5,xiao2023cpack}.
+Dense Passage Retrieval uses separate encoders for questions and passages \cite{karpukhin2020dpr}. BEIR examines retrieval across diverse datasets,
+and MTEB compares embedding performance across several tasks \cite{thakur2021beir,muennighoff2022mteb}. PAWS shows that high lexical overlap can
+fool paraphrase classifiers when sentences differ in meaning \cite{zhang2019paws}. Here we study whether matching also works when questions
+use different words for the same topic.
 
-\textbf{Memory in simulated patients.} PatientAct gives each memory a trust level and activation cues \cite{sabour2026patientact}. AIPatient retrieves from a knowledge graph built from health records, with several agents per turn \cite{yu2024simulated}. Patient-Zero checks replies against single facts \cite{lai2025patientzero}. Generative agents retrieve memories by recency, importance and relevance \cite{park2023generative}.
-These systems report end-to-end conversation quality, but none that we found reports how well the matching step itself survives rewording, or what
-it costs when matching goes wrong on a risk topic. That is the gap this paper addresses.
+\textbf{Memory in simulated patients.} PatientAct uses activation cues and a minimum trust level for each dynamic memory
+\cite{sabour2026patientact}. AIPatient uses a knowledge graph built from health records and a multi-agent retrieval pipeline
+\cite{yu2024simulated}. Patient-Zero checks candidate replies against individual facts in semantic and episodic memory \cite{lai2025patientzero}.
+Generative Agents ranks memories by recency, importance and relevance \cite{park2023generative}. We evaluate the memory-matching step directly
+by measuring how much recall survives rewording and how often the matcher selects a risk memory for a non-risk question.
 
 \section{How Meaning-Based Matching Works}
-A \emph{sentence model} turns a sentence into a list of 384 numbers (a vector). Sentences with similar meanings get vectors that point in similar
+The sentence encoder we use represents each sentence as a vector of 384 numbers. Sentences with similar meanings get vectors that point in similar
 directions. The \emph{cosine similarity} of two vectors runs from $-1$ to $1$; in practice it runs from about 0.6 for unrelated questions to above
 0.9 for near-copies. To match a doctor's question to a memory, we compare it with several example questions for that memory (``probes'') and keep
 the highest similarity.
@@ -117,7 +119,7 @@ which may be used for anything; odd lines form the \emph{test} half, used only f
 
 \textbf{Measures.} \emph{Recall} is the share of (question, expected memory) pairs where the memory is found. \emph{Risk recall} counts only risk
 memories (suicidal thoughts, plans, means, withdrawal fits, anger at home), 77 pairs in the test half. \emph{Risk false hits} is the share of
-questions that ask about no risk memory but are matched to one. We also report how many ``none'' lines match anything.
+questions labelled only with non-risk memories that match at least one risk memory. We report the hit rate for unlabelled ``none'' questions separately.
 
 \begin{table}[t]
 \caption{The benchmark by case}
@@ -187,8 +189,7 @@ Fig.~\ref{fig:recall} shows the method.
 treated as the same, so ``ending their life'' matches the tag ``ending your life''. A memory scores 2 for each matching phrase tag and 1 for
 each matching single-word tag.
 
-\textbf{Sentence-model layer.} We use bge-small-en-v1.5 \cite{xiao2023cpack}, a 33-million-parameter sentence model, run on the processor (not the
-graphics chip). When a case loads, it turns every probe of every memory into a vector, once. A memory's probes are:
+\textbf{Sentence-model layer.} We run the 33-million-parameter bge-small-en-v1.5 checkpoint on the CPU \cite{baaiBgeSmallEnV15}. When a case loads, it turns every probe of every memory into a vector, once. A memory's probes are:
 \begin{itemize}
 \item 4--12 doctor-style questions written by hand from the memory's meaning;
 \item about 50 doctor questions per memory written offline by a different language model, from the memory's \emph{topic} (the memory's text was
@@ -205,17 +206,17 @@ because a locked risk match only makes the patient evasive. These values were ch
 \label{tab:thresh}
 \centering
 \footnotesize
-\begin{tabular}{@{}lc@{}}
+\begin{tabularx}{\columnwidth}{@{}Yl@{}}
 \toprule
 Rule & Value\\
 \midrule
 Match on similarity alone & $\ge 0.83$\\
 Match a risk memory & $\ge 0.78$\\
 Best match, clear winner & $\ge 0.76$ and ahead by $\ge 0.02$\\
-Risk domain: other risk memories & $\ge 0.66$ and within 0.06 of the best\\
+Other risk memories & $\ge 0.66$ and within 0.06 of the best\\
 ``Clearly asked'' (may force disclosure) & keyword hit or $\ge 0.83$\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \textbf{Locks after matching.} Matching does not look at trust. The open/locked split is applied afterwards. So a cleverly reworded question about a
@@ -263,7 +264,7 @@ Threshold & Dev risk recall & Dev risk false hits\\
 \toprule
 Sentence model & Probes & Top-1 & Top-3\\
 \midrule
-MiniLM-L6 \cite{wang2020minilm} & memory text & 0.534 & 0.777\\
+MiniLM-L6 \cite{stAllMiniLML6V2} & memory text & 0.534 & 0.777\\
 MiniLM-L6 & text + label + tags & 0.580 & 0.857\\
 MiniLM-L6 & hand-written questions & 0.706 & 0.866\\
 MiniLM-L6 & questions + tags + text & 0.714 & 0.874\\
@@ -275,8 +276,7 @@ bge-small & questions + tags + text & 0.739 & \textbf{0.933}\\
 
 \textbf{Questions match questions.} Comparing a question with example \emph{questions} works much better than comparing it with the memory's
 \emph{statement} (Table~\ref{tab:ablation}). Hand-written probes raised the share of questions whose correct memory ranked first from 0.53 to 0.71
-for MiniLM \cite{wang2020minilm,reimers2019sentencebert}, and bge-small \cite{xiao2023cpack} put the correct memory in the top three 93\% of the
-time. The whole matching step took about 2\,ms per question.
+for MiniLM. With questions, tags and memory text as probes, bge-small ranked the expected memory in the top three 93\% of the time.
 
 \begin{table}[t]
 \caption{Recall on the test half (never used for tuning)}
@@ -285,7 +285,7 @@ time. The whole matching step took about 2\,ms per question.
 \footnotesize
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-Method & All & Risk & Risk false hits & ``None'' hit\\
+Method & All & Risk & Risk false hits & None hit\\
 \midrule
 Keywords only & 41.3\% & 35.1\% & 6.1\% & 22.7\%\\
 Hybrid & 73.3\% & 72.7\% & 15.2\% & 22.7\%\\
@@ -388,12 +388,12 @@ together beat either alone by 6--9 points. So the generated probes help overall,
 \textbf{Kinds of miss.} Of the 21 missed risk pairs, 8 matched nothing at all, 8 matched only a non-risk memory, and 5 matched a
 different risk memory. The last group does little harm in practice: a locked risk match still makes the patient evasive.
 
-\textbf{Speed.} Matching one question, including the keyword pass, the sentence model and the rules, took 3.0\,ms at the median and 3.7\,ms at the
-90th percentile on the laptop's processor. The first call of a session takes about 5\,s while the model loads, so the service loads it at start-up.
+\textbf{Speed.} On a local run of the test split, the keyword pass, sentence encoder and matching rules took a median of 2.1\,ms per
+question on the laptop CPU. The first query, including model initialisation, took 4.3\,s. The service loads the model at start-up.
 
 \textbf{Why questions were missed.} Table~\ref{tab:misses} groups the 21 missed risk questions in the test half by type, with real examples.
 Most are euphemisms without any risk words, questions about a situation rather than the thought itself, or open questions that leave the topic to
-the patient. A real clinician would recognise all of them as risk questions.
+the patient. These are treated as risk questions by the benchmark labels.
 
 \begin{table}[t]
 \caption{Missed risk questions on the test half, by type}
@@ -502,7 +502,7 @@ Task & Method & Micro-F1 & Macro-F1\\
 Manner (rubric moves) & Word patterns (live) & 0.198 & 0.347\\
 & Learned classifier & 0.322 & 0.334\\
 \midrule
-Topic (debrief intents) & Language-model tagger (live) & 0.692 & 0.672\\
+Topic (debrief intents) & LLM tagger (live) & 0.692 & 0.672\\
 & Learned classifier & 0.657 & 0.577\\
 \bottomrule
 \end{tabular}
@@ -539,9 +539,9 @@ so the test half measures new wording, not a new writer; a second, human-written
 curve, which is less over-fitted than automatic tuning but still used the dev half.
 
 \section{Conclusion}
-Combining keywords with a small sentence model, and applying trust locks after matching, doubles the recall of suicide-related questions asked in
-new words, at little cost in time. It still falls well short of what a safety gate needs, and a tuning half reused for writing examples makes it
-look nearly twenty points better than it is.
+Adding a sentence encoder to keyword matching more than doubled recall of expected risk memories on the test set, while raising the false-hit
+rate. The hybrid matcher fell short of the 95\% recall target. Its 18-point drop from development to test shows why probe development and
+threshold tuning need a separate set from the one used to report results.
 
 \appendices
 \section{Instructions given to the benchmark writer}
@@ -566,10 +566,10 @@ you right now?''
 \end{itemize}
 
 \section{Reproducing the results}
-\texttt{tools/recall\_bench.py --split test} prints recall and wrong-match rates for the shipped settings; \texttt{--lexical} gives the keyword
-baseline and \texttt{--hand} adds the hand-set heads. \texttt{papers/analysis/analyses.py --recall} and \texttt{recall\_extra.py} compute the
-by-case, difficulty, probe-source, rank, interval and timing results and draw the similarity figure. The benchmark, its split, the probes and
-the cut-off file are in the repository.
+Run \nolinkurl{tools/recall_bench.py} with \texttt{--split test} for the hybrid matcher. Add \texttt{--lexical} for the keyword baseline
+or \texttt{--hand} for the hand-set heads. The supplementary statistics come from \nolinkurl{papers/analysis/analyses.py} (with
+\texttt{--recall}) and \nolinkurl{papers/analysis/recall_extra.py}. The benchmark questions and labels are stored in
+\nolinkurl{tests/recall/paraphrase_set.jsonl}. The script assigns the split from the CRC-32 checksum of each question. Access to these materials currently requires access to the Rapport project repository.
 
 \section*{Acknowledgment}
 \textbf{Use of AI tools.} The text of this article, its figures, tables and analysis scripts, and the \LaTeX{} source were
@@ -577,6 +577,7 @@ drafted with an AI assistant (Claude, Anthropic, used through Claude Code), work
 files under the author's direction. The same assistant helped write the software described here, ran the analyses, and checked the
 citations against their sources. Within the study itself, AI models were also used as research tools, as described in Sections~\ref{sec:bench} and~\ref{sec:method}: an AI agent wrote the blind benchmark, a language model wrote the generated probes, and a judge model labelled the classifier data. The author takes full responsibility for the content of this article.
 
+\IEEEtriggeratref{7}
 \bibliographystyle{IEEEtran}
 \bibliography{../shared/refs}
 
