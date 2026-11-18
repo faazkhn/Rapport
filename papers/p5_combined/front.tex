@@ -1,0 +1,76 @@
+\documentclass[journal]{IEEEtran}
+\input{../shared/style}
+
+\begin{document}
+
+\title{Rapport: A Code-Governed Digital Twin for an Embodied, On-Device Psychiatric Standardised Patient, with Paraphrase-Robust Memory and Three-Seed Held-Out Validation}
+
+% Before submission: if paper 1 or 4 appears at a conference first, say so here and in the cover letter, and list what is new in this article.
+\author{Faaz~Khan~Mohammad%
+\thanks{F. K. Mohammad is with the Rapport project (e-mail: faazkhn1000@gmail.com).}}
+\markboth{Preprint, November 2026}{Mohammad: Rapport, a Code-Governed Digital Twin for a Psychiatric Standardised Patient}
+
+\maketitle
+
+\begin{abstract}
+Students learn psychiatric interviewing by practising with standardised patients, but trained actors are scarce and costly, and today's
+language-model patients are mostly cloud text chats that invent symptoms and are unpredictable about suicidal thoughts. We present Rapport, a
+spoken, embodied simulated psychiatric patient that runs entirely on one laptop, and its Digital Twin, a patient model in which ordinary code
+makes every decision a clinician would want to check: what the doctor's sentence did, how trust and guardedness change, which memories are open,
+and which behaviours are allowed. A single call to a local language model only puts that decision into words, and every sentence is checked
+before it is spoken. Each patient is a data file, and the voice, face and body read the same decision. On 14 held-out conversations, each run
+with three seeds and marked by a model from a different family, the Twin passed every safety gate: no jailbreaks, no portrayal failures, no
+locked-memory leaks, and disclosure of suicidal thoughts whenever they were unlocked and asked about kindly. Its behaviour fitted the kind of
+doctor more closely (top-two behaviour share 0.72 against 0.86) with unchanged accuracy (0.947 against 0.953). On a blind benchmark of 512 doctor
+questions, hybrid keyword and sentence-embedding matching raised recall of reworded risk questions on the held-out half from 35.1\% to 72.7\%,
+short of a 95\% target. The patient starts speaking a median 1.82\,s after the student stops, and examination requests were recognised in all 385
+test sentences. Faculty ratings and a learner pilot are pending, and we report the shortfalls alongside the gains.
+\end{abstract}
+
+\begin{IEEEkeywords}
+simulated patients, psychiatry education, standardised patients, large language models, patient modelling, embodied conversational agents,
+semantic retrieval, safety, on-device AI, evaluation
+\end{IEEEkeywords}
+
+\section{Introduction}
+\IEEEPARstart{T}{he} psychiatric interview is learned by doing. A trainee has to notice slow speech and a lowered gaze, ask open questions,
+earn enough trust for a patient to admit that some nights they wish they would not wake up, and then assess risk properly, all inside a timed
+examination station (an OSCE \cite{harden1975osce}). Actors trained as standardised patients make this practice possible, but they are costly,
+not always available, and hard to keep consistent from one student to the next \cite{piot2021simulation}.
+
+Large language models (LLMs) can play a patient, and many research systems now do
+\cite{chen2023llmempowered,wang2024patient,lee2025psyche,sabour2026patientact,sabour2026patienthub,louie2024roleplaydoh}. A 2026
+meta-analysis found that AI virtual patients help psychiatric interview training \cite{kilincel2026meta}. Five problems still stand between
+these systems and an OSCE station:
+\begin{itemize}
+\item \textbf{The model makes things up.} Models invent symptoms or history to please the interviewer, more so under strong style cues
+\cite{chen2023llmempowered}, and simulated patients agree too easily unless resistance is designed in \cite{steenstra2025scaffolding,lee2025psyche}.
+\item \textbf{It is unpredictable where it matters most}, such as whether a patient admits suicidal thoughts, and nobody can see why it shared
+or held something back.
+\item \textbf{It misses questions asked in new words.} Students ask the same thing in many ways. A patient that fails to recognise a reworded
+question about suicide may wrongly deny something it should share.
+\item \textbf{It has no body and is too slow to talk to.} Psychiatric assessment depends on speech rate, pauses, face and posture, yet most
+simulators are text chats \cite{wang2024patient,lee2025psyche,sabour2026patientact}, and rich patient agents use several model calls per turn.
+\item \textbf{It runs in the cloud}, so a student's voice leaves the premises.
+\end{itemize}
+
+We take one route through all five: \emph{decide in code, voice with the model}. One model call per turn writes the words; everything a
+clinician would audit is decided by code that we can read, test and change, and the body shows the same decision as the voice. This article
+describes the whole system and its evaluation in one place.
+
+\textbf{Contributions.}
+\begin{enumerate}
+\item \textbf{Rapport}, an on-device, spoken 3D standardised patient for psychiatry and addiction OSCEs, with four draft stations, four patient
+bodies, seeded patients and six conversation styles, a live examiner view, physical examination on request, and a debrief grounded in the
+assessment literature (Sections~\ref{sec:evidence}, \ref{sec:student} and \ref{sec:debrief}--\ref{sec:authoring}).
+\item \textbf{An architecture} in which the patient is data, code decides, a local model speaks and the body reads the same decision, with
+measured speed and the failures found on the way (Sections~\ref{sec:arch}--\ref{sec:data} and \ref{sec:results}).
+\item \textbf{The Digital Twin}, a patient model whose state, memory locks, guardedness, allowed behaviours and consistency checks are explicit
+code (Section~\ref{sec:model}).
+\item \textbf{Paraphrase-robust recall}: a blind benchmark of 512 doctor questions with a strict tuning/test split, a hybrid matching method with
+trust locks applied after matching, and training-free hand-set weights (Section~\ref{sec:recall}).
+\item \textbf{A validation method and its results}: scripted held-out conversations on three seeds, a judge from another model family, a hand
+check of every flag, an independent safety review, and feature ablations, reported with the targets the design missed
+(Sections~\ref{sec:eval} and \ref{sec:results}).
+\end{enumerate}
+
