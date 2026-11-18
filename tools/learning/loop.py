@@ -30,6 +30,7 @@ import brain  # noqa: E402
 import judges  # noqa: E402
 import learning  # noqa: E402
 import metrics  # noqa: E402
+import prompt_only  # noqa: E402
 import selfplay  # noqa: E402
 import twin  # noqa: E402
 
@@ -59,12 +60,14 @@ def judge_turn(client, case, t):
     j = judges.invented(client, case, t)
     j["resistance_ok"] = judges.resistance(client, case, t)
     j["principles_ok"] = judges.principles(client, case.get("principles", []), t)
+    j["disclosed"] = judges.disclosed(client, case, t)
     return j
 
 
 def evaluate(version: dict, client, judge=None, seed=SEED) -> dict:
     """judge: a client for a different local model than the patient's (a model rates its own lines too kindly); default the same."""
     seeded, judge = Seeded(client, seed), judge or client
+    gen = prompt_only.generate_reply if version.get("prompt_only") else brain.generate_reply
     convs = []
     for p in sorted((REPO / "tests/llm-eval" / CASE).glob("*.yaml")):
         conv = yaml.safe_load(p.read_text())
@@ -74,7 +77,7 @@ def evaluate(version: dict, client, judge=None, seed=SEED) -> dict:
         for i, line in enumerate(conv["turns"], 1):
             msgs.append({"role": "doctor", "text": line})
             t0 = time.perf_counter()
-            r = brain.generate_reply({"case_id": CASE, "variant": conv["variant"], "messages": msgs, "state": state, "elapsed_min": i * 1.0,
+            r = gen({"case_id": CASE, "variant": conv["variant"], "messages": msgs, "state": state, "elapsed_min": i * 1.0,
                                       "twin": mind}, client=seeded, version=version)
             new, mind = r["state"], r["twin"]  # one brain: the same trust step, mood, memory and events as a live session
             turns.append({"turn": i, "doctor": line, "state_before": state, "state_after": new, "recalled": r["recalled"],
