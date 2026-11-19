@@ -31,6 +31,26 @@ namespace Rapport.Speech
             return req.downloadHandler.text;
         }
 
+        /// <summary>GET /patient: the seeded patient the doctor will meet (slot values, style, start state), for the prebrief.</summary>
+        public async Task<JObject> Patient(string caseId, string variant, int seed, string mode)
+        {
+            var url = $"{settings.baseUrl.TrimEnd('/')}/patient?case_id={UnityWebRequest.EscapeURL(caseId)}&variant={variant}&seed={seed}&mode={mode}";
+            using var req = UnityWebRequest.Get(url);
+            req.timeout = settings.replyTimeoutS;
+            await req.SendWebRequest();
+            if (req.result != UnityWebRequest.Result.Success) throw new Exception($"/patient {req.responseCode} {req.error}");
+            return JObject.Parse(req.downloadHandler.text);
+        }
+
+        /// <summary>POST /assess: formative AI examiner notes on the doctor's verbal skills, quotes checked against the transcript.</summary>
+        public async Task<JObject> Assess(JObject body)
+        {
+            using var req = Post("/assess", body.ToString(), 60);
+            await req.SendWebRequest();
+            if (req.result != UnityWebRequest.Result.Success) throw new Exception($"/assess {req.responseCode} {req.error}");
+            return JObject.Parse(req.downloadHandler.text);
+        }
+
         public async Task<AudioClip> Speak(string text, string voice, float speed)
         {
             var sw = Stopwatch.StartNew();

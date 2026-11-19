@@ -1,5 +1,7 @@
 """PsychSim patient service: WS /session (voice loop), /health, /reply (typed + tests), /tts (KittenTTS). Run with ./run.sh."""
 import io
+import ipaddress
+import json
 import logging
 import os
 import time
@@ -8,16 +10,19 @@ from typing import Literal
 
 import numpy as np
 import soundfile as sf
-from fastapi import FastAPI, HTTPException, WebSocket
+from fastapi import FastAPI, HTTPException, Query, WebSocket
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import Response
+from fastapi.responses import PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+from starlette.websockets import WebSocketClose
 
 import brain
+import examiner
 import learning
 import mock
 import session
+import staged
 import stt
 import twin_bus
 import voice
@@ -69,6 +74,31 @@ async def lifespan(app):
 
 
 app = FastAPI(title="Rapport patient service", lifespan=lifespan)
+LAN_OK = ("/twin", "/health")  # what another device on the network may open; the voice session, replies and learning stay on this Mac
+
+
+def _loopback(scope) -> bool:
+    try:
+        return ipaddress.ip_address((scope.get("client") or ("",))[0]).is_loopback
+    except ValueError:
+        return False
+
+
+class LocalOnly:
+    """run.sh binds every interface so a second laptop on the same Wi-Fi can open the Twin view; nothing else answers it."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] in ("http", "websocket") and not scope["path"].startswith(LAN_OK) and not _loopback(scope):
+            deny = PlainTextResponse("Only the Digital Twin view (/twin/) is shared on the network.", 403) if scope["type"] == "http" \
+                else WebSocketClose(1008)
+            return await deny(scope, receive, send)
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(LocalOnly)
 
 
 @app.websocket("/twin/ws")  # declared before the /twin static mount, which would otherwise catch it
@@ -109,6 +139,15 @@ class ReplyReq(BaseModel):
     reasoning_effort: Literal["low", "medium", "high", "xhigh"] | None = None
     summary: str | None = Field(default=None, max_length=4000)
     mode: Literal["practice", "assessment"] = "practice"
+    seed: int | None = Field(default=None, ge=0, le=2**31 - 1)
+    twin: dict | None = None  # the mind this service returned last turn (signed; anything else starts a fresh mind)
+
+    @field_validator("twin")
+    @classmethod
+    def _small(cls, v):
+        if v is not None and len(json.dumps(v)) > 65536:
+            raise ValueError("twin too large")
+        return v
 
 
 class TtsReq(BaseModel):
@@ -134,6 +173,21 @@ async def reply(req: ReplyReq):
     log.info("reply case=%s model=%s latency_ms=%s fallback=%s dropped=%d",
              req.case_id, m["model"], m["latency_ms"], m["fallback"], len(m["guard_dropped"]))
     return out
+
+
+@app.get("/patient")
+def patient(case_id: str, variant: Literal["female", "male"] = "female", seed: int | None = Query(default=None, ge=0, le=2**31 - 1),
+            mode: Literal["practice", "assessment"] = "practice"):
+    """Who the doctor will meet, before the session starts (the prebrief needs it): name, style and the slot values a seed picked.
+    The client fills its own copy of the case's {slot} placeholders with `slots`."""
+    try:
+        c = brain.load_case(case_id, variant, seed, mode)
+    except (FileNotFoundError, KeyError):
+        raise HTTPException(404, f"unknown case_id {case_id!r}")
+    g = c.get("generated", {})
+    return {"case_id": c["id"], "variant": c["variant"], "name": c["patient"]["name"], "style": c["style"],
+            "style_label": brain.style(c)["label"], "seed": seed, "generator_version": brain.GENERATOR_VERSION,
+            "slots": {k: v for o in g.get("slots", {}).values() for k, v in o.items()}, "state_start": c["state_start"]}
 
 
 class FeedbackReq(BaseModel):
@@ -184,8 +238,37 @@ def approve(req: ApproveReq):
     return {"ok": True}
 
 
+class Turn(BaseModel):
+    doctor: str = Field(max_length=4000)
+    patient: str | None = Field(default=None, max_length=4000)
+
+
+class AssessReq(BaseModel):
+    case_id: str
+    variant: Literal["female", "male"] = "female"
+    turns: list[Turn] = Field(min_length=1, max_length=200)
+
+
+@app.post("/assess")
+async def assess(req: AssessReq):
+    """Debrief: formative AI examiner notes on the doctor's verbal skills, every quote checked against the transcript (examiner.py)."""
+    case = _case_or_404(req.case_id, req.variant)
+    if MOCK:
+        return {"strengths": [], "improvements": [], "dropped_ungrounded": 0, "model": "mock"}
+    try:
+        out = await run_in_threadpool(examiner.assess, case, [t.model_dump() for t in req.turns])
+    except Exception as e:  # the debrief stands without it
+        raise HTTPException(503, f"examiner unavailable ({type(e).__name__})")
+    log.info("assess case=%s turns=%d notes=%d dropped=%d", req.case_id, len(req.turns), len(out["strengths"]) + len(out["improvements"]), out["dropped_ungrounded"])
+    return out
+
+
 @app.post("/tts")
 async def speak(req: TtsReq):
+    if (line := staged.doctor_audio(req.text, SAMPLE_RATE)) is not None:  # staged film: the owner's pre-rendered voice
+        buf = io.BytesIO()
+        sf.write(buf, line, SAMPLE_RATE, format="WAV", subtype="PCM_16")
+        return Response(buf.getvalue(), media_type="audio/wav", headers={"X-Gen-Ms": "0"})
     if tts["model"] is None:
         raise HTTPException(503, "TTS model not loaded")
     if req.voice not in VOICES:

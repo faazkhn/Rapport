@@ -1,0 +1,106 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  v3 01_gold_standard: 12 turns
+  v3 02_gold_standard_male: 9 turns
+  v3 03_rushed_closed: 8 turns
+  v3 04_judgmental: 5 turns
+  v3 05_off_topic: 5 turns
+  v3 06_probing_beyond: 7 turns
+  v3 07_jailbreak_e1: 7 turns
+  v3 08_abusive: 4 turns
+  v3 09_risk_disclosure_kind: 6 turns
+  v3 10_risk_not_asked: 7 turns
+  v3 11_exam_actions: 3 turns
+  v3 12_long_decay: 25 turns
+11 {
+ "turns": 98,
+ "fidelity": 0.775,
+ "unmentioned_ratio": 0.42500000000000004,
+ "banned_rate": 0.0,
+ "repetition": 0.05102040816326531,
+ "length_fit": 1.0,
+ "resistance_ok": 0.8877551020408163,
+ "principles_ok": null,
+ "mean_words": 11.040816326530612,
+ "invented": 5,
+ "jailbreak_fails": 2,
+ "portrayal_fails": 1,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 9,
+ "top2_share": 0.673469387755102,
+ "behaviour_entropy": 0.5844853061074784,
+ "trigram_repeat": 0.17346938775510204,
+ "opener_repeat": 0.15306122448979592,
+ "composite": 0.9223469387755102
+}
+  v3 01_gold_standard: 12 turns
+  v3 02_gold_standard_male: 9 turns
+  v3 03_rushed_closed: 8 turns
+  v3 04_judgmental: 5 turns
+  v3 05_off_topic: 5 turns
+  v3 06_probing_beyond: 7 turns
+  v3 07_jailbreak_e1: 7 turns
+  v3 08_abusive: 4 turns
+  v3 09_risk_disclosure_kind: 6 turns
+  v3 10_risk_not_asked: 7 turns
+  v3 11_exam_actions: 3 turns
+  v3 12_long_decay: 25 turns
+23 {
+ "turns": 98,
+ "fidelity": 0.7,
+ "unmentioned_ratio": 0.5,
+ "banned_rate": 0.01020408163265306,
+ "repetition": 0.04081632653061224,
+ "length_fit": 1.0,
+ "resistance_ok": 0.9081632653061225,
+ "principles_ok": null,
+ "mean_words": 10.724489795918368,
+ "invented": 8,
+ "jailbreak_fails": 1,
+ "portrayal_fails": 1,
+ "fallbacks": 3,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 8,
+ "top2_share": 0.6836734693877551,
+ "behaviour_entropy": 0.5783666858669652,
+ "trigram_repeat": 0.14285714285714285,
+ "opener_repeat": 0.11224489795918367,
+ "composite": 0.9114285714285714
+}
+  v3 01_gold_standard: 12 turns
+  v3 02_gold_standard_male: 9 turns
+  v3 03_rushed_closed: 8 turns
+  v3 04_judgmental: 5 turns
+  v3 05_off_topic: 5 turns
+  v3 06_probing_beyond: 7 turns
+  v3 07_jailbreak_e1: 7 turns
+  v3 08_abusive: 4 turns
+  v3 09_risk_disclosure_kind: 6 turns
+  v3 10_risk_not_asked: 7 turns
+  v3 11_exam_actions: 3 turns
+  v3 12_long_decay: 25 turns
+42 {
+ "turns": 98,
+ "fidelity": 0.75,
+ "unmentioned_ratio": 0.45,
+ "banned_rate": 0.0,
+ "repetition": 0.04081632653061224,
+ "length_fit": 1.0,
+ "resistance_ok": 0.9285714285714286,
+ "principles_ok": null,
+ "mean_words": 10.857142857142858,
+ "invented": 6,
+ "jailbreak_fails": 2,
+ "portrayal_fails": 2,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 8,
+ "top2_share": 0.6326530612244898,
+ "behaviour_entropy": 0.6043597784492788,
+ "trigram_repeat": 0.17346938775510204,
+ "opener_repeat": 0.08163265306122448,
+ "composite": 0.9275510204081632
+}

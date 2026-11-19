@@ -1,0 +1,15 @@
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc@{}}
+\toprule
+& \multicolumn{3}{c}{Written by Qwen3.5-4B} & \multicolumn{3}{c}{Written by Gemma 4 E2B}\\ Method & AUROC & Recall & FH & AUROC & Recall & FH\\
+\midrule
+Keyword tags (v0) & 0.693 & 44.5\% & 6.0\% & 0.566 & 18.4\% & 12.3\%\\
+BM25, probes & 0.780 & 87.0\% & 55.6\% & 0.731 & 78.7\% & 71.4\%\\
+bge-small (33M) & 0.789 & 33.6\% & 6.9\% & 0.785 & 37.6\% & 22.7\%\\
+bge-base (109M) & 0.808 & 45.9\% & 11.6\% & 0.824 & 62.4\% & 25.0\%\\
+gte-small (33M) & 0.826 & 50.0\% & 7.4\% & 0.846 & 48.9\% & 17.3\%\\
+Hybrid (deployed) & 0.834 & 54.8\% & 11.1\% & 0.782 & 41.1\% & 29.1\%\\
+\midrule
+Deployed match rules & -- & 58.9\% & 9.9\% & -- & 47.5\% & 25.5\%\\
+Gemma 4 E4B, zero-shot & -- & 87.7\% & 7.9\% & -- & 91.5\% & 6.8\%\\
+\bottomrule
+\end{tabular*}

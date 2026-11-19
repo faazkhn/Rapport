@@ -54,7 +54,7 @@ def test_deterministic_and_off_topic_is_vague():
 
 def test_endpoint_uses_mock(monkeypatch):
     monkeypatch.setattr(service, "MOCK", True)
-    c = TestClient(service.app)
+    c = TestClient(service.app, client=("127.0.0.1", 50000))
     assert c.get("/health").json()["mock"] is True
     r = c.post("/reply", json={"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "How is your appetite?"}], "state": LOW}).json()
     assert r["meta"]["mock"] is True and r["revealed_fact_ids"] == ["f_appetite"]

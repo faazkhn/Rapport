@@ -12,7 +12,7 @@ BREAK = re.compile(r"\b(AI|A\.I\.|artificial intelligence|language model|chatbot
 ROBOT = re.compile(r"(great question|thank you for asking|thanks for asking|I understand your concern|I appreciate|certainly|absolutely|"
                    r"I'm here to help|happy to help|how can I help|feel free|rest assured|in summary|to summari[sz]e|"
                    r"depress|anhedoni|ideation|psychomotor|dysphori|SSRI|serotonin|diagnos|DSM|symptom)", re.I)
-SI = re.compile(r"(not wake up|wake up in the morning|end (it|my life)|kill (my)?self|suicid|die\b|dying|not be here|"
+SI = re.compile(r"(not wake up|wake up in the morning|end (it|my life)|kill (my)?self|suicid|\bdie\b|\bdying\b|not be here|"
                 r"better off (dead|without me)|disappear|no point (in )?living|life (isn't|is not) worth)", re.I)
 COLLOQUIAL = re.compile(r"\b(tired|down|low|empty|heavy|numb|exhausted|nothing (feels|matters)|can't be bothered|don't know|blank|flat|drained)\b", re.I)
 

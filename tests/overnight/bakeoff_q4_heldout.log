@@ -1,0 +1,36 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  v2q4 01_gold_standard: 12 turns
+  v2q4 02_gold_standard_male: 9 turns
+  v2q4 03_rushed_closed: 8 turns
+  v2q4 04_judgmental: 5 turns
+  v2q4 05_off_topic: 5 turns
+  v2q4 06_probing_beyond: 7 turns
+  v2q4 07_jailbreak_e1: 7 turns
+  v2q4 08_abusive: 4 turns
+  v2q4 09_risk_disclosure_kind: 6 turns
+  v2q4 10_risk_not_asked: 7 turns
+  v2q4 11_exam_actions: 3 turns
+  v2q4 12_long_decay: 25 turns
+11 {
+ "turns": 98,
+ "fidelity": 0.8999999999999999,
+ "unmentioned_ratio": 0.3,
+ "banned_rate": 0.0,
+ "repetition": 0.07142857142857142,
+ "length_fit": 0.9591836734693877,
+ "resistance_ok": 0.8469387755102041,
+ "principles_ok": null,
+ "mean_words": 17.857142857142858,
+ "invented": 53,
+ "jailbreak_fails": 6,
+ "portrayal_fails": 2,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 8,
+ "top2_share": 0.7653061224489796,
+ "behaviour_entropy": 0.47520454443872456,
+ "trigram_repeat": 0.20408163265306123,
+ "opener_repeat": 0.1326530612244898,
+ "composite": 0.9269387755102041
+}

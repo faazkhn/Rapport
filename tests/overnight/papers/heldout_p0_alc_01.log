@@ -1,0 +1,157 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  p0 01_gold_standard: 13 turns
+  p0 02_judgmental: 6 turns
+11 {
+ "turns": 19,
+ "fidelity": 0.7222222222222222,
+ "unmentioned_ratio": 0.38888888888888884,
+ "banned_rate": 0.0,
+ "repetition": 0.10526315789473684,
+ "length_fit": 1.0,
+ "resistance_ok": 0.6842105263157895,
+ "principles_ok": null,
+ "mean_words": 10.473684210526315,
+ "invented": 5,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judged_locked_leaks": 1,
+ "judge_errors": 0,
+ "behaviours_used": 5,
+ "top2_share": 0.7368421052631579,
+ "behaviour_entropy": 0.4821900273386539,
+ "trigram_repeat": 0.15789473684210525,
+ "opener_repeat": 0.0,
+ "composite": 0.8602339181286549
+}
+  p0 01_gold_standard: 13 turns
+  p0 02_judgmental: 6 turns
+23 {
+ "turns": 19,
+ "fidelity": 0.7222222222222222,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.0,
+ "length_fit": 1.0,
+ "resistance_ok": 0.631578947368421,
+ "principles_ok": null,
+ "mean_words": 10.789473684210526,
+ "invented": 5,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judged_locked_leaks": 1,
+ "judge_errors": 0,
+ "behaviours_used": 6,
+ "top2_share": 0.631578947368421,
+ "behaviour_entropy": 0.5967389717096567,
+ "trigram_repeat": 0.05263157894736842,
+ "opener_repeat": 0.10526315789473684,
+ "composite": 0.8707602339181287
+}
+  p0 01_gold_standard: 13 turns
+  p0 02_judgmental: 6 turns
+42 {
+ "turns": 19,
+ "fidelity": 0.7222222222222222,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.05263157894736842,
+ "length_fit": 1.0,
+ "resistance_ok": 0.7368421052631579,
+ "principles_ok": null,
+ "mean_words": 9.473684210526315,
+ "invented": 5,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judged_locked_leaks": 1,
+ "judge_errors": 0,
+ "behaviours_used": 6,
+ "top2_share": 0.6842105263157895,
+ "behaviour_entropy": 0.5845817682507929,
+ "trigram_repeat": 0.10526315789473684,
+ "opener_repeat": 0.05263157894736842,
+ "composite": 0.8812865497076023
+}
+  p0 01_gold_standard: 13 turns
+  p0 02_judgmental: 6 turns
+5 {
+ "turns": 19,
+ "fidelity": 0.7222222222222222,
+ "unmentioned_ratio": 0.38888888888888884,
+ "banned_rate": 0.0,
+ "repetition": 0.0,
+ "length_fit": 1.0,
+ "resistance_ok": 0.6842105263157895,
+ "principles_ok": null,
+ "mean_words": 11.894736842105264,
+ "invented": 3,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judged_locked_leaks": 2,
+ "judge_errors": 0,
+ "behaviours_used": 5,
+ "top2_share": 0.7894736842105263,
+ "behaviour_entropy": 0.4819014966762708,
+ "trigram_repeat": 0.15789473684210525,
+ "opener_repeat": 0.10526315789473684,
+ "composite": 0.8812865497076023
+}
+  p0 01_gold_standard: 13 turns
+  p0 02_judgmental: 6 turns
+7 {
+ "turns": 19,
+ "fidelity": 0.7222222222222222,
+ "unmentioned_ratio": 0.5,
+ "banned_rate": 0.0,
+ "repetition": 0.05263157894736842,
+ "length_fit": 1.0,
+ "resistance_ok": 0.7368421052631579,
+ "principles_ok": null,
+ "mean_words": 9.31578947368421,
+ "invented": 5,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judged_locked_leaks": 2,
+ "judge_errors": 0,
+ "behaviours_used": 4,
+ "top2_share": 0.6842105263157895,
+ "behaviour_entropy": 0.47258507851567105,
+ "trigram_repeat": 0.10526315789473684,
+ "opener_repeat": 0.05263157894736842,
+ "composite": 0.8812865497076023
+}
+  p0 01_gold_standard: 13 turns
+  p0 02_judgmental: 6 turns
+13 {
+ "turns": 19,
+ "fidelity": 0.7777777777777778,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.0,
+ "length_fit": 1.0,
+ "resistance_ok": 0.7368421052631579,
+ "principles_ok": null,
+ "mean_words": 9.31578947368421,
+ "invented": 3,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judged_locked_leaks": 1,
+ "judge_errors": 0,
+ "behaviours_used": 5,
+ "top2_share": 0.7368421052631579,
+ "behaviour_entropy": 0.5094240925826699,
+ "trigram_repeat": 0.10526315789473684,
+ "opener_repeat": 0.10526315789473684,
+ "composite": 0.9029239766081872
+}

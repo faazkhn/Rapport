@@ -203,7 +203,8 @@
     "outpatient_consult",
     "emergency_bay",
     "detox_ward",
-    "community_clinic"
+    "community_clinic",
+    "acute_ward"
    ]
   },
   "time_limit_min": {
@@ -375,6 +376,26 @@
       "minLength": 1,
       "maxLength": 40,
       "description": "Short chip label for the Twin view; never the fact text."
+     },
+     "recall_probes": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      },
+      "description": "Doctor-style questions that bring this memory to mind (Digital Twin embedding recall, twin-0.2). Never shown to the patient model."
+     },
+     "disclosure_line": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Risk facts: how the patient says it when asked kindly with the fact open; the consistency check speaks it instead of a flat denial. Wording only, same meaning as text."
+     },
+     "topics": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Intent ids of the clinical topics that ask about this memory; the Digital Twin's text model recalls the memory when it reads one of these topics in the doctor's line (twin-0.2)."
      }
     }
    }
@@ -488,6 +509,10 @@
     },
     "required_cues_noted": {
      "$ref": "#/$defs/ids"
+    },
+    "critical_intents": {
+     "$ref": "#/$defs/ids",
+     "description": "Case-specific must-ask items scored as risk: missing one is a critical error (e.g. past withdrawal fits in an alcohol case)."
     },
     "acceptable_rx": {
      "type": "array",
@@ -693,6 +718,138 @@
     "pleasing"
    ]
   },
+  "styles_allowed": {
+   "description": "Conversation styles a seeded practice session may draw (PATIENT-Psi); assessment mode keeps style.",
+   "type": "array",
+   "minItems": 1,
+   "uniqueItems": true,
+   "items": {
+    "enum": [
+     "plain",
+     "upset",
+     "verbose",
+     "reserved",
+     "tangent",
+     "pleasing"
+    ]
+   }
+  },
+  "slots": {
+   "description": "Clinically neutral details a seeded session may vary. Each option is a set of {placeholder: text}; option 0 is the authored case. Slot text must never add clinical content.",
+   "type": "object",
+   "propertyNames": {
+    "pattern": "^[a-z_]+$"
+   },
+   "additionalProperties": {
+    "type": "array",
+    "minItems": 1,
+    "items": {
+     "type": "object",
+     "minProperties": 1,
+     "propertyNames": {
+      "pattern": "^[a-z_]+$"
+     },
+     "additionalProperties": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60
+     }
+    }
+   }
+  },
+  "events": {
+   "description": "Ward events: code decides when (all listed triggers must hold), the model plays the 'say' line in the next reply; each fires once per session.",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "when",
+     "say"
+    ],
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+     },
+     "when": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+       "turn": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "after_min": {
+        "type": "number",
+        "minimum": 0
+       },
+       "trust_at_least": {
+        "$ref": "#/$defs/pct"
+       },
+       "agitation_at_least": {
+        "$ref": "#/$defs/pct"
+       },
+       "agitation_below": {
+        "$ref": "#/$defs/pct"
+       },
+       "after_event": {
+        "type": "string"
+       },
+       "doctor_allows_leave": {
+        "type": "boolean",
+        "description": "the doctor's line tells the patient they may go (twin.allows_leave)"
+       }
+      }
+     },
+     "say": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+     },
+     "state_delta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+       "trust": {
+        "type": "number",
+        "minimum": -30,
+        "maximum": 30
+       },
+       "distress": {
+        "type": "number",
+        "minimum": -30,
+        "maximum": 30
+       },
+       "agitation": {
+        "type": "number",
+        "minimum": -30,
+        "maximum": 30
+       },
+       "engagement": {
+        "type": "number",
+        "minimum": -30,
+        "maximum": 30
+       }
+      }
+     },
+     "action": {
+      "type": "string"
+     },
+     "note": {
+      "type": "string"
+     },
+     "then": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "stays true on every later turn (ALREADY HAPPENED note)"
+     }
+    }
+   }
+  },
   "banned_words": {
    "type": "array",
    "items": {
@@ -798,6 +955,99 @@
   "dialect": {
    "type": "string",
    "minLength": 1
+  },
+  "life": {
+   "type": "string",
+   "pattern": "^[a-z0-9_]+$",
+   "description": "life memory file data/life/<id>.json: everyday, non-clinical memories recalled lexically (service only)"
+  },
+  "mse": {
+   "type": "object",
+   "description": "Mental Status Exam block (PSYCHE): keeps speech, affect, thought form and insight in line with the diagnosis all interview; code reads emotions, affect.max_intensity and thought_form.tangential.",
+   "properties": {
+    "status": {
+     "type": "string"
+    },
+    "speech": {
+     "type": "object",
+     "properties": {
+      "productivity": {
+       "enum": [
+        "reduced",
+        "normal",
+        "increased"
+       ]
+      },
+      "rate": {
+       "type": "string"
+      },
+      "spontaneity": {
+       "type": "string"
+      }
+     }
+    },
+    "affect": {
+     "type": "object",
+     "properties": {
+      "quality": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "range": {
+       "type": "string"
+      },
+      "reactivity": {
+       "type": "string"
+      },
+      "max_intensity": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 10
+      }
+     }
+    },
+    "emotions": {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "enum": [
+       "neutral",
+       "sad",
+       "anxious",
+       "angry",
+       "ashamed",
+       "happy",
+       "flat",
+       "suspicious",
+       "confused"
+      ]
+     }
+    },
+    "thought_form": {
+     "type": "object",
+     "properties": {
+      "process": {
+       "type": "string"
+      },
+      "tangential": {
+       "type": "boolean"
+      }
+     }
+    },
+    "insight": {
+     "type": "object",
+     "properties": {
+      "level": {
+       "type": "string"
+      },
+      "note": {
+       "type": "string"
+      }
+     }
+    }
+   }
   }
  }
 }

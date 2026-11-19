@@ -34,6 +34,15 @@ def synth(lines, scratch: Path):
     return out
 
 
+async def drain(q, quiet=5.0):
+    """Read and drop events until the service has been quiet for `quiet` seconds (after an early endpoint)."""
+    while True:
+        try:
+            await asyncio.wait_for(q.get(), quiet)
+        except asyncio.TimeoutError:
+            return
+
+
 def pct(xs, p):
     return float(np.percentile(xs, p)) if xs else float("nan")
 
@@ -82,6 +91,14 @@ async def run(url, wavs, lines, variant, barge, results):
             mic["end_at"] = True
             mic["buf"] = wav.copy()
             t_audio, _ = await wait("audio")
+            if mic["t_last_speech"] is None:  # the turn ended before the line was sent (early endpoint): no lag, resync
+                while mic["t_last_speech"] is None:
+                    await asyncio.sleep(0.05)
+                mic["end_at"] = None
+                results.setdefault("early_endpoint", []).append(i)
+                print(f"{variant} {i:2d} early endpoint (reply started before the doctor's line ended); skipped")
+                await drain(q)
+                continue
             mic["end_at"] = None
             _, timing = await wait("timing")
             _, reply = (None, None)

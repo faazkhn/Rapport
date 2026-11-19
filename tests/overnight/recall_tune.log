@@ -1,0 +1,18 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+{
+ "version": "0.1",
+ "status": "draft",
+ "note": "Hybrid recall thresholds tuned on the dev half of tests/recall/paraphrase_set.jsonl by tools/brain/tune_recall.py.",
+ "sim_hit": 0.86,
+ "sim_risk": 0.72,
+ "sim_floor": 0.76,
+ "sim_near": 0.04,
+ "risk_near": 0.74,
+ "risk_margin": 0.04,
+ "dev": {
+  "fact_recall": 0.782,
+  "risk_recall": 1.0,
+  "none_false_hit": 0.188,
+  "extra_per_line": 1.06
+ }
+}

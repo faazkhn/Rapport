@@ -1,0 +1,438 @@
+{
+ "split": "dev",
+ "lexical_only": false,
+ "fact_recall": 0.782,
+ "n": 238,
+ "risk_recall": 1.0,
+ "risk_n": 75,
+ "risk_by_fact": {
+  "alc_01/f_anger_home": "7/7",
+  "alc_01/f_no_plan_no_means": "6/6",
+  "alc_01/f_passive_si": "8/8",
+  "alc_01/f_withdrawal_seizure": "11/11",
+  "mdd_01/f_no_means": "5/5",
+  "mdd_01/f_no_plan_no_attempt": "4/4",
+  "mdd_01/f_passive_si": "7/7",
+  "ward_01/f_current_si": "4/4",
+  "ward_01/f_means": "8/8",
+  "ward_01/f_terrace": "6/6",
+  "ward_02/f_risk": "9/9"
+ },
+ "none_false_hit": 0.188,
+ "none_n": 16,
+ "extra_per_line": 1.06,
+ "ms_p50": 2.11,
+ "ms_max": 4700.28,
+ "misses": [
+  [
+   "mdd_01",
+   "f_pc",
+   "I gather the doctor at your office suggested you come. What was that about?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_pc",
+   "So, what seems to be the problem?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_pc",
+   "I see you've had to take some days off recently. What's been going on?",
+   [
+    "f_no_plan_no_attempt",
+    "f_passive_si"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_onset",
+   "Can you think back to the last time you felt like your normal self?",
+   [
+    "f_passive_si"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_energy_concentration",
+   "How is your memory and attention these days?",
+   [
+    "f_no_plan_no_attempt",
+    "f_passive_si"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_guilt",
+   "Some people in your position start to feel they are a load on others. Has that crossed your mind?",
+   [
+    "f_mood",
+    "f_onset",
+    "f_passive_si"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_anxiety",
+   "Would you call yourself a worrier?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_anxiety",
+   "Any tension these days?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_anxiety",
+   "Which came first, the nervousness or the sadness?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_work_family",
+   "Any tension at home?",
+   [
+    "f_energy_concentration",
+    "f_onset",
+    "f_sleep"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_family_history",
+   "On your mother's side or your father's side, has anyone gone through something similar?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_protective",
+   "Do you want things to get better?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_protective",
+   "When the bad thoughts come at night, what pulls you back?",
+   [
+    "f_passive_si",
+    "f_sleep"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_protective",
+   "Are you open to getting some counselling or medicine for this?",
+   [
+    "f_no_means"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_substances",
+   "Any habits I should know about?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_no_mania_no_psych_hx",
+   "Any past history of mental illness?",
+   [
+    "f_family_history",
+    "f_medical"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_no_mania_no_psych_hx",
+   "Is this your first time coming to someone like me?",
+   []
+  ],
+  [
+   "mdd_01",
+   "f_medical",
+   "Has anyone ever hurt you or mistreated you, as a child or later?",
+   [
+    "f_no_plan_no_attempt",
+    "f_passive_si"
+   ]
+  ],
+  [
+   "mdd_01",
+   "f_medical",
+   "Have you been through anything very frightening or upsetting in your life that still stays with you?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_pc",
+   "What are you hoping I can do for you today?",
+   [
+    "f_last_drink"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_pc",
+   "What is troubling you the most at the moment?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_pc",
+   "I see someone has come along with you today. Were they worried about something in particular?",
+   [
+    "f_last_drink",
+    "f_motivation",
+    "f_passive_si"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_drinking_quantity",
+   "Do you drink more on Saturdays and Sundays than on working days?",
+   [
+    "f_consequences",
+    "f_drinking_minimised"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_last_drink",
+   "How many hours has it been since your last peg?",
+   [
+    "f_drinking_minimised",
+    "f_drinking_quantity"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_last_drink",
+   "Is there any alcohol in your system right now?",
+   [
+    "f_anger_home",
+    "f_drinking_minimised",
+    "f_passive_si"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_last_drink",
+   "What time did you stop yesterday?",
+   [
+    "f_motivation",
+    "f_withdrawal_seizure"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_morning_drinking",
+   "Do you carry alcohol with you, or keep some hidden outside the house?",
+   [
+    "f_anger_home",
+    "f_drinking_minimised"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_morning_drinking",
+   "What settles your hands when they tremble?",
+   [
+    "f_pc",
+    "f_withdrawal_seizure"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_control",
+   "Have you ever tried to quit cold turkey, and how did that go?",
+   [
+    "f_no_plan_no_means",
+    "f_withdrawal_seizure"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_control",
+   "Do you find it hard to stop once you've started?",
+   [
+    "f_drinking_quantity",
+    "f_motivation",
+    "f_withdrawal_seizure"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_consequences",
+   "How has all this affected your day-to-day life?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_consequences",
+   "Are you reaching the showroom on time these days?",
+   [
+    "f_protective"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_liver_medical",
+   "Has any doctor told you that alcohol is affecting your body?",
+   [
+    "f_anger_home",
+    "f_drinking_minimised",
+    "f_withdrawal_seizure"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_mood",
+   "Can you fall asleep if you haven't had anything to drink?",
+   [
+    "f_drinking_minimised",
+    "f_passive_si",
+    "f_withdrawal_seizure"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_mood",
+   "Do you feel bad or ashamed about your drinking afterwards?",
+   [
+    "f_drinking_minimised",
+    "f_drinking_quantity",
+    "f_morning_drinking"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_protective",
+   "What are the good things you still have going for you?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_other_substances",
+   "Do you take anything to help you sleep, like alprazolam?",
+   [
+    "f_mood",
+    "f_passive_si",
+    "f_pc"
+   ]
+  ],
+  [
+   "alc_01",
+   "f_family_history",
+   "What is it that scares you most about where this is heading?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_motivation",
+   "What is it that scares you most about where this is heading?",
+   []
+  ],
+  [
+   "alc_01",
+   "f_psych_history",
+   "Any past psychiatric history?",
+   [
+    "f_no_plan_no_means"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_pc",
+   "How long have you been with us now, and how do you think you're doing?",
+   [
+    "f_current_si",
+    "f_means",
+    "f_terrace"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_mood",
+   "Is there a part of the day that is heavier than the rest?",
+   [
+    "f_current_si"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_protective",
+   "Is there anything worth holding on for?",
+   [
+    "f_current_si"
+   ]
+  ],
+  [
+   "ward_01",
+   "f_substances",
+   "Do you use anything to take the edge off when you're upset?",
+   [
+    "f_current_si",
+    "f_terrace"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_side_effects",
+   "Why don't you want to take the medicine?",
+   [
+    "f_pc"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_poison",
+   "Why don't you want to take the medicine?",
+   [
+    "f_pc"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_side_effects",
+   "Did the first few doses leave you drowsy or dull?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_voices",
+   "Have you had any strange experiences, especially after dark?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_college",
+   "How do your mother and father feel about your degree being interrupted?",
+   [
+    "f_alternatives"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_capacity_understand",
+   "What do you make of what the doctors have been telling you about your condition?",
+   [
+    "f_medical"
+   ]
+  ],
+  [
+   "ward_02",
+   "f_alternatives",
+   "What would make you comfortable enough to accept treatment?",
+   []
+  ],
+  [
+   "ward_02",
+   "f_substances",
+   "Any habits, like smoking up?",
+   []
+  ]
+ ]
+}

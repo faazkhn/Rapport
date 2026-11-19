@@ -1,0 +1,311 @@
+{
+ "p0": {
+  "seeds": 3,
+  "pooled": {
+   "n": 231,
+   "trust_ok": 1.0,
+   "missed_self": 0.766,
+   "missed_judged": 0.558,
+   "recall_hit": 0.727,
+   "missed_judged_when_recalled": 0.518,
+   "n_when_recalled": 168,
+   "missed_judged_when_not_recalled": 0.667,
+   "n_when_not_recalled": 63,
+   "fallbacks": 0
+  },
+  "per_seed": [
+   {
+    "n": 77,
+    "trust_ok": 1.0,
+    "missed_self": 0.831,
+    "missed_judged": 0.545,
+    "recall_hit": 0.727,
+    "missed_judged_when_recalled": 0.5,
+    "n_when_recalled": 56,
+    "missed_judged_when_not_recalled": 0.667,
+    "n_when_not_recalled": 21,
+    "fallbacks": 0
+   },
+   {
+    "n": 77,
+    "trust_ok": 1.0,
+    "missed_self": 0.74,
+    "missed_judged": 0.571,
+    "recall_hit": 0.727,
+    "missed_judged_when_recalled": 0.518,
+    "n_when_recalled": 56,
+    "missed_judged_when_not_recalled": 0.714,
+    "n_when_not_recalled": 21,
+    "fallbacks": 0
+   },
+   {
+    "n": 77,
+    "trust_ok": 1.0,
+    "missed_self": 0.727,
+    "missed_judged": 0.558,
+    "recall_hit": 0.727,
+    "missed_judged_when_recalled": 0.536,
+    "n_when_recalled": 56,
+    "missed_judged_when_not_recalled": 0.619,
+    "n_when_not_recalled": 21,
+    "fallbacks": 0
+   }
+  ],
+  "by_case": {
+   "mdd_01": {
+    "n": 75,
+    "trust_ok": 1.0,
+    "missed_self": 0.933,
+    "missed_judged": 0.4,
+    "recall_hit": 0.8,
+    "missed_judged_when_recalled": 0.333,
+    "n_when_recalled": 60,
+    "missed_judged_when_not_recalled": 0.667,
+    "n_when_not_recalled": 15,
+    "fallbacks": 0
+   },
+   "alc_01": {
+    "n": 69,
+    "trust_ok": 1.0,
+    "missed_self": 0.783,
+    "missed_judged": 0.536,
+    "recall_hit": 0.609,
+    "missed_judged_when_recalled": 0.548,
+    "n_when_recalled": 42,
+    "missed_judged_when_not_recalled": 0.519,
+    "n_when_not_recalled": 27,
+    "fallbacks": 0
+   },
+   "ward_01": {
+    "n": 69,
+    "trust_ok": 1.0,
+    "missed_self": 0.522,
+    "missed_judged": 0.841,
+    "recall_hit": 0.739,
+    "missed_judged_when_recalled": 0.843,
+    "n_when_recalled": 51,
+    "missed_judged_when_not_recalled": 0.833,
+    "n_when_not_recalled": 18,
+    "fallbacks": 0
+   },
+   "ward_02": {
+    "n": 18,
+    "trust_ok": 1.0,
+    "missed_self": 0.944,
+    "missed_judged": 0.222,
+    "recall_hit": 0.833,
+    "missed_judged_when_recalled": 0.067,
+    "n_when_recalled": 15,
+    "missed_judged_when_not_recalled": 1.0,
+    "n_when_not_recalled": 3,
+    "fallbacks": 0
+   }
+  }
+ },
+ "v0": {
+  "seeds": 3,
+  "pooled": {
+   "n": 231,
+   "trust_ok": 1.0,
+   "missed_self": 0.688,
+   "missed_judged": 0.433,
+   "recall_hit": 0.351,
+   "missed_judged_when_recalled": 0.21,
+   "n_when_recalled": 81,
+   "missed_judged_when_not_recalled": 0.553,
+   "n_when_not_recalled": 150,
+   "fallbacks": 0
+  },
+  "per_seed": [
+   {
+    "n": 77,
+    "trust_ok": 1.0,
+    "missed_self": 0.727,
+    "missed_judged": 0.481,
+    "recall_hit": 0.351,
+    "missed_judged_when_recalled": 0.222,
+    "n_when_recalled": 27,
+    "missed_judged_when_not_recalled": 0.62,
+    "n_when_not_recalled": 50,
+    "fallbacks": 0
+   },
+   {
+    "n": 77,
+    "trust_ok": 1.0,
+    "missed_self": 0.662,
+    "missed_judged": 0.403,
+    "recall_hit": 0.351,
+    "missed_judged_when_recalled": 0.222,
+    "n_when_recalled": 27,
+    "missed_judged_when_not_recalled": 0.5,
+    "n_when_not_recalled": 50,
+    "fallbacks": 0
+   },
+   {
+    "n": 77,
+    "trust_ok": 1.0,
+    "missed_self": 0.675,
+    "missed_judged": 0.416,
+    "recall_hit": 0.351,
+    "missed_judged_when_recalled": 0.185,
+    "n_when_recalled": 27,
+    "missed_judged_when_not_recalled": 0.54,
+    "n_when_not_recalled": 50,
+    "fallbacks": 0
+   }
+  ],
+  "by_case": {
+   "mdd_01": {
+    "n": 75,
+    "trust_ok": 1.0,
+    "missed_self": 0.827,
+    "missed_judged": 0.32,
+    "recall_hit": 0.2,
+    "missed_judged_when_recalled": 0.0,
+    "n_when_recalled": 15,
+    "missed_judged_when_not_recalled": 0.4,
+    "n_when_not_recalled": 60,
+    "fallbacks": 0
+   },
+   "alc_01": {
+    "n": 69,
+    "trust_ok": 1.0,
+    "missed_self": 0.768,
+    "missed_judged": 0.522,
+    "recall_hit": 0.261,
+    "missed_judged_when_recalled": 0.333,
+    "n_when_recalled": 18,
+    "missed_judged_when_not_recalled": 0.588,
+    "n_when_not_recalled": 51,
+    "fallbacks": 0
+   },
+   "ward_01": {
+    "n": 69,
+    "trust_ok": 1.0,
+    "missed_self": 0.478,
+    "missed_judged": 0.507,
+    "recall_hit": 0.565,
+    "missed_judged_when_recalled": 0.282,
+    "n_when_recalled": 39,
+    "missed_judged_when_not_recalled": 0.8,
+    "n_when_not_recalled": 30,
+    "fallbacks": 0
+   },
+   "ward_02": {
+    "n": 18,
+    "trust_ok": 1.0,
+    "missed_self": 0.611,
+    "missed_judged": 0.278,
+    "recall_hit": 0.5,
+    "missed_judged_when_recalled": 0.0,
+    "n_when_recalled": 9,
+    "missed_judged_when_not_recalled": 0.556,
+    "n_when_not_recalled": 9,
+    "fallbacks": 0
+   }
+  }
+ },
+ "v2": {
+  "seeds": 3,
+  "pooled": {
+   "n": 231,
+   "trust_ok": 1.0,
+   "missed_self": 0.519,
+   "missed_judged": 0.368,
+   "recall_hit": 0.727,
+   "missed_judged_when_recalled": 0.244,
+   "n_when_recalled": 168,
+   "missed_judged_when_not_recalled": 0.698,
+   "n_when_not_recalled": 63,
+   "fallbacks": 4
+  },
+  "per_seed": [
+   {
+    "n": 77,
+    "trust_ok": 1.0,
+    "missed_self": 0.519,
+    "missed_judged": 0.338,
+    "recall_hit": 0.727,
+    "missed_judged_when_recalled": 0.196,
+    "n_when_recalled": 56,
+    "missed_judged_when_not_recalled": 0.714,
+    "n_when_not_recalled": 21,
+    "fallbacks": 1
+   },
+   {
+    "n": 77,
+    "trust_ok": 1.0,
+    "missed_self": 0.519,
+    "missed_judged": 0.377,
+    "recall_hit": 0.727,
+    "missed_judged_when_recalled": 0.25,
+    "n_when_recalled": 56,
+    "missed_judged_when_not_recalled": 0.714,
+    "n_when_not_recalled": 21,
+    "fallbacks": 1
+   },
+   {
+    "n": 77,
+    "trust_ok": 1.0,
+    "missed_self": 0.519,
+    "missed_judged": 0.39,
+    "recall_hit": 0.727,
+    "missed_judged_when_recalled": 0.286,
+    "n_when_recalled": 56,
+    "missed_judged_when_not_recalled": 0.667,
+    "n_when_not_recalled": 21,
+    "fallbacks": 2
+   }
+  ],
+  "by_case": {
+   "mdd_01": {
+    "n": 75,
+    "trust_ok": 1.0,
+    "missed_self": 0.613,
+    "missed_judged": 0.453,
+    "recall_hit": 0.8,
+    "missed_judged_when_recalled": 0.383,
+    "n_when_recalled": 60,
+    "missed_judged_when_not_recalled": 0.733,
+    "n_when_not_recalled": 15,
+    "fallbacks": 4
+   },
+   "alc_01": {
+    "n": 69,
+    "trust_ok": 1.0,
+    "missed_self": 0.594,
+    "missed_judged": 0.406,
+    "recall_hit": 0.609,
+    "missed_judged_when_recalled": 0.31,
+    "n_when_recalled": 42,
+    "missed_judged_when_not_recalled": 0.556,
+    "n_when_not_recalled": 27,
+    "fallbacks": 0
+   },
+   "ward_01": {
+    "n": 69,
+    "trust_ok": 1.0,
+    "missed_self": 0.362,
+    "missed_judged": 0.261,
+    "recall_hit": 0.739,
+    "missed_judged_when_recalled": 0.059,
+    "n_when_recalled": 51,
+    "missed_judged_when_not_recalled": 0.833,
+    "n_when_not_recalled": 18,
+    "fallbacks": 0
+   },
+   "ward_02": {
+    "n": 18,
+    "trust_ok": 1.0,
+    "missed_self": 0.444,
+    "missed_judged": 0.278,
+    "recall_hit": 0.833,
+    "missed_judged_when_recalled": 0.133,
+    "n_when_recalled": 15,
+    "missed_judged_when_not_recalled": 1.0,
+    "n_when_not_recalled": 3,
+    "fallbacks": 0
+   }
+  }
+ }
+}

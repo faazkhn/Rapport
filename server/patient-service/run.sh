@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start everything for the Rapport voice loop: llama-server (local patient LLM) on :8080, then the patient service on 127.0.0.1:8765.
+# Start everything for the Rapport voice loop: llama-server (local patient LLM) on :8080, then the patient service on :8765 (the network sees only the Twin view).
 #   ./run.sh            local LLM (default; nothing leaves the Mac)
 #   ./run.sh --mock     keyword mock LLM, no model
 #   PATIENT_LLM=grok ./run.sh   Grok via xAI, only if XAI_API_KEY is set (environment or repo .env); no llama-server
@@ -27,4 +27,9 @@ if [ "$RAPPORT_LLM" != "mock" ] && [ "${PATIENT_LLM:-local}" != "grok" ]; then
   fi
   export LLAMA_URL="http://127.0.0.1:$LLAMA_PORT/v1"
 fi
-.venv/bin/uvicorn app:app --host 127.0.0.1 --port "${PORT:-8765}" "$@"
+# every interface, so a second laptop on the same Wi-Fi can open the Twin view; app.LocalOnly keeps the rest on this Mac.
+# RAPPORT_HOST=127.0.0.1 keeps it off the network.
+PORT="${PORT:-8765}"
+LAN_IP="$(ipconfig getifaddr en0 || ipconfig getifaddr en1 || true)"
+echo "Digital Twin: http://127.0.0.1:$PORT/twin/${LAN_IP:+   on this Wi-Fi: http://$LAN_IP:$PORT/twin/}"
+.venv/bin/uvicorn app:app --host "${RAPPORT_HOST:-0.0.0.0}" --port "$PORT" "$@"

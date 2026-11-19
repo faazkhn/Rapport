@@ -10,15 +10,38 @@ Bright, warm, clinical but humane. Built in code, so `Rapport/Build Placeholder 
 | Key | soft daylight through the window, ~5,000 K, face lit three-quarters from the doctor's side | `KeyLight_Window`: spot, real-time, 5,000 K (colour-temperature mode), intensity 14, 70° outer / 25° inner, soft shadows 0.75, at (0.2, 1.95, 1.3) near the window, aimed at `KeyLightTarget`. About 65° off the patient's forward axis, on the doctor's side. |
 | Window | window with blinds | 1.0 × 1.05 m on the south wall right of the desk, sill 0.95 m. Emissive pane (5,000 K × 2.5, baked emissive), off-white frame, 7 slats tilted 35° over the top half. `WindowDaylight_Area`: 0.95 × 1 m rectangle light, baked, 5,000 K, intensity 4. |
 | Fill | warm practical lamp ~3,200 K | `FillLight_Ceiling`: point, baked, 3,200 K, intensity 0.7, range 5, at the ceiling centre. Reaches the patient through the light probes. |
+| Face light (v0.3) | faces in the 0.45–0.60 band on every body without brightening the room | `FaceLight`: spot, real-time, 4,500 K, intensity 6, 30° outer / 12° inner, no shadows, 0.45 m above the `DoctorAnchor`, aimed 5 cm below the seated eye. Its rendering layer is `Light Layer 1` (`EncounterLighting.PatientLayer`); only the patients' renderers carry that layer (`EncounterLighting.MarkPatient`, applied to all four prefabs and to new ones in `BuildPatientPrefab`), so the wall behind the patient gets none of it. URP rendering layers are on in `PC_RPAsset`. |
 | Rim | subtle, separates patient from the wall | `RimLight`: spot, real-time, 4,500 K, intensity 4, 30°, no shadows, behind the sofa at (1.3, 1.95, -1.0). |
 | GI | baked GI, light probes around the chair, one reflection probe | Baked GI only (no real-time GI), GPU progressive, 12 texels/m, max 1024, non-directional, 2 bounces: one 1024 lightmap (0.46 MB EXR). `LightProbes`: coarse 0.65 m grid over the room (walk-in path) plus a dense cage around the sofa seat and head. `ReflectionProbe_Room`: baked, box-projected to the room, 128 px, solid warm background. Ambient flat (0.46, 0.46, 0.47). Sky reflection intensity stays 0, so the CC3 alpha-0 eye/hair layers no longer turn cyan: the eyes reflect the room. |
 | Post | Neutral or ACES, exposure up, contrast +10, saturation +5, mild bloom, SSAO, very light vignette | `PostProcess` global volume, `Assets/Settings/PsychSim/EncounterVolume.asset`: Neutral tonemapping, post-exposure +0.35, contrast +10, saturation +5, bloom 0.25 (threshold 1.1, scatter 0.6), vignette 0.12. SSAO is the URP renderer feature already on `PC_Renderer` (intensity 0.4, radius 0.3). Post-processing is turned on for `DoctorCamera`. |
 | Surfaces | off-white walls, one warm accent wall, no grey-on-grey | Room palette `T_Office_Palette.png` (Unity copy): wall cell grey → warm off-white (233, 226, 214), ceiling/cornice → (240, 236, 229), sofa-wall panelling dark grey → muted terracotta (172, 128, 110). |
-| Real-time budget | key and rim real-time, fill and bounce baked | Two real-time lights (key and rim). Only the key casts real-time shadows. |
+| Real-time budget | key and rim real-time, fill and bounce baked | Three real-time lights (key, rim, and the patient-only face light, v0.3). Only the key casts real-time shadows. |
 
 A note for anyone changing this: set light colour with `useColorTemperature` + `colorTemperature`, not with
 `light.color = Mathf.CorrelatedColorTemperatureToRGB(k)`. That function returns linear RGB, but `light.color` is sRGB, so the
 first pass came out far too orange: 3,200 K looked like about 2,000 K.
+
+## v0.3: seats, camera and face light
+
+Changes in v0.3, made in code so a rebuild reproduces them. The real-time part can be re-applied to the saved scene without a re-bake:
+`-executeMethod Rapport.Editor.LightingStills.CaptureAllBodiesBatch -stillsDir DIR -apply -save`. `-tune "face=6,key=14,..."` tries other values.
+- **Seats:** the patient's seat and the doctor's chair now face 110° apart (brief 90–120°; it was about 156°). `EncounterSceneBuilder.AngleSeats` turns the patient about her hips so she sits 10° past the doctor, and turns the `DoctorAnchor` 60° toward the desk. Before the fix every patient faced away to camera left; now the doctor sees a soft three-quarter face. The key light's target turned with her, so the window key now falls on her far cheek, which is short lighting.
+- **Camera:** the stills render through the live doctor view (`DesktopRig.FollowRotation`, 30° vertical FOV; see `camera.md`). The face box is now about 142 px across. In the old wide still it was 67 px.
+- **Face light:** added (see the table above). Intensity 6 was tuned on all four bodies. Values 1.5 and 2.3 left Ananya at 0.433 and 0.444.
+- **Skinned bounds:** the patient prefabs' skinned meshes now use `updateWhenOffscreen`. At the tighter FOV, the imported bounds of Amber's and the Realistic Man's hair and eyes fell outside the frustum, so their hair vanished and their eyes went white.
+- **Tissue box:** the rainbow block texture appeared only in the first still of a batch run, as an uninitialised texture on the first render after the scene opened. `LightingStills` now renders once to warm up. The box material has no texture; in play mode it renders teal (`docs/media/v0.3/life/encounter_exams_male_20s_a.jpg`).
+
+| Body | Baseline (old camera, chair at 156°) | Before (new camera, old seat and lights) | **After v0.3** | Crushed / blown after |
+|---|---|---|---|---|
+| Ananya (`female_20s_a`) | 0.285 | 0.386 | **0.488** | 1.2 % / 0 % |
+| Arjun (`male_20s_a`) | 0.435 | 0.604 | **0.525** | 0.9 % / 0 % |
+| Amber (`female_20s_b`) | 0.392 | 0.471 (no hair, white eyes: culled) | **0.543** | 0.7 % / 0 % |
+| Realistic Man (`male_30s_a`) | 0.444 | 0.591 (hair culled) | **0.538** | 1.7 % / 0 % |
+
+Stills (local only, not in Git LFS): `media/v0.3/baseline/`, `media/v0.3/before_samecam/`, `media/v0.3/after/`, each with a `sheet.jpg`.
+The play-mode doctor view agrees with the stills: Arjun seated in a play-mode frame, through the same camera, measures 0.541.
+Frame time, measured in the editor in batch mode (`LightingStills.FrameTimeBatch`), off-screen at 1920×1080 with 4× MSAA and a GPU sync every frame, while
+other jobs shared the GPU: median 6.4–8.1 ms per body, p95 7.5–18 ms. These numbers do not replace the 60 fps check in the built app (Phase 4).
 
 ## Acceptance
 

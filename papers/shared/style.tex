@@ -1,0 +1,28 @@
+% Shared look for the Rapport papers: packages and TikZ styles for the diagrams.
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,shapes.geometric,shapes.misc}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{../figures/}}
+\tikzset{
+  >={Stealth[length=1.8mm]},
+  box/.style={draw, rounded corners=2pt, align=center, font=\scriptsize, minimum height=7mm, inner sep=2pt, fill=#1},
+  box/.default=cyan!8,
+  code/.style={box=cyan!8},
+  llm/.style={box=orange!12},
+  io/.style={box=gray!10},
+  unity/.style={box=green!10},
+  bad/.style={box=red!8},
+  good/.style={box=green!12},
+  decision/.style={draw, diamond, aspect=2.2, align=center, font=\scriptsize, inner sep=1pt, fill=yellow!12},
+  state/.style={draw, circle, align=center, font=\scriptsize, minimum size=12mm, fill=#1},
+  state/.default=cyan!8,
+  lab/.style={font=\tiny, align=center},
+}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}

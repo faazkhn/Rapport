@@ -1,0 +1,76 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  v2 01_gold_standard: 13 turns
+  v2 02_judgmental: 6 turns
+11 {
+ "turns": 19,
+ "fidelity": 0.7777777777777778,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.05263157894736842,
+ "length_fit": 1.0,
+ "resistance_ok": 0.8421052631578947,
+ "principles_ok": null,
+ "mean_words": 16.157894736842106,
+ "invented": 1,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 6,
+ "top2_share": 0.631578947368421,
+ "behaviour_entropy": 0.6106839715080599,
+ "trigram_repeat": 0.15789473684210525,
+ "opener_repeat": 0.0,
+ "composite": 0.9134502923976608
+}
+  v2 01_gold_standard: 13 turns
+  v2 02_judgmental: 6 turns
+23 {
+ "turns": 19,
+ "fidelity": 0.7777777777777778,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.05263157894736842,
+ "length_fit": 1.0,
+ "resistance_ok": 0.8421052631578947,
+ "principles_ok": null,
+ "mean_words": 15.368421052631579,
+ "invented": 1,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 6,
+ "top2_share": 0.631578947368421,
+ "behaviour_entropy": 0.5790296610007234,
+ "trigram_repeat": 0.05263157894736842,
+ "opener_repeat": 0.0,
+ "composite": 0.9134502923976608
+}
+  v2 01_gold_standard: 13 turns
+  v2 02_judgmental: 6 turns
+42 {
+ "turns": 19,
+ "fidelity": 0.7777777777777778,
+ "unmentioned_ratio": 0.4444444444444444,
+ "banned_rate": 0.0,
+ "repetition": 0.05263157894736842,
+ "length_fit": 1.0,
+ "resistance_ok": 0.7368421052631579,
+ "principles_ok": null,
+ "mean_words": 15.736842105263158,
+ "invented": 1,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 6,
+ "top2_share": 0.631578947368421,
+ "behaviour_entropy": 0.5967389717096567,
+ "trigram_repeat": 0.05263157894736842,
+ "opener_repeat": 0.0,
+ "composite": 0.8923976608187134
+}

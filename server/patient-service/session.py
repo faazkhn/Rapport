@@ -8,6 +8,7 @@ import io
 import json
 import logging
 import os
+import random
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -17,8 +18,10 @@ import jsonschema
 import numpy as np
 
 import brain
+import consistency
 import exam_router
 import learning
+import mind
 import staged
 import stream
 import stt
@@ -34,6 +37,7 @@ PRE_ROLL_FRAMES = 10  # ~320 ms of audio kept before VAD start so the first word
 TURN_CAP_MS = 1200  # Smart Turn says "not finished": end the turn anyway after this much silence (old 500 ms + 700)
 SMART_TURN_DONE = 0.5
 SMART = {"model": None}  # stt.SmartTurn loaded at startup, or None
+INTERRUPT_MIN_S = 1.0  # the doctor cut the patient off only if this much of the reply was still to play (not while thinking, not the last word)
 PRESSURED_OVERLAP_S = 1.5  # pressured_speech: keep talking over the doctor for 1-2 s (DESIGN 7.1)
 TTS = {"model": None, "backend": None}  # backend: voice.load(RAPPORT_TTS) at startup; None = KittenTTS
 TWIN_LOG_DIR = Path(os.environ.get("RAPPORT_TWIN_LOG_DIR") or brain.REPO_ROOT / "logs" / "twin")  # local only, git-ignored
@@ -85,11 +89,11 @@ class Session:
         self.turn_task = None
         self.cancel = threading.Event()
         self.playing_until = 0.0  # monotonic time the client should finish playing what we sent
+        self.said_all = False  # this turn's utterance is closed and every sentence went to TTS
         self.interrupted = False
         self.turn_no = 0
         self.staged = None  # staged.Script in RAPPORT_STAGED concept-preview mode
-        self.mood = None  # Digital Twin PAD mood, set at start
-        self.next_speed = 1.0  # expression-map speed factor from the last reply, applied to the next one
+        self.mind = None  # Digital Twin mind for this session (mind.py): mood, memory, resistance, fired events, next speed
         self.twin_log = None  # this session's Twin event log (JSONL)
         self.mode = "practice"  # assessment: only faculty-approved examples
         self.consent = False  # a learner's turns feed learning only with this per-session consent
@@ -129,7 +133,11 @@ class Session:
 
     async def start(self, msg):
         try:
-            self.case = brain.load_case(msg["case_id"], msg.get("variant", "female"))
+            seed = msg.get("seed")
+            if seed is not None and (isinstance(seed, bool) or not (isinstance(seed, int) and 0 <= seed < 2**31)):
+                raise KeyError(f"bad seed {seed!r}")
+            self.case = brain.load_case(msg["case_id"], msg.get("variant", "female"), seed,
+                                        "assessment" if msg.get("mode") == "assessment" else "practice")
         except (KeyError, FileNotFoundError) as e:
             await self.send_json({"type": "error", "error": f"bad case_id/variant: {e}"})
             return
@@ -145,8 +153,9 @@ class Session:
         p = self.case["patient"]
         await self.send_json({"type": "session", "case_id": self.case["id"], "variant": self.case["variant"], "name": p["name"],
                               "model_id": p["model_id"], "voice_id": p["voice_id"], "state": self.state,
-                              "in_rate": stt.SR, "out_rate": OUT_SR, "llm": brain.default_model(), "staged": staged.enabled()})
-        self.mood, self.next_speed = twin.pad_from(self.state), 1.0
+                              "in_rate": stt.SR, "out_rate": OUT_SR, "llm": brain.default_model(), "staged": staged.enabled(),
+                              "style": self.case["style"], "generated": self.case.get("generated")})
+        self.mind = mind.new(self.case, self.state)
         if staged.enabled():
             self.staged = staged.Script(self.case["variant"], OUT_SR)
         else:
@@ -156,8 +165,9 @@ class Session:
             except OSError as e:  # the log is a convenience; never let it stop the voice
                 log.warning("twin log off: %s", type(e).__name__)
                 self.twin_log = None
-            await self.twin(twin.init_event(self.case, self.state))
+            await self.twin({**twin.init_event(self.case, self.state), "consent": self.consent})
             asyncio.get_running_loop().run_in_executor(None, self.warm)
+            asyncio.get_running_loop().run_in_executor(TTS_POOL, self.warm_voice, self.tts)
         await self.send_json({"type": "listening"})
 
     async def twin(self, msg: dict):
@@ -188,6 +198,13 @@ class Session:
             kw = brain.llm_kwargs(brain.default_model(), brain.build_messages(self.case, self.state, msgs), {"type": "object"}, "warm", 0)
             kw.pop("response_format")
             (self.client or brain.get_client()).chat.completions.create(**{**kw, "max_tokens": 1})
+
+    def warm_voice(self, backend):
+        """One short line through the session's voice while the patient walks in: after a long idle the TTS weights are paged out
+        and the first reply's voice took 10 s."""
+        with contextlib.suppress(Exception):
+            for _ in backend.stream("Hmm.", self.case["patient"]["voice_id"], 1.0, voice.instruction(self.case, {})):
+                pass
 
     async def on_audio(self, data: bytes):
         if self.case is None:
@@ -247,23 +264,25 @@ class Session:
             await self.barge_in()
 
     def is_speaking(self) -> bool:
-        return (self.turn_task is not None and not self.turn_task.done()) or time.monotonic() < self.playing_until
+        # once the utterance is said, the turn is only finishing its JSON (state, facts): talking then is not an interruption
+        return (self.turn_task is not None and not self.turn_task.done() and not self.said_all) or time.monotonic() < self.playing_until
 
     async def barge_in(self):
+        cut = self.playing_until - time.monotonic() >= INTERRUPT_MIN_S  # measured when the doctor starts, not when the reply stops
         if brain.cue_live(self.case, "pressured_speech", self.state) > 0.1:
             async def later():  # talks over the doctor briefly; a task so mic frames keep flowing
                 await asyncio.sleep(PRESSURED_OVERLAP_S)
-                await self.stop("barge_in")
+                await self.stop("barge_in", cut)
             asyncio.create_task(later())
         else:
-            await self.stop("barge_in")
+            await self.stop("barge_in", cut)
 
-    async def stop(self, reason):
+    async def stop(self, reason, cut=None):
         t = time.monotonic()
         self.cancel.set()
-        self.playing_until = 0.0
-        if reason == "barge_in":
+        if reason == "barge_in" and (cut if cut is not None else self.playing_until - t >= INTERRUPT_MIN_S):
             self.interrupted = True
+        self.playing_until = 0.0
         await self.send_json({"type": "stop", "reason": reason})
         log.info("stop reason=%s service_ms=%d", reason, ms(t, time.monotonic()))
 
@@ -301,53 +320,82 @@ class Session:
         if self.staged:
             return await self.run_staged_turn(text, timing, cancel)
         loop = asyncio.get_running_loop()
-        case, state = self.case, dict(self.state)
+        case = self.case
         self.turn_no += 1
-        was_interrupted, self.interrupted = self.interrupted, False  # the doctor talked over the previous reply
+        self.said_all = False
+        self.mind["interrupted"], self.interrupted = self.interrupted, False  # the doctor talked over the previous reply
         elapsed = (time.monotonic() - self.t_start) / 60
         self.messages.append({"role": "doctor", "text": text})
         prev = next((m["text"] for m in reversed(self.messages[:-1]) if m["role"] == "patient"), None)
+        earlier = [m["text"] for m in self.messages if m["role"] == "patient"]
         model = brain.default_model()
         await self.twin({"event": "doctor_end", "turn": self.turn_no})
-        exam = brain.exam_for_turn(case, state, text, self.asked)
-        self.asked = exam and exam.get("asked")
+        # one Digital Twin pipeline for the voice and typed paths (mind.py): exam, events, rubric, recall, memory, prompt
+        turn = mind.prepare(case, self.state, self.mind, self.messages, elapsed, self.mode)
+        exam, events, state = turn["exam"], turn["events"], turn["state"]
         if exam and (exam["actions"] or exam["relax"]):  # before the LLM, so the body moves while the patient thinks
             await self.send_json({"type": "exam", "turn": self.turn_no, "actions": exam["actions"], "relax": exam["relax"]})
         await self.send_json({"type": "thinking"})
-
-        recalled = twin.recall(case, state["trust"], text)
-        v = learning.current()
-        examples = learning.retrieve(case["id"], text, self.mode, v.get("examples_k", 0), v.get("library_upto"))
-        allowed = [f["id"] for f in brain.allowed_facts(case, state["trust"])]
-        schema = brain.build_reply_schema(case, allowed, [])
-        kw = brain.llm_kwargs(model, brain.build_messages(case, state, self.messages, elapsed_min=elapsed, recalled=recalled, exam=exam,
-                                                         examples=examples),
-                              schema, "patient_reply", 0)
+        if events:  # code decides when a ward event happens; the model only plays it
+            acts = [{"id": e["action"], "comply": True} for e in events if e.get("action")]
+            if acts:
+                await self.send_json({"type": "exam", "turn": self.turn_no, "actions": acts, "relax": False})
+            for e in events:
+                await self.twin({"event": "ward_event", "turn": self.turn_no, "id": e["id"], "say": e["say"]})
+        schema = turn["schema"]
+        kw = brain.llm_kwargs(model, turn["messages"], schema, "patient_reply", 0)
         q: asyncio.Queue = asyncio.Queue()
         t_llm = time.monotonic()
         loop.run_in_executor(None, self._llm_stream, kw, q, loop, cancel)
 
         pause = brain.slowed_pause_s(case, state)
-        speed = tts_speed(case, state) * self.next_speed
+        speed = tts_speed(case, state) * self.mind["next_speed"]
         voice_id = case["patient"]["voice_id"]
         parser, splitter = stream.UtteranceStream(), stream.SentenceSplitter(first_clause=True)
-        spoken, dropped_banned, idx = [], [], 0
+        spoken, dropped_banned, held, idx = [], [], [], 0
+        instr = None
+        word_cap, capped = brain.style(case)["word_cap"], False
         marks = {"ttft": None, "first_sentence": None, "tts_first_ms": None, "audio_start": None}
         err = None
         flushed = False
 
-        async def speak(sentence):
-            nonlocal idx
-            sentence, hits = brain.strip_banned(sentence, case["banned_words"])
-            dropped_banned.extend(hits)
+        async def speak(sentence, checked=False):
+            nonlocal idx, capped, instr
+            if not checked:
+                sentence, hits = mind.speakable(case, turn, sentence, spoken, earlier)
+                dropped_banned.extend(hits)
+                if sentence and (held or mind.hold(turn, sentence, spoken)):  # a possible flat denial waits for the rest of the reply
+                    held.append(sentence)
+                    return
             sentence = voice.speakable(sentence, keep_first=not any("..." in x for x in spoken))
             if not sentence or cancel.is_set():
                 return
+            if capped or spoken and sum(len(x.split()) for x in spoken) + len(sentence.split()) > word_cap:  # style word cap, as brain.cap_words
+                capped = True
+                return
             t = time.monotonic()
-            first = await self._first_chunk(loop, sentence, voice_id, speed, voice.instruction(case, voice.labels_so_far(parser.buf)))
+            if instr is None:  # one instruction for the whole reply: with VoiceDesign the instruction is the speaker
+                labels = voice.labels_so_far(parser.buf)
+                if turn["plan"]:  # twin-0.2: the reaction is decided before the call, so the voice carries it from the first word
+                    labels.setdefault("reaction", turn["plan"]["reactions"][0])
+                instr = voice.instruction(case, labels, max(state["distress"], state["agitation"]) / 100, speed)
+            first = await self._first_chunk(loop, sentence, voice_id, speed, instr)
             if first is None or cancel.is_set():
                 return
             chunks, audio = first
+            pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
+            while not voice.ready_to_play(sentence, len(pcm) / 2 / OUT_SR, time.monotonic() - t, self.playing_until - time.monotonic()):
+                try:
+                    audio = await loop.run_in_executor(TTS_POOL, next, chunks, None)
+                except Exception as e:  # mid-sentence failure: say what was made, the next sentence uses the fallback
+                    self._tts_failed(e)
+                    audio = None
+                if audio is None or cancel.is_set():
+                    chunks = iter(())
+                    break
+                pcm += stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
+            if cancel.is_set():
+                return
             if marks["audio_start"] is None:
                 marks["tts_first_ms"] = ms(t, time.monotonic())
                 marks["audio_start"] = time.monotonic()
@@ -359,7 +407,6 @@ class Session:
                         return
                 await self.send_json({"type": "speaking", "slowed_pause_ms": round(marks["pause_applied"] * 1000)})
                 await self.twin({"event": "patient_start", "turn": self.turn_no})
-            pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
             await self.send_json({"type": "sentence", "index": idx, "text": sentence, "samples": len(pcm) // 2})
             spoken.append(sentence)
             idx += 1
@@ -375,6 +422,15 @@ class Session:
                     break
                 pcm = stt.float_to_pcm16(np.asarray(audio, dtype=np.float32))
 
+        async def release_held():
+            """The reply is complete: a held flat denial is replaced if it breaks a rule, else said as it was."""
+            if not held:
+                return
+            lines, held[:] = list(held), []
+            fix = mind.final_check(turn, " ".join(lines))
+            for s in ([fix] if fix else lines):
+                await speak(s, checked=True)
+
         while True:
             kind, val = await q.get()
             if kind == "chunk":
@@ -386,6 +442,9 @@ class Session:
                 for s in pieces:
                     marks["first_sentence"] = marks["first_sentence"] or time.monotonic()
                     await speak(s)
+                if flushed:
+                    await release_held()
+                self.said_all = flushed and not cancel.is_set()
             elif kind == "error":
                 err = val
                 break
@@ -395,43 +454,56 @@ class Session:
             for s in splitter.flush():
                 marks["first_sentence"] = marks["first_sentence"] or time.monotonic()
                 await speak(s)
+            await release_held()
+        if spoken and turn["ctx"] and turn["plan"] and turn["plan"].get("must_disclose") and not any(c["kind"] in ("denied_open_risk", "risk_not_disclosed") for c in turn["clashes"]):
+            mind.final_check(turn, " ".join(spoken))  # logs a reply that dodged an open, kindly asked risk fact
         t_done = time.monotonic()
         # intent tagging runs after the voice stream: on one GPU a parallel request halves the patient's token rate
         tagged = await loop.run_in_executor(None, brain.tag_intents, text, prev, self.client, model)
-        if was_interrupted:
+        if self.mind.get("interrupted"):
             tagged = tagged + ["interrupt"]
 
-        meta = {"model": model, "allowed_fact_ids": allowed, "fallback": False, "guard_dropped": []}
+        meta = {"model": model, "allowed_fact_ids": turn["allowed"], "fallback": False, "guard_dropped": [],
+                "brain_version": learning.brain_version(turn["version"])}
         try:
             if err:
                 raise RuntimeError(err)
             raw = parser.full()
             jsonschema.validate(raw, brain.loose(schema))
-            reply, meta["guard_dropped"] = brain.guard({**raw, "doctor_intents": tagged}, case, state["trust"])
-            meta["guard_dropped"] += twin.enforce_discomfort(reply, recalled)
+            reply, meta["guard_dropped"] = mind.guard_reply(case, turn, raw, tagged)
         except Exception as e:
             meta.update(fallback=True, errors=[type(e).__name__])
             reply = {**brain.fallback_reply(case), "doctor_intents": tagged}
             if not spoken and not cancel.is_set():
-                await speak(reply["utterance"])
+                await speak(reply["utterance"], checked=True)
         reply["exam_action"] = brain.first_complied(exam)
-        reply["utterance"] = " ".join(spoken) if spoken else reply["utterance"]
+        if capped:  # facts in the unspoken tail are not credited
+            meta["guard_dropped"] += [{"kind": "fact", "id": i, "reason": "word_cap"} for i in reply["revealed_fact_ids"]]
+            reply["revealed_fact_ids"] = []
+        if not spoken and not cancel.is_set() and not events:  # every sentence was dropped by the checks: say a safe line instead
+            await speak(mind.safe_line(case, turn), checked=True)
+            meta["fallback"] = True
+        reply["utterance"] = " ".join(spoken)  # only what was said: a dropped sentence never reaches the client, history or memory
         if cancel.is_set():
             meta["barge_in"] = True
             reply["utterance"] = (" ".join(spoken) + "...") if spoken else ""
+        if turn["clashes"]:
+            meta["consistency"] = turn["clashes"]
+        if turn["plan"]:
+            meta["decision"] = {k: turn["plan"][k] for k in ("moves", "resistance_level", "behaviours", "reactions", "must_disclose")}
         if reply["utterance"]:
             self.messages.append({"role": "patient", "text": reply["utterance"]})
-        expr = twin.expression(reply, case)
-        have = {c["id"] for c in reply["event_cues"]}
-        reply["event_cues"] = (reply["event_cues"] + [c for c in expr["cues"] if c["id"] not in have])[:2]
-        self.next_speed = expr["speed"]
-        self.state, self.mood = twin.update(state, self.mood, reply, case)
+        # the event never reached the doctor (nothing said): it may fire again and its nudge is undone
+        self.state = mind.finish(case, self.mind, turn, reply, spoken_ok=bool(spoken) or not events)
         loop.run_in_executor(None, self.warm)
         await self.send_json({"type": "intents", "doctor_intents": tagged})
         await self.send_json({"type": "reply", "turn": self.turn_no, "reply": reply, "state": self.state, "meta": meta})
-        await self.twin(twin.snapshot(self.turn_no, text, reply, recalled, self.state, self.mood,
-                                      twin.why(recalled, reply, state["trust"], case), self.next_speed))
+        await self.twin(mind.snapshot(case, self.mind, turn, reply, self.state))
+        if turn["clashes"]:
+            await self.twin({"event": "consistency", "turn": self.turn_no, "clashes": turn["clashes"]})
         await self.twin({"event": "patient_end", "turn": self.turn_no})
+        if self.mind["ended"] and any(e["id"] == "patient_ends" for e in events):
+            await self.send_json({"type": "patient_ended", "turn": self.turn_no})
         if self.consent and not cancel.is_set():
             history = [m["text"] for m in self.messages[:-1] if m["role"] == "patient"]
             if not learning.gate(reply["utterance"], meta, case, state, history):

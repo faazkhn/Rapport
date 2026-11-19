@@ -16,13 +16,15 @@ namespace Rapport.Editor
         const string ProfilePath = "Assets/Settings/PsychSim/EncounterVolume.asset";
         const string LightingPath = "Assets/Settings/PsychSim/EncounterLighting.lighting";
 
+        /// <summary>Rendering layer only the patients carry (bit 1, "Light Layer 1"): the face light lights them and nothing else.</summary>
+        public const uint PatientLayer = 1u << 1;
+
+        // Real-time settings, tuned on all four bodies (docs/lighting.md). Public so LightingStills -tune can try values without a rebuild.
+        public static float KeyIntensity = 14f, KeyAngle = 70f, RimIntensity = 4f, FaceIntensity = 6f, FaceAngle = 30f, PostExposure = 0.35f;
+
         public static void Apply(Camera cam, Vector3 face)
         {
-            var key = Spot("KeyLight_Window", new Vector3(0.2f, 1.95f, 1.3f), face, 5000f, 14f, 70f, LightmapBakeType.Realtime);
-            key.shadows = LightShadows.Soft; key.shadowStrength = 0.75f; key.innerSpotAngle = 25f; key.range = 5f;
-            var rim = Spot("RimLight", new Vector3(1.3f, 1.95f, -1.0f), face + Vector3.up * 0.1f, 4500f, 4f, 30f, LightmapBakeType.Realtime);
-            rim.shadows = LightShadows.None;
-
+            ApplyRealtime(face);
             var fill = Kelvin(new GameObject("FillLight_Ceiling").AddComponent<Light>(), 3200f);
             fill.type = LightType.Point; fill.lightmapBakeType = LightmapBakeType.Baked;
             fill.intensity = 0.7f; fill.range = 5f; fill.shadows = LightShadows.Soft;
@@ -60,9 +62,38 @@ namespace Rapport.Editor
             Lightmapping.lightingSettings = Settings();
         }
 
+        /// <summary>The real-time lights (key, rim, patient-only face light) and post exposure, created or updated in the open scene,
+        /// aimed at the patient's seated eye. Needs no re-bake: none of them is baked.</summary>
+        public static void ApplyRealtime(Vector3 face)
+        {
+            var key = Spot("KeyLight_Window", new Vector3(0.2f, 1.95f, 1.3f), face, 5000f, KeyIntensity, KeyAngle, LightmapBakeType.Realtime);
+            key.shadows = LightShadows.Soft; key.shadowStrength = 0.75f; key.innerSpotAngle = 25f; key.range = 5f;
+            var rim = Spot("RimLight", new Vector3(1.3f, 1.95f, -1.0f), face + Vector3.up * 0.1f, 4500f, RimIntensity, 30f, LightmapBakeType.Realtime);
+            rim.shadows = LightShadows.None;
+            // a soft lamp-like fill from above the doctor's shoulder that lights only the patient (rendering layer), so the face can sit
+            // in the 0.45-0.60 band without brightening the room behind it
+            var doctor = GameObject.Find("DoctorAnchor");
+            var from = doctor ? doctor.transform.position + new Vector3(0f, 0.45f, 0f) : face + new Vector3(-1.3f, 0.45f, 0.6f);
+            var fill = Spot("FaceLight", from, face + Vector3.down * 0.05f, 4500f, FaceIntensity, FaceAngle, LightmapBakeType.Realtime);
+            fill.shadows = LightShadows.None; fill.innerSpotAngle = FaceAngle * 0.4f; fill.range = 4f;
+            fill.renderingLayerMask = (int)PatientLayer;
+            var p = AssetDatabase.LoadAssetAtPath<VolumeProfile>(ProfilePath);
+            if (p && p.TryGet<ColorAdjustments>(out var ca)) { ca.postExposure.Override(PostExposure); EditorUtility.SetDirty(p); }
+        }
+
+        /// <summary>Puts every renderer of a patient on PatientLayer as well as Default, so the face light reaches it. Also makes skinned
+        /// meshes compute their bounds from the bones: Amber's and the Realistic Man's imported bounds sit off the posed head, so at
+        /// the 30° doctor FOV their hair and eyes were frustum-culled.</summary>
+        public static void MarkPatient(GameObject root)
+        {
+            foreach (var r in root.GetComponentsInChildren<Renderer>(true)) r.renderingLayerMask |= 1u | PatientLayer;
+            foreach (var s in root.GetComponentsInChildren<SkinnedMeshRenderer>(true)) s.updateWhenOffscreen = true;
+        }
+
         static Light Spot(string name, Vector3 pos, Vector3 target, float kelvin, float intensity, float angle, LightmapBakeType mode)
         {
-            var l = Kelvin(new GameObject(name).AddComponent<Light>(), kelvin);
+            var found = GameObject.Find(name);
+            var l = Kelvin(found && found.TryGetComponent(out Light existing) ? existing : new GameObject(name).AddComponent<Light>(), kelvin);
             l.type = LightType.Spot; l.lightmapBakeType = mode;
             l.intensity = intensity; l.spotAngle = angle; l.range = 4f;
             l.transform.position = pos; l.transform.LookAt(target);
@@ -89,7 +120,7 @@ namespace Rapport.Editor
             }
             Get<Tonemapping>().mode.Override(TonemappingMode.Neutral);
             var ca = Get<ColorAdjustments>();
-            ca.postExposure.Override(0.35f); ca.contrast.Override(10f); ca.saturation.Override(5f);
+            ca.postExposure.Override(PostExposure); ca.contrast.Override(10f); ca.saturation.Override(5f);
             var bloom = Get<Bloom>();
             bloom.intensity.Override(0.25f); bloom.threshold.Override(1.1f); bloom.scatter.Override(0.6f);
             var v = Get<Vignette>();

@@ -111,6 +111,7 @@ def test_locked_facts_never_reach_the_model():
 @pytest.mark.parametrize("pressured,lo,hi", [(False, 0, 0.15), (True, 0.2, 0.6)])
 def test_barge_in(monkeypatch, pressured, lo, hi):
     monkeypatch.setattr(session, "PRESSURED_OVERLAP_S", 0.3)
+    monkeypatch.setattr(session, "INTERRUPT_MIN_S", 0.0)  # the fake replies are a fraction of a second long
     real = brain.cue_live
     monkeypatch.setattr(brain, "cue_live", lambda c, cid, st: 0.8 if (cid == "pressured_speech" and pressured) else real(c, cid, st))
 
@@ -134,6 +135,17 @@ def test_barge_in(monkeypatch, pressured, lo, hi):
         assert all(ts <= stop_t for ts, _ in audio)  # nothing spoken after the stop
     rep = next(m for _, m in ev if m["type"] == "reply")
     assert rep["meta"]["barge_in"] is True and s.interrupted
+
+
+@pytest.mark.parametrize("left_s,counted", [(0.3, False), (2.0, True)])
+def test_interrupt_only_counts_with_speech_left(left_s, counted):
+    async def go():
+        s, ev, _ = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        s.playing_until = time.monotonic() + left_s  # the doctor starts talking with this much of the reply still to play
+        await s.stop("barge_in")
+        return s
+    assert asyncio.run(go()).interrupted is counted
 
 
 def test_slowed_pause_absorbs_compute_and_is_separate_from_lag(monkeypatch):
@@ -234,7 +246,7 @@ def test_turn_emits_snapshot():
     t = types(ev)
     assert t.count("brain_snapshot") == 1 and t.index("brain_snapshot") > t.index("reply")
     snap = next(m for _, m in ev if m["type"] == "brain_snapshot")
-    assert set(snap) == SNAP_KEYS and "f_sleep" in snap["recalled"] and snap["brain_version"] == "twin-0.1+v0"
+    assert set(snap) == SNAP_KEYS and "f_sleep" in snap["recalled"] and snap["brain_version"] == "twin-0.2+v0"
     assert snap["expression"]["face"] == "face_sad" and snap["expression"]["body"] == [c["id"] for c in snap["cues"]]
     tw = [m["event"] for _, m in ev if m["type"] == "twin_event"]
     assert tw == ["init", "doctor_end", "patient_start", "patient_end"]
@@ -262,12 +274,12 @@ def test_barge_in_snapshot(monkeypatch):
     import twin
     calls = []
     real = twin.update
-    monkeypatch.setattr(twin, "update", lambda *a: calls.append(1) or real(*a))
+    monkeypatch.setattr(twin, "update", lambda *a, **k: calls.append(1) or real(*a, **k))
 
     async def go():
         s, ev, audio = make(FakeLLM(delay=0.01))
         await s.on_json({"type": "start", "case_id": "mdd_01"})
-        mood0 = dict(s.mood)
+        mood0 = dict(s.mind["mood"])
         await s.on_json({"type": "text", "text": "How do you sleep?"})
         while not audio:
             await asyncio.sleep(0.005)
@@ -277,6 +289,26 @@ def test_barge_in_snapshot(monkeypatch):
     s, ev, mood0 = asyncio.run(go())
     snaps = [m for _, m in ev if m["type"] == "brain_snapshot"]
     assert len(snaps) == 1 and snaps[0]["utterance"].endswith("...") and len(calls) == 1
+
+
+def test_speaking_after_the_reply_is_said_keeps_the_reply():
+    """The doctor speaks while the LLM is still writing the JSON after the utterance: the patient has said it all, so the
+    reply's state change and facts must not be thrown away (the 2026-10-26 playtest lost about half its turns this way)."""
+    async def go():
+        s, ev, _ = make(FakeLLM(delay=0.01))
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        await s.on_json({"type": "text", "text": "How do you sleep?"})
+        while not s.said_all:
+            await asyncio.sleep(0.005)
+        s.playing_until = 0.0  # the audio has finished playing
+        await s.on_speech_start()
+        await s.turn_task
+        return ev
+    ev = asyncio.run(go())
+    rep = next(m for _, m in ev if m["type"] == "reply")
+    assert not rep["reply"]["utterance"].endswith("...") and not rep["meta"].get("barge_in")
+    assert rep["reply"]["revealed_fact_ids"] == ["f_sleep"] and rep["state"]["trust"] == 33
+    assert "stop" not in types(ev)
 
 
 def test_session_publishes():
@@ -374,7 +406,8 @@ def test_streaming_backend_sends_chunks_and_instruction():
     b = ChunkBackend()
     s, ev, audio = _turn_with(b)
     sentences = [m for _, m in ev if m["type"] == "sentence"]
-    assert len(sentences) == 2 and len(audio) == 4  # the third sentence is guard-stripped; first chunk with its sentence message, the second as bare PCM
+    # the third sentence is guard-stripped; 0.05 s chunks are held until 0.3 s is buffered, so each sentence goes out as one message
+    assert len(sentences) == 2 and len(audio) == 2 and all(len(a) == 4800 for _, a in audio)
     assert all(i.startswith(s.case["patient"]["voice_description"]) for i in b.instructions)
 
 
@@ -525,3 +558,91 @@ def test_session_uses_retrieved_examples_in_tail(lib, monkeypatch):
     msgs = next(c for c in llm.calls if c.get("stream") is None and "patient_reply" in json.dumps(c.get("response_format")))["messages"]
     assert seen and set(seen) == {("assessment", 2)}
     assert "Patient: Not really." in msgs[-1]["content"] and "Not really." not in msgs[0]["content"]
+
+
+def test_seeded_session_reports_style_and_slots_and_caps_words():
+    async def go():
+        s, ev, audio = make(FakeLLM())
+        seed = next(x for x in range(200) if brain.load_case("mdd_01", "female", seed=x)["style"] == "reserved")
+        await s.on_json({"type": "start", "case_id": "mdd_01", "seed": seed})
+        sess = next(m for _, m in ev if m["type"] == "session")
+        await run_text(s)
+        return s, ev, sess
+    s, ev, sess = asyncio.run(go())
+    assert sess["style"] == "reserved" and set(sess["generated"]["slots"]) == {"hobby", "sibling", "hometown"}
+    assert s.case["state_start"]["trust"] == 25  # reserved starts 5 below the authored 30
+    words = sum(len(m["text"].split()) for _, m in ev if m["type"] == "sentence")
+    assert words <= brain.style(s.case)["word_cap"] + 10
+
+
+def test_bad_seed_is_an_error():
+    async def go():
+        s, ev, _ = make(FakeLLM())
+        await s.on_json({"type": "start", "case_id": "mdd_01", "seed": "abc"})
+        return ev
+    assert asyncio.run(go())[0][1]["type"] == "error"
+
+
+def test_ward_event_fires_moves_the_body_and_reaches_the_prompt():
+    async def go():
+        llm = FakeLLM()
+        s, ev, _ = make(llm)
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        s.case["events"] = [{"id": "stands", "when": {"turn": 1}, "say": "Ananya stands up, upset.", "action": "stand_up",
+                             "state_delta": {"agitation": 20}}]
+        await run_text(s)
+        await run_text(s)
+        return s, ev, llm
+    s, ev, llm = asyncio.run(go())
+    fired = [m for _, m in ev if m.get("type") == "twin_event" and m.get("event") == "ward_event"]
+    assert [m["id"] for m in fired] == ["stands"]  # once, not again on turn 2
+    assert any(m["type"] == "exam" and m["actions"] == [{"id": "stand_up", "comply": True}] for _, m in ev)
+    prompts = [c["messages"][-1]["content"] for c in llm.calls if "How do you sleep" in c["messages"][-1]["content"]]  # not the warm-up prefill
+    assert "STAGE DIRECTION" in prompts[0] and "Ananya stands up" in prompts[0] and "STAGE DIRECTION" not in prompts[1]
+
+
+def test_an_unvoiced_event_is_not_used_up_and_narration_never_reaches_history():
+    narrated = {**REPLY, "utterance": "Ananya Rao stands up, upset."}
+    async def go():
+        s, ev, _ = make(FakeLLM(reply=narrated))
+        await s.on_json({"type": "start", "case_id": "mdd_01"})
+        s.case["events"] = [{"id": "stands", "when": {"turn": 1}, "say": "Ananya Rao stands up, upset.", "state_delta": {"agitation": 20}}]
+        await run_text(s)
+        return s, ev
+    s, ev = asyncio.run(go())
+    rep = next(m for _, m in ev if m["type"] == "reply")
+    assert rep["reply"]["utterance"] == "" and "stands" not in s.mind["fired"]
+    assert rep["state"]["agitation"] < 15 + 20  # the event's nudge was undone
+    assert all(m["role"] != "patient" for m in s.messages)
+
+
+def test_a_capped_reply_credits_no_facts():
+    long = {**REPLY, "utterance": "I wake up at four every day. Then I just lie there and think about everything that went wrong this year."}
+    async def go():
+        s, ev, _ = make(FakeLLM(reply=long))
+        seed = next(x for x in range(200) if brain.load_case("mdd_01", "female", seed=x)["style"] == "reserved")
+        await s.on_json({"type": "start", "case_id": "mdd_01", "seed": seed})
+        await run_text(s)
+        return ev
+    ev = asyncio.run(go())
+    rep = next(m for _, m in ev if m["type"] == "reply")
+    assert rep["reply"]["utterance"] == "I wake up at four every day." and rep["reply"]["revealed_fact_ids"] == []
+    assert any(d["reason"] == "word_cap" for d in rep["meta"]["guard_dropped"])
+
+
+def test_told_they_can_go_stays_true_on_later_turns():
+    """Playtest 2026-10-26: after 'You can go' the patient went back to asking to go home."""
+    async def go():
+        llm = FakeLLM()
+        s, ev, _ = make(llm)
+        await s.on_json({"type": "start", "case_id": "ward_01"})
+        await run_text(s, "Okay, you can go.")
+        await run_text(s, "What will you do at home?")
+        return s, ev, llm
+    s, ev, llm = asyncio.run(go())
+    assert "leave_granted" in s.mind["fired"]
+    assert any(m["type"] == "exam" and {"id": "stand_up", "comply": True} in m["actions"] for _, m in ev)
+    first = [c["messages"][-1]["content"] for c in llm.calls if "you can go." in c["messages"][-1]["content"]][0]
+    second = [c["messages"][-1]["content"] for c in llm.calls if "What will you do at home" in c["messages"][-1]["content"]][0]
+    assert "STAGE DIRECTION" in first and "ALREADY HAPPENED" not in first
+    assert "ALREADY HAPPENED" in second and "does not ask to leave again" in second

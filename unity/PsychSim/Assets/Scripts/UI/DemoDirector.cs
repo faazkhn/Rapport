@@ -20,6 +20,8 @@ namespace Rapport.UI
         public static event Action Finished;
         public static string Variant = "female";
         public static string ScriptPath = "demo/script.json";   // demo/staged/script.json for the staged concept preview
+        public static int MaxTurns = int.MaxValue;   // a short test take stops after this many turns
+        public static int? Seed;   // a seeded patient (service brain.load_case); null = the authored one
 
         [Serializable] class Turn { public string doctor, shot; }
         [Serializable] class Rx { public string drug, route, frequency, duration, reason; }
@@ -60,7 +62,8 @@ namespace Rapport.UI
             yield return new WaitForSeconds(cut ? 0.5f : 1.3f);
             ui.SelectVariant(arjun ? "male" : "female");
             yield return new WaitForSeconds(cut ? 1.0f : 1.5f);
-            em.Configure(script.case_id, Variant, Mode.Practice);
+            if (Seed is int seed) yield return Wait(em.ConfigureSeeded(script.case_id, Variant, Mode.Practice, seed));
+            else em.Configure(script.case_id, Variant, Mode.Practice);
             yield return new WaitForSeconds(cut ? 1.0f : 3.5f);      // prebrief
 
             // shot 3: establishing; shot 4: door opens, the patient walks in and sits
@@ -84,8 +87,10 @@ namespace Rapport.UI
             yield return new WaitForSeconds(1.2f);
 
             // shots 5-8: the interview, Dr. Faaz speaking through the mic path
+            int done = 0;
             foreach (var t in cut ? script.arjun_turns : script.turns)
             {
+                if (done++ >= MaxTurns) { MaxTurns = int.MaxValue; yield return new WaitForSeconds(1f); Finished?.Invoke(); yield break; }
                 Shot(t.shot);
                 yield return Wait(em.SpeakDoctorIntoMic(t.doctor));
                 yield return new WaitForSeconds(0.5f);
@@ -142,6 +147,7 @@ namespace Rapport.UI
                 case "close": CloseUp(); break;
                 case "hands": Hands(); break;
                 case "pov": Pov(); break;
+                case "wide": Wide(); break;
                 default: OverShoulder(); break;
             }
         }
@@ -192,6 +198,15 @@ namespace Rapport.UI
             var pos = doctorCam.transform.position + ToDoctor * 0.35f - right * 0.3f + Vector3.up * 0.05f;
             Cut(pos, Head + Vector3.down * 0.15f, 34f);
             demoCam.transform.Rotate(0f, 6f, 0f, Space.World);   // patient left of centre, clear of the side panel
+            ShowUi(true);
+        }
+
+        /// <summary>Wider shot from behind the doctor, high enough to keep a standing patient's head in frame (ward events).</summary>
+        void Wide()
+        {
+            var right = Vector3.Cross(Vector3.up, -ToDoctor);
+            var pos = doctorCam.transform.position + ToDoctor * 0.1f - right * 0.35f + Vector3.up * 0.35f;
+            Cut(pos, room.PatientAnchor.position + Vector3.up * 1.1f, 52f);
             ShowUi(true);
         }
 

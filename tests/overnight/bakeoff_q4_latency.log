@@ -1,0 +1,49 @@
+female  0 lag   9166 ms | vad 271 stt 306 ttft 2029 sent1 2505 tts1 1510 srv 5303 pause 0
+female  1 lag   2220 ms | vad 284 stt 193 ttft 453 sent1 1056 tts1 648 srv 2186 pause 0
+female  2 lag   2606 ms | vad 279 stt 159 ttft 382 sent1 969 tts1 1126 srv 2540 pause 0
+female  3 lag   2093 ms | vad 280 stt 136 ttft 424 sent1 917 tts1 722 srv 2059 pause 0
+female  4 lag   2503 ms | vad 278 stt 349 ttft 369 sent1 950 tts1 857 srv 2438 pause 0
+female  5 lag   1760 ms | vad 280 stt 156 ttft 464 sent1 981 tts1 303 srv 1730 pause 0
+female  6 lag   2166 ms | vad 278 stt 64 ttft 480 sent1 1036 tts1 811 srv 2196 pause 0
+female  7 lag   2604 ms | vad 1216 stt 0 ttft 478 sent1 1026 tts1 306 srv 2570 pause 0
+female  8 lag   2080 ms | vad 276 stt 65 ttft 448 sent1 925 tts1 769 srv 2046 pause 0
+female  9 lag   2828 ms | vad 274 stt 450 ttft 373 sent1 904 tts1 1185 srv 2824 pause 0
+female 10 lag   3377 ms | vad 281 stt 1040 ttft 509 sent1 1016 tts1 960 srv 3310 pause 0
+female 11 lag   1871 ms | vad 280 stt 125 ttft 532 sent1 1112 tts1 306 srv 1835 pause 0
+female 12 lag   2704 ms | vad 277 stt 164 ttft 449 sent1 1114 tts1 1067 srv 2636 pause 0
+female 13 lag   2077 ms | vad 280 stt 156 ttft 373 sent1 904 tts1 653 srv 2011 pause 0
+female 14 lag   2294 ms | vad 275 stt 150 ttft 370 sent1 931 tts1 785 srv 2227 pause 0
+female 15 lag   1584 ms | vad 278 stt 156 ttft 356 sent1 859 tts1 304 srv 1613 pause 0
+female 16 lag   2285 ms | vad 278 stt 71 ttft 365 sent1 937 tts1 805 srv 2237 pause 0
+female 17 lag   1722 ms | vad 275 stt 170 ttft 467 sent1 988 tts1 306 srv 1753 pause 0
+female 18 lag   2242 ms | vad 275 stt 67 ttft 367 sent1 915 tts1 758 srv 2163 pause 0
+female 19 lag   1543 ms | vad 281 stt 165 ttft 301 sent1 809 tts1 301 srv 1574 pause 0
+Traceback (most recent call last):
+  File "/Users/faazkhn/Documents/Med/tools/latency/ws_bench.py", line 136, in <module>
+    main()
+  File "/Users/faazkhn/Documents/Med/tools/latency/ws_bench.py", line 123, in main
+    asyncio.run(run(a.url, wavs, lines, ["female", "male"][r % 2], a.barge if r == a.runs - 1 else 0, results))
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/Documents/Med/tools/latency/ws_bench.py", line 88, in run
+    lag = (t_audio - mic["t_last_speech"]) * 1000 - timing["slowed_pause_ms"]
+           ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for -: 'float' and 'NoneType'
+Task exception was never retrieved
+future: <Task finished name='Task-3' coro=<run.<locals>.reader() done, defined at /Users/faazkhn/Documents/Med/tools/latency/ws_bench.py:46> exception=ConnectionClosedError(Close(code=1011, reason=''), Close(code=<CloseCode.INTERNAL_ERROR: 1011>, reason=''), False)>
+Traceback (most recent call last):
+  File "/Users/faazkhn/Documents/Med/tools/latency/ws_bench.py", line 47, in reader
+    async for m in ws:
+  File "/Users/faazkhn/Documents/Med/server/patient-service/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 237, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/Users/faazkhn/Documents/Med/server/patient-service/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 317, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: sent 1011 (internal error); then received 1011 (internal error)

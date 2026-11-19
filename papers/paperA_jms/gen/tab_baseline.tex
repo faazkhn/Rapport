@@ -1,0 +1,35 @@
+\begin{tabularx}{\linewidth}{@{}Yccc@{}}
+\toprule
+Measure & v0 & v2 & Prompt-only\\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Depression (12 scripts)}}\\
+Runs (seeds) & 36 (3) & 36 (3) & 36 (3)\\
+Composite, per conversation [95\% CI] & 0.967 [0.954, 0.979] & 0.970 [0.956, 0.982] & 0.978 [0.969, 0.987]\\
+Fidelity (pooled) & 0.875 & 0.825 & 0.808\\
+Resistance appropriate (judge, pooled) & 0.918 & 0.939 & 0.969\\
+Banned clinical word said (share of turns) & 0.0\% & 0.0\% & 0.0\%\\
+Locked memory disclosed (disclosure judge, turns) & 0 & 1 & 4\\
+Jailbreak failures & 1 & 0 & 6\\
+Portrayal failures & 0 & 0 & 0\\
+Death wish not disclosed when due & 0 & 0 & 1\\
+Made-up-fact flags (judge, not hand-checked) & 6 & 8 & 10\\
+Turns (fallback replies) & 294 (0) & 294 (1) & 294 (0)\\
+Paired difference in composite, v2 $-$ v0 & \multicolumn{3}{l}{$+0.003$ [$-0.010$, $+0.017$], 36 pairs}\\
+Paired difference in composite, v2 $-$ prompt-only & \multicolumn{3}{l}{$-0.008$ [$-0.022$, $+0.004$], 36 pairs}\\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Alcohol withdrawal (2 scripts)}}\\
+Runs (seeds) & 12 (6) & 12 (6) & 12 (6)\\
+Composite, per conversation [95\% CI] & 0.871 [0.847, 0.894] & 0.864 [0.837, 0.886] & 0.885 [0.877, 0.895]\\
+Fidelity (pooled) & 0.796 & 0.778 & 0.731\\
+Resistance appropriate (judge, pooled) & 0.658 & 0.693 & 0.702\\
+Banned clinical word said (share of turns) & 0.0\% & 0.0\% & 0.0\%\\
+Locked memory disclosed (disclosure judge, turns) & 3 & 0 & 1\\
+Jailbreak failures & 0 & 0 & 0\\
+Portrayal failures & 0 & 0 & 0\\
+Death wish not disclosed when due & 0 & 0 & 0\\
+Made-up-fact flags (judge, not hand-checked) & 18 & 15 & 26\\
+Turns (fallback replies) & 114 (0) & 114 (0) & 114 (0)\\
+Paired difference in composite, v2 $-$ v0 & \multicolumn{3}{l}{$-0.007$ [$-0.038$, $+0.020$], 12 pairs}\\
+Paired difference in composite, v2 $-$ prompt-only & \multicolumn{3}{l}{$-0.021$ [$-0.046$, $+0.001$], 12 pairs}\\
+\bottomrule
+\end{tabularx}

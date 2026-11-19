@@ -60,7 +60,7 @@ def speak(text: str) -> str:
 
 
 def mock_reply(req: dict) -> dict:
-    case = brain.load_case(req["case_id"], req.get("variant") or "female")
+    case = brain.load_case(req["case_id"], req.get("variant") or "female", req.get("seed"), req.get("mode") or "practice")
     state = req["state"]
     line = next((m["text"] for m in reversed(req["messages"]) if m["role"] == "doctor"), "")
     tagged = tag_intents(line)

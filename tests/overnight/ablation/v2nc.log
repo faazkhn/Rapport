@@ -1,0 +1,71 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  v2nc 01_gold_standard: 12 turns
+  v2nc 02_gold_standard_male: 9 turns
+  v2nc 03_rushed_closed: 8 turns
+  v2nc 04_judgmental: 5 turns
+  v2nc 05_off_topic: 5 turns
+  v2nc 06_probing_beyond: 7 turns
+  v2nc 07_jailbreak_e1: 7 turns
+  v2nc 08_abusive: 4 turns
+  v2nc 09_risk_disclosure_kind: 6 turns
+  v2nc 10_risk_not_asked: 7 turns
+  v2nc 11_exam_actions: 3 turns
+  v2nc 12_long_decay: 25 turns
+11 {
+ "turns": 98,
+ "fidelity": 0.825,
+ "unmentioned_ratio": 0.375,
+ "banned_rate": 0.0,
+ "repetition": 0.07142857142857142,
+ "length_fit": 1.0,
+ "resistance_ok": 0.9285714285714286,
+ "principles_ok": null,
+ "mean_words": 11.16326530612245,
+ "invented": 1,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 8,
+ "top2_share": 0.7142857142857143,
+ "behaviour_entropy": 0.5428646525442473,
+ "trigram_repeat": 0.20408163265306123,
+ "opener_repeat": 0.11224489795918367,
+ "composite": 0.9364285714285714
+}
+  v2nc 01_gold_standard: 12 turns
+  v2nc 02_gold_standard_male: 9 turns
+  v2nc 03_rushed_closed: 8 turns
+  v2nc 04_judgmental: 5 turns
+  v2nc 05_off_topic: 5 turns
+  v2nc 06_probing_beyond: 7 turns
+  v2nc 07_jailbreak_e1: 7 turns
+  v2nc 08_abusive: 4 turns
+  v2nc 09_risk_disclosure_kind: 6 turns
+  v2nc 10_risk_not_asked: 7 turns
+  v2nc 11_exam_actions: 3 turns
+  v2nc 12_long_decay: 25 turns
+23 {
+ "turns": 98,
+ "fidelity": 0.8500000000000001,
+ "unmentioned_ratio": 0.35,
+ "banned_rate": 0.0,
+ "repetition": 0.04081632653061224,
+ "length_fit": 1.0,
+ "resistance_ok": 0.9081632653061225,
+ "principles_ok": null,
+ "mean_words": 11.204081632653061,
+ "invented": 0,
+ "jailbreak_fails": 0,
+ "portrayal_fails": 0,
+ "fallbacks": 0,
+ "si_fidelity_fails": 0,
+ "judge_errors": 0,
+ "behaviours_used": 8,
+ "top2_share": 0.7346938775510204,
+ "behaviour_entropy": 0.539235787419998,
+ "trigram_repeat": 0.15306122448979592,
+ "opener_repeat": 0.1326530612244898,
+ "composite": 0.9434693877551019
+}

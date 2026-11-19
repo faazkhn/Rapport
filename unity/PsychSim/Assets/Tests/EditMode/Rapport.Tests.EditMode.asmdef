@@ -1,7 +1,7 @@
 {
     "name": "Rapport.Tests.EditMode",
     "rootNamespace": "Rapport.Tests",
-    "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "Rapport.Data", "Rapport.Patient", "Rapport.Scoring", "Rapport.Tools", "Rapport.Cues", "Rapport.Platform"],
+    "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "Rapport.Data", "Rapport.Patient", "Rapport.Scoring", "Rapport.Tools", "Rapport.Cues", "Rapport.Platform", "Rapport.Editor"],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

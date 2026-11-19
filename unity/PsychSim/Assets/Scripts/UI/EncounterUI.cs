@@ -38,6 +38,11 @@ namespace Rapport.UI
             root.Clear();
             root.style.flexGrow = 1;
             root.pickingMode = PickingMode.Ignore;
+            // Space is push-to-talk: it must not also click the focused button or tick the focused checkbox (Enter still does)
+            root.RegisterCallback<NavigationSubmitEvent>(e =>
+            {
+                if (encounter.Voice is { HandsFree: false } && Keyboard.current?.spaceKey.isPressed == true) e.StopImmediatePropagation();
+            }, TrickleDown.TrickleDown);
             BuildPanel();
             BuildSubtitles();
             encounter.PhaseChanged += OnPhase;
@@ -162,7 +167,7 @@ namespace Rapport.UI
             voiceDot.style.marginRight = 8;
             bar.Add(voiceDot);
             voiceLabel = Text("Voice off", 17, Color.white, true);
-            voiceLabel.style.width = 150;
+            voiceLabel.style.width = 185;
             bar.Add(voiceLabel);
             var meter = Box(new Color(0, 0, 0, 0.5f));
             meter.style.width = 120; meter.style.height = 10; meter.style.marginRight = 10;
@@ -171,7 +176,8 @@ namespace Rapport.UI
             meter.Add(micFill);
             bar.Add(Text("Mic", 13, new Color(0.7f, 0.75f, 0.8f)));
             bar.Add(meter);
-            modeButton = Button("Hands-free", ToggleMode, 13);
+            modeButton = Button("Use hands-free", ToggleMode, 13);
+            modeButton.tooltip = "Push-to-talk: hold Space while you speak. Hands-free: the mic is always open (use a headset).";
             bar.Add(modeButton);
             bar.Add(Spacer());
             latency = Text("", 13, new Color(0.7f, 0.75f, 0.8f));
@@ -185,6 +191,7 @@ namespace Rapport.UI
             var v = encounter.Voice;
             if (v == null) return;
             v.SetHandsFree(!v.HandsFree);
+            PlayerPrefs.SetInt(VoiceSession.HandsFreePref, v.HandsFree ? 1 : 0);
         }
 
         bool pttDown;
@@ -205,7 +212,7 @@ namespace Rapport.UI
             voiceLabel.text = label;
             voiceDot.style.backgroundColor = c;
             micFill.style.width = 120 * (v?.MicLevel ?? 0);
-            if (modeButton != null && v != null) modeButton.text = v.HandsFree ? "Hands-free (switch to PTT)" : "Push-to-talk (switch to hands-free)";
+            if (modeButton != null && v != null) modeButton.text = v.HandsFree ? "Use push-to-talk" : "Use hands-free";
             if (encounter.LastLatencyMs >= 0) latency.text = $"Last reply {encounter.LastLatencyMs / 1000f:0.0} s";
 
             // push-to-talk on Space, unless the learner is typing in the chat box
@@ -231,7 +238,8 @@ namespace Rapport.UI
 
         // ---------------------------------------------------------------- start screen and prebrief (plan C6)
 
-        string startCase, startVariant = "female";
+        const string Surprise = "random";   // start-screen choice for a seeded patient
+        string startCase, startVariant = "female", startLook;
         Mode startMode = Mode.Practice;
 
         void ShowStart()
@@ -243,7 +251,7 @@ namespace Rapport.UI
             card.Add(Heading("1. Case"));
             var cases = encounter.Data.cases.Values.ToList();
             var caseRow = Row();
-            foreach (var c in cases) { var id = c.id; caseRow.Add(Choice(c.title, startCase == id, () => { startCase = id; ShowStart(); })); }
+            foreach (var c in cases) { var id = c.id; caseRow.Add(Choice(c.title, startCase == id, () => { startCase = id; startLook = null; ShowStart(); })); }
             card.Add(caseRow);
             card.Add(Heading("2. Patient"));
             var vRow = Row();
@@ -252,15 +260,35 @@ namespace Rapport.UI
                 var key = kv.Key;
                 vRow.Add(Choice($"{char.ToUpper(key[0]) + key.Substring(1)} · {kv.Value.name}", startVariant == key, () => SelectVariant(key)));
             }
+            if (encounter.Data.cases[startCase].slots.Count > 0 || encounter.Data.cases[startCase].styles_allowed.Count > 1)
+                vRow.Add(Choice("Surprise me", startVariant == Surprise, () => SelectVariant(Surprise)));
             card.Add(vRow);
-            card.Add(Para("Same clinical story for both; only the name, pronouns, body and voice change."));
+            if (startVariant != Surprise && encounter.Data.cases[startCase].variants.TryGetValue(startVariant, out var sv) && encounter.Looks(sv.sex) is { Count: > 1 } looks)
+            {
+                var lRow = Row();
+                lRow.Add(Text("Look", 16, new Color(0.8f, 0.85f, 0.9f)));
+                for (int i = 0; i < looks.Count; i++)
+                {
+                    var look = looks[i];
+                    lRow.Add(Choice($"{i + 1}" + (look == sv.model_id ? " (case)" : ""), (startLook ?? sv.model_id) == look, () => { startLook = look; ShowStart(); }));
+                }
+                card.Add(lRow);
+            }
+            card.Add(Para(startVariant == Surprise
+                ? "A random patient: the same clinical story, but family details and the way they talk change each time. The debrief says who you met."
+                : "Same clinical story for both; only the name, pronouns, body and voice change."));
             card.Add(Heading("3. Mode"));
             var mRow = Row();
             mRow.Add(Choice("Practice", startMode == Mode.Practice, () => { startMode = Mode.Practice; ShowStart(); }));
             mRow.Add(Choice("Assessment", startMode == Mode.Assessment, () => { startMode = Mode.Assessment; ShowStart(); }));
             card.Add(mRow);
             card.Add(Para(startMode == Mode.Practice ? "Practice: the 15-minute clock is a guide; you can run over." : "Assessment: a strict 15-minute station; it ends and scores itself at 15:00."));
-            var go = Button("Continue", () => encounter.Configure(startCase, startVariant, startMode), 20);
+            var go = Button("Continue", () =>
+            {
+                if (startVariant != Surprise) { encounter.Configure(startCase, startVariant, startMode, startLook); return; }
+                var keys = encounter.Data.cases[startCase].variants.Keys.ToList();
+                _ = encounter.ConfigureSeeded(startCase, keys[UnityEngine.Random.Range(0, keys.Count)], startMode, UnityEngine.Random.Range(0, int.MaxValue));
+            }, 20);
             go.style.marginTop = 16;
             card.Add(go);
         }
@@ -269,6 +297,7 @@ namespace Rapport.UI
         public void SelectVariant(string variant)
         {
             startVariant = variant;
+            startLook = null;
             if (encounter.Phase == Phase.Start) ShowStart();
         }
 
@@ -293,8 +322,8 @@ namespace Rapport.UI
             card.Add(Para("• Build rapport and take a focused psychiatric history.\n• Observe the patient: posture, gaze, speech, affect. Record what you see in the MSE tab.\n"
                           + "• Assess risk directly and kindly.\n• Make a working diagnosis and a safe management plan."));
             card.Add(Heading("How it works"));
-            card.Add(Para($"Talk to the patient out loud. The patient answers in their own voice. {c.time_limit_min ?? 15:0} minutes. Hands-free listening is on; "
-                          + "you can switch to push-to-talk (hold Space) or type. Use headphones so the patient does not hear their own voice."));
+            card.Add(Para($"Talk to the patient out loud. The patient answers in their own voice. {c.time_limit_min ?? 15:0} minutes. Hold Space while you speak "
+                          + "(push-to-talk), or type. With a headset you can switch to hands-free; with speakers, stay on push-to-talk."));
             card.Add(Para("Scoring is formative and risk-first: risk assessment counts most, and missing a risk question means 'Not passed'. "
                           + "The debrief quotes your own words and shows your conclusions next to the case."));
             if (!string.IsNullOrEmpty(c.content_note))
@@ -321,7 +350,14 @@ namespace Rapport.UI
             sv.Add(Banner("Draft content, not faculty-validated. For education only."));
             sv.Add(Text(s.verdict, 34, s.critical_errors.Count > 0 ? Bad : Good, true));
             foreach (var e in s.critical_errors) sv.Add(Para("Critical error: " + e, Bad));
-            sv.Add(Text($"Score {s.total:0.#} / 100 (formative)", 26, Color.white, true));
+            sv.Add(Text($"Score {s.total:0.#} / 100 (formative) · Global rating: {s.global_rating}", 26, Color.white, true));
+            if (s.next_steps.Count > 0)
+            {
+                sv.Add(Heading("Next time, focus on"));
+                for (int k = 0; k < s.next_steps.Count; k++) sv.Add(Para($"{k + 1}. {s.next_steps[k]}", Color.white));
+            }
+            if (encounter.Case.seed is int seed)
+                sv.Add(Para($"You met {encounter.Case.patient.name}, conversation style: {encounter.StyleLabel ?? encounter.Case.style} (patient seed {seed}; same seed, same patient)."));
             sv.Add(Heading("Your conclusions vs the case"));
             var grid = new VisualElement();
             var hdr = Row();
@@ -355,12 +391,11 @@ namespace Rapport.UI
                 sv.Add(r);
                 foreach (var n in d.notes) sv.Add(Para("   " + n));
             }
-            sv.Add(Heading("Cues present vs recorded"));
-            foreach (var cue in s.cues_present)
-            {
-                var name = encounter.Data.cues.cues.FirstOrDefault(x => x.id == cue)?.name ?? cue;
-                sv.Add(Para($"{(s.cues_recorded.Contains(cue) ? "Recorded" : "Missed  ")}   {name}", s.cues_recorded.Contains(cue) ? Good : Warn));
-            }
+            sv.Add(Heading("What the patient showed vs what you recorded"));
+            string Cue(string id) => encounter.Data.cues.cues.FirstOrDefault(x => x.id == id)?.name ?? id;
+            foreach (var cue in s.cues_present) sv.Add(Para($"{(s.cues_recorded.Contains(cue) ? "✓ Seen and recorded" : "✗ Shown, not recorded")}   {Cue(cue)}", s.cues_recorded.Contains(cue) ? Good : Warn));
+            foreach (var cue in s.cues_false) sv.Add(Para($"✗ Recorded, not present   {Cue(cue)}", Bad));
+            foreach (var cue in s.cues_not_shown) sv.Add(Para($"·  Not shown this session (no mark lost)   {Cue(cue)}"));
             if (s.missed_intents.Count > 0) { sv.Add(Heading("Questions not asked")); sv.Add(Para(string.Join(", ", s.missed_intents))); }
             sv.Add(Heading("Prescription checks"));
             foreach (var l in s.rx.lines)
@@ -369,6 +404,27 @@ namespace Rapport.UI
             if (s.rx.lines.Count == 0) sv.Add(Para("No prescription written."));
             sv.Add(Heading("Teaching points"));
             foreach (var t in s.teaching_points) sv.Add(Para("• " + t));
+            AddExaminerNotes(sv);
+        }
+
+        async void AddExaminerNotes(ScrollView sv)
+        {
+            sv.Add(Heading("Examiner notes (AI, formative)"));
+            var wait = Para("Reading your interview...");
+            sv.Add(wait);
+            var notes = await encounter.ExaminerNotes();
+            wait.RemoveFromHierarchy();
+            if (notes == null) { sv.Add(Para("Not available (the patient service did not answer).")); return; }
+            sv.Add(Para("From the local language model, on your spoken skills only. It does not change your score; treat it as a second opinion.",
+                        new Color(0.7f, 0.75f, 0.8f)));
+            foreach (var (key, mark, colour) in new[] { ("strengths", "✓ ", Good), ("improvements", "△ ", Warn) })
+                foreach (var n in notes[key] ?? new Newtonsoft.Json.Linq.JArray())
+                {
+                    var q = (string)n["quote"] ?? "";
+                    // the model praises lines the rules flag (jargon, stacked questions): it is weakest exactly there (Geathers 2025)
+                    if (key == "strengths" && (ScoringEngine.JargonIn(q) != null || q.Count(ch => ch == '?') >= 2)) continue;
+                    sv.Add(Para($"{mark}\"{q}\": {n["comment"]}", colour));
+                }
         }
 
         // ---------------------------------------------------------------- tabs (also a demo hook: open any tab from code)
@@ -419,7 +475,7 @@ namespace Rapport.UI
                 foreach (var cue in encounter.Mse.CuesIn(section))
                 {
                     var t = new Toggle(cue.name) { value = encounter.Mse.Ticked.Contains(cue.id) };
-                    t.style.fontSize = 15; t.style.color = Color.white;
+                    t.style.fontSize = 15; t.labelElement.style.color = Color.white;
                     var id = cue.id;
                     t.RegisterValueChangedCallback(e => Ui(() => encounter.Mse.SetTick(id, e.newValue)));
                     sv.Add(t);
@@ -500,7 +556,7 @@ namespace Rapport.UI
             foreach (var d in encounter.Disposition.List.dispositions)
             {
                 var t = new Toggle(d.name) { value = encounter.Disposition.Selected.Contains(d.id) };
-                t.style.fontSize = 16; t.style.color = Color.white;
+                t.style.fontSize = 16; t.labelElement.style.color = Color.white;
                 var id = d.id;
                 t.RegisterValueChangedCallback(e => Ui(() => encounter.Disposition.Set(id, e.newValue)));
                 sv.Add(t);

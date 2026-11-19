@@ -1,0 +1,903 @@
+{
+ "2404.13066": {
+  "title": "Leveraging Large Language Model as Simulated Patients for Clinical Education",
+  "authors": [
+   "Yanzeng Li",
+   "Cheng Zeng",
+   "Jialun Zhong",
+   "Ruoyu Zhang",
+   "Minhao Zhang",
+   "Lei Zou"
+  ],
+  "year": "2024"
+ },
+ "2408.12236": {
+  "title": "MedDiT: A Knowledge-Controlled Diffusion Transformer Framework for Dynamic Medical Image Generation in Virtual Simulated Patient",
+  "authors": [
+   "Yanzeng Li",
+   "Cheng Zeng",
+   "Jinchao Zhang",
+   "Jie Zhou",
+   "Lei Zou"
+  ],
+  "year": "2024"
+ },
+ "2311.05112": {
+  "title": "A Survey of Large Language Models in Medicine: Progress, Application, and Challenge",
+  "authors": [
+   "Hongjian Zhou",
+   "Fenglin Liu",
+   "Boyang Gu",
+   "Xinyu Zou",
+   "Jinfa Huang",
+   "Jinge Wu",
+   "Yiru Li",
+   "Sam S. Chen",
+   "Peilin Zhou",
+   "Junling Liu",
+   "Yining Hua",
+   "Chengfeng Mao",
+   "Chenyu You",
+   "Xian Wu",
+   "Yefeng Zheng",
+   "Lei Clifton",
+   "Zheng Li",
+   "Jiebo Luo",
+   "David A. Clifton"
+  ],
+  "year": "2023"
+ },
+ "2509.11078": {
+  "title": "Patient-Zero: Scaling Synthetic Patient Agents to Real-World Distributions without Real Patient Data",
+  "authors": [
+   "Yunghwei Lai",
+   "Ziyue Wang",
+   "Weizhi Ma",
+   "Yang Liu"
+  ],
+  "year": "2025"
+ },
+ "2409.18924": {
+  "title": "Simulated patient systems powered by large language model-based AI agents offer potential for transforming medical education",
+  "authors": [
+   "Huizi Yu",
+   "Jiayan Zhou",
+   "Lingyao Li",
+   "Shan Chen",
+   "Jack Gallifant",
+   "Anye Shi",
+   "Xiang Li",
+   "Jingxian He",
+   "Wenyue Hua",
+   "Mingyu Jin",
+   "Guang Chen",
+   "Yang Zhou",
+   "Zhao Li",
+   "Trisha Gupte",
+   "Ming-Li Chen",
+   "Zahra Azizi",
+   "Qi Dou",
+   "Bryan P. Yan",
+   "Yongfeng Zhang",
+   "Yanqiu Xing",
+   "Themistocles L. Danielle S. Bitterman",
+   "Themistocles L. Assimes",
+   "Xin Ma",
+   "Lin Lu",
+   "Lizhou Fan"
+  ],
+  "year": "2024"
+ },
+ "2404.19713": {
+  "title": "Automated Generation of High-Quality Medical Simulation Scenarios Through Integration of Semi-Structured Data and Large Language Models",
+  "authors": [
+   "Scott Sumpter"
+  ],
+  "year": "2024"
+ },
+ "2503.00018": {
+  "title": "Eeyore: Realistic Depression Simulation via Supervised and Preference Optimization",
+  "authors": [
+   "Siyang Liu",
+   "Bianca Brie",
+   "Wenda Li",
+   "Laura Biester",
+   "Andrew Lee",
+   "James Pennebaker",
+   "Rada Mihalcea"
+  ],
+  "year": "2025"
+ },
+ "2502.02802": {
+  "title": "Consistent Client Simulation for Motivational Interviewing-based Counseling",
+  "authors": [
+   "Yizhe Yang",
+   "Palakorn Achananuparp",
+   "Heyan Huang",
+   "Jing Jiang",
+   "John Pinto",
+   "Jenny Giam",
+   "Kit Phey Leng",
+   "Nicholas Gabriel Lim",
+   "Cameron Tan Shi Ern",
+   "Ee-peng Lim"
+  ],
+  "year": "2025"
+ },
+ "2312.14890": {
+  "title": "NPHardEval: Dynamic Benchmark on Reasoning Ability of Large Language Models via Complexity Classes",
+  "authors": [
+   "Lizhou Fan",
+   "Wenyue Hua",
+   "Lingyao Li",
+   "Haoyang Ling",
+   "Yongfeng Zhang"
+  ],
+  "year": "2023"
+ },
+ "2305.13614": {
+  "title": "LLM-empowered Chatbots for Psychiatrist and Patient Simulation: Application and Evaluation",
+  "authors": [
+   "Siyuan Chen",
+   "Mengyue Wu",
+   "Kenny Q. Zhu",
+   "Kunyao Lan",
+   "Zhiling Zhang",
+   "Lyuchun Cui"
+  ],
+  "year": "2023"
+ },
+ "2501.01594": {
+  "title": "PSYCHE: A Multi-faceted Patient Simulation Framework for Evaluation of Psychiatric Assessment Conversational Agents",
+  "authors": [
+   "Jingoo Lee",
+   "Kyungho Lim",
+   "Young-Chul Jung",
+   "Byung-Hoon Kim"
+  ],
+  "year": "2025"
+ },
+ "2409.06820": {
+  "title": "PingPong: A Benchmark for Role-Playing Language Models with User Emulation and Multi-Model Evaluation",
+  "authors": [
+   "Ilya Gusev"
+  ],
+  "year": "2024"
+ },
+ "2501.13957": {
+  "title": "Benchmarking Generative AI for Scoring Medical Student Interviews in Objective Structured Clinical Examinations (OSCEs)",
+  "authors": [
+   "Jadon Geathers",
+   "Yann Hicke",
+   "Colleen Chan",
+   "Niroop Rajashekar",
+   "Justin Sewell",
+   "Susannah Cornes",
+   "Rene F. Kizilcec",
+   "Dennis Shung"
+  ],
+  "year": "2025"
+ },
+ "2403.01777": {
+  "title": "NPHardEval4V: Dynamic Evaluation of Large Vision-Language Models with Effects of Vision",
+  "authors": [
+   "Xiang Li",
+   "Wenyue Hua",
+   "Kaijie Zhu",
+   "Lingyao Li",
+   "Haoyang Ling",
+   "Jinkui Chi",
+   "Qi Dou",
+   "Jindong Wang",
+   "Yongfeng Zhang",
+   "Xin Ma",
+   "Lizhou Fan"
+  ],
+  "year": "2024"
+ },
+ "2401.05654": {
+  "title": "Towards Conversational Diagnostic AI",
+  "authors": [
+   "Tao Tu",
+   "Anil Palepu",
+   "Mike Schaekermann",
+   "Khaled Saab",
+   "Jan Freyberg",
+   "Ryutaro Tanno",
+   "Amy Wang",
+   "Brenna Li",
+   "Mohamed Amin",
+   "Nenad Tomasev",
+   "Shekoofeh Azizi",
+   "Karan Singhal",
+   "Yong Cheng",
+   "Le Hou",
+   "Albert Webson",
+   "Kavita Kulkarni",
+   "S Sara Mahdavi",
+   "Christopher Semturs",
+   "Juraj Gottweis",
+   "Joelle Barral",
+   "Katherine Chou",
+   "Greg S Corrado",
+   "Yossi Matias",
+   "Alan Karthikesalingam",
+   "Vivek Natarajan"
+  ],
+  "year": "2024"
+ },
+ "2503.22678": {
+  "title": "Self-Evolving Multi-Agent Simulations for Realistic Clinical Interactions",
+  "authors": [
+   "Mohammad Almansoori",
+   "Komal Kumar",
+   "Hisham Cholakkal"
+  ],
+  "year": "2025"
+ },
+ "2412.11716": {
+  "title": "LLMs Can Simulate Standardized Patients via Agent Coevolution",
+  "authors": [
+   "Zhuoyun Du",
+   "Lujie Zheng",
+   "Renjun Hu",
+   "Yuyang Xu",
+   "Xiawei Li",
+   "Ying Sun",
+   "Wei Chen",
+   "Jian Wu",
+   "Haolei Cai",
+   "Haohao Ying"
+  ],
+  "year": "2024"
+ },
+ "2405.02957": {
+  "title": "Agent Hospital: A Simulacrum of Hospital with Evolvable Medical Agents",
+  "authors": [
+   "Junkai Li",
+   "Yunghwei Lai",
+   "Weitao Li",
+   "Jingyi Ren",
+   "Meng Zhang",
+   "Xinhui Kang",
+   "Siyu Wang",
+   "Peng Li",
+   "Ya-Qin Zhang",
+   "Weizhi Ma",
+   "Yang Liu"
+  ],
+  "year": "2024"
+ },
+ "2406.12266": {
+  "title": "Towards a Client-Centered Assessment of LLM Therapists by Client Simulation",
+  "authors": [
+   "Jiashuo Wang",
+   "Yang Xiao",
+   "Yanran Li",
+   "Changhe Song",
+   "Chunpu Xu",
+   "Chenhao Tan",
+   "Wenjie Li"
+  ],
+  "year": "2024"
+ },
+ "2402.09742": {
+  "title": "AI Hospital: Benchmarking Large Language Models in a Multi-agent Medical Interaction Simulator",
+  "authors": [
+   "Zhihao Fan",
+   "Jialong Tang",
+   "Wei Chen",
+   "Siyuan Wang",
+   "Zhongyu Wei",
+   "Jun Xi",
+   "Fei Huang",
+   "Jingren Zhou"
+  ],
+  "year": "2024"
+ },
+ "2310.03714": {
+  "title": "DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines",
+  "authors": [
+   "Omar Khattab",
+   "Arnav Singhvi",
+   "Paridhi Maheshwari",
+   "Zhiyuan Zhang",
+   "Keshav Santhanam",
+   "Sri Vardhamanan",
+   "Saiful Haq",
+   "Ashutosh Sharma",
+   "Thomas T. Joshi",
+   "Hanna Moazam",
+   "Heather Miller",
+   "Matei Zaharia",
+   "Christopher Potts"
+  ],
+  "year": "2023"
+ },
+ "2405.07960": {
+  "title": "AgentClinic: a multimodal agent benchmark to evaluate AI in simulated clinical environments",
+  "authors": [
+   "Samuel Schmidgall",
+   "Rojin Ziaei",
+   "Carl Harris",
+   "Eduardo Reis",
+   "Jeffrey Jopling",
+   "Michael Moor"
+  ],
+  "year": "2024"
+ },
+ "2503.22250": {
+  "title": "Modeling Challenging Patient Interactions: LLMs for Medical Communication Training",
+  "authors": [
+   "Anna Bodonhelyi",
+   "Christian Stegemann-Philipps",
+   "Alessandra Sonanini",
+   "Lea Herschbach",
+   "Marton Szep",
+   "Anne Herrmann-Werner",
+   "Teresa Festl-Wietek",
+   "Enkelejda Kasneci",
+   "Friederike Holderried"
+  ],
+  "year": "2025"
+ },
+ "2508.04248": {
+  "title": "TalkDep: Clinically Grounded LLM Personas for Conversation-Centric Depression Screening",
+  "authors": [
+   "Xi Wang",
+   "Anxo Perez",
+   "Javier Parapar",
+   "Fabio Crestani"
+  ],
+  "year": "2025"
+ },
+ "2502.18673": {
+  "title": "Scaffolding Empathy: Training Counselors with Simulated Patients and Utterance-level Performance Visualizations",
+  "authors": [
+   "Ian Steenstra",
+   "Farnaz Nouraei",
+   "Timothy W. Bickmore"
+  ],
+  "year": "2025"
+ },
+ "2505.02694": {
+  "title": "AI Standardized Patient Improves Human Conversations in Advanced Cancer Care",
+  "authors": [
+   "Kurtis Haut",
+   "Masum Hasan",
+   "Thomas Carroll",
+   "Ronald Epstein",
+   "Taylan Sen",
+   "Ehsan Hoque"
+  ],
+  "year": "2025"
+ },
+ "2507.19457": {
+  "title": "GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning",
+  "authors": [
+   "Lakshya A Agrawal",
+   "Shangyin Tan",
+   "Dilara Soylu",
+   "Noah Ziems",
+   "Rishi Khare",
+   "Krista Opsahl-Ong",
+   "Arnav Singhvi",
+   "Herumb Shandilya",
+   "Michael J Ryan",
+   "Meng Jiang",
+   "Christopher Potts",
+   "Koushik Sen",
+   "Alexandros G. Dimakis",
+   "Ion Stoica",
+   "Dan Klein",
+   "Matei Zaharia",
+   "Omar Khattab"
+  ],
+  "year": "2025"
+ },
+ "2312.03664": {
+  "title": "Generative agent-based modeling with actions grounded in physical, social, or digital space using Concordia",
+  "authors": [
+   "Alexander Sasha Vezhnevets",
+   "John P. Agapiou",
+   "Avia Aharon",
+   "Ron Ziv",
+   "Jayd Matyas",
+   "Edgar A. Du\u00e9\u00f1ez-Guzm\u00e1n",
+   "William A. Cunningham",
+   "Simon Osindero",
+   "Danny Karmon",
+   "Joel Z. Leibo"
+  ],
+  "year": "2023"
+ },
+ "2304.03442": {
+  "title": "Generative Agents: Interactive Simulacra of Human Behavior",
+  "authors": [
+   "Joon Sung Park",
+   "Joseph C. O'Brien",
+   "Carrie J. Cai",
+   "Meredith Ringel Morris",
+   "Percy Liang",
+   "Michael S. Bernstein"
+  ],
+  "year": "2023"
+ },
+ "2405.19660": {
+  "title": "PATIENT-\u03a8: Using Large Language Models to Simulate Patients for Training Mental Health Professionals",
+  "authors": [
+   "Ruiyi Wang",
+   "Stephanie Milani",
+   "Jamie C. Chiu",
+   "Jiayin Zhi",
+   "Shaun M. Eack",
+   "Travis Labrum",
+   "Samuel M. Murphy",
+   "Nev Jones",
+   "Kate Hardy",
+   "Hong Shen",
+   "Fei Fang",
+   "Zhiyu Zoey Chen"
+  ],
+  "year": "2024"
+ },
+ "2306.05685": {
+  "title": "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena",
+  "authors": [
+   "Lianmin Zheng",
+   "Wei-Lin Chiang",
+   "Ying Sheng",
+   "Siyuan Zhuang",
+   "Zhanghao Wu",
+   "Yonghao Zhuang",
+   "Zi Lin",
+   "Zhuohan Li",
+   "Dacheng Li",
+   "Eric P. Xing",
+   "Hao Zhang",
+   "Joseph E. Gonzalez",
+   "Ion Stoica"
+  ],
+  "year": "2023"
+ },
+ "2403.08495": {
+  "title": "Automatic Interactive Evaluation for Large Language Models with State Aware Patient Simulator",
+  "authors": [
+   "Yusheng Liao",
+   "Yutong Meng",
+   "Yuhao Wang",
+   "Hongcheng Liu",
+   "Yanfeng Wang",
+   "Yu Wang"
+  ],
+  "year": "2024"
+ },
+ "2502.18210": {
+  "title": "From ChatGPT to DeepSeek: Can LLMs Simulate Humanity?",
+  "authors": [
+   "Qian Wang",
+   "Zhenheng Tang",
+   "Bingsheng He"
+  ],
+  "year": "2025"
+ },
+ "2508.10014": {
+  "title": "PersonaEval: Are LLM Evaluators Human Enough to Judge Role-Play?",
+  "authors": [
+   "Lingfeng Zhou",
+   "Jialing Zhang",
+   "Jin Gao",
+   "Mohan Jiang",
+   "Dequan Wang"
+  ],
+  "year": "2025"
+ },
+ "2608.12750": {
+  "title": "PatientAct: Theory-Grounded Mental Health Client Simulation",
+  "authors": [
+   "Sahand Sabour",
+   "TszYam NG",
+   "Yaqian Chen",
+   "Guanqun Bi",
+   "Jialu Zhao",
+   "Minlie Huang"
+  ],
+  "year": "2026"
+ },
+ "2602.11684": {
+  "title": "PatientHub: A Unified Framework for Patient Simulation",
+  "authors": [
+   "Sahand Sabour",
+   "TszYam NG",
+   "Minlie Huang"
+  ],
+  "year": "2026"
+ },
+ "2508.13943": {
+  "title": "LLM-Powered Virtual Patient Agents for Interactive Clinical Skills Training with Automated Feedback",
+  "authors": [
+   "Henrik Voigt",
+   "Yurina Sugamiya",
+   "Kai Lawonn",
+   "Sina Zarrie\u00df",
+   "Atsuo Takanishi"
+  ],
+  "year": "2025"
+ },
+ "2503.05793": {
+  "title": "MedSimAI: Simulation and Formative Feedback Generation to Enhance Deliberate Practice in Medical Education",
+  "authors": [
+   "Yann Hicke",
+   "Jadon Geathers",
+   "Kellen Vu",
+   "Justin Sewell",
+   "Claire Cardie",
+   "Jaideep Talwalkar",
+   "Dennis Shung",
+   "Anyanate Gwendolyne Jack",
+   "Susannah Cornes",
+   "Mackenzi Preston",
+   "Rene Kizilcec"
+  ],
+  "year": "2025"
+ },
+ "2603.22704": {
+  "title": "Synthetic or Authentic? Building Mental Patient Simulators from Longitudinal Evidence",
+  "authors": [
+   "Baihan Li",
+   "Bingrui Jin",
+   "Kunyao Lan",
+   "Ming Wang",
+   "Mengyue Wu"
+  ],
+  "year": "2026"
+ },
+ "2407.00870": {
+  "title": "Roleplay-doh: Enabling Domain-Experts to Create LLM-simulated Patients via Eliciting and Adhering to Principles",
+  "authors": [
+   "Ryan Louie",
+   "Ananjan Nandi",
+   "William Fang",
+   "Cheng Chang",
+   "Emma Brunskill",
+   "Diyi Yang"
+  ],
+  "year": "2024"
+ },
+ "2002.10957": {
+  "title": "MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers",
+  "authors": [
+   "Wenhui Wang",
+   "Furu Wei",
+   "Li Dong",
+   "Hangbo Bao",
+   "Nan Yang",
+   "Ming Zhou"
+  ],
+  "year": "2020"
+ },
+ "2309.07597": {
+  "title": "C-Pack: Packed Resources For General Chinese Embeddings",
+  "authors": [
+   "Shitao Xiao",
+   "Zheng Liu",
+   "Peitian Zhang",
+   "Niklas Muennighoff",
+   "Defu Lian",
+   "Jian-Yun Nie"
+  ],
+  "year": "2023"
+ },
+ "1908.10084": {
+  "title": "Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks",
+  "authors": [
+   "Nils Reimers",
+   "Iryna Gurevych"
+  ],
+  "year": "2019"
+ },
+ "2305.02547": {
+  "title": "PersonaLLM: Investigating the Ability of Large Language Models to Express Personality Traits",
+  "authors": [
+   "Hang Jiang",
+   "Xiajie Zhang",
+   "Xubo Cao",
+   "Cynthia Breazeal",
+   "Deb Roy",
+   "Jad Kabbara"
+  ],
+  "year": "2023"
+ },
+ "2310.17976": {
+  "title": "InCharacter: Evaluating Personality Fidelity in Role-Playing Agents through Psychological Interviews",
+  "authors": [
+   "Xintao Wang",
+   "Yunze Xiao",
+   "Jen-tse Huang",
+   "Siyu Yuan",
+   "Rui Xu",
+   "Haoran Guo",
+   "Quan Tu",
+   "Yaying Fei",
+   "Ziang Leng",
+   "Wei Wang",
+   "Jiangjie Chen",
+   "Cheng Li",
+   "Yanghua Xiao"
+  ],
+  "year": "2023"
+ },
+ "2410.16491": {
+  "title": "BIG5-CHAT: Shaping LLM Personalities Through Training on Human-Grounded Data",
+  "authors": [
+   "Wenkai Li",
+   "Jiarui Liu",
+   "Andy Liu",
+   "Xuhui Zhou",
+   "Mona Diab",
+   "Maarten Sap"
+  ],
+  "year": "2024"
+ },
+ "2608.13168": {
+  "title": "Who Is Your Ideal Companion? Evaluating Emotional Companion Capabilities of LLMs Based on Adult Attachment Theory",
+  "authors": [
+   "Junkai Zhou",
+   "Shiting Guan",
+   "Zhaoyi Zhang"
+  ],
+  "year": "2026"
+ },
+ "2402.02896": {
+  "title": "LLM Agents in Interaction: Measuring Personality Consistency and Linguistic Alignment in Interacting Populations of Large Language Models",
+  "authors": [
+   "Ivar Frisch",
+   "Mario Giulianelli"
+  ],
+  "year": "2024"
+ },
+ "2311.04892": {
+  "title": "Bias Runs Deep: Implicit Reasoning Biases in Persona-Assigned LLMs",
+  "authors": [
+   "Shashank Gupta",
+   "Vaishnavi Shrivastava",
+   "Ameet Deshpande",
+   "Ashwin Kalyan",
+   "Peter Clark",
+   "Ashish Sabharwal",
+   "Tushar Khot"
+  ],
+  "year": "2023"
+ },
+ "2310.01386": {
+  "title": "Who is ChatGPT? Benchmarking LLMs' Psychological Portrayal Using PsychoBench",
+  "authors": [
+   "Jen-tse Huang",
+   "Wenxuan Wang",
+   "Eric John Li",
+   "Man Ho Lam",
+   "Shujie Ren",
+   "Youliang Yuan",
+   "Wenxiang Jiao",
+   "Zhaopeng Tu",
+   "Michael R. Lyu"
+  ],
+  "year": "2023"
+ },
+ "2508.04826": {
+  "title": "Persistent Instability in LLM's Personality Measurements: Effects of Scale, Reasoning, and Conversation History",
+  "authors": [
+   "Tommaso Tosato",
+   "Saskia Helbling",
+   "Yorguin-Jose Mantilla-Ramos",
+   "Mahmood Hegazy",
+   "Alberto Tosato",
+   "David John Lemay",
+   "Irina Rish",
+   "Guillaume Dumas"
+  ],
+  "year": "2025"
+ },
+ "2511.00222": {
+  "title": "Consistently Simulating Human Personas with Multi-Turn Reinforcement Learning",
+  "authors": [
+   "Marwa Abdulhai",
+   "Ryan Cheng",
+   "Donovan Clay",
+   "Tim Althoff",
+   "Sergey Levine",
+   "Natasha Jaques"
+  ],
+  "year": "2025"
+ },
+ "2407.18416": {
+  "title": "PersonaGym: Evaluating Persona Agents and LLMs",
+  "authors": [
+   "Vinay Samuel",
+   "Henry Peng Zou",
+   "Yue Zhou",
+   "Shreyas Chaudhari",
+   "Ashwin Kalyan",
+   "Tanmay Rajpurohit",
+   "Ameet Deshpande",
+   "Karthik Narasimhan",
+   "Vishvak Murahari"
+  ],
+  "year": "2024"
+ },
+ "2307.00184": {
+  "title": "Personality Traits in Large Language Models",
+  "authors": [
+   "Greg Serapio-Garc\u00eda",
+   "Mustafa Safdari",
+   "Cl\u00e9ment Crepy",
+   "Luning Sun",
+   "Stephen Fitz",
+   "Peter Romero",
+   "Marwa Abdulhai",
+   "Aleksandra Faust",
+   "Maja Matari\u0107"
+  ],
+  "year": "2023"
+ },
+ "2406.14703": {
+  "title": "Do LLMs Have Distinct and Consistent Personality? TRAIT: Personality Testset designed for LLMs with Psychometrics",
+  "authors": [
+   "Seungbeen Lee",
+   "Seungwon Lim",
+   "Seungju Han",
+   "Giyeong Oh",
+   "Hyungjoo Chae",
+   "Jiwan Chung",
+   "Minju Kim",
+   "Beong-woo Kwak",
+   "Yeonsoo Lee",
+   "Dongha Lee",
+   "Jinyoung Yeo",
+   "Youngjae Yu"
+  ],
+  "year": "2024"
+ },
+ "2402.10811": {
+  "title": "Quantifying the Persona Effect in LLM Simulations",
+  "authors": [
+   "Tiancheng Hu",
+   "Nigel Collier"
+  ],
+  "year": "2024"
+ },
+ "2402.10962": {
+  "title": "Measuring and Controlling Instruction (In)Stability in Language Model Dialogs",
+  "authors": [
+   "Kenneth Li",
+   "Tianle Liu",
+   "Naomi Bashkansky",
+   "David Bau",
+   "Fernanda Vi\u00e9gas",
+   "Hanspeter Pfister",
+   "Martin Wattenberg"
+  ],
+  "year": "2024"
+ },
+ "2605.24907": {
+  "title": "Overview of the PsyDefDetect Shared Task at BioNLP 2026: Detecting Levels of Psychological Defense Mechanisms in Supportive Conversations",
+  "authors": [
+   "Hongbin Na",
+   "Zimu Wang",
+   "Zhaoming Chen",
+   "Yining Hua",
+   "Rena Gao",
+   "Kailai Yang",
+   "Ling Chen",
+   "Wei Wang",
+   "Shaoxiong Ji",
+   "John Torous",
+   "Sophia Ananiadou"
+  ],
+  "year": "2026"
+ },
+ "2309.08163": {
+  "title": "Self-Assessment Tests are Unreliable Measures of LLM Personality",
+  "authors": [
+   "Akshat Gupta",
+   "Xiaoyang Song",
+   "Gopala Anumanchipalli"
+  ],
+  "year": "2023"
+ },
+ "2403.14651": {
+  "title": "DOSA: A Dataset of Social Artifacts from Different Indian Geographical Subcultures",
+  "authors": [
+   "Agrima Seth",
+   "Sanchit Ahuja",
+   "Kalika Bali",
+   "Sunayana Sitaram"
+  ],
+  "year": "2024"
+ },
+ "2512.15601": {
+  "title": "You Never Know a Person, You Only Know Their Defenses: Detecting Levels of Psychological Defense Mechanisms in Supportive Conversations",
+  "authors": [
+   "Hongbin Na",
+   "Zimu Wang",
+   "Zhaoming Chen",
+   "Peilin Zhou",
+   "Yining Hua",
+   "Grace Ziqi Zhou",
+   "Haiyang Zhang",
+   "Tao Shen",
+   "Wei Wang",
+   "John Torous",
+   "Shaoxiong Ji",
+   "Ling Chen"
+  ],
+  "year": "2025"
+ },
+ "2212.03533": {
+  "title": "Text Embeddings by Weakly-Supervised Contrastive Pre-training",
+  "authors": [
+   "Liang Wang",
+   "Nan Yang",
+   "Xiaolong Huang",
+   "Binxing Jiao",
+   "Linjun Yang",
+   "Daxin Jiang",
+   "Rangan Majumder",
+   "Furu Wei"
+  ],
+  "year": "2022"
+ },
+ "2104.08663": {
+  "title": "BEIR: A Heterogenous Benchmark for Zero-shot Evaluation of Information Retrieval Models",
+  "authors": [
+   "Nandan Thakur",
+   "Nils Reimers",
+   "Andreas R\u00fcckl\u00e9",
+   "Abhishek Srivastava",
+   "Iryna Gurevych"
+  ],
+  "year": "2021"
+ },
+ "2004.04906": {
+  "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+  "authors": [
+   "Vladimir Karpukhin",
+   "Barlas O\u011fuz",
+   "Sewon Min",
+   "Patrick Lewis",
+   "Ledell Wu",
+   "Sergey Edunov",
+   "Danqi Chen",
+   "Wen-tau Yih"
+  ],
+  "year": "2020"
+ },
+ "1904.01130": {
+  "title": "PAWS: Paraphrase Adversaries from Word Scrambling",
+  "authors": [
+   "Yuan Zhang",
+   "Jason Baldridge",
+   "Luheng He"
+  ],
+  "year": "2019"
+ },
+ "2210.07316": {
+  "title": "MTEB: Massive Text Embedding Benchmark",
+  "authors": [
+   "Niklas Muennighoff",
+   "Nouamane Tazi",
+   "Lo\u00efc Magne",
+   "Nils Reimers"
+  ],
+  "year": "2022"
+ },
+ "2104.08821": {
+  "title": "SimCSE: Simple Contrastive Learning of Sentence Embeddings",
+  "authors": [
+   "Tianyu Gao",
+   "Xingcheng Yao",
+   "Danqi Chen"
+  ],
+  "year": "2021"
+ }
+}

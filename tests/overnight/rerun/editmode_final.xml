@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="55" result="Passed" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-14 10:56:50Z" end-time="2026-11-14 10:56:51Z" duration="1.0321619">
+  <test-suite type="TestSuite" id="1000" name="Rapport" fullname="Rapport" runstate="Runnable" testcasecount="55" result="Passed" start-time="2026-11-14 10:56:50Z" end-time="2026-11-14 10:56:51Z" duration="1.032162" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1059" name="Rapport.Tests.EditMode.dll" fullname="/Users/faazkhn/Documents/Med/unity/PsychSim/Library/ScriptAssemblies/Rapport.Tests.EditMode.dll" runstate="Runnable" testcasecount="55" result="Passed" start-time="2026-11-14 10:56:50Z" end-time="2026-11-14 10:56:51Z" duration="1.029115" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="39722" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1060" name="Rapport" fullname="Rapport" runstate="Runnable" testcasecount="55" result="Passed" start-time="2026-11-14 10:56:50Z" end-time="2026-11-14 10:56:51Z" duration="1.028669" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1061" name="Tests" fullname="Rapport.Tests" runstate="Runnable" testcasecount="55" result="Passed" start-time="2026-11-14 10:56:50Z" end-time="2026-11-14 10:56:51Z" duration="1.028313" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1002" name="CoreLogicTests" fullname="Rapport.Tests.CoreLogicTests" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" testcasecount="55" result="Passed" start-time="2026-11-14 10:56:50Z" end-time="2026-11-14 10:56:51Z" duration="1.027725" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1003" name="AllShippedDataPassesSchemas" fullname="Rapport.Tests.CoreLogicTests.AllShippedDataPassesSchemas" methodname="AllShippedDataPassesSchemas" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="145117082" result="Passed" start-time="2026-11-14 10:56:50Z" end-time="2026-11-14 10:56:50Z" duration="0.066147" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1056" name="AngleSeats_TurnsThePatientAboutHerHipsTo110DegreesFromTheDoctor" fullname="Rapport.Tests.CoreLogicTests.AngleSeats_TurnsThePatientAboutHerHipsTo110DegreesFromTheDoctor" methodname="AngleSeats_TurnsThePatientAboutHerHipsTo110DegreesFromTheDoctor" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="235095081" result="Passed" start-time="2026-11-14 10:56:50Z" end-time="2026-11-14 10:56:50Z" duration="0.024120" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1058" name="BodyLanguage_FollowsEmotionIntensityAndTrust" fullname="Rapport.Tests.CoreLogicTests.BodyLanguage_FollowsEmotionIntensityAndTrust" methodname="BodyLanguage_FollowsEmotionIntensityAndTrust" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="40901323" result="Passed" start-time="2026-11-14 10:56:50Z" end-time="2026-11-14 10:56:51Z" duration="0.018860" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1009" name="BrainFallsBackAfterTwoFailures" fullname="Rapport.Tests.CoreLogicTests.BrainFallsBackAfterTwoFailures" methodname="BrainFallsBackAfterTwoFailures" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1758919438" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.017480" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1054" name="CameraDirector_MapsActionsToCloseUps" fullname="Rapport.Tests.CoreLogicTests.CameraDirector_MapsActionsToCloseUps" methodname="CameraDirector_MapsActionsToCloseUps" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="894600137" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.018417" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1018" name="CaseCriticalIntentCountsAsRisk" fullname="Rapport.Tests.CoreLogicTests.CaseCriticalIntentCountsAsRisk" methodname="CaseCriticalIntentCountsAsRisk" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1610872698" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.034524" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1005" name="ContentStatusFilterOnlyApprovedInRelease" fullname="Rapport.Tests.CoreLogicTests.ContentStatusFilterOnlyApprovedInRelease" methodname="ContentStatusFilterOnlyApprovedInRelease" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1464890050" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.019440" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1024" name="CriticalErrorIsNotPassedWhateverTheScore" fullname="Rapport.Tests.CoreLogicTests.CriticalErrorIsNotPassedWhateverTheScore" methodname="CriticalErrorIsNotPassedWhateverTheScore" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="171670470" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.017946" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1055" name="DoctorView_PutsTheHeadLeftOfCentreInTheUpperThird" fullname="Rapport.Tests.CoreLogicTests.DoctorView_PutsTheHeadLeftOfCentreInTheUpperThird" methodname="DoctorView_PutsTheHeadLeftOfCentreInTheUpperThird" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1538340805" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.019817" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1042" name="DoseRangeAndRequiredDrug" fullname="Rapport.Tests.CoreLogicTests.DoseRangeAndRequiredDrug" methodname="DoseRangeAndRequiredDrug" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1846546864" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.016910" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1041" name="EveryFormularyRuleHasAnImplementationAndATest" fullname="Rapport.Tests.CoreLogicTests.EveryFormularyRuleHasAnImplementationAndATest" methodname="EveryFormularyRuleHasAnImplementationAndATest" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1228843257" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.020229" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1049" name="ExamQueue_ChainedInOneMessageDoesNotWaitForTheCap" fullname="Rapport.Tests.CoreLogicTests.ExamQueue_ChainedInOneMessageDoesNotWaitForTheCap" methodname="ExamQueue_ChainedInOneMessageDoesNotWaitForTheCap" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1701983651" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.021850" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1048" name="ExamQueue_CommandMidMotionRunsAfterShortHold" fullname="Rapport.Tests.CoreLogicTests.ExamQueue_CommandMidMotionRunsAfterShortHold" methodname="ExamQueue_CommandMidMotionRunsAfterShortHold" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1932932837" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.018164" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1046" name="ExamQueue_HoldCapsAt30s" fullname="Rapport.Tests.CoreLogicTests.ExamQueue_HoldCapsAt30s" methodname="ExamQueue_HoldCapsAt30s" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="859311169" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.019036" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1045" name="ExamQueue_HoldsUntilRelax" fullname="Rapport.Tests.CoreLogicTests.ExamQueue_HoldsUntilRelax" methodname="ExamQueue_HoldsUntilRelax" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="511375962" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.019736" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1047" name="ExamQueue_NewCommandReleasesHold" fullname="Rapport.Tests.CoreLogicTests.ExamQueue_NewCommandReleasesHold" methodname="ExamQueue_NewCommandReleasesHold" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1675823038" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.012959" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1053" name="ExamQueue_ParsesMessageAndDropsRefused" fullname="Rapport.Tests.CoreLogicTests.ExamQueue_ParsesMessageAndDropsRefused" methodname="ExamQueue_ParsesMessageAndDropsRefused" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="516319546" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.019305" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1050" name="ExamQueue_RunsInOrder" fullname="Rapport.Tests.CoreLogicTests.ExamQueue_RunsInOrder" methodname="ExamQueue_RunsInOrder" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1123512294" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.019175" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1051" name="ExamQueue_SeatedOnlyInsertsSitDown" fullname="Rapport.Tests.CoreLogicTests.ExamQueue_SeatedOnlyInsertsSitDown" methodname="ExamQueue_SeatedOnlyInsertsSitDown" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="386553260" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.012565" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1052" name="ExamQueue_WalkWhileSeatedStandsFirst" fullname="Rapport.Tests.CoreLogicTests.ExamQueue_WalkWhileSeatedStandsFirst" methodname="ExamQueue_WalkWhileSeatedStandsFirst" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="360939424" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.018405" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1020" name="FeedbackOnlySaysDisclosedForTheRightFactAndQuotesARealClosedQuestion" fullname="Rapport.Tests.CoreLogicTests.FeedbackOnlySaysDisclosedForTheRightFactAndQuotesARealClosedQuestion" methodname="FeedbackOnlySaysDisclosedForTheRightFactAndQuotesARealClosedQuestion" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1193176330" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.016871" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1014" name="FeedbackQuotesTheLearnersLines" fullname="Rapport.Tests.CoreLogicTests.FeedbackQuotesTheLearnersLines" methodname="FeedbackQuotesTheLearnersLines" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="763475036" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.015743" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1040" name="FormularyRule" fullname="Rapport.Tests.CoreLogicTests.FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.251026" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1025" name="with_maoi hit" fullname="Rapport.Tests.CoreLogicTests.with_maoi hit" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="620783073" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.019296" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1026" name="with_maoi miss" fullname="Rapport.Tests.CoreLogicTests.with_maoi miss" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="78065327" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.012367" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1027" name="bipolar_monotherapy hit" fullname="Rapport.Tests.CoreLogicTests.bipolar_monotherapy hit" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="716966183" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.019241" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1028" name="bipolar_monotherapy covered by lithium" fullname="Rapport.Tests.CoreLogicTests.bipolar_monotherapy covered by lithium" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1342761706" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.019586" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1029" name="tramadol hit" fullname="Rapport.Tests.CoreLogicTests.tramadol hit" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1228074492" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.015498" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1030" name="tca suicidal hit" fullname="Rapport.Tests.CoreLogicTests.tca suicidal hit" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="258617018" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.017031" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1031" name="tca not suicidal miss" fullname="Rapport.Tests.CoreLogicTests.tca not suicidal miss" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="926336188" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.017187" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1032" name="benzo opioid hit" fullname="Rapport.Tests.CoreLogicTests.benzo opioid hit" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1034770972" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.012004" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1033" name="benzo mono hit" fullname="Rapport.Tests.CoreLogicTests.benzo mono hit" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1136716611" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.017237" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1034" name="benzo with ssri miss" fullname="Rapport.Tests.CoreLogicTests.benzo with ssri miss" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="61391006" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.017932" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1035" name="lithium nsaid hit" fullname="Rapport.Tests.CoreLogicTests.lithium nsaid hit" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="35232803" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.011979" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1036" name="disulfiram while drinking hit" fullname="Rapport.Tests.CoreLogicTests.disulfiram while drinking hit" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1709086010" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.018366" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1037" name="disulfiram no alcohol miss" fullname="Rapport.Tests.CoreLogicTests.disulfiram no alcohol miss" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="434402146" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.018491" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1038" name="antipsychotic in withdrawal hit" fullname="Rapport.Tests.CoreLogicTests.antipsychotic in withdrawal hit" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1982057024" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.013166" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1039" name="antipsychotic in psychosis miss" fullname="Rapport.Tests.CoreLogicTests.antipsychotic in psychosis miss" methodname="FormularyRule" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="567264219" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.018983" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1021" name="GlobalRatingFollowsTotalAndIsCappedByCriticalErrors" fullname="Rapport.Tests.CoreLogicTests.GlobalRatingFollowsTotalAndIsCappedByCriticalErrors" methodname="GlobalRatingFollowsTotalAndIsCappedByCriticalErrors" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="714277927" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.015783" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1006" name="GuardDropsUnknownAndLockedFactsAndClamps" fullname="Rapport.Tests.CoreLogicTests.GuardDropsUnknownAndLockedFactsAndClamps" methodname="GuardDropsUnknownAndLockedFactsAndClamps" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="956505375" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.015916" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1007" name="GuardMustBeAskedFactNeedsItsIntent" fullname="Rapport.Tests.CoreLogicTests.GuardMustBeAskedFactNeedsItsIntent" methodname="GuardMustBeAskedFactNeedsItsIntent" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="390443331" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.018215" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1008" name="GuardRejectsEmptyUtteranceAndFallbackRotates" fullname="Rapport.Tests.CoreLogicTests.GuardRejectsEmptyUtteranceAndFallbackRotates" methodname="GuardRejectsEmptyUtteranceAndFallbackRotates" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="506870604" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.011563" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1016" name="HandsOutMakesTheTremorObservable" fullname="Rapport.Tests.CoreLogicTests.HandsOutMakesTheTremorObservable" methodname="HandsOutMakesTheTremorObservable" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1792846308" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.018720" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1057" name="IdleLife_BlinkBreathAndSaccadeTimingsAreNatural" fullname="Rapport.Tests.CoreLogicTests.IdleLife_BlinkBreathAndSaccadeTimingsAreNatural" methodname="IdleLife_BlinkBreathAndSaccadeTimingsAreNatural" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1950826334" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.012714" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1019" name="JargonAndStackedQuestionsCostAndAreQuoted" fullname="Rapport.Tests.CoreLogicTests.JargonAndStackedQuestionsCostAndAreQuoted" methodname="JargonAndStackedQuestionsCostAndAreQuoted" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="793579469" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.023555" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1013" name="MissedRiskQuestions" fullname="Rapport.Tests.CoreLogicTests.MissedRiskQuestions" methodname="MissedRiskQuestions" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="359289682" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.017768" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1015" name="MseIsMarkedAgainstWhatThePatientShowed" fullname="Rapport.Tests.CoreLogicTests.MseIsMarkedAgainstWhatThePatientShowed" methodname="MseIsMarkedAgainstWhatThePatientShowed" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1279573299" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.011632" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1043" name="PadRefusesDrugsOffTheFormulary" fullname="Rapport.Tests.CoreLogicTests.PadRefusesDrugsOffTheFormulary" methodname="PadRefusesDrugsOffTheFormulary" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="546206292" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.017496" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1012" name="PerfectSession" fullname="Rapport.Tests.CoreLogicTests.PerfectSession" methodname="PerfectSession" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="737594058" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.017382" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1017" name="RiskAskedButNotAnsweredIsPartialNotCritical" fullname="Rapport.Tests.CoreLogicTests.RiskAskedButNotAnsweredIsPartialNotCritical" methodname="RiskAskedButNotAnsweredIsPartialNotCritical" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1669186758" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.012048" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1004" name="SchemaFailureNamesFileAndField" fullname="Rapport.Tests.CoreLogicTests.SchemaFailureNamesFileAndField" methodname="SchemaFailureNamesFileAndField" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="1336234125" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.023671" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1023" name="SlotsFillWithTheAuthoredOptionOrTheServicePicks" fullname="Rapport.Tests.CoreLogicTests.SlotsFillWithTheAuthoredOptionOrTheServicePicks" methodname="SlotsFillWithTheAuthoredOptionOrTheServicePicks" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="985683924" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.020226" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1044" name="SlowedPauseAndSpeedMatchTheService" fullname="Rapport.Tests.CoreLogicTests.SlowedPauseAndSpeedMatchTheService" methodname="SlowedPauseAndSpeedMatchTheService" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="810888410" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.012059" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1011" name="StateDriftsPerMinuteAndClamps" fullname="Rapport.Tests.CoreLogicTests.StateDriftsPerMinuteAndClamps" methodname="StateDriftsPerMinuteAndClamps" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="845822600" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.018115" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1010" name="StateNudgesStackWithDeltaAndClamp" fullname="Rapport.Tests.CoreLogicTests.StateNudgesStackWithDeltaAndClamp" methodname="StateNudgesStackWithDeltaAndClamp" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="406933468" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.014548" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1022" name="VariantsFillTemplatesAndFollowSex" fullname="Rapport.Tests.CoreLogicTests.VariantsFillTemplatesAndFollowSex" methodname="VariantsFillTemplatesAndFollowSex" classname="Rapport.Tests.CoreLogicTests" runstate="Runnable" seed="2135039026" result="Passed" start-time="2026-11-14 10:56:51Z" end-time="2026-11-14 10:56:51Z" duration="0.017371" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[<b><color=#2EA3FF>MCP-FOR-UNITY</color></b>: [TestRunnerNoThrottle] Restored Interaction Mode after test run.
+Saving results to: /Users/faazkhn/Library/Application Support/PsychSim/Rapport/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

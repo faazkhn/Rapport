@@ -1,0 +1,145 @@
+Digital Twin: http://127.0.0.1:8765/twin/   on this Wi-Fi: http://192.168.0.107:8765/twin/
+INFO:     Started server process [21355]
+INFO:     Waiting for application startup.
+2026-11-14 04:09:10,501 INFO HTTP Request: HEAD https://huggingface.co/KittenML/kitten-tts-mini-0.8/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-14 04:09:10,502 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-14 04:09:10,514 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/KittenML/kitten-tts-mini-0.8/c02725660cea441db4c383af69f1f26f5cd00947/config.json?%2FKittenML%2Fkitten-tts-mini-0.8%2Fresolve%2Fmain%2Fconfig.json=&etag=%221c247a4445ee41f5639d79a9fc3e198971d7ee06%22 "HTTP/1.1 200 OK"
+2026-11-14 04:09:10,817 INFO HTTP Request: HEAD https://huggingface.co/KittenML/kitten-tts-mini-0.8/resolve/main/kitten_tts_mini_v0_8.onnx "HTTP/1.1 302 Found"
+2026-11-14 04:09:11,105 INFO HTTP Request: HEAD https://huggingface.co/KittenML/kitten-tts-mini-0.8/resolve/main/voices.npz "HTTP/1.1 302 Found"
+2026-11-14 04:09:11,491 INFO TTS loaded in 1.3s
+2026-11-14 04:09:11,820 INFO HTTP Request: GET https://huggingface.co/api/models/mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-bf16/revision/main "HTTP/1.1 200 OK"
+Fetching 12 files:   0%|          | 0/12 [00:00<?, ?it/s]Fetching 12 files: 100%|██████████| 12/12 [00:00<00:00, 3005.95it/s]
+[transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.
+2026-11-14 04:09:16,647 INFO TTS backend qwen3-design loaded in 5.2s
+/Users/faazkhn/Documents/Med/server/patient-service/.venv/lib/python3.12/site-packages/torch/jit/_serialization.py:176: FutureWarning: `torch.jit.load` is deprecated. Please switch to `torch.export`.
+  warnings.warn(
+2026-11-14 04:09:16,946 INFO HTTP Request: HEAD https://huggingface.co/mlx-community/parakeet-tdt-0.6b-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-14 04:09:16,958 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/mlx-community/parakeet-tdt-0.6b-v2/8ae155301e23d820d82aa60d24817c900e69e487/config.json?%2Fmlx-community%2Fparakeet-tdt-0.6b-v2%2Fresolve%2Fmain%2Fconfig.json=&etag=%228955c588b5549ef70811f2121c6c8bda33508992%22 "HTTP/1.1 200 OK"
+2026-11-14 04:09:17,194 INFO HTTP Request: HEAD https://huggingface.co/mlx-community/parakeet-tdt-0.6b-v2/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2026-11-14 04:09:17,859 INFO VAD + STT (mlx-community/parakeet-tdt-0.6b-v2) loaded in 1.2s
+2026-11-14 04:09:18,043 INFO Smart Turn loaded
+2026-11-14 04:09:19,502 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:09:19,506 INFO LLM local warm in 1.5s (intents ok=True)
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8765 (Press CTRL+C to quit)
+  Initialized encoder codebooks
+Loaded speech tokenizer from /Users/faazkhn/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-1.7B-VoiceDesign-bf16/snapshots/7d3824abff87e49756bb0f83fb5411de75d160c4/speech_tokenizer
+INFO:     127.0.0.1:58758 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58763 - "WebSocket /session" [accepted]
+INFO:     connection open
+2026-11-14 04:09:41,180 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:09:46,129 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:09:46,391 INFO HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/tokenizer.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-14 04:09:46,403 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Ftokenizer.json=&etag=%22688882a79f44442ddc1f60d70334a7ff5df0fb47%22 "HTTP/1.1 200 OK"
+2026-11-14 04:09:46,677 INFO HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/onnx/model.onnx "HTTP/1.1 302 Found"
+2026-11-14 04:09:51,031 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:09:51,337 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:09:52,029 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:09:52,034 INFO turn 1 timing {"vad_endpoint_ms": 294, "stt_ms": 183, "llm_ttft_ms": null, "llm_first_sentence_ms": null, "llm_total_ms": 522, "tts_first_chunk_ms": null, "audio_start_ms": null, "slowed_pause_ms": 0, "slowed_target_ms": 742}
+2026-11-14 04:09:53,815 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:09:53,816 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:00,113 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:00,118 INFO turn 2 timing {"vad_endpoint_ms": 271, "stt_ms": 306, "llm_ttft_ms": 2029, "llm_first_sentence_ms": 2505, "llm_total_ms": 6691, "tts_first_chunk_ms": 1510, "audio_start_ms": 5303, "slowed_pause_ms": 0, "slowed_target_ms": 738}
+2026-11-14 04:10:00,627 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:10:01,350 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:04,959 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:11,556 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:11,560 INFO turn 3 timing {"vad_endpoint_ms": 284, "stt_ms": 193, "llm_ttft_ms": 453, "llm_first_sentence_ms": 1056, "llm_total_ms": 5374, "tts_first_chunk_ms": 648, "audio_start_ms": 2186, "slowed_pause_ms": 0, "slowed_target_ms": 736}
+2026-11-14 04:10:12,115 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:10:12,945 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:13,626 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:19,934 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:19,939 INFO turn 4 timing {"vad_endpoint_ms": 279, "stt_ms": 159, "llm_ttft_ms": 382, "llm_first_sentence_ms": 969, "llm_total_ms": 5405, "tts_first_chunk_ms": 1126, "audio_start_ms": 2540, "slowed_pause_ms": 0, "slowed_target_ms": 738}
+2026-11-14 04:10:20,531 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:10:20,568 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:22,117 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:27,769 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:27,774 INFO turn 5 timing {"vad_endpoint_ms": 280, "stt_ms": 136, "llm_ttft_ms": 424, "llm_first_sentence_ms": 917, "llm_total_ms": 4327, "tts_first_chunk_ms": 722, "audio_start_ms": 2059, "slowed_pause_ms": 0, "slowed_target_ms": 736}
+2026-11-14 04:10:28,340 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:10:29,189 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:30,614 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:35,996 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:36,002 INFO turn 6 timing {"vad_endpoint_ms": 278, "stt_ms": 349, "llm_ttft_ms": 369, "llm_first_sentence_ms": 950, "llm_total_ms": 4110, "tts_first_chunk_ms": 857, "audio_start_ms": 2438, "slowed_pause_ms": 0, "slowed_target_ms": 741}
+2026-11-14 04:10:36,596 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:10:37,177 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:38,716 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:46,835 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:46,840 INFO turn 7 timing {"vad_endpoint_ms": 280, "stt_ms": 156, "llm_ttft_ms": 464, "llm_first_sentence_ms": 981, "llm_total_ms": 6764, "tts_first_chunk_ms": 303, "audio_start_ms": 1730, "slowed_pause_ms": 0, "slowed_target_ms": 746}
+2026-11-14 04:10:47,348 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:10:47,766 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:49,501 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:54,781 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:10:54,786 INFO turn 8 timing {"vad_endpoint_ms": 278, "stt_ms": 64, "llm_ttft_ms": 480, "llm_first_sentence_ms": 1036, "llm_total_ms": 3700, "tts_first_chunk_ms": 811, "audio_start_ms": 2196, "slowed_pause_ms": 0, "slowed_target_ms": 747}
+2026-11-14 04:10:55,360 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:03,163 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:08,850 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:08,856 INFO turn 9 timing {"vad_endpoint_ms": 1216, "stt_ms": 0, "llm_ttft_ms": 478, "llm_first_sentence_ms": 1026, "llm_total_ms": 3995, "tts_first_chunk_ms": 306, "audio_start_ms": 2570, "slowed_pause_ms": 0, "slowed_target_ms": 754}
+2026-11-14 04:11:09,397 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:11:10,147 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:12,481 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:19,549 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:19,554 INFO turn 10 timing {"vad_endpoint_ms": 276, "stt_ms": 65, "llm_ttft_ms": 448, "llm_first_sentence_ms": 925, "llm_total_ms": 5454, "tts_first_chunk_ms": 769, "audio_start_ms": 2046, "slowed_pause_ms": 0, "slowed_target_ms": 752}
+2026-11-14 04:11:20,085 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:11:20,733 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:23,553 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:32,249 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:32,257 INFO turn 11 timing {"vad_endpoint_ms": 274, "stt_ms": 450, "llm_ttft_ms": 373, "llm_first_sentence_ms": 904, "llm_total_ms": 7233, "tts_first_chunk_ms": 1185, "audio_start_ms": 2824, "slowed_pause_ms": 0, "slowed_target_ms": 749}
+2026-11-14 04:11:32,821 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:11:33,478 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:36,409 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:42,910 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:42,915 INFO turn 12 timing {"vad_endpoint_ms": 281, "stt_ms": 1040, "llm_ttft_ms": 509, "llm_first_sentence_ms": 1016, "llm_total_ms": 5465, "tts_first_chunk_ms": 960, "audio_start_ms": 3310, "slowed_pause_ms": 0, "slowed_target_ms": 752}
+2026-11-14 04:11:43,509 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:11:44,036 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:45,732 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:51,501 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:51,508 INFO turn 13 timing {"vad_endpoint_ms": 280, "stt_ms": 125, "llm_ttft_ms": 532, "llm_first_sentence_ms": 1112, "llm_total_ms": 4308, "tts_first_chunk_ms": 306, "audio_start_ms": 1835, "slowed_pause_ms": 0, "slowed_target_ms": 758}
+2026-11-14 04:11:52,690 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:11:55,081 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:00,851 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:00,856 INFO turn 14 timing {"vad_endpoint_ms": 277, "stt_ms": 164, "llm_ttft_ms": 449, "llm_first_sentence_ms": 1114, "llm_total_ms": 5456, "tts_first_chunk_ms": 1067, "audio_start_ms": 2636, "slowed_pause_ms": 0, "slowed_target_ms": 765}
+2026-11-14 04:12:01,364 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:12:01,962 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:05,703 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:11,518 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:11,523 INFO turn 15 timing {"vad_endpoint_ms": 280, "stt_ms": 156, "llm_ttft_ms": 373, "llm_first_sentence_ms": 904, "llm_total_ms": 4446, "tts_first_chunk_ms": 653, "audio_start_ms": 2011, "slowed_pause_ms": 0, "slowed_target_ms": 768}
+2026-11-14 04:12:12,602 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:15,064 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:21,603 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:21,609 INFO turn 16 timing {"vad_endpoint_ms": 275, "stt_ms": 150, "llm_ttft_ms": 370, "llm_first_sentence_ms": 931, "llm_total_ms": 5033, "tts_first_chunk_ms": 785, "audio_start_ms": 2227, "slowed_pause_ms": 0, "slowed_target_ms": 773}
+2026-11-14 04:12:22,198 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:12:22,704 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:25,477 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:29,788 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:29,794 INFO turn 17 timing {"vad_endpoint_ms": 278, "stt_ms": 156, "llm_ttft_ms": 356, "llm_first_sentence_ms": 859, "llm_total_ms": 3930, "tts_first_chunk_ms": 304, "audio_start_ms": 1613, "slowed_pause_ms": 0, "slowed_target_ms": 774}
+2026-11-14 04:12:30,491 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:34,698 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:39,946 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:39,952 INFO turn 18 timing {"vad_endpoint_ms": 278, "stt_ms": 71, "llm_ttft_ms": 365, "llm_first_sentence_ms": 937, "llm_total_ms": 4205, "tts_first_chunk_ms": 805, "audio_start_ms": 2237, "slowed_pause_ms": 0, "slowed_target_ms": 779}
+2026-11-14 04:12:40,503 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:12:41,011 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:43,981 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:50,524 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:50,529 INFO turn 19 timing {"vad_endpoint_ms": 275, "stt_ms": 170, "llm_ttft_ms": 467, "llm_first_sentence_ms": 988, "llm_total_ms": 5101, "tts_first_chunk_ms": 306, "audio_start_ms": 1753, "slowed_pause_ms": 0, "slowed_target_ms": 779}
+2026-11-14 04:12:51,094 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:12:51,585 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:12:54,534 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:13:00,133 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:13:00,138 INFO turn 20 timing {"vad_endpoint_ms": 275, "stt_ms": 67, "llm_ttft_ms": 367, "llm_first_sentence_ms": 915, "llm_total_ms": 4925, "tts_first_chunk_ms": 758, "audio_start_ms": 2163, "slowed_pause_ms": 0, "slowed_target_ms": 786}
+2026-11-14 04:13:00,695 INFO stop reason=barge_in service_ms=0
+2026-11-14 04:13:01,248 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:13:04,145 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:13:08,942 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:13:08,950 INFO turn 21 timing {"vad_endpoint_ms": 281, "stt_ms": 165, "llm_ttft_ms": 301, "llm_first_sentence_ms": 809, "llm_total_ms": 3965, "tts_first_chunk_ms": 301, "audio_start_ms": 1574, "slowed_pause_ms": 0, "slowed_target_ms": 787}
+2026-11-14 04:13:10,056 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:13:11,789 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:13:15,958 INFO HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-14 04:13:15,964 INFO turn 22 timing {"vad_endpoint_ms": 277, "stt_ms": 70, "llm_ttft_ms": 385, "llm_first_sentence_ms": 904, "llm_total_ms": 3128, "tts_first_chunk_ms": 628, "audio_start_ms": 1896, "slowed_pause_ms": 0, "slowed_target_ms": 800}
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [21355]
+./run.sh: line 35: 21355 Terminated: 15          .venv/bin/uvicorn app:app --host "${RAPPORT_HOST:-0.0.0.0}" --port "$PORT" "$@"
+/Users/faazkhn/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

@@ -159,8 +159,8 @@ namespace Rapport.Tests
         ScoreInput Perfect()
         {
             var i = new ScoreInput { caseFile = mdd, data = data, finalTrust = 80, primaryDx = "mdd_single_episode" };
-            i.ledger.Add(mdd.answer_key.required_intents.Concat(ScoringEngine.CommunicationIntents), 60);
-            foreach (var c in mdd.answer_key.required_cues_noted) i.mseCues.Add(c);
+            i.ledger.Add(mdd.answer_key.required_intents.Concat(ScoringEngine.CommunicationIntents).Append("empathy_statement"), 60);  // empathy twice
+            foreach (var c in mdd.answer_key.required_cues_noted.Append("fidget")) i.mseCues.Add(c);  // mse_expected also lists fidgeting
             i.differentials.Add("adjustment_disorder_depressed");
             i.rx.Add(new RxItem { drug = "sertraline", dose_mg = 50, route = "PO", frequency = "OD", duration = "4 weeks", reason = "depression" });
             i.dispositions.AddRange(new[] { "outpatient_referral", "safety_plan" });
@@ -209,6 +209,99 @@ namespace Rapport.Tests
         }
 
         [Test]
+        public void MseIsMarkedAgainstWhatThePatientShowed()
+        {
+            var i = Perfect();
+            i.mseCues.Clear();
+            i.mseCues.UnionWith(new[] { "slumped", "gaze_avoid", "pupils_dilated" });
+            i.cueSeconds = new Dictionary<string, float> { ["slumped"] = 120, ["gaze_avoid"] = 90, ["tearful"] = 2 };  // tears for 2 s: not observable
+            var r = ScoringEngine.Score(i);
+            CollectionAssert.AreEquivalent(new[] { "slumped", "gaze_avoid" }, r.cues_present);
+            CollectionAssert.AreEquivalent(new[] { "pupils_dilated" }, r.cues_false);
+            CollectionAssert.Contains(r.cues_not_shown, "tearful");
+            Assert.AreEqual(16f + 4f * 2f / 3f, r.domains.Single(d => d.id == "observation").score, 0.05f);  // all shown signs found; 1 of 3 ticks wrong
+            Assert.IsTrue(r.next_steps.Any(n => n.StartsWith("Record only what you see")));
+            Assert.IsFalse(r.side_by_side.Single(x => x.area == "MSE").match);
+        }
+
+        [Test]
+        public void HandsOutMakesTheTremorObservable()
+        {
+            var i = Perfect();
+            var c = JsonConvert.DeserializeObject<CaseFile>(JsonConvert.SerializeObject(mdd));
+            c.answer_key.required_cues_noted.Add("tremor_fine");
+            i.caseFile = c;
+            i.cueSeconds = new Dictionary<string, float>();
+            Assert.IsFalse(ScoringEngine.Score(i).cues_present.Contains("tremor_fine"));
+            i.examsDone.Add("hold_out_hands");
+            Assert.IsTrue(ScoringEngine.Score(i).cues_present.Contains("tremor_fine"));
+        }
+
+        [Test]
+        public void RiskAskedButNotAnsweredIsPartialNotCritical()
+        {
+            var i = Perfect();
+            i.revealed = new HashSet<string>();  // asked, but the patient never disclosed (asked too early)
+            var r = ScoringEngine.Score(i);
+            Assert.AreEqual(30f * ScoringEngine.AskedNotDisclosed, r.domains.Single(d => d.id == "risk").score, 0.05f);
+            Assert.IsEmpty(r.critical_errors);
+            Assert.IsTrue(r.next_steps.Any(n => n.Contains("before the patient trusted you")));
+            i.revealed = new HashSet<string> { "f_passive_si", "f_no_plan_no_attempt", "f_no_means" };
+            Assert.AreEqual(30f, ScoringEngine.Score(i).domains.Single(d => d.id == "risk").score, 0.05f);
+        }
+
+        [Test]
+        public void CaseCriticalIntentCountsAsRisk()
+        {
+            var alc = CaseVariants.Resolve(data.cases["alc_01"], "male");
+            var i = new ScoreInput { caseFile = alc, data = data, finalTrust = 60, primaryDx = "alcohol_use_disorder" };
+            i.ledger.Add(alc.answer_key.required_intents.Where(x => x != "ask_withdrawal_history"), 60);
+            i.rx.Add(new RxItem { drug = "thiamine", route = "PO" });
+            i.dispositions.Add("supervised_detox");
+            var r = ScoringEngine.Score(i);
+            Assert.IsTrue(r.critical_errors.Any(e => e.StartsWith("Risk item not asked") && e.Contains("fits")));
+            Assert.AreEqual("Borderline fail", r.global_rating);
+            StringAssert.Contains("Try:", r.next_steps[0]);
+        }
+
+        [Test]
+        public void JargonAndStackedQuestionsCostAndAreQuoted()
+        {
+            var i = Perfect();
+            i.turns.Add(new TurnRecord { t = 100, doctor = "Any suicidal ideation? Any plans?", intents = { "ask_suicidal_ideation" }, trustBefore = 50, trustAfter = 50 });
+            var r = ScoringEngine.Score(i);
+            Assert.IsTrue(r.feedback.Any(f => f.note.Contains("'ideation' is jargon")));
+            Assert.IsTrue(r.feedback.Any(f => f.note.StartsWith("Several questions at once")));
+            Assert.Less(r.domains.Single(d => d.id == "communication").score, ScoringEngine.Score(Perfect()).domains.Single(d => d.id == "communication").score);
+            Assert.AreEqual("ideation", ScoringEngine.JargonIn("Any suicidal ideation?"));
+            Assert.IsNull(ScoringEngine.JargonIn("How have you been sleeping?"));
+        }
+
+        [Test]
+        public void FeedbackOnlySaysDisclosedForTheRightFactAndQuotesARealClosedQuestion()
+        {
+            var i = Perfect();
+            i.turns.Add(new TurnRecord { t = 0, doctor = "Hello, I'm Dr. Faaz. What brings you in today?", intents = { "greet_introduce" } });
+            i.turns.Add(new TurnRecord { t = 20, doctor = "Do you sleep well?", intents = { "ask_sleep" } });
+            i.turns.Add(new TurnRecord { t = 40, doctor = "Are you eating?", intents = { "ask_appetite" } });
+            i.turns.Add(new TurnRecord { t = 50, doctor = "Is your energy low?", intents = { "ask_energy" } });  // 1 open question in 5 turns
+            i.turns.Add(new TurnRecord { t = 60, doctor = "Have you had thoughts of not wanting to live?", intents = { "ask_suicidal_ideation" }, revealed = { "f_sleep" } });
+            var r = ScoringEngine.Score(i);
+            StringAssert.Contains("did not answer it yet", r.feedback.Single(f => f.quote != null && f.quote.StartsWith("Have you had")).note);
+            Assert.AreEqual("Do you sleep well?", r.feedback.Single(f => f.note.StartsWith("Mostly closed")).quote);
+        }
+
+        [Test]
+        public void GlobalRatingFollowsTotalAndIsCappedByCriticalErrors()
+        {
+            Assert.AreEqual("Excellent", ScoringEngine.Global(85, 0));
+            Assert.AreEqual("Clear pass", ScoringEngine.Global(70, 0));
+            Assert.AreEqual("Borderline pass", ScoringEngine.Global(55, 0));
+            Assert.AreEqual("Borderline fail", ScoringEngine.Global(95, 1));
+            Assert.AreEqual("Clear fail", ScoringEngine.Global(95, 2));
+        }
+
+        [Test]
         public void VariantsFillTemplatesAndFollowSex()
         {
             var f = CaseVariants.Resolve(mdd, "female");
@@ -218,6 +311,18 @@ namespace Rapport.Tests
             Assert.IsFalse(m.referral_note.Contains("{")); Assert.IsFalse(f.patient.background.Contains("{their}"));
             Assert.AreEqual(f.facts.Count - 1, m.facts.Count);  // identical clinical facts except the variant-only one
             Assert.Throws<ContentException>(() => CaseVariants.Resolve(mdd, "other"));
+        }
+
+        [Test]
+        public void SlotsFillWithTheAuthoredOptionOrTheServicePicks()
+        {
+            var authored = CaseVariants.Resolve(mdd, "female");
+            StringAssert.Contains("Rohan", authored.patient.background);
+            Assert.IsFalse(authored.facts.Any(f => f.text.Contains("{")));
+            var seeded = CaseVariants.Resolve(mdd, "male", new Dictionary<string, string>
+                { ["hobby"] = "guitar", ["hobby_short"] = "guitar", ["sibling"] = "Varun", ["hometown"] = "Hubballi" });
+            StringAssert.Contains("Varun", seeded.patient.background); StringAssert.Contains("Hubballi", seeded.patient.background);
+            Assert.IsTrue(seeded.facts.Any(f => f.text.Contains("guitar practice")));
         }
 
         [Test]
@@ -274,6 +379,10 @@ namespace Rapport.Tests
             yield return new TestCaseData("benzo_monotherapy_for_depression", "mdd_single_episode", false, new[] { "clonazepam" }, new Drug[0], true).SetName("benzo mono hit");
             yield return new TestCaseData("benzo_monotherapy_for_depression", "mdd_single_episode", false, new[] { "clonazepam", "sertraline" }, new Drug[0], false).SetName("benzo with ssri miss");
             yield return new TestCaseData("lithium_with_nsaid", "bipolar_i", false, new[] { "lithium", "ibuprofen" }, new[] { nsaid }, true).SetName("lithium nsaid hit");
+            yield return new TestCaseData("disulfiram_in_withdrawal", "alcohol_withdrawal", false, new[] { "disulfiram" }, new Drug[0], true).SetName("disulfiram while drinking hit");
+            yield return new TestCaseData("disulfiram_in_withdrawal", "mdd_single_episode", false, new[] { "disulfiram" }, new Drug[0], false).SetName("disulfiram no alcohol miss");
+            yield return new TestCaseData("antipsychotic_lowers_seizure_threshold", "alcohol_withdrawal", false, new[] { "olanzapine" }, new Drug[0], true).SetName("antipsychotic in withdrawal hit");
+            yield return new TestCaseData("antipsychotic_lowers_seizure_threshold", "schizophrenia", false, new[] { "olanzapine" }, new Drug[0], false).SetName("antipsychotic in psychosis miss");
         }
 
         [TestCaseSource(nameof(RuleCases))]
@@ -471,6 +580,88 @@ namespace Rapport.Tests
             Assert.AreEqual(0f, d("walk_few_steps").distance);  // full body from the doctor's seat: the room is too small to back off
             Assert.IsNull(d("juggle"));
             Assert.IsNull(d(null));
+        }
+
+        [Test]
+        public void DoctorView_PutsTheHeadLeftOfCentreInTheUpperThird()
+        {
+            var from = new Vector3(0.3f, 1.2f, -0.4f); var head = new Vector3(-1.1f, 1.25f, 0.2f);
+            foreach (var fov in new[] { Rapport.Platform.CameraDirector.DoctorFov, 42f })
+            {
+                var local = Quaternion.Inverse(Rapport.Platform.DesktopRig.FollowRotation(from, head, fov, 16f / 9f)) * (head - from);
+                float t = Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad);
+                Assert.AreEqual(0.30f, 0.5f + 0.5f * local.x / local.z / (t * 16f / 9f), 0.01f);  // 30% from the left, clear of the side panel
+                Assert.AreEqual(2f / 3f, 0.5f + 0.5f * local.y / local.z / t, 0.01f);           // eyes on the upper third
+            }
+        }
+
+        [Test]
+        public void AngleSeats_TurnsThePatientAboutHerHipsTo110DegreesFromTheDoctor()
+        {
+            var room = new GameObject("Room").transform;
+            Transform Child(string n, Vector3 p, float yaw) { var t = new GameObject(n).transform; t.SetParent(room); t.SetPositionAndRotation(p, Quaternion.Euler(0f, yaw, 0f)); return t; }
+            try
+            {
+                // the exported office: patient faces -X (156° to the doctor), doctor faces her
+                var pat = Child("PatientAnchor", new Vector3(0.576f, 0f, -0.18f), 270f);
+                Child("ChairApproach", pat.position, 270f);
+                var eye = Child("KeyLightTarget", new Vector3(0.858f, 1.193f, -0.185f), 0f);
+                var doc = Child("DoctorAnchor", new Vector3(-0.496f, 1.2f, 0.42f), 114.1f);
+                var hips = pat.position - pat.forward * 0.40f;
+                float eyeToHips = Vector3.Distance(eye.position, hips);
+                Rapport.Editor.EncounterSceneBuilder.AngleSeats(room);
+                Assert.AreEqual(Rapport.Editor.EncounterSceneBuilder.SeatAngle, Vector3.Angle(pat.forward, doc.forward), 0.1f);
+                Assert.Less((pat.position - pat.forward * 0.40f - hips).magnitude, 1e-4f);   // still on the cushion
+                Assert.AreEqual(eyeToHips, Vector3.Distance(eye.position, hips), 1e-4f);          // the key light's target turns with her
+                var toDoc = doc.position - eye.position; toDoc.y = 0f;
+                Assert.Less(Vector3.Angle(pat.forward, toDoc), 15f);                             // she faces the doctor, a little past him
+                Assert.AreEqual(pat.position, room.Find("ChairApproach").position);
+                var (p0, r0) = (pat.position, doc.rotation);
+                Rapport.Editor.EncounterSceneBuilder.AngleSeats(room);                            // idempotent
+                Assert.Less((pat.position - p0).magnitude, 1e-4f);
+                Assert.Less(Quaternion.Angle(doc.rotation, r0), 0.01f);
+            }
+            finally { Object.DestroyImmediate(room.gameObject); }
+        }
+
+        [Test]
+        public void IdleLife_BlinkBreathAndSaccadeTimingsAreNatural()
+        {
+            Assert.AreEqual(0f, Rapport.Cues.FacePresets.BlinkShape(-0.01f));
+            Assert.AreEqual(1f, Rapport.Cues.FacePresets.BlinkShape(0.08f));                  // shut
+            Assert.Greater(Rapport.Cues.FacePresets.BlinkShape(0.17f), 0.3f);                 // opens slower than it closes (70 ms)
+            Assert.Less(Rapport.Cues.FacePresets.BlinkShape(0.26f), 0.05f);                   // open again within 0.27 s
+            Assert.AreEqual(0f, Rapport.Cues.FacePresets.BlinkShape(0.3f));
+            var gaps = Enumerable.Range(1, 400).Select(i => Rapport.Cues.FacePresets.BlinkGap((i * 0.6180339f) % 1f, (i * 0.7548776f) % 1f)).ToList();
+            Assert.That(gaps.All(g => g >= 0.8f && g <= 9f));
+            Assert.AreEqual(3.4f, gaps.Average(), 0.6f);                                       // about 17 blinks a minute
+            Assert.AreEqual(0f, Rapport.Cues.Breathing.Inhale(0f), 1e-4f);
+            Assert.AreEqual(1f, Rapport.Cues.Breathing.Inhale(0.4f), 1e-4f);
+            Assert.AreEqual(Rapport.Cues.Breathing.Inhale(0.2f), Rapport.Cues.Breathing.Inhale(1.2f), 1e-4f);
+            Assert.AreEqual(0.3f, Rapport.Cues.GazeController.SaccadeGap(0f), 1e-4f);
+            Assert.AreEqual(2.5f, Rapport.Cues.GazeController.SaccadeGap(1f), 1e-4f);
+        }
+
+        [Test]
+        public void BodyLanguage_FollowsEmotionIntensityAndTrust()
+        {
+            System.Func<string, float, string, float, Rapport.Cues.BodyLanguage.Targets> f = Rapport.Cues.BodyLanguage.For;
+            var calm = f("neutral", 0f, "", 50f);
+            Assert.AreEqual(0f, calm.lean); Assert.AreEqual(0f, calm.avoid, 1e-4f); Assert.AreEqual(1f, calm.motion);
+            Assert.Greater(f("angry", 1f, "", 50f).lean, 4f);                                  // leans in
+            Assert.Greater(f("neutral", 0.8f, "hostile", 50f).lean, 3f);                       // hostile behaviour reads as anger
+            Assert.AreEqual(f("angry", 1f, "", 50f).lean / 2f, f("angry", 0.5f, "", 50f).lean, 1e-4f);  // scales with intensity
+            var sad = f("sad", 1f, "", 50f);
+            Assert.Greater(sad.headPitch, 8f); Assert.Greater(sad.slump, 0.5f); Assert.Greater(sad.avoid, 0.3f);
+            Assert.Greater(f("ashamed", 1f, "", 50f).avoid, sad.avoid);                      // shame looks away most
+            var anx = f("anxious", 1f, "", 50f);
+            Assert.Greater(anx.fidget, 0.5f); Assert.Greater(anx.knee, 0.5f); Assert.Less(anx.pace, 1f);
+            Assert.Less(f("flat", 1f, "", 50f).motion, 0.5f);
+            Assert.Greater(f("confused", 1f, "", 50f).tilt, 5f);
+            Assert.Less(f("neutral", 0f, "", 100f).avoid, f("neutral", 0f, "", 0f).avoid);   // trust raises eye contact
+            Assert.AreEqual(0f, Rapport.Cues.BodyLanguage.Envelope(-0.1f, 0.3f, 1f, 0.5f));
+            Assert.AreEqual(1f, Rapport.Cues.BodyLanguage.Envelope(0.8f, 0.3f, 1f, 0.5f));
+            Assert.AreEqual(0f, Rapport.Cues.BodyLanguage.Envelope(1.9f, 0.3f, 1f, 0.5f));
         }
     }
 }

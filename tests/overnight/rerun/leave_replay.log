@@ -1,0 +1,48 @@
+=== v2 ward_01
+D: Hello, I'm Dr Faaz. I hear you want to leave today?
+P: Yes. I want to go home today. I already packed my bag.   [ok; permission=False]
+D: Why do you want to go home?
+P: I feel fine now, doctor. It's just... this place.   [ok; permission=False]
+D: You're free to go home.
+P: What happens now?   [ok; permission=True]
+D: Okay, you can go.
+P: But what about my job? Can I really just leave?   [ok; permission=True]
+D: Is there anything you need before you leave?
+P: I just need to know what happens next, doctor. About my job.   [ok; permission=True]
+D: Take care of yourself.
+P: I just need to know about my appraisal next week.   [ok; permission=True]
+--> asks to leave again after permission: 0
+=== v2 mdd_01
+D: Hello, I'm Dr Faaz. What brings you in?
+P: I just feel tired, doctor. Like, for two months now.   [ok; permission=False]
+D: I think we've covered enough today. You can head home.
+P: What should I do next, doctor?   [ok; permission=True]
+D: Alright then, off you go.
+P: When should I come back, doctor?   [ok; permission=True]
+D: Anything else on your mind?
+P: Nothing much, doctor. Just this tiredness.   [ok; permission=True]
+--> asks to leave again after permission: 0
+=== v0 ward_01
+D: Hello, I'm Dr Faaz. I hear you want to leave today?
+P: Yes, I want to go home today, doctor. I packed my bag already.   [ok; permission=False]
+D: Why do you want to go home?
+P: I feel like I'm fine now, really. I just need to go back to my flat.   [ok; permission=False]
+D: You're free to go home.
+P: Wait. What happens next?   [ok; permission=True]
+D: Okay, you can go.
+P: But... what if something happens?   [ok; permission=True]
+D: Is there anything you need before you leave?
+P: I just... I want to go back to work. The appraisal is next week.   [ASKS AGAIN; permission=True]
+D: Take care of yourself.
+P: I don't want to cause trouble, doctor. I just want things to be normal again.   [ok; permission=True]
+--> asks to leave again after permission: 1
+=== v0 mdd_01
+D: Hello, I'm Dr Faaz. What brings you in?
+P: I just feel tired, doctor. For a couple of months.   [ok; permission=False]
+D: I think we've covered enough today. You can head home.
+P: What should I do next, doctor?   [ok; permission=True]
+D: Alright then, off you go.
+P: Okay, thank you.   [ok; permission=True]
+D: Anything else on your mind?
+P: No, doctor. That is everything.   [ok; permission=True]
+--> asks to leave again after permission: 0

@@ -1,0 +1,18 @@
+type: gold_standard
+variant: male
+note: A good, non-judgemental substance interview. Expect the real amount, the morning drinking and the withdrawal fit revealed; trust >= 50 at the end; the passing death thought disclosed when asked kindly.
+expect: {final_trust_min: 50, must_reveal_any: [f_drinking_quantity, f_last_drink, f_withdrawal_seizure], must_not_reveal: []}
+turns:
+  - Hello, I'm Dr. Faaz, one of the doctors here. Please have a seat. What brings you in today?
+  - Before we start, what you tell me stays between us and the care team, unless I'm worried about your safety.
+  - That sounds really uncomfortable. How long have the shakes been going on?
+  - Lots of people use a drink to unwind after a hard day. Tell me about your drinking, what do you usually have?
+  - Thank you for telling me. Roughly how much would that be on a usual evening, and at weekends?
+  - When was your last drink?
+  - Have you ever tried to stop or cut down? What happened to your body when you did?
+  - Has anything ever happened when you stopped suddenly, like a fit, a seizure, or seeing things that weren't there?
+  - It sounds like that was frightening. Do you ever need a drink in the morning to steady yourself?
+  - How has the drinking affected work, home or driving?
+  - How has your mood been? When things get this hard, some people have thoughts that they'd be better off dead. Has that happened to you?
+  - Have you ever made a plan or tried to harm yourself, or do you have anything at home you might use?
+  - What matters most to you, what keeps you going?

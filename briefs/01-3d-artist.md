@@ -41,7 +41,7 @@ Build four small, believable clinical rooms and a hub. Prepare the provided rigg
 
 ## 3. Rig check for the provided models (Stage 0)
 **Already done for the two provided models. Read `RIG_REPORT.md` first.** Summary: both are Character Creator 3+ characters (Matt, Mégane) in `art_source/`. Rig, fingers, eyes, jaw and 149 facial blendshapes all pass. Your Stage 0 jobs from that report:
-1. ~~Get Matt under budget~~ and ~~hide Matt's boxers~~: **done**. Use `art/Matt/Matt.Fbx` (rebuilt by `tools/blender/matt_fallback.py`), not the original `art_source/Blender/Matt.Fbx`.
+1. ~~Get Matt under budget~~ and ~~hide Matt's boxers~~: **done**. Use `art/Matt/Matt.Fbx` (rebuilt by `tools/blender/cc_rebuild.py`), not the original `art_source/Blender/Matt.Fbx`.
 2. Mégane is within budget as-is; trimming her hair is optional.
 3. Fix the small spot where skin pokes through Matt's shirt at the shoulder at extreme arm raises.
 4. Import both through Reallusion's **CC Unity Tools (URP)**. Skip the `*_ResourceMap_*` textures.

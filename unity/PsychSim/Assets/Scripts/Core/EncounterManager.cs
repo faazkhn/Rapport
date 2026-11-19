@@ -55,6 +55,8 @@ namespace Rapport.Core
         public ScoreResult Score { get; private set; }
         public VoiceSession Voice { get; private set; }
         public readonly List<string> RevealedFacts = new();
+        readonly Dictionary<string, float> cueSeconds = new();   // how long each cue was visibly on: the MSE is marked against this
+        readonly HashSet<string> examsDone = new();
         public readonly List<TurnRecord> Turns = new();
         public float SessionSeconds { get; private set; }
         public float TimeLimitSeconds => (Case.time_limit_min ?? 15f) * 60f;
@@ -70,6 +72,7 @@ namespace Rapport.Core
 
         PatientServiceClient http;
         GazeController gaze;
+        BodyLanguage body;
         LipSyncBridge lips;
         Room room;
         float driftAccum, stateSyncAccum, turnStart;
@@ -105,13 +108,52 @@ namespace Rapport.Core
         }
 
         /// <summary>Start screen: case, then the patient's sex (DESIGN 6.1 variants), then Practice or Assessment. Shows the prebrief.</summary>
-        public void Configure(string caseId, string variant, Mode mode)
+        public void Configure(string caseId, string variant, Mode mode, string look = null)
         {
             if (Phase != Phase.Start) return;
             Case = CaseVariants.Resolve(Data.cases[caseId], variant);
+            if (look != null && Looks(Case.patient.sex).Contains(look)) Case.patient.model_id = look;
+            StyleLabel = null;
             Mode = mode;
             SetPhase(Phase.Brief);
         }
+
+        /// <summary>A seeded patient (start screen "Surprise me"): the service picks neutral details and a conversation style; the
+        /// clinical story and the answer key stay the case's. Falls back to the authored patient if the service cannot be reached.</summary>
+        public async Task ConfigureSeeded(string caseId, string variant, Mode mode, int seed)
+        {
+            if (Phase != Phase.Start || configuring) return;
+            configuring = true;   // a double click on Continue must not draw two patients
+            try
+            {
+                var p = await http.Patient(caseId, variant, seed, mode == Mode.Assessment ? "assessment" : "practice");
+                Case = CaseVariants.Resolve(Data.cases[caseId], variant, p["slots"].ToObject<Dictionary<string, string>>());
+                Case.state_start = p["state_start"].ToObject<Dictionary<string, float>>();
+                Case.style = (string)p["style"];
+                Case.seed = seed;
+                Case.seed_mode = mode == Mode.Assessment ? "assessment" : "practice";
+                StyleLabel = (string)p["style_label"];
+                var looks = Looks(Case.patient.sex);
+                if (looks.Count > 0) Case.patient.model_id = looks[seed % looks.Count];  // a random patient gets a random body too
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("Rapport: no seeded patient (" + e.GetBaseException().Message + "); using the authored one");
+                Case = CaseVariants.Resolve(Data.cases[caseId], variant);
+                StyleLabel = null;
+            }
+            finally { configuring = false; }
+            Mode = mode;
+            SetPhase(Phase.Brief);
+        }
+
+        bool configuring;
+
+        /// <summary>Patient bodies for a sex ("female_20s_a", "female_20s_b", ...): any case variant can wear any of them.</summary>
+        public List<string> Looks(string sex) => patientPrefabs.Where(p => p && p.name.StartsWith(sex + "_")).Select(p => p.name).OrderBy(n => n).ToList();
+
+        /// <summary>Conversation style label of a seeded patient (shown in the debrief); null for the authored patient.</summary>
+        public string StyleLabel { get; private set; }
 
         /// <summary>Brief -> Enter: starts the session, spawns the patient, connects the voice loop and plays the entrance; Active follows.</summary>
         public void BeginEncounter()
@@ -120,7 +162,7 @@ namespace Rapport.Core
             State = new PatientState(Case.state_start);
             Ledger = new IntentLedger();
             Log = new SessionLog(Application.persistentDataPath, Case.id, () => SessionSeconds);
-            Log.Write("session_start", new { case_id = Case.id, case_version = Case.version, case_status = Case.status, variant = Case.variant, mode = Mode.ToString(), state = State.Snapshot() });
+            Log.Write("session_start", new { case_id = Case.id, case_version = Case.version, case_status = Case.status, variant = Case.variant, mode = Mode.ToString(), seed = Case.seed, style = Case.style, state = State.Snapshot() });
             Action<string, string> logTool = (kind, id) => Log.Write("tool", new { action = kind, id });
             Mse.Changed += logTool; Dx.Changed += logTool; Rx.Changed += logTool; Disposition.Changed += logTool;
             SetPhase(Phase.Enter);
@@ -134,7 +176,8 @@ namespace Rapport.Core
             if (!room.SoundSourceDoor.TryGetComponent(out AudioSource doorAudio)) doorAudio = room.SoundSourceDoor.gameObject.AddComponent<AudioSource>();  // not ??: Unity fake-null
             yield return EntranceSequence.Run(Patient, Cues, gaze, room, doorAudio);
             while (!connect.IsCompleted) yield return null;
-            if (Voice.Connected) Voice.SetHandsFree(true);   // off during the entrance so door and footsteps are not heard as speech
+            // off during the entrance so door and footsteps are not heard as speech; the demo's injected voice needs the service VAD
+            if (Voice.Connected) Voice.SetHandsFree(!UseMicrophone || PlayerPrefs.GetInt(VoiceSession.HandsFreePref, 0) == 1);
             SetPhase(Phase.Active);
         }
 
@@ -151,6 +194,7 @@ namespace Rapport.Core
                 await Voice.Connect(settings.baseUrl, new JObject
                 {
                     ["case_id"] = Case.id, ["variant"] = Case.variant, ["state"] = JObject.FromObject(State.Snapshot()), ["hands_free"] = false, ["vad_silence_ms"] = settings.vadSilenceMs,
+                    ["seed"] = Case.seed, ["mode"] = Mode == Mode.Assessment ? "assessment" : "practice",
                 });
             }
             catch (Exception e)
@@ -184,9 +228,14 @@ namespace Rapport.Core
             Cues.Init(Case, State, () => SessionSeconds / 60f, Patient, gaze, tremor, mats, face);
             Cues.CueFired += (id, v) => { Log.Write("cue_fired", new { id, intensity = Math.Round(v, 2) }); CueFired?.Invoke(id, v); };
             Cues.CueChanged += (id, v) => Log.Write("cue", new { id, intensity = Math.Round(v, 2) });
+            go.AddComponent<ForearmTwist>().Setup(Patient);
+            var sleeves = go.AddComponent<SleeveRoller>();
+            sleeves.Setup(Patient);
+            body = go.AddComponent<BodyLanguage>();
+            body.Setup(Patient, Cues, gaze, face);
             Exam = go.AddComponent<ExamController>();
-            Exam.Setup(Patient, Cues, gaze, face, room.DoctorAnchor);
-            Exam.ExamStarted += id => { Log.Write("exam_started", new { id }); if (cameraDirector) cameraDirector.OnExamStarted(id, Patient); };
+            Exam.Setup(Patient, Cues, gaze, face, room.DoctorAnchor, sleeves);
+            Exam.ExamStarted += id => { examsDone.Add(id); Log.Write("exam_started", new { id }); if (cameraDirector) cameraDirector.OnExamStarted(id, Patient); };
             Exam.ExamEnded += id => { Log.Write("exam_ended", new { id }); if (cameraDirector) cameraDirector.OnExamEnded(id); };
         }
 
@@ -194,6 +243,9 @@ namespace Rapport.Core
         {
             if (Phase != Phase.Active) return;
             SessionSeconds += Time.deltaTime;
+            if (Cues.Seated)
+                foreach (var kv in Cues.Live)
+                    if (kv.Value >= 0.35f) { cueSeconds.TryGetValue(kv.Key, out var s); cueSeconds[kv.Key] = s + Time.deltaTime; }
             driftAccum += Time.deltaTime;
             stateSyncAccum += Time.deltaTime;
             if (driftAccum >= 1f)  // drift once a second; SessionLog snapshots every 30 s
@@ -204,6 +256,7 @@ namespace Rapport.Core
             }
             if (stateSyncAccum >= 5f && !Busy && Voice != null) { stateSyncAccum = 0f; _ = Voice.SendState(State.Snapshot()); }  // drift reaches the fact gate
             gaze.Thinking = Voice != null && Voice.State == VoiceState.Thinking;
+            body.Listening = Voice != null && Voice.State == VoiceState.Hearing;
             if (Mode == Mode.Assessment && SessionSeconds >= TimeLimitSeconds && !Busy) { Log.Write("timeout"); Submit(); }  // D4: hard stop
         }
 
@@ -223,7 +276,11 @@ namespace Rapport.Core
                     break;
                 case "reply": OnReply(o); break;
                 case "exam": Exam.Receive(o); Log.Write("exam", o); break;
-                case "brain_snapshot": Log.Write("brain_snapshot", o); break;
+                case "brain_snapshot": Log.Write("brain_snapshot", o); if (body) body.OnSnapshot(o); break;
+                case "patient_ended":  // the patient walked out after repeated abuse (twin-0.2); the learner still submits for the debrief
+                    Log.Write("patient_ended", o);
+                    if (Voice != null) Voice.SetHandsFree(false);
+                    break;
                 case "timing":
                     if (o["audio_start_ms"]?.Type == JTokenType.Integer) LastLatencyMs = (long)o["audio_start_ms"];
                     Log.Write("timing", o);
@@ -324,6 +381,16 @@ namespace Rapport.Core
             while (Voice.State == VoiceState.Speaking || Voice.State == VoiceState.Thinking) await Awaitable.NextFrameAsync();
         }
 
+        /// <summary>Debrief: AI examiner notes on this session's transcript (formative, never part of the score); null when the service
+        /// cannot give them.</summary>
+        public async Task<JObject> ExaminerNotes()
+        {
+            if (Turns.Count == 0) return null;
+            var turns = new JArray(Turns.Select(t => new JObject { ["doctor"] = t.doctor ?? "", ["patient"] = t.patient ?? "" }));
+            try { return await http.Assess(new JObject { ["case_id"] = Case.id, ["variant"] = Case.variant, ["turns"] = turns }); }
+            catch (Exception e) { Debug.LogWarning("Rapport: no examiner notes (" + e.GetBaseException().Message + ")"); return null; }
+        }
+
         /// <summary>Ends the station (learner submits, or the Assessment timer runs out) and scores it.</summary>
         public ScoreResult Submit()
         {
@@ -333,9 +400,10 @@ namespace Rapport.Core
             {
                 caseFile = Case, data = Data, ledger = Ledger, mseCues = new HashSet<string>(Mse.Ticked), primaryDx = Dx.Primary,
                 differentials = Dx.Differentials.ToList(), rx = Rx.Items.ToList(), dispositions = Disposition.Selected.ToList(), finalTrust = State.Trust,
-                turns = Turns.ToList(),
+                turns = Turns.ToList(), cueSeconds = new Dictionary<string, float>(cueSeconds), examsDone = new HashSet<string>(examsDone),
+                revealed = new HashSet<string>(RevealedFacts),
             });
-            Log.Write("mse", new { ticked = Mse.Ticked.OrderBy(x => x), notes = Mse.Notes });
+            Log.Write("mse", new { ticked = Mse.Ticked.OrderBy(x => x), notes = Mse.Notes, cue_seconds = cueSeconds });
             Log.Write("score", Score);
             SetPhase(Phase.Debrief);
             Scored?.Invoke(Score);

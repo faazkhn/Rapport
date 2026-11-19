@@ -27,15 +27,16 @@ Open Terminal in the project folder (`~/Documents/Med`).
 2. **Open the patient:**
    - **Option A:** double-click `Rapport.command`. It starts the service if needed and opens the app.
    - **Option B (editor):** open Unity Hub, then the project `unity/PsychSim`, then the scene `Assets/Scenes/Encounter.unity`, and press **Play**. Maximise the Game view (Shift+Space).
-3. **Open the Digital Twin view** on a second screen or projector:
-   `http://127.0.0.1:8765/twin/?live=1`
+3. **Open the Digital Twin view** on a second screen or projector (`Rapport.command` opens it for you):
+   `http://127.0.0.1:8765/twin/`
    It fills in when the session starts. This is the examiner's view; position it where the mentors can see it.
+   - **On a second laptop on the same Wi-Fi:** open `http://<this Mac's IP>:8765/twin/`. `run.sh` and `Rapport.command` print the address (`ipconfig getifaddr en0`). Allow incoming connections if macOS asks. Only the Twin view is shared; the voice session and everything else answer this Mac only. The Twin shows the conversation text, so on a public network start with `RAPPORT_HOST=127.0.0.1` to keep it local.
 
 ## 3. During the demo
 
-- On the start screen pick **Case: Tired all the time**, the **Patient** (Ananya or Arjun) and **Practice** mode, then **Continue**.
-- Talk normally. The bar at the top shows **Listening → Hearing you → Thinking → Speaking**. Pause briefly at the end of each question.
-- If the room is noisy, switch to **push-to-talk** (the button in the voice bar) or type into the box at the bottom.
+- On the start screen pick a case (**Tired all the time**, **Shaky in the mornings** for alcohol, or a ward station), the **Patient**, optionally a **Look** (each sex has two bodies), and **Practice** mode, then **Continue**.
+- **Hold Space while you speak** (push-to-talk, the default), and let go when you finish. The bar shows **Hold Space to talk → Hearing you → Thinking → Speaking**.
+- With a headset in a quiet room you can switch to **hands-free** (the button in the voice bar; the choice is remembered). With speakers, stay on push-to-talk: an open mic hears the patient and cuts her off. You can also type into the box at the bottom.
 - To show the Twin, point out after a few turns:
   - **Trust** rising when you are kind and open,
   - a **memory unlocking** (grey chip turns green),
@@ -47,7 +48,8 @@ Open Terminal in the project folder (`~/Documents/Med`).
   - "Hold out your hand" makes her ask "Which hand?".
   - The full list and accuracy are in `docs/exam-actions.md`.
 - **Lean in:** scroll up over the room. Scroll down to sit back. Right-drag to look around.
-- Finish with the tabs: **MSE**, **Diagnosis**, **Prescription**, **Disposition**, then **Finish** to show the scored debrief.
+- Finish with the tabs: **MSE**, **Diagnosis**, **Prescription**, **Disposition**, then **Finish** to show the scored debrief: a global rating, the three things to do next time, your MSE against what the patient actually showed (ticking signs that were not there now costs marks), and AI examiner notes that fill in after a few seconds. Method and sources: `docs/literature/evaluation-and-assessment.md`.
+- Exam on the alcohol case: ask them to hold their hands out (coarse tremor) and roll up their sleeves (forearms, no marks).
 
 ## 4. A 6-minute script that shows everything
 
@@ -70,10 +72,10 @@ Open Terminal in the project folder (`~/Documents/Med`).
 |---|---|
 | The patient doesn't answer | Check the service window for errors and `curl -s http://127.0.0.1:8765/health`. Restart `run.sh`. |
 | Answers take 4 s or more | Close other apps; make sure the Mac is on power. The first answer after start is slower. As a last resort, use the lighter voice: `RAPPORT_TTS=kitten`. |
-| The voice stutters or breaks mid-sentence | The GPU is overloaded: close other apps, or restart with `RAPPORT_TTS=kitten`. |
+| The voice stutters or breaks mid-sentence | Should not happen any more: the service now holds each sentence until it can play through. If replies get slow instead, the GPU is overloaded: close other apps (and screen recorders), restart `run.sh` if it has been up for days, or use `RAPPORT_TTS=kitten`. |
 | She sounds like a different woman from line to line | Note which lines and tell the developer: this is a known risk of the designed voice. |
 | She hears herself or interrupts | Use a headset, or switch to push-to-talk. |
-| The Twin view is empty | Reload the page after the session starts; it catches up automatically. |
+| The Twin view is empty | Reload the page after the session starts; it catches up automatically. On the second laptop, check both are on the same Wi-Fi and that the service was started by the current `run.sh` (it prints the network address). |
 | Unity shows "Service error" | The service isn't running or crashed: restart `run.sh`, then press Play again. |
 | Something odd mid-demo | Use the typed input; it goes through the same patient brain. |
 

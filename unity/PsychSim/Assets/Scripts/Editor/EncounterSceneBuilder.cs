@@ -120,7 +120,29 @@ namespace Rapport.Editor
             foreach (var t in win.GetComponentsInChildren<Transform>().Concat(tissues.GetComponentsInChildren<Transform>())) t.gameObject.isStatic = true;
             // bare upper corner above the door-side shelves for internal_stimuli looks (the old target sat on the shelves)
             go.transform.Find("CornerLookTarget").position = new Vector3(-1.47f, 2.2f, -1.4f);
+            AngleSeats(go.transform);
             return go;
+        }
+
+        /// <summary>Angle between the patient's and the doctor's facing (brief: 90-120°; the room as exported had about 156°).</summary>
+        public const float SeatAngle = 110f;
+        /// <summary>The patient sits turned this far past the doctor, toward the desk side, so her face reads as a gentle three-quarter
+        /// view; the doctor's chair takes the rest of (180 - SeatAngle), turned toward the desk, so the two chairs converge in front.</summary>
+        public const float PatientOffAxis = 10f;
+
+        /// <summary>Turns the patient's seat (PatientAnchor, ChairApproach, KeyLightTarget) about her hips, which stay on the cushion,
+        /// and the DoctorAnchor in place. Absolute yaws from the hips-to-doctor line, so running it twice changes nothing.</summary>
+        public static void AngleSeats(Transform room)
+        {
+            Transform doc = room.Find("DoctorAnchor"), pat = room.Find("PatientAnchor"), app = room.Find("ChairApproach"), eye = room.Find("KeyLightTarget");
+            var hips = pat.position - pat.forward * 0.40f;     // seated clips put the hips 0.40 m behind the anchor
+            var line = doc.position - hips; line.y = 0f;
+            float lineYaw = Quaternion.LookRotation(line).eulerAngles.y;
+            var turn = Quaternion.Euler(0f, lineYaw + PatientOffAxis, 0f) * Quaternion.Inverse(pat.rotation);
+            if (eye) eye.position = hips + turn * (eye.position - hips);
+            pat.SetPositionAndRotation(hips + turn * (pat.position - hips), turn * pat.rotation);
+            if (app) app.SetPositionAndRotation(pat.position, pat.rotation);
+            doc.rotation = Quaternion.Euler(0f, lineYaw + 180f - (180f - SeatAngle - PatientOffAxis), 0f);
         }
 
         static GameObject BuildRoom()
@@ -209,7 +231,7 @@ namespace Rapport.Editor
             return Asset(path, () => new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = c });
         }
 
-        static GameObject BuildPatientPrefab(string id)
+        internal static GameObject BuildPatientPrefab(string id)
         {
             var model = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Art/Patients/{id}/{id}.fbx");
             if (model == null) return null;
@@ -219,6 +241,7 @@ namespace Rapport.Editor
             anim.runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(PatientAnimatorBuilder.ControllerPath);
             anim.applyRootMotion = false;
             anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            EncounterLighting.MarkPatient(inst);
             var prefab = PrefabUtility.SaveAsPrefabAsset(inst, path);
             Object.DestroyImmediate(inst);
             return prefab;

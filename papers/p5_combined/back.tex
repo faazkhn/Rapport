@@ -1,0 +1,158 @@
+
+\section{Discussion}\label{sec:disc}
+
+\subsection{What the design achieved}
+Moving the patient's decisions into code made its behaviour something an examiner can watch, a reviewer can test and a researcher can argue
+about. Safety rules became automatic gates, and an independent reviewer could try to break them, and did; all ten defects it found were fixed
+and turned into tests before the results were measured. The ablation shows where the safety result comes from: without the decision rubric the
+patient failed four jailbreak attempts and fell back to the old, narrow pattern of behaviour (Table~\ref{p1:tab:ablation}). The patient's behaviour
+now changes with the kind of doctor it faces, while each single conversation stays as focused as before. Because the patient is data, a new
+station is a new file rather than new code, and because the body reads the same decision as the voice, posture, gaze and face agree with what
+the patient says. All of this runs on one laptop, so no student's voice leaves the device.
+
+\subsection{What fell short}
+\textbf{Accuracy did not rise.} The composite measures accuracy against the case, not realism, and the previous Twin was already accurate.
+Whether the added fit to the situation feels more real is a question for clinicians; a blind A/B page with ten pairs of replies is ready but not
+yet rated.
+
+\textbf{Recall of reworded risk questions} reached 72.7\% on the held-out half, against a 95\% target. The same method scored 90.7\% on the tuning
+half, so a tuning half that is also used to write examples gives a badly over-optimistic number. Tuning only to find more risk questions made the
+patient talk about suicide when asked about sleep, which is why recall must be tuned with a limit on wrong matches.
+
+\textbf{An angry patient calmed down too soon.} The upset style was in character on half of the turns after turn 10, because the softening rules
+let a consistently kind doctor lower resistance. A minimum hold time for upset patients is the obvious fix.
+
+\textbf{Speed.} A median of 1.8\,s is close to the thoughtful pause of a low-mood patient, but misses a 1.2\,s target for brisker cases. Holding
+a whole reply back on a risk turn, so that a denial can be replaced, and the longer prompt both cost time; part of the increase is not yet
+traced.
+
+\textbf{Rules that read the doctor.} Word patterns miss some judgemental sentences, such as ``Are you sure you're not just making this up?'', and
+the rule against a flat ``No'' on locked topics also fired for an accusation about a non-risk topic, where a plain ``No'' would be natural
+(Table~\ref{p1:tab:example}).
+
+\subsection{Lessons for builders}
+\begin{enumerate}
+\item Keep everything a clinician would audit outside the language model, and give the model a closed list to choose from.
+\item Check every sentence before it is spoken, and hold back a whole reply when a single sentence could break a safety rule.
+\item Write recall test questions \emph{blind}, from what the memory means, never from the matching rules; keep a test half that is never
+touched, and report it rather than the tuning half.
+\item Always report wrong risk matches next to risk recall, and use a stricter ``clearly asked'' level for anything with consequences, such as
+forcing a disclosure.
+\item Let a learning loop change only how the patient speaks, never the case, and gate every learned version on the held-out safety checks; in
+our first round the loop was most useful as a test that found bugs.
+\item Test with a person early: one playtest found four problems that every scripted test had missed.
+\end{enumerate}
+
+\subsection{Limitations and threats to validity}
+\begin{itemize}
+\item Only four draft stations; psychosis, mania and anxiety are not covered. All clinical content, trust levels and debrief cut-offs are drafts
+that psychiatrists must still review.
+\item The held-out conversations and the examination tests were written by the developer, and the recall benchmark by a single AI writer, whose
+phrasing may be more regular than a nervous student's. The tuning and test halves come from the same writer, so the test half measures new
+wording, not a new writer.
+\item The judge is a language model and its flags were checked by the developer, not by faculty. LLM judges are known to be biased
+\cite{zheng2023judging}.
+\item \emph{Construct:} the composite measures accuracy, not realism, and the variety measures count labels, not how a reply feels.
+\emph{Statistical:} 36 and 6 runs per version detect large differences only; about 75 risk pairs per benchmark half make each recall figure
+uncertain by several points.
+\item \emph{External:} two cases in the held-out runs, scripted doctors, one variety of English, one high-end laptop. The student's own body
+language is not assessed.
+\item The Twin is inspired by brain science but is not a model of the brain.
+\end{itemize}
+
+\subsection{Ethics}
+No human participants or real patient data were involved. A student's words never become patient facts, and student sessions are used for
+learning only with consent. Suicide-related content comes with a content note and a debrief with teaching points. Patient voices are designed
+from written descriptions, not copied from real people. Release builds refuse unreviewed clinical content, and demonstrations that use
+pre-scripted replies must say so.
+
+\subsection{Next steps}
+Table~\ref{tab:next} lists the next steps, in order.
+
+\begin{table}[t]
+\caption{Next steps}
+\label{tab:next}
+\centering
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}YY@{}}
+\toprule
+Step & Why\\
+\midrule
+Faculty review of all four cases and the flagged replies & Clinical truth and judge accuracy\\
+Faculty blind A/B ratings & Answer RQ3: does it feel real?\\
+Ethics approval and a student pilot (n $\approx$ 20--30) & Answer RQ5: does it help?\\
+Hand-checked labels and a fine-tuned recall model & Reach 95\% recall on risk questions\\
+Learned move rules and a hold time for upset patients & Fewer missed judgements; anger that lasts\\
+A psychosis or anxiety case & Broader coverage\\
+Lip sync and skin, eye and hair shading & A more lifelike face up close\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Conclusion}
+A spoken, embodied psychiatric standardised patient can run privately on one laptop if the patient is data, code makes the decisions, a local
+language model supplies the words, and the body reads the same decision as the voice. With this split, safety becomes a set of checks that anyone
+can run and try to break, and the remaining gaps, such as recall of risk questions asked in new words and keeping an angry patient angry, become
+measurable targets instead of impressions. Whether the patient is real enough, and useful enough, to teach with is the next question, and it
+needs psychiatrists and students to answer it.
+
+\appendices
+\section{What a seed changes}
+A seed picks one option for each everyday ``slot'' in the case and one conversation style allowed by the case. For the depression case the slots
+include a hobby (for example Carnatic singing or badminton), a younger brother's name and a home town; every option is written by hand, so
+nothing clinical can change. The answer key, the memories' trust levels, the rating-scale scores and the risk items are the same for every seed.
+Assessment mode uses the authored style for every student so that marks are comparable; practice mode allows any style.
+
+\section{Instructions given to the benchmark writer}
+The writer received, for each case: the patient's name, age and situation; for each memory its id, its kind (complaint, symptom, history, risk,
+social, belief) and a one-line description of what the patient knows; and these rules: write lines a real doctor might say to this patient;
+at least 4 per memory and 12 per risk memory; mix textbook, gentle and indirect, clumsy and leading, colloquial Indian English, and euphemistic
+phrasings; most lines should avoid the memory's obvious key words; each line must make sense on its own; label each line with every memory it
+asks about, and nothing more; include greetings, small talk and empathy-only lines that ask about nothing; mark hard lines. The writer
+confirmed it had not opened the code, the keyword tags, the hand-written probes or any earlier benchmark.
+
+\section{Hand-set heads: example questions}
+Each head is the normalised average of its example questions' vectors. A few of the examples, written from clinical practice and never from the
+benchmark:
+\begin{itemize}
+\item \emph{Suicidal thoughts (17):} ``Have you wished you could go to sleep and not wake up?'', ``Do you sometimes feel everyone would be better
+off without you?'', ``When it gets very heavy, do thoughts of death come to you?''
+\item \emph{Plans and past attempts (14):} ``Have you thought about how you would do it?'', ``Have you done anything to prepare, like writing a
+note?'', ``Can you keep yourself safe if you go home today?''
+\item \emph{Means (12):} ``Have you been saving up medicines?'', ``Can you get onto a roof or somewhere high easily?'', ``Is your home safe for
+you right now?''
+\item \emph{Harm to others:} ``Has anyone at home been afraid of you?'', ``Have arguments ever got physical?''
+\end{itemize}
+
+\section{System requirements and reproducing the results}
+\textbf{Hardware and models.} Apple M5 Pro, 24\,GB memory. Patient: Gemma 4 E4B, 4-bit (Q4\_K\_M), llama.cpp server with Metal, flash
+attention, all layers on the graphics chip, two parallel slots. Judge: Qwen3.5-9B on a second server. Recall: bge-small-en-v1.5, ONNX, on the
+processor. The voice model alone peaked at 8.1\,GB in the bake-off, so a machine with less memory may not fit the expressive voice alongside the
+language model.
+
+\textbf{Held-out runs.} For each version $v\in\{\text{v0},\text{v2}\}$, case and seed, run
+\texttt{tools/learning/loop.py heldout $v$ --case $c$ --seeds 11,23,42} with the judge URL; \texttt{papers/analysis/analyses.py} computes the
+pooled and per-conversation numbers, intervals and decision counts, and \texttt{papers/figures/make\_figures.py} draws the figures.
+
+\textbf{Recall.} \texttt{tools/recall\_bench.py --split test} prints recall and wrong-match rates for the shipped settings; \texttt{--lexical}
+gives the keyword baseline and \texttt{--hand} adds the hand-set heads. \texttt{papers/analysis/analyses.py --recall} and
+\texttt{recall\_extra.py} compute the by-case, difficulty, probe-source, rank, interval and timing results.
+
+\textbf{Speed.} \texttt{tools/latency/ws\_bench.py} plays synthesised Indian-English doctor lines into the real session connection as 32\,ms
+frames and never uses the microphone; results come from the service's own timing log.
+
+The held-out scripts, case files, brain versions, benchmark and its split, and every judged reply are kept with the code, so each number in this
+article can be traced to the data behind it.
+
+\section*{Acknowledgment}
+\textbf{Use of AI tools.} The text of this article, its figures, tables and analysis scripts, and the \LaTeX{} source were drafted with an AI
+assistant (Claude, Anthropic, used through Claude Code), working from the project's code, experiment logs and result files under the author's
+direction. The same assistant helped write the software described here, ran the analyses, and checked the citations against their sources.
+Within the study itself, AI models were also used as research tools, as described in Section~\ref{sec:eval}: a separate language model
+(Qwen3.5-9B) marked the held-out replies, an AI agent wrote the blind recall benchmark, and another AI agent carried out the independent safety
+review. The author takes full responsibility for the content of this article.
+
+\bibliographystyle{IEEEtran}
+\bibliography{../shared/refs}
+
+\end{document}

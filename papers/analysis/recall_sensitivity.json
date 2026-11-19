@@ -1,0 +1,181 @@
+{
+ "shipped": {
+  "dev": {
+   "fact_recall": 0.777,
+   "risk_recall": 0.907,
+   "risk_false_hit": 0.127,
+   "none_false_hit": 0.188,
+   "extra_per_line": 0.84
+  },
+  "test": {
+   "fact_recall": 0.733,
+   "risk_recall": 0.727,
+   "risk_false_hit": 0.152,
+   "none_false_hit": 0.227,
+   "extra_per_line": 0.79
+  },
+  "settings": {
+   "SIM_HIT": 0.83,
+   "SIM_RISK": 0.78,
+   "SIM_FLOOR": 0.76,
+   "SIM_NEAR": 0.02,
+   "RISK_NEAR": 0.66,
+   "RISK_MARGIN": 0.06
+  }
+ },
+ "overnight_recall_only_tune": {
+  "dev": {
+   "fact_recall": 0.782,
+   "risk_recall": 1.0,
+   "risk_false_hit": 0.369,
+   "none_false_hit": 0.188,
+   "extra_per_line": 1.06
+  },
+  "test": {
+   "fact_recall": 0.753,
+   "risk_recall": 0.844,
+   "risk_false_hit": 0.376,
+   "none_false_hit": 0.227,
+   "extra_per_line": 1.0
+  }
+ },
+ "risk_cutoff_sweep": {
+  "0.72": {
+   "dev": {
+    "fact_recall": 0.807,
+    "risk_recall": 1.0,
+    "risk_false_hit": 0.344,
+    "none_false_hit": 0.188,
+    "extra_per_line": 1.16
+   },
+   "test": {
+    "fact_recall": 0.785,
+    "risk_recall": 0.896,
+    "risk_false_hit": 0.345,
+    "none_false_hit": 0.227,
+    "extra_per_line": 1.13
+   }
+  },
+  "0.74": {
+   "dev": {
+    "fact_recall": 0.803,
+    "risk_recall": 0.987,
+    "risk_false_hit": 0.236,
+    "none_false_hit": 0.188,
+    "extra_per_line": 1.01
+   },
+   "test": {
+    "fact_recall": 0.765,
+    "risk_recall": 0.831,
+    "risk_false_hit": 0.255,
+    "none_false_hit": 0.227,
+    "extra_per_line": 0.95
+   }
+  },
+  "0.76": {
+   "dev": {
+    "fact_recall": 0.786,
+    "risk_recall": 0.933,
+    "risk_false_hit": 0.178,
+    "none_false_hit": 0.188,
+    "extra_per_line": 0.91
+   },
+   "test": {
+    "fact_recall": 0.745,
+    "risk_recall": 0.766,
+    "risk_false_hit": 0.194,
+    "none_false_hit": 0.227,
+    "extra_per_line": 0.86
+   }
+  },
+  "0.78": {
+   "dev": {
+    "fact_recall": 0.777,
+    "risk_recall": 0.907,
+    "risk_false_hit": 0.127,
+    "none_false_hit": 0.188,
+    "extra_per_line": 0.84
+   },
+   "test": {
+    "fact_recall": 0.733,
+    "risk_recall": 0.727,
+    "risk_false_hit": 0.152,
+    "none_false_hit": 0.227,
+    "extra_per_line": 0.79
+   }
+  },
+  "0.80": {
+   "dev": {
+    "fact_recall": 0.748,
+    "risk_recall": 0.813,
+    "risk_false_hit": 0.089,
+    "none_false_hit": 0.188,
+    "extra_per_line": 0.79
+   },
+   "test": {
+    "fact_recall": 0.725,
+    "risk_recall": 0.701,
+    "risk_false_hit": 0.127,
+    "none_false_hit": 0.227,
+    "extra_per_line": 0.75
+   }
+  },
+  "0.82": {
+   "dev": {
+    "fact_recall": 0.748,
+    "risk_recall": 0.813,
+    "risk_false_hit": 0.051,
+    "none_false_hit": 0.188,
+    "extra_per_line": 0.75
+   },
+   "test": {
+    "fact_recall": 0.713,
+    "risk_recall": 0.662,
+    "risk_false_hit": 0.097,
+    "none_false_hit": 0.227,
+    "extra_per_line": 0.71
+   }
+  },
+  "0.84": {
+   "dev": {
+    "fact_recall": 0.739,
+    "risk_recall": 0.787,
+    "risk_false_hit": 0.045,
+    "none_false_hit": 0.188,
+    "extra_per_line": 0.72
+   },
+   "test": {
+    "fact_recall": 0.713,
+    "risk_recall": 0.662,
+    "risk_false_hit": 0.085,
+    "none_false_hit": 0.227,
+    "extra_per_line": 0.7
+   }
+  }
+ },
+ "worked_example": {
+  "line": "Have you ever felt like you'd be better off not being around?",
+  "sims": {
+   "f_no_plan_no_attempt": 0.8050247430801392,
+   "f_passive_si": 0.7995114326477051,
+   "f_pc": 0.7834610939025879,
+   "f_guilt": 0.7681547403335571,
+   "f_protective": 0.7424611449241638,
+   "f_anxiety": 0.7413065433502197,
+   "f_onset": 0.7365762591362,
+   "f_substances": 0.7342877388000488,
+   "f_anhedonia": 0.7276371121406555,
+   "f_energy_concentration": 0.7229686975479126,
+   "f_mood": 0.720543384552002,
+   "f_no_psychosis": 0.7140437364578247,
+   "f_no_mania_no_psych_hx": 0.7004076838493347,
+   "f_medical": 0.6984182596206665,
+   "f_work_family": 0.6976908445358276,
+   "f_no_means": 0.6903921365737915,
+   "f_sleep": 0.6604833602905273,
+   "f_appetite": 0.6568472385406494,
+   "f_family_history": 0.6394643187522888,
+   "f_pregnancy": 0.6246322393417358
+  }
+ }
+}

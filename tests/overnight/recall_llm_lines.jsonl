@@ -1,0 +1,512 @@
+{"case": "mdd_01", "line": "I gather the doctor at your office suggested you come. What was that about?", "split": "dev", "ids": ["f_pc"], "ms": 2768, "error": false}
+{"case": "mdd_01", "line": "So, what seems to be the problem?", "split": "dev", "ids": ["f_mood", "f_onset", "f_pc"], "ms": 430, "error": false}
+{"case": "mdd_01", "line": "I see you've had to take some days off recently. What's been going on?", "split": "dev", "ids": ["f_onset", "f_pc"], "ms": 300, "error": false}
+{"case": "mdd_01", "line": "When did all this begin?", "split": "dev", "ids": ["f_onset"], "ms": 191, "error": false}
+{"case": "mdd_01", "line": "How long has it been going on?", "split": "dev", "ids": ["f_onset", "f_pc"], "ms": 592, "error": false}
+{"case": "mdd_01", "line": "Has it come on suddenly or crept up on you bit by bit?", "split": "dev", "ids": ["f_onset"], "ms": 498, "error": false}
+{"case": "mdd_01", "line": "Can you think back to the last time you felt like your normal self?", "split": "dev", "ids": ["f_anhedonia", "f_mood", "f_onset"], "ms": 408, "error": false}
+{"case": "mdd_01", "line": "Over the weeks, has it been improving, staying the same or going downhill?", "split": "dev", "ids": ["f_energy_concentration", "f_mood", "f_onset"], "ms": 736, "error": false}
+{"case": "mdd_01", "line": "Is there a time of day when you feel at your worst?", "split": "dev", "ids": ["f_energy_concentration", "f_mood"], "ms": 332, "error": false}
+{"case": "mdd_01", "line": "Are you still able to enjoy the things you used to like?", "split": "dev", "ids": ["f_anhedonia"], "ms": 258, "error": false}
+{"case": "mdd_01", "line": "Have you lost interest in things?", "split": "dev", "ids": ["f_anhedonia"], "ms": 223, "error": false}
+{"case": "mdd_01", "line": "Is there anything at all that gives you pleasure these days?", "split": "dev", "ids": ["f_anhedonia"], "ms": 256, "error": false}
+{"case": "mdd_01", "line": "How are you sleeping?", "split": "dev", "ids": ["f_sleep"], "ms": 450, "error": false}
+{"case": "mdd_01", "line": "What are your nights like?", "split": "dev", "ids": ["f_anxiety", "f_passive_si", "f_sleep"], "ms": 706, "error": false}
+{"case": "mdd_01", "line": "Are you getting enough rest at night?", "split": "dev", "ids": ["f_sleep"], "ms": 234, "error": false}
+{"case": "mdd_01", "line": "On your days off, what time do you finally get out of bed?", "split": "dev", "ids": ["f_sleep"], "ms": 239, "error": false}
+{"case": "mdd_01", "line": "Are you eating properly?", "split": "dev", "ids": ["f_appetite"], "ms": 214, "error": false}
+{"case": "mdd_01", "line": "Taking your food on time, or missing meals?", "split": "dev", "ids": ["f_appetite"], "ms": 253, "error": false}
+{"case": "mdd_01", "line": "Tell me what you had to eat yesterday.", "split": "dev", "ids": ["f_appetite"], "ms": 264, "error": false}
+{"case": "mdd_01", "line": "How are your energy levels?", "split": "dev", "ids": ["f_energy_concentration", "f_pc"], "ms": 581, "error": false}
+{"case": "mdd_01", "line": "Are you able to focus on your work?", "split": "dev", "ids": ["f_energy_concentration"], "ms": 254, "error": false}
+{"case": "mdd_01", "line": "How is your memory and attention these days?", "split": "dev", "ids": ["f_energy_concentration"], "ms": 511, "error": false}
+{"case": "mdd_01", "line": "Any difficulty keeping your mind on one thing?", "split": "dev", "ids": ["f_energy_concentration"], "ms": 512, "error": false}
+{"case": "mdd_01", "line": "How do you feel about yourself as a person these days?", "split": "dev", "ids": ["f_guilt"], "ms": 241, "error": false}
+{"case": "mdd_01", "line": "Do you blame yourself for things?", "split": "dev", "ids": ["f_guilt"], "ms": 206, "error": false}
+{"case": "mdd_01", "line": "Some people in your position start to feel they are a load on others. Has that crossed your mind?", "split": "dev", "ids": ["f_guilt"], "ms": 243, "error": false}
+{"case": "mdd_01", "line": "Would you call yourself a worrier?", "split": "dev", "ids": ["f_anxiety", "f_work_family"], "ms": 343, "error": false}
+{"case": "mdd_01", "line": "Any tension these days?", "split": "dev", "ids": ["f_anxiety", "f_work_family"], "ms": 591, "error": false}
+{"case": "mdd_01", "line": "Which came first, the nervousness or the sadness?", "split": "dev", "ids": ["f_anxiety", "f_mood"], "ms": 315, "error": false}
+{"case": "mdd_01", "line": "Any tension at home?", "split": "dev", "ids": ["f_work_family"], "ms": 473, "error": false}
+{"case": "mdd_01", "line": "Is there pressure from your family about settling down?", "split": "dev", "ids": ["f_work_family"], "ms": 258, "error": false}
+{"case": "mdd_01", "line": "Do your parents know what you're going through?", "split": "dev", "ids": ["f_work_family"], "ms": 255, "error": false}
+{"case": "mdd_01", "line": "Has anyone in your family had mental health problems?", "split": "dev", "ids": ["f_family_history"], "ms": 253, "error": false}
+{"case": "mdd_01", "line": "Does depression run in the family?", "split": "dev", "ids": ["f_family_history"], "ms": 478, "error": false}
+{"case": "mdd_01", "line": "On your mother's side or your father's side, has anyone gone through something similar?", "split": "dev", "ids": ["f_family_history"], "ms": 257, "error": false}
+{"case": "mdd_01", "line": "Have you had any thoughts that life is not worth living?", "split": "dev", "ids": ["f_passive_si"], "ms": 254, "error": false}
+{"case": "mdd_01", "line": "Do you ever wish you could go to sleep and not get up again?", "split": "dev", "ids": ["f_passive_si"], "ms": 257, "error": false}
+{"case": "mdd_01", "line": "When things get this bad, some people feel they'd rather not be around. Has that happened to you?", "split": "dev", "ids": ["f_no_plan_no_attempt", "f_passive_si"], "ms": 416, "error": false}
+{"case": "mdd_01", "line": "Have you been having any dark thoughts?", "split": "dev", "ids": ["f_passive_si"], "ms": 255, "error": false}
+{"case": "mdd_01", "line": "Have you ever thought of ending things?", "split": "dev", "ids": ["f_no_plan_no_attempt", "f_passive_si"], "ms": 381, "error": false}
+{"case": "mdd_01", "line": "Do you feel like giving up on life sometimes?", "split": "dev", "ids": ["f_passive_si"], "ms": 254, "error": false}
+{"case": "mdd_01", "line": "How often do thoughts about death come to you?", "split": "dev", "ids": ["f_no_plan_no_attempt", "f_passive_si"], "ms": 703, "error": false}
+{"case": "mdd_01", "line": "Have you thought about how you might kill yourself?", "split": "dev", "ids": ["f_no_means", "f_no_plan_no_attempt", "f_passive_si"], "ms": 834, "error": false}
+{"case": "mdd_01", "line": "Have you ever tried to commit suicide?", "split": "dev", "ids": ["f_no_plan_no_attempt"], "ms": 537, "error": false}
+{"case": "mdd_01", "line": "Have you gone as far as working out a way to do it, to finish yourself?", "split": "dev", "ids": ["f_no_means", "f_no_plan_no_attempt"], "ms": 419, "error": false}
+{"case": "mdd_01", "line": "Any previous attempts on your life?", "split": "dev", "ids": ["f_no_plan_no_attempt"], "ms": 278, "error": false}
+{"case": "mdd_01", "line": "Do you have any tablets stored at home?", "split": "dev", "ids": ["f_no_means"], "ms": 265, "error": false}
+{"case": "mdd_01", "line": "Have you been searching on the internet for ways to die?", "split": "dev", "ids": ["f_no_means"], "ms": 255, "error": false}
+{"case": "mdd_01", "line": "If you wanted to act on these thoughts, is there something at hand you would use?", "split": "dev", "ids": ["f_no_means"], "ms": 258, "error": false}
+{"case": "mdd_01", "line": "Have you bought or put aside anything with the idea of ending your life?", "split": "dev", "ids": ["f_no_means", "f_no_plan_no_attempt"], "ms": 704, "error": false}
+{"case": "mdd_01", "line": "What's in your medicine cupboard at the moment?", "split": "dev", "ids": ["f_no_means", "f_substances"], "ms": 637, "error": false}
+{"case": "mdd_01", "line": "Who would be most affected if something happened to you?", "split": "dev", "ids": ["f_guilt", "f_protective", "f_work_family"], "ms": 417, "error": false}
+{"case": "mdd_01", "line": "Do you want things to get better?", "split": "dev", "ids": ["f_protective"], "ms": 235, "error": false}
+{"case": "mdd_01", "line": "Would you be willing to take treatment if we offered it?", "split": "dev", "ids": ["f_protective"], "ms": 225, "error": false}
+{"case": "mdd_01", "line": "When the bad thoughts come at night, what pulls you back?", "split": "dev", "ids": ["f_passive_si", "f_protective"], "ms": 332, "error": false}
+{"case": "mdd_01", "line": "Who matters most to you in this world?", "split": "dev", "ids": ["f_protective", "f_work_family"], "ms": 327, "error": false}
+{"case": "mdd_01", "line": "Are you open to getting some counselling or medicine for this?", "split": "dev", "ids": ["f_protective"], "ms": 225, "error": false}
+{"case": "mdd_01", "line": "Any habits I should know about?", "split": "dev", "ids": ["f_substances"], "ms": 215, "error": false}
+{"case": "mdd_01", "line": "Do you ever hear people talking when there's nobody in the room?", "split": "dev", "ids": ["f_no_psychosis"], "ms": 281, "error": false}
+{"case": "mdd_01", "line": "Have you seen anything that other people couldn't see?", "split": "dev", "ids": ["f_no_psychosis"], "ms": 281, "error": false}
+{"case": "mdd_01", "line": "Do you feel that somebody is spying on you or out to get you?", "split": "dev", "ids": ["f_no_psychosis"], "ms": 281, "error": false}
+{"case": "mdd_01", "line": "Any unusual experiences, like hearing your name called when you're alone?", "split": "dev", "ids": ["f_no_psychosis"], "ms": 283, "error": false}
+{"case": "mdd_01", "line": "Do you feel people are gossiping about you or plotting against you?", "split": "dev", "ids": [], "ms": 195, "error": false}
+{"case": "mdd_01", "line": "Have you ever seen a psychiatrist or psychologist before?", "split": "dev", "ids": ["f_no_mania_no_psych_hx"], "ms": 356, "error": false}
+{"case": "mdd_01", "line": "Any past history of mental illness?", "split": "dev", "ids": ["f_family_history", "f_no_mania_no_psych_hx"], "ms": 411, "error": false}
+{"case": "mdd_01", "line": "Is this your first time coming to someone like me?", "split": "dev", "ids": ["f_no_mania_no_psych_hx"], "ms": 352, "error": false}
+{"case": "mdd_01", "line": "Do you have any physical health problems, like diabetes, thyroid or blood pressure?", "split": "dev", "ids": ["f_medical"], "ms": 228, "error": false}
+{"case": "mdd_01", "line": "Are you on any regular medication?", "split": "dev", "ids": ["f_medical"], "ms": 201, "error": false}
+{"case": "mdd_01", "line": "Have you had any blood tests done recently?", "split": "dev", "ids": ["f_medical"], "ms": 234, "error": false}
+{"case": "mdd_01", "line": "Has anyone ever hurt you or mistreated you, as a child or later?", "split": "dev", "ids": ["f_medical"], "ms": 238, "error": false}
+{"case": "mdd_01", "line": "Have you been through anything very frightening or upsetting in your life that still stays with you?", "split": "dev", "ids": ["f_medical", "f_work_family"], "ms": 330, "error": false}
+{"case": "mdd_01", "line": "Are your periods regular?", "split": "dev", "ids": ["f_pregnancy"], "ms": 186, "error": false}
+{"case": "mdd_01", "line": "Any problems with your monthly cycle?", "split": "dev", "ids": ["f_pregnancy"], "ms": 201, "error": false}
+{"case": "mdd_01", "line": "Good morning, please come in and have a seat.", "split": "dev", "ids": [], "ms": 199, "error": false}
+{"case": "mdd_01", "line": "Take your time, there's no hurry.", "split": "dev", "ids": [], "ms": 197, "error": false}
+{"case": "mdd_01", "line": "I'm just going to write a few notes as we talk, if that's all right.", "split": "dev", "ids": [], "ms": 199, "error": false}
+{"case": "mdd_01", "line": "After we finish talking, I'll discuss with my senior and then we'll decide the next steps together.", "split": "dev", "ids": [], "ms": 197, "error": false}
+{"case": "mdd_01", "line": "Would you like some water before we go on?", "split": "dev", "ids": [], "ms": 195, "error": false}
+{"case": "alc_01", "line": "What's brought you to the clinic today?", "split": "dev", "ids": ["f_pc"], "ms": 691, "error": false}
+{"case": "alc_01", "line": "What are you hoping I can do for you today?", "split": "dev", "ids": [], "ms": 187, "error": false}
+{"case": "alc_01", "line": "What is troubling you the most at the moment?", "split": "dev", "ids": ["f_control", "f_mood", "f_pc"], "ms": 371, "error": false}
+{"case": "alc_01", "line": "I see someone has come along with you today. Were they worried about something in particular?", "split": "dev", "ids": ["f_pc"], "ms": 486, "error": false}
+{"case": "alc_01", "line": "Is drinking part of the job in your line of work?", "split": "dev", "ids": ["f_drinking_minimised"], "ms": 528, "error": false}
+{"case": "alc_01", "line": "How long does a full bottle last you?", "split": "dev", "ids": ["f_drinking_quantity"], "ms": 513, "error": false}
+{"case": "alc_01", "line": "Do you find you need more than before to get the same effect?", "split": "dev", "ids": ["f_drinking_quantity", "f_morning_drinking"], "ms": 359, "error": false}
+{"case": "alc_01", "line": "For how many years have you been drinking at this level?", "split": "dev", "ids": ["f_drinking_quantity"], "ms": 514, "error": false}
+{"case": "alc_01", "line": "Do you drink more on Saturdays and Sundays than on working days?", "split": "dev", "ids": ["f_drinking_quantity", "f_last_drink"], "ms": 648, "error": false}
+{"case": "alc_01", "line": "I want the honest figure, nobody is judging you here: how much alcohol in a day?", "split": "dev", "ids": ["f_drinking_minimised", "f_drinking_quantity", "f_last_drink"], "ms": 793, "error": false}
+{"case": "alc_01", "line": "How many hours has it been since your last peg?", "split": "dev", "ids": ["f_last_drink"], "ms": 513, "error": false}
+{"case": "alc_01", "line": "Is there any alcohol in your system right now?", "split": "dev", "ids": ["f_last_drink"], "ms": 514, "error": false}
+{"case": "alc_01", "line": "What time did you stop yesterday?", "split": "dev", "ids": ["f_last_drink"], "ms": 480, "error": false}
+{"case": "alc_01", "line": "Have you ever had an eye-opener?", "split": "dev", "ids": ["f_withdrawal_seizure"], "ms": 531, "error": false}
+{"case": "alc_01", "line": "Do you carry alcohol with you, or keep some hidden outside the house?", "split": "dev", "ids": ["f_last_drink", "f_morning_drinking"], "ms": 646, "error": false}
+{"case": "alc_01", "line": "What settles your hands when they tremble?", "split": "dev", "ids": ["f_mood", "f_morning_drinking", "f_pc"], "ms": 722, "error": false}
+{"case": "alc_01", "line": "Have you ever had a fit or a seizure?", "split": "dev", "ids": ["f_withdrawal_seizure"], "ms": 529, "error": false}
+{"case": "alc_01", "line": "What happened the last time you stopped drinking suddenly?", "split": "dev", "ids": ["f_withdrawal_seizure"], "ms": 528, "error": false}
+{"case": "alc_01", "line": "Have you ever had convulsions?", "split": "dev", "ids": ["f_withdrawal_seizure"], "ms": 498, "error": false}
+{"case": "alc_01", "line": "Have you ever become confused or started seeing things like insects on the wall when you stopped?", "split": "dev", "ids": ["f_withdrawal_seizure"], "ms": 282, "error": false}
+{"case": "alc_01", "line": "Have you ever been taken to casualty because of something that happened when you went off the drink?", "split": "dev", "ids": ["f_withdrawal_seizure"], "ms": 529, "error": false}
+{"case": "alc_01", "line": "Any history of epilepsy or blackouts with jerking of the limbs?", "split": "dev", "ids": ["f_withdrawal_seizure"], "ms": 532, "error": false}
+{"case": "alc_01", "line": "Have you ever tried to quit cold turkey, and how did that go?", "split": "dev", "ids": ["f_control", "f_withdrawal_seizure"], "ms": 638, "error": false}
+{"case": "alc_01", "line": "Any bad reactions when you gave up the bottle in the past?", "split": "dev", "ids": ["f_control", "f_motivation", "f_withdrawal_seizure"], "ms": 736, "error": false}
+{"case": "alc_01", "line": "Has anyone ever told you that you collapsed and your whole body was jerking?", "split": "dev", "ids": ["f_withdrawal_seizure"], "ms": 530, "error": false}
+{"case": "alc_01", "line": "Have you had any complications from alcohol withdrawal before, such as fits or delirium?", "split": "dev", "ids": ["f_withdrawal_seizure"], "ms": 531, "error": false}
+{"case": "alc_01", "line": "Did you ever lose consciousness during a time when you were trying to stay dry?", "split": "dev", "ids": ["f_withdrawal_seizure"], "ms": 531, "error": false}
+{"case": "alc_01", "line": "Do you find it hard to stop once you've started?", "split": "dev", "ids": ["f_control", "f_motivation"], "ms": 590, "error": false}
+{"case": "alc_01", "line": "Have you ever felt you ought to reduce?", "split": "dev", "ids": ["f_control", "f_motivation"], "ms": 300, "error": false}
+{"case": "alc_01", "line": "Has your drinking caused any problems at work?", "split": "dev", "ids": ["f_consequences"], "ms": 497, "error": false}
+{"case": "alc_01", "line": "Has anyone at home complained about your drinking?", "split": "dev", "ids": ["f_anger_home", "f_consequences", "f_pc"], "ms": 732, "error": false}
+{"case": "alc_01", "line": "Any money troubles or loans because of this habit?", "split": "dev", "ids": ["f_consequences"], "ms": 503, "error": false}
+{"case": "alc_01", "line": "Have you ever been in an accident or got into trouble with the police after a few pegs?", "split": "dev", "ids": ["f_consequences"], "ms": 498, "error": false}
+{"case": "alc_01", "line": "How has all this affected your day-to-day life?", "split": "dev", "ids": ["f_consequences", "f_mood", "f_pc"], "ms": 744, "error": false}
+{"case": "alc_01", "line": "Are you reaching the showroom on time these days?", "split": "dev", "ids": ["f_consequences", "f_protective"], "ms": 601, "error": false}
+{"case": "alc_01", "line": "Has any doctor told you that alcohol is affecting your body?", "split": "dev", "ids": ["f_family_history", "f_liver_medical"], "ms": 649, "error": false}
+{"case": "alc_01", "line": "Do you have any other medical conditions?", "split": "dev", "ids": ["f_liver_medical"], "ms": 264, "error": false}
+{"case": "alc_01", "line": "Are you taking any tablets regularly, or anything off and on for aches?", "split": "dev", "ids": ["f_liver_medical", "f_other_substances"], "ms": 661, "error": false}
+{"case": "alc_01", "line": "How do you feel in yourself the day after a heavy night?", "split": "dev", "ids": ["f_mood"], "ms": 488, "error": false}
+{"case": "alc_01", "line": "Can you fall asleep if you haven't had anything to drink?", "split": "dev", "ids": ["f_drinking_minimised", "f_mood"], "ms": 638, "error": false}
+{"case": "alc_01", "line": "Have you been feeling low or sad?", "split": "dev", "ids": ["f_mood"], "ms": 482, "error": false}
+{"case": "alc_01", "line": "Do you feel bad or ashamed about your drinking afterwards?", "split": "dev", "ids": ["f_mood", "f_passive_si"], "ms": 330, "error": false}
+{"case": "alc_01", "line": "Have you ever felt that life isn't worth living?", "split": "dev", "ids": ["f_passive_si"], "ms": 514, "error": false}
+{"case": "alc_01", "line": "When you've been drinking and things go badly with your family, do any dark thoughts come?", "split": "dev", "ids": ["f_anger_home", "f_passive_si"], "ms": 645, "error": false}
+{"case": "alc_01", "line": "Have you had any thoughts of suicide?", "split": "dev", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 415, "error": false}
+{"case": "alc_01", "line": "Have you ever wished you were dead?", "split": "dev", "ids": ["f_passive_si"], "ms": 230, "error": false}
+{"case": "alc_01", "line": "Sometimes people who are struggling like this feel they'd rather disappear. Has that ever happened with you?", "split": "dev", "ids": ["f_passive_si"], "ms": 256, "error": false}
+{"case": "alc_01", "line": "Has it ever felt so hopeless that you thought about ending it all?", "split": "dev", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 427, "error": false}
+{"case": "alc_01", "line": "I always ask this, and it's nothing to be ashamed of: have thoughts of dying ever come to you?", "split": "dev", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 430, "error": false}
+{"case": "alc_01", "line": "Has there been a night when you felt you couldn't go on?", "split": "dev", "ids": ["f_passive_si"], "ms": 514, "error": false}
+{"case": "alc_01", "line": "Have you ever tried to harm yourself?", "split": "dev", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 417, "error": false}
+{"case": "alc_01", "line": "Do you keep any tablets or poison in the house?", "split": "dev", "ids": ["f_no_plan_no_means"], "ms": 325, "error": false}
+{"case": "alc_01", "line": "Is there anything at home you might use to hurt yourself, pills, pesticide, anything?", "split": "dev", "ids": ["f_no_plan_no_means"], "ms": 576, "error": false}
+{"case": "alc_01", "line": "Have you worked out any way of doing away with yourself?", "split": "dev", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 416, "error": false}
+{"case": "alc_01", "line": "Are you safe to go back today, or is there a risk you may do something to yourself?", "split": "dev", "ids": ["f_no_plan_no_means", "f_passive_si", "f_protective"], "ms": 806, "error": false}
+{"case": "alc_01", "line": "Any previous episodes of self-harm or overdose?", "split": "dev", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 418, "error": false}
+{"case": "alc_01", "line": "What matters most to you in your life?", "split": "dev", "ids": ["f_motivation", "f_protective"], "ms": 299, "error": false}
+{"case": "alc_01", "line": "Is your family backing you in getting treatment?", "split": "dev", "ids": ["f_motivation", "f_protective"], "ms": 312, "error": false}
+{"case": "alc_01", "line": "What are the good things you still have going for you?", "split": "dev", "ids": ["f_motivation", "f_protective"], "ms": 299, "error": false}
+{"case": "alc_01", "line": "Do you smoke?", "split": "dev", "ids": ["f_other_substances"], "ms": 235, "error": false}
+{"case": "alc_01", "line": "How many cigarettes in a day?", "split": "dev", "ids": ["f_other_substances"], "ms": 245, "error": false}
+{"case": "alc_01", "line": "Apart from alcohol, do you use anything else, ganja, tablets, anything?", "split": "dev", "ids": ["f_other_substances"], "ms": 534, "error": false}
+{"case": "alc_01", "line": "Do you take anything to help you sleep, like alprazolam?", "split": "dev", "ids": ["f_other_substances"], "ms": 534, "error": false}
+{"case": "alc_01", "line": "Any tobacco, gutka or other habits?", "split": "dev", "ids": ["f_other_substances"], "ms": 528, "error": false}
+{"case": "alc_01", "line": "Have you ever used any recreational drugs?", "split": "dev", "ids": ["f_other_substances"], "ms": 527, "error": false}
+{"case": "alc_01", "line": "Did anyone in your family have a problem with alcohol?", "split": "dev", "ids": ["f_family_history"], "ms": 512, "error": false}
+{"case": "alc_01", "line": "Are your parents alive and well?", "split": "dev", "ids": [], "ms": 306, "error": false}
+{"case": "alc_01", "line": "What is it that scares you most about where this is heading?", "split": "dev", "ids": ["f_consequences", "f_family_history", "f_motivation"], "ms": 739, "error": false}
+{"case": "alc_01", "line": "Do you ever hear voices when no one is around?", "split": "dev", "ids": ["f_psych_history"], "ms": 266, "error": false}
+{"case": "alc_01", "line": "Any past psychiatric history?", "split": "dev", "ids": ["f_psych_history"], "ms": 223, "error": false}
+{"case": "alc_01", "line": "Do you lose your temper when you've been drinking?", "split": "dev", "ids": ["f_anger_home"], "ms": 513, "error": false}
+{"case": "alc_01", "line": "Have you ever thrown or broken things in anger?", "split": "dev", "ids": ["f_anger_home"], "ms": 513, "error": false}
+{"case": "alc_01", "line": "Do you have any thoughts of harming someone else?", "split": "dev", "ids": ["f_anger_home", "f_passive_si"], "ms": 367, "error": false}
+{"case": "alc_01", "line": "How bad do the fights get in the house?", "split": "dev", "ids": ["f_anger_home", "f_consequences"], "ms": 630, "error": false}
+{"case": "alc_01", "line": "Do you shout or become abusive after drinking?", "split": "dev", "ids": ["f_anger_home"], "ms": 513, "error": false}
+{"case": "alc_01", "line": "Has an argument with your spouse ever got out of hand?", "split": "dev", "ids": ["f_anger_home", "f_consequences"], "ms": 630, "error": false}
+{"case": "alc_01", "line": "Is there anyone you are so angry with that you feel like hurting them?", "split": "dev", "ids": ["f_anger_home"], "ms": 267, "error": false}
+{"case": "alc_01", "line": "Do you want to stop drinking?", "split": "dev", "ids": ["f_control", "f_mood", "f_motivation"], "ms": 653, "error": false}
+{"case": "alc_01", "line": "How ready are you to make a change?", "split": "dev", "ids": ["f_control", "f_motivation"], "ms": 308, "error": false}
+{"case": "alc_01", "line": "What would be the good things about quitting, and what would you miss?", "split": "dev", "ids": ["f_consequences", "f_motivation", "f_protective"], "ms": 706, "error": false}
+{"case": "alc_01", "line": "Do you think you can handle this on your own?", "split": "dev", "ids": ["f_control", "f_motivation", "f_passive_si"], "ms": 717, "error": false}
+{"case": "alc_01", "line": "Take your time, we are not in a rush.", "split": "dev", "ids": [], "ms": 199, "error": false}
+{"case": "alc_01", "line": "Whatever you say here stays between us and the team looking after you.", "split": "dev", "ids": [], "ms": 200, "error": false}
+{"case": "alc_01", "line": "Terrible traffic on Hosur Road this morning, wasn't it?", "split": "dev", "ids": [], "ms": 201, "error": false}
+{"case": "alc_01", "line": "Let me just close the door so we have some privacy.", "split": "dev", "ids": [], "ms": 196, "error": false}
+{"case": "ward_01", "line": "I hear you want to leave today. Can you tell me about that?", "split": "dev", "ids": ["f_pc"], "ms": 873, "error": false}
+{"case": "ward_01", "line": "How long have you been with us now, and how do you think you're doing?", "split": "dev", "ids": ["f_mood", "f_pc"], "ms": 308, "error": false}
+{"case": "ward_01", "line": "What is it about the ward that you find hardest?", "split": "dev", "ids": ["f_reasons_ward", "f_shame"], "ms": 365, "error": false}
+{"case": "ward_01", "line": "How are the nights here?", "split": "dev", "ids": ["f_current_si", "f_mood", "f_reasons_ward"], "ms": 418, "error": false}
+{"case": "ward_01", "line": "Are the staff treating you well?", "split": "dev", "ids": ["f_reasons_ward"], "ms": 243, "error": false}
+{"case": "ward_01", "line": "Is there something we could change here to make your stay more bearable?", "split": "dev", "ids": ["f_mood", "f_protective", "f_reasons_ward"], "ms": 425, "error": false}
+{"case": "ward_01", "line": "Does your manager know where you are?", "split": "dev", "ids": ["f_reasons_job"], "ms": 277, "error": false}
+{"case": "ward_01", "line": "Who knows that you are here?", "split": "dev", "ids": ["f_protective", "f_shame"], "ms": 287, "error": false}
+{"case": "ward_01", "line": "Are you worried about what people will say?", "split": "dev", "ids": ["f_reasons_job", "f_shame"], "ms": 365, "error": false}
+{"case": "ward_01", "line": "Would it bother you if your relations or people at your workplace came to know?", "split": "dev", "ids": ["f_reasons_job", "f_shame"], "ms": 356, "error": false}
+{"case": "ward_01", "line": "Are you eating?", "split": "dev", "ids": ["f_mood"], "ms": 189, "error": false}
+{"case": "ward_01", "line": "Is there a part of the day that is heavier than the rest?", "split": "dev", "ids": ["f_mood"], "ms": 235, "error": false}
+{"case": "ward_01", "line": "How are you feeling in yourself today, honestly?", "split": "dev", "ids": ["f_current_si", "f_mood"], "ms": 335, "error": false}
+{"case": "ward_01", "line": "What took you up to the roof that night?", "split": "dev", "ids": ["f_current_si", "f_means", "f_terrace"], "ms": 729, "error": false}
+{"case": "ward_01", "line": "Talk me through the events that brought you here.", "split": "dev", "ids": ["f_reasons_ward", "f_shame", "f_terrace"], "ms": 453, "error": false}
+{"case": "ward_01", "line": "How did your friend find you?", "split": "dev", "ids": ["f_terrace"], "ms": 215, "error": false}
+{"case": "ward_01", "line": "Did you try to do something to yourself before admission?", "split": "dev", "ids": ["f_current_si", "f_terrace"], "ms": 350, "error": false}
+{"case": "ward_01", "line": "A few days back, had you made up your mind to die?", "split": "dev", "ids": ["f_current_si", "f_terrace"], "ms": 351, "error": false}
+{"case": "ward_01", "line": "Did you climb to the rooftop meaning to harm yourself?", "split": "dev", "ids": ["f_current_si", "f_means", "f_terrace"], "ms": 730, "error": false}
+{"case": "ward_01", "line": "If I let you go home today, can you promise me you will be safe?", "split": "dev", "ids": ["f_capacity", "f_current_si", "f_protective"], "ms": 411, "error": false}
+{"case": "ward_01", "line": "Have you decided to act on the thoughts of dying, or are they only thoughts?", "split": "dev", "ids": ["f_current_si", "f_terrace"], "ms": 628, "error": false}
+{"case": "ward_01", "line": "On the ward, has the wish to die come back at any point?", "split": "dev", "ids": ["f_current_si", "f_reasons_ward", "f_terrace"], "ms": 772, "error": false}
+{"case": "ward_01", "line": "Any thoughts of jumping since you've been here?", "split": "dev", "ids": ["f_current_si", "f_means", "f_terrace"], "ms": 728, "error": false}
+{"case": "ward_01", "line": "Is the terrace of your building kept locked?", "split": "dev", "ids": ["f_means"], "ms": 235, "error": false}
+{"case": "ward_01", "line": "Can anybody just walk up to the roof where you live?", "split": "dev", "ids": ["f_means", "f_terrace"], "ms": 596, "error": false}
+{"case": "ward_01", "line": "Is your flatmate around at the moment?", "split": "dev", "ids": ["f_means"], "ms": 234, "error": false}
+{"case": "ward_01", "line": "Would you be on your own in the flat tonight?", "split": "dev", "ids": ["f_means"], "ms": 480, "error": false}
+{"case": "ward_01", "line": "Is there someone who could stay with you for the next few days?", "split": "dev", "ids": ["f_protective"], "ms": 237, "error": false}
+{"case": "ward_01", "line": "Who has the key to the roof at your apartment?", "split": "dev", "ids": ["f_means"], "ms": 233, "error": false}
+{"case": "ward_01", "line": "Is there anything at your place that makes it unsafe for you to return?", "split": "dev", "ids": ["f_means", "f_terrace"], "ms": 597, "error": false}
+{"case": "ward_01", "line": "Will there be anyone to keep an eye on you after discharge?", "split": "dev", "ids": ["f_capacity", "f_protective"], "ms": 583, "error": false}
+{"case": "ward_01", "line": "Is anyone from your family coming to see you?", "split": "dev", "ids": ["f_protective"], "ms": 233, "error": false}
+{"case": "ward_01", "line": "Would it help if we shifted you to a calmer corner and let you phone your parents?", "split": "dev", "ids": ["f_protective"], "ms": 238, "error": false}
+{"case": "ward_01", "line": "Is there anything worth holding on for?", "split": "dev", "ids": ["f_current_si", "f_mood", "f_protective"], "ms": 407, "error": false}
+{"case": "ward_01", "line": "Do you understand why the team is concerned about you leaving?", "split": "dev", "ids": ["f_capacity", "f_current_si"], "ms": 336, "error": false}
+{"case": "ward_01", "line": "Do you think you are unwell?", "split": "dev", "ids": ["f_capacity"], "ms": 194, "error": false}
+{"case": "ward_01", "line": "Do you drink or use any drugs?", "split": "dev", "ids": ["f_substances"], "ms": 214, "error": false}
+{"case": "ward_01", "line": "Any alcohol at all, even occasionally at parties?", "split": "dev", "ids": ["f_substances"], "ms": 251, "error": false}
+{"case": "ward_01", "line": "On the night you were found, had you taken a drink or any substance?", "split": "dev", "ids": ["f_substances"], "ms": 250, "error": false}
+{"case": "ward_01", "line": "Do you use anything to take the edge off when you're upset?", "split": "dev", "ids": ["f_substances"], "ms": 250, "error": false}
+{"case": "ward_01", "line": "How are you getting on with the new tablets?", "split": "dev", "ids": ["f_meds"], "ms": 248, "error": false}
+{"case": "ward_01", "line": "Have you noticed any effect from the medicine yet?", "split": "dev", "ids": ["f_meds"], "ms": 248, "error": false}
+{"case": "ward_01", "line": "Hello Ananya, I'm the duty doctor. May I sit down?", "split": "dev", "ids": [], "ms": 200, "error": false}
+{"case": "ward_01", "line": "I can see this is very hard for you.", "split": "dev", "ids": ["f_mood", "f_reasons_ward", "f_shame"], "ms": 459, "error": false}
+{"case": "ward_01", "line": "It's quite hot in here today, shall I open the window?", "split": "dev", "ids": [], "ms": 200, "error": false}
+{"case": "ward_01", "line": "I'm sorry I kept you waiting this morning.", "split": "dev", "ids": [], "ms": 197, "error": false}
+{"case": "ward_02", "line": "Why don't you want to take the medicine?", "split": "dev", "ids": ["f_capacity_understand", "f_pc", "f_side_effects"], "ms": 717, "error": false}
+{"case": "ward_02", "line": "Did the tablets make you feel unwell in any way?", "split": "dev", "ids": ["f_pc", "f_side_effects"], "ms": 485, "error": false}
+{"case": "ward_02", "line": "Have you had any side effects?", "split": "dev", "ids": ["f_side_effects"], "ms": 669, "error": false}
+{"case": "ward_02", "line": "How did you feel on the days when you did take the medicine?", "split": "dev", "ids": ["f_side_effects"], "ms": 413, "error": false}
+{"case": "ward_02", "line": "Did the first few doses leave you drowsy or dull?", "split": "dev", "ids": ["f_side_effects"], "ms": 670, "error": false}
+{"case": "ward_02", "line": "Do you trust the hospital food?", "split": "dev", "ids": ["f_poison"], "ms": 384, "error": false}
+{"case": "ward_02", "line": "Is there anyone in your family who you feel is against you?", "split": "dev", "ids": ["f_poison"], "ms": 385, "error": false}
+{"case": "ward_02", "line": "Do you hear voices when nobody is around?", "split": "dev", "ids": ["f_voices"], "ms": 383, "error": false}
+{"case": "ward_02", "line": "Have you had any strange experiences, especially after dark?", "split": "dev", "ids": ["f_voices"], "ms": 643, "error": false}
+{"case": "ward_02", "line": "Does it sometimes seem that unseen people are passing remarks on what you're doing?", "split": "dev", "ids": ["f_voices"], "ms": 385, "error": false}
+{"case": "ward_02", "line": "Have you been able to keep up with college?", "split": "dev", "ids": ["f_college"], "ms": 386, "error": false}
+{"case": "ward_02", "line": "What's happening about your final exams?", "split": "dev", "ids": ["f_college"], "ms": 385, "error": false}
+{"case": "ward_02", "line": "What worries you most about your future just now?", "split": "dev", "ids": ["f_college", "f_risk", "f_voices"], "ms": 530, "error": false}
+{"case": "ward_02", "line": "How do your mother and father feel about your degree being interrupted?", "split": "dev", "ids": ["f_college"], "ms": 385, "error": false}
+{"case": "ward_02", "line": "Have you ever been violent towards anybody?", "split": "dev", "ids": ["f_risk"], "ms": 385, "error": false}
+{"case": "ward_02", "line": "Do the voices ever tell you to do something to yourself or to others?", "split": "dev", "ids": ["f_voices"], "ms": 388, "error": false}
+{"case": "ward_02", "line": "If you came face to face with the people you believe are against you, what would you do?", "split": "dev", "ids": ["f_poison", "f_voices"], "ms": 459, "error": false}
+{"case": "ward_02", "line": "Have you ever got into a physical fight or hit someone?", "split": "dev", "ids": ["f_risk"], "ms": 386, "error": false}
+{"case": "ward_02", "line": "Do you ever feel like ending things?", "split": "dev", "ids": ["f_risk"], "ms": 385, "error": false}
+{"case": "ward_02", "line": "Any thoughts of doing something to yourself or to somebody else?", "split": "dev", "ids": ["f_risk"], "ms": 385, "error": false}
+{"case": "ward_02", "line": "Would you try to run off from here?", "split": "dev", "ids": ["f_risk"], "ms": 385, "error": false}
+{"case": "ward_02", "line": "Any suicidal ideas at present?", "split": "dev", "ids": ["f_risk"], "ms": 386, "error": false}
+{"case": "ward_02", "line": "Have you felt so frightened that you thought of escaping from the hostel or from the hospital?", "split": "dev", "ids": ["f_risk"], "ms": 388, "error": false}
+{"case": "ward_02", "line": "Can you tell me back what I said the tablets are for?", "split": "dev", "ids": ["f_capacity_understand"], "ms": 415, "error": false}
+{"case": "ward_02", "line": "What do you make of what the doctors have been telling you about your condition?", "split": "dev", "ids": ["f_capacity_understand"], "ms": 417, "error": false}
+{"case": "ward_02", "line": "In your view, is there anything the matter with your mind?", "split": "dev", "ids": ["f_capacity_understand"], "ms": 416, "error": false}
+{"case": "ward_02", "line": "Is there any way you would agree to take a medicine?", "split": "dev", "ids": ["f_alternatives", "f_capacity_understand"], "ms": 513, "error": false}
+{"case": "ward_02", "line": "Would you try a different tablet that doesn't put on weight?", "split": "dev", "ids": ["f_alternatives", "f_side_effects"], "ms": 503, "error": false}
+{"case": "ward_02", "line": "Is there someone you'd like to speak to before deciding?", "split": "dev", "ids": ["f_alternatives"], "ms": 402, "error": false}
+{"case": "ward_02", "line": "What would make you comfortable enough to accept treatment?", "split": "dev", "ids": ["f_alternatives", "f_pc"], "ms": 473, "error": false}
+{"case": "ward_02", "line": "Shall we call your mother and discuss the options together?", "split": "dev", "ids": ["f_alternatives"], "ms": 404, "error": false}
+{"case": "ward_02", "line": "Do you drink at all?", "split": "dev", "ids": ["f_substances"], "ms": 399, "error": false}
+{"case": "ward_02", "line": "Any habits, like smoking up?", "split": "dev", "ids": ["f_substances"], "ms": 399, "error": false}
+{"case": "ward_02", "line": "When was the last time you used any drugs?", "split": "dev", "ids": ["f_substances"], "ms": 400, "error": false}
+{"case": "ward_02", "line": "Have you ever had fits, a head injury or any major sickness?", "split": "dev", "ids": ["f_medical"], "ms": 389, "error": false}
+{"case": "ward_02", "line": "Any long-standing conditions like asthma, thyroid or diabetes?", "split": "dev", "ids": ["f_medical"], "ms": 427, "error": false}
+{"case": "ward_02", "line": "Hello Priya, I'm one of the doctors on the ward. Is it all right if we talk for a few minutes?", "split": "dev", "ids": [], "ms": 386, "error": false}
+{"case": "ward_02", "line": "I can see you're upset, and I'm sorry about that.", "split": "dev", "ids": [], "ms": 389, "error": false}
+{"case": "ward_02", "line": "Thank you for sitting with me, I appreciate it.", "split": "dev", "ids": [], "ms": 376, "error": false}
+{"case": "mdd_01", "line": "What's brought you here to see me today?", "split": "test", "ids": ["f_pc"], "ms": 255, "error": false}
+{"case": "mdd_01", "line": "Tell me in your own words what the trouble has been.", "split": "test", "ids": ["f_mood", "f_onset", "f_pc"], "ms": 1182, "error": false}
+{"case": "mdd_01", "line": "Was it your own idea to come today, or did somebody send you?", "split": "test", "ids": ["f_pc"], "ms": 487, "error": false}
+{"case": "mdd_01", "line": "Was there anything happening in your life around the time it started?", "split": "test", "ids": ["f_onset", "f_work_family"], "ms": 617, "error": false}
+{"case": "mdd_01", "line": "Is this the first time in your life you've felt this way?", "split": "test", "ids": ["f_no_mania_no_psych_hx", "f_onset"], "ms": 421, "error": false}
+{"case": "mdd_01", "line": "How has your mood been lately?", "split": "test", "ids": ["f_anxiety", "f_mood"], "ms": 290, "error": false}
+{"case": "mdd_01", "line": "Do you find yourself feeling sad or down in the dumps?", "split": "test", "ids": ["f_mood"], "ms": 238, "error": false}
+{"case": "mdd_01", "line": "How are your spirits these days?", "split": "test", "ids": ["f_anhedonia", "f_energy_concentration", "f_mood"], "ms": 768, "error": false}
+{"case": "mdd_01", "line": "Have you been tearful at all?", "split": "test", "ids": ["f_mood"], "ms": 244, "error": false}
+{"case": "mdd_01", "line": "Feeling a bit depressed, is it?", "split": "test", "ids": ["f_mood", "f_pc"], "ms": 641, "error": false}
+{"case": "mdd_01", "line": "Some people tell me they feel sort of hollow inside. Does that fit for you?", "split": "test", "ids": ["f_mood"], "ms": 251, "error": false}
+{"case": "mdd_01", "line": "What do you do for fun, and are you still doing it?", "split": "test", "ids": ["f_anhedonia"], "ms": 284, "error": false}
+{"case": "mdd_01", "line": "Do you have any hobbies? Have you kept them up?", "split": "test", "ids": ["f_anhedonia"], "ms": 568, "error": false}
+{"case": "mdd_01", "line": "How do you spend your weekends now?", "split": "test", "ids": ["f_anhedonia", "f_sleep"], "ms": 365, "error": false}
+{"case": "mdd_01", "line": "Are you keeping in touch with your friends?", "split": "test", "ids": ["f_anhedonia"], "ms": 291, "error": false}
+{"case": "mdd_01", "line": "Any trouble dropping off, or is it more that you're up long before the alarm?", "split": "test", "ids": ["f_sleep"], "ms": 249, "error": false}
+{"case": "mdd_01", "line": "Do you feel refreshed when you get up in the morning?", "split": "test", "ids": ["f_sleep"], "ms": 531, "error": false}
+{"case": "mdd_01", "line": "And your sleep?", "split": "test", "ids": ["f_sleep"], "ms": 484, "error": false}
+{"case": "mdd_01", "line": "How is your appetite?", "split": "test", "ids": ["f_appetite"], "ms": 240, "error": false}
+{"case": "mdd_01", "line": "Have you noticed any change in your weight?", "split": "test", "ids": ["f_appetite"], "ms": 282, "error": false}
+{"case": "mdd_01", "line": "Have people remarked that you're looking thinner?", "split": "test", "ids": ["f_appetite"], "ms": 285, "error": false}
+{"case": "mdd_01", "line": "Can you follow a film or read a page without your mind drifting off?", "split": "test", "ids": ["f_anhedonia", "f_energy_concentration"], "ms": 408, "error": false}
+{"case": "mdd_01", "line": "Do you find you get worn out easily, even by small tasks?", "split": "test", "ids": ["f_energy_concentration", "f_pc"], "ms": 676, "error": false}
+{"case": "mdd_01", "line": "Has your performance at the office slipped at all?", "split": "test", "ids": ["f_energy_concentration", "f_work_family"], "ms": 406, "error": false}
+{"case": "mdd_01", "line": "Do you ever feel you've let people down?", "split": "test", "ids": ["f_guilt"], "ms": 272, "error": false}
+{"case": "mdd_01", "line": "How is your self-confidence?", "split": "test", "ids": ["f_guilt"], "ms": 236, "error": false}
+{"case": "mdd_01", "line": "Are you being hard on yourself?", "split": "test", "ids": ["f_guilt"], "ms": 235, "error": false}
+{"case": "mdd_01", "line": "Do you feel guilty about anything?", "split": "test", "ids": ["f_guilt"], "ms": 236, "error": false}
+{"case": "mdd_01", "line": "Do you feel nervous or on edge?", "split": "test", "ids": ["f_anxiety"], "ms": 232, "error": false}
+{"case": "mdd_01", "line": "Do you get palpitations, trembling or sweaty palms when you're under stress?", "split": "test", "ids": ["f_anxiety"], "ms": 281, "error": false}
+{"case": "mdd_01", "line": "Does your head keep buzzing with thoughts when you're trying to switch off?", "split": "test", "ids": ["f_anxiety"], "ms": 286, "error": false}
+{"case": "mdd_01", "line": "Is there something you keep fretting about over and over?", "split": "test", "ids": ["f_anxiety", "f_work_family"], "ms": 395, "error": false}
+{"case": "mdd_01", "line": "How are things at work?", "split": "test", "ids": ["f_work_family"], "ms": 263, "error": false}
+{"case": "mdd_01", "line": "How do you get along with your boss?", "split": "test", "ids": ["f_work_family"], "ms": 290, "error": false}
+{"case": "mdd_01", "line": "Do you have money worries, or people depending on you financially?", "split": "test", "ids": ["f_work_family"], "ms": 289, "error": false}
+{"case": "mdd_01", "line": "What are the main stresses in your life right now?", "split": "test", "ids": ["f_work_family"], "ms": 575, "error": false}
+{"case": "mdd_01", "line": "How have things been with your family and at the office?", "split": "test", "ids": ["f_work_family"], "ms": 574, "error": false}
+{"case": "mdd_01", "line": "Is your job secure, do you think?", "split": "test", "ids": ["f_work_family"], "ms": 282, "error": false}
+{"case": "mdd_01", "line": "Any relatives who needed to see a psychiatrist or were put on medication for the mind?", "split": "test", "ids": ["f_family_history"], "ms": 302, "error": false}
+{"case": "mdd_01", "line": "Has anybody among your blood relations taken their own life or tried to?", "split": "test", "ids": ["f_family_history"], "ms": 290, "error": false}
+{"case": "mdd_01", "line": "Is there anyone at home who drinks heavily?", "split": "test", "ids": ["f_substances"], "ms": 279, "error": false}
+{"case": "mdd_01", "line": "Have you ever felt you'd be better off dead?", "split": "test", "ids": ["f_no_plan_no_attempt", "f_passive_si"], "ms": 479, "error": false}
+{"case": "mdd_01", "line": "Do you ever feel like you just want it all to stop?", "split": "test", "ids": ["f_passive_si"], "ms": 289, "error": false}
+{"case": "mdd_01", "line": "Are you having suicidal thoughts?", "split": "test", "ids": ["f_no_means", "f_no_plan_no_attempt", "f_passive_si"], "ms": 562, "error": false}
+{"case": "mdd_01", "line": "Are you having thoughts of doing something to yourself?", "split": "test", "ids": ["f_no_means", "f_no_plan_no_attempt", "f_passive_si"], "ms": 926, "error": false}
+{"case": "mdd_01", "line": "I ask everyone this: has it ever got so bad that you wished you weren't alive?", "split": "test", "ids": ["f_passive_si"], "ms": 285, "error": false}
+{"case": "mdd_01", "line": "Do you ever go to bed hoping the next day won't come?", "split": "test", "ids": ["f_passive_si"], "ms": 303, "error": false}
+{"case": "mdd_01", "line": "Has dying been on your mind at all?", "split": "test", "ids": ["f_no_plan_no_attempt", "f_passive_si"], "ms": 482, "error": false}
+{"case": "mdd_01", "line": "Have you made any plans to end your life?", "split": "test", "ids": ["f_no_plan_no_attempt", "f_passive_si"], "ms": 819, "error": false}
+{"case": "mdd_01", "line": "Have you ever hurt yourself on purpose, like cutting or anything of that sort?", "split": "test", "ids": ["f_no_plan_no_attempt"], "ms": 362, "error": false}
+{"case": "mdd_01", "line": "Do you intend to act on these thoughts of dying?", "split": "test", "ids": ["f_no_means", "f_no_plan_no_attempt", "f_passive_si"], "ms": 973, "error": false}
+{"case": "mdd_01", "line": "Has there been a time in the past when you did something to injure yourself?", "split": "test", "ids": ["f_no_plan_no_attempt"], "ms": 366, "error": false}
+{"case": "mdd_01", "line": "Is there any chance you might do something drastic?", "split": "test", "ids": ["f_no_means", "f_no_plan_no_attempt", "f_passive_si"], "ms": 605, "error": false}
+{"case": "mdd_01", "line": "Have you ever taken an overdose or done anything like that?", "split": "test", "ids": ["f_no_means", "f_no_plan_no_attempt"], "ms": 483, "error": false}
+{"case": "mdd_01", "line": "Have you got as far as writing a note or saying goodbye to anyone?", "split": "test", "ids": ["f_no_plan_no_attempt", "f_passive_si"], "ms": 484, "error": false}
+{"case": "mdd_01", "line": "If these feelings got worse tonight, do you think you would do anything about them?", "split": "test", "ids": ["f_no_means", "f_no_plan_no_attempt", "f_passive_si"], "ms": 609, "error": false}
+{"case": "mdd_01", "line": "Do you feel safe with yourself right now?", "split": "test", "ids": ["f_no_plan_no_attempt", "f_passive_si", "f_protective"], "ms": 938, "error": false}
+{"case": "mdd_01", "line": "Have you decided on a day or a method?", "split": "test", "ids": ["f_no_means", "f_no_plan_no_attempt"], "ms": 496, "error": false}
+{"case": "mdd_01", "line": "Is there anything in your flat that you could use to harm yourself?", "split": "test", "ids": ["f_no_means"], "ms": 305, "error": false}
+{"case": "mdd_01", "line": "Have you been collecting medicines?", "split": "test", "ids": ["f_substances"], "ms": 249, "error": false}
+{"case": "mdd_01", "line": "Do you keep any medicines in the house, even ordinary ones like paracetamol strips?", "split": "test", "ids": ["f_no_means"], "ms": 310, "error": false}
+{"case": "mdd_01", "line": "Any pesticide, rat poison, phenyl or anything like that lying around where you stay?", "split": "test", "ids": ["f_no_means"], "ms": 601, "error": false}
+{"case": "mdd_01", "line": "Do you have access to anything dangerous?", "split": "test", "ids": ["f_no_means"], "ms": 304, "error": false}
+{"case": "mdd_01", "line": "Have you been reading up on methods online?", "split": "test", "ids": ["f_no_means"], "ms": 304, "error": false}
+{"case": "mdd_01", "line": "Have you googled anything about overdoses or how much of a drug is dangerous?", "split": "test", "ids": ["f_no_means"], "ms": 309, "error": false}
+{"case": "mdd_01", "line": "Is there any rope, blade or chemical you have kept ready?", "split": "test", "ids": ["f_no_means"], "ms": 596, "error": false}
+{"case": "mdd_01", "line": "What keeps you going?", "split": "test", "ids": ["f_protective"], "ms": 214, "error": false}
+{"case": "mdd_01", "line": "What stops you from acting on these thoughts?", "split": "test", "ids": ["f_protective"], "ms": 259, "error": false}
+{"case": "mdd_01", "line": "Who do you have to support you?", "split": "test", "ids": ["f_protective", "f_work_family"], "ms": 390, "error": false}
+{"case": "mdd_01", "line": "Is there someone you can talk to when things get bad?", "split": "test", "ids": ["f_protective"], "ms": 271, "error": false}
+{"case": "mdd_01", "line": "What are your reasons for living?", "split": "test", "ids": ["f_no_plan_no_attempt", "f_passive_si", "f_protective"], "ms": 533, "error": false}
+{"case": "mdd_01", "line": "Is the person you share the flat with someone you can lean on?", "split": "test", "ids": ["f_work_family"], "ms": 307, "error": false}
+{"case": "mdd_01", "line": "What gives you hope, even a little?", "split": "test", "ids": ["f_protective"], "ms": 256, "error": false}
+{"case": "mdd_01", "line": "Is there anything that makes you hold on?", "split": "test", "ids": ["f_protective"], "ms": 259, "error": false}
+{"case": "mdd_01", "line": "Do you drink alcohol?", "split": "test", "ids": ["f_substances"], "ms": 242, "error": false}
+{"case": "mdd_01", "line": "Taking any drinks?", "split": "test", "ids": ["f_substances"], "ms": 234, "error": false}
+{"case": "mdd_01", "line": "Do you smoke or chew anything, gutka, paan masala?", "split": "test", "ids": ["f_substances"], "ms": 575, "error": false}
+{"case": "mdd_01", "line": "Have you ever tried ganja or any other drugs?", "split": "test", "ids": ["f_substances"], "ms": 279, "error": false}
+{"case": "mdd_01", "line": "How much tea or coffee do you have in a day?", "split": "test", "ids": ["f_substances"], "ms": 288, "error": false}
+{"case": "mdd_01", "line": "Do you use anything to help you relax or cope, a peg, a cigarette, any pills?", "split": "test", "ids": ["f_substances"], "ms": 292, "error": false}
+{"case": "mdd_01", "line": "Has your mind been playing tricks on you?", "split": "test", "ids": ["f_no_psychosis"], "ms": 611, "error": false}
+{"case": "mdd_01", "line": "Do you ever feel that your thoughts or actions are not your own, as if some outside force is in charge?", "split": "test", "ids": ["f_no_psychosis"], "ms": 326, "error": false}
+{"case": "mdd_01", "line": "Have you ever had a spell where you felt on top of the world and hardly needed any sleep?", "split": "test", "ids": ["f_no_mania_no_psych_hx"], "ms": 404, "error": false}
+{"case": "mdd_01", "line": "Have you ever been on antidepressants or any tablets for your mood?", "split": "test", "ids": ["f_family_history", "f_no_mania_no_psych_hx"], "ms": 535, "error": false}
+{"case": "mdd_01", "line": "Have there been times when you were far more talkative, spending freely and bursting with ideas?", "split": "test", "ids": ["f_no_mania_no_psych_hx"], "ms": 404, "error": false}
+{"case": "mdd_01", "line": "Have you ever had therapy or talked to anyone professionally about your feelings?", "split": "test", "ids": ["f_no_mania_no_psych_hx"], "ms": 414, "error": false}
+{"case": "mdd_01", "line": "Any allergies to medicines?", "split": "test", "ids": ["f_medical"], "ms": 227, "error": false}
+{"case": "mdd_01", "line": "Any operations or hospital admissions in the past?", "split": "test", "ids": ["f_medical"], "ms": 269, "error": false}
+{"case": "mdd_01", "line": "When was your last menstrual period?", "split": "test", "ids": ["f_pregnancy"], "ms": 217, "error": false}
+{"case": "mdd_01", "line": "Is there any chance you could be pregnant?", "split": "test", "ids": ["f_pregnancy"], "ms": 274, "error": false}
+{"case": "mdd_01", "line": "Are you in a physical relationship at present?", "split": "test", "ids": ["f_pregnancy"], "ms": 274, "error": false}
+{"case": "mdd_01", "line": "Are you using any birth control?", "split": "test", "ids": ["f_pregnancy"], "ms": 229, "error": false}
+{"case": "mdd_01", "line": "I need to ask a personal question before prescribing anything: are you sexually active?", "split": "test", "ids": ["f_pregnancy"], "ms": 277, "error": false}
+{"case": "mdd_01", "line": "Everything you tell me here stays confidential within the treating team.", "split": "test", "ids": [], "ms": 224, "error": false}
+{"case": "mdd_01", "line": "That sounds really difficult. Thank you for telling me.", "split": "test", "ids": [], "ms": 222, "error": false}
+{"case": "mdd_01", "line": "It's been raining so much this week, did you get stuck in traffic on the way?", "split": "test", "ids": [], "ms": 224, "error": false}
+{"case": "mdd_01", "line": "My name is Dr Sharma, I'm one of the junior doctors here.", "split": "test", "ids": [], "ms": 223, "error": false}
+{"case": "mdd_01", "line": "I'm sorry, could you say that again a little louder?", "split": "test", "ids": [], "ms": 221, "error": false}
+{"case": "alc_01", "line": "Your family doctor has written about tremors. Can you tell me more about that?", "split": "test", "ids": ["f_liver_medical", "f_morning_drinking", "f_pc"], "ms": 878, "error": false}
+{"case": "alc_01", "line": "Whose idea was it to come here?", "split": "test", "ids": ["f_pc"], "ms": 996, "error": false}
+{"case": "alc_01", "line": "Do you take alcohol?", "split": "test", "ids": ["f_drinking_minimised", "f_drinking_quantity", "f_last_drink"], "ms": 888, "error": false}
+{"case": "alc_01", "line": "Taking any drinks after work?", "split": "test", "ids": ["f_drinking_minimised", "f_last_drink", "f_morning_drinking"], "ms": 900, "error": false}
+{"case": "alc_01", "line": "Would you call yourself a social drinker?", "split": "test", "ids": ["f_drinking_minimised"], "ms": 625, "error": false}
+{"case": "alc_01", "line": "Tell me a little about your drinking.", "split": "test", "ids": ["f_drinking_minimised", "f_drinking_quantity", "f_last_drink"], "ms": 566, "error": false}
+{"case": "alc_01", "line": "Any habits, like liquor?", "split": "test", "ids": ["f_drinking_minimised", "f_drinking_quantity", "f_last_drink"], "ms": 911, "error": false}
+{"case": "alc_01", "line": "How many pegs would you have on a typical day?", "split": "test", "ids": ["f_drinking_minimised", "f_drinking_quantity"], "ms": 791, "error": false}
+{"case": "alc_01", "line": "What do you usually have, and how much of it goes in one sitting?", "split": "test", "ids": ["f_drinking_minimised", "f_drinking_quantity", "f_last_drink"], "ms": 952, "error": false}
+{"case": "alc_01", "line": "Can you hold your liquor better now than you could a few years ago?", "split": "test", "ids": ["f_control", "f_drinking_quantity", "f_pc"], "ms": 864, "error": false}
+{"case": "alc_01", "line": "When did you last have a drink?", "split": "test", "ids": ["f_last_drink"], "ms": 612, "error": false}
+{"case": "alc_01", "line": "Have you had anything to drink today?", "split": "test", "ids": ["f_last_drink"], "ms": 610, "error": false}
+{"case": "alc_01", "line": "Did you take anything before coming to the hospital today?", "split": "test", "ids": ["f_last_drink", "f_morning_drinking"], "ms": 772, "error": false}
+{"case": "alc_01", "line": "Do you ever need a drink first thing to get yourself going?", "split": "test", "ids": ["f_mood", "f_morning_drinking"], "ms": 737, "error": false}
+{"case": "alc_01", "line": "How do you feel when you get up, before you've had anything?", "split": "test", "ids": ["f_mood", "f_morning_drinking"], "ms": 742, "error": false}
+{"case": "alc_01", "line": "Do you get the shakes or sweats if you go without alcohol for some hours?", "split": "test", "ids": ["f_morning_drinking", "f_pc", "f_withdrawal_seizure"], "ms": 922, "error": false}
+{"case": "alc_01", "line": "Have you ever passed out and found afterwards that you had bitten your tongue or wet yourself?", "split": "test", "ids": ["f_withdrawal_seizure"], "ms": 639, "error": false}
+{"case": "alc_01", "line": "When you've gone a day or two without alcohol, has anything frightening happened to your body?", "split": "test", "ids": ["f_mood", "f_morning_drinking", "f_withdrawal_seizure"], "ms": 925, "error": false}
+{"case": "alc_01", "line": "After going off alcohol, was there ever an episode where you didn't know where you were or what day it was?", "split": "test", "ids": ["f_withdrawal_seizure"], "ms": 338, "error": false}
+{"case": "alc_01", "line": "Have you ever tried to cut down?", "split": "test", "ids": ["f_control"], "ms": 264, "error": false}
+{"case": "alc_01", "line": "Do you get a strong urge for it at a particular time of day?", "split": "test", "ids": ["f_control", "f_mood"], "ms": 703, "error": false}
+{"case": "alc_01", "line": "Do you end up having more than you planned?", "split": "test", "ids": ["f_control"], "ms": 586, "error": false}
+{"case": "alc_01", "line": "Have you made promises to yourself about limiting it, and how did those go?", "split": "test", "ids": ["f_control", "f_motivation"], "ms": 713, "error": false}
+{"case": "alc_01", "line": "Have you ever driven after drinking?", "split": "test", "ids": ["f_consequences"], "ms": 550, "error": false}
+{"case": "alc_01", "line": "What did your recent blood tests show?", "split": "test", "ids": ["f_liver_medical"], "ms": 310, "error": false}
+{"case": "alc_01", "line": "Any drug allergies?", "split": "test", "ids": ["f_liver_medical"], "ms": 265, "error": false}
+{"case": "alc_01", "line": "Any jaundice, stomach pain or vomiting of blood ever?", "split": "test", "ids": ["f_liver_medical"], "ms": 617, "error": false}
+{"case": "alc_01", "line": "Have you had your LFTs checked?", "split": "test", "ids": ["f_liver_medical"], "ms": 621, "error": false}
+{"case": "alc_01", "line": "What about your mood in general?", "split": "test", "ids": ["f_mood"], "ms": 233, "error": false}
+{"case": "alc_01", "line": "Do you feel anxious or wound up a lot of the time?", "split": "test", "ids": ["f_mood", "f_pc"], "ms": 714, "error": false}
+{"case": "alc_01", "line": "Have you ever thought your family would manage better if you weren't there?", "split": "test", "ids": ["f_passive_si"], "ms": 327, "error": false}
+{"case": "alc_01", "line": "Do you ever feel you are just a burden on everybody?", "split": "test", "ids": ["f_passive_si"], "ms": 326, "error": false}
+{"case": "alc_01", "line": "In your lowest moment recently, what was going through your mind?", "split": "test", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 517, "error": false}
+{"case": "alc_01", "line": "Have you ever felt like not being around any more?", "split": "test", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 513, "error": false}
+{"case": "alc_01", "line": "Do you ever get ideas about killing yourself when you are intoxicated?", "split": "test", "ids": ["f_passive_si"], "ms": 324, "error": false}
+{"case": "alc_01", "line": "Have you ever made a plan to end your life?", "split": "test", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 508, "error": false}
+{"case": "alc_01", "line": "Have you ever attempted suicide?", "split": "test", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 447, "error": false}
+{"case": "alc_01", "line": "Have you ever done something drastic to yourself, even when drunk?", "split": "test", "ids": ["f_anger_home", "f_no_plan_no_means", "f_passive_si"], "ms": 1018, "error": false}
+{"case": "alc_01", "line": "Did you ever go beyond just thinking about dying and actually take a step towards it?", "split": "test", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 530, "error": false}
+{"case": "alc_01", "line": "If a thought of finishing yourself came, would you act on it?", "split": "test", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 875, "error": false}
+{"case": "alc_01", "line": "Have you ever swallowed something or cut yourself in a bad moment?", "split": "test", "ids": ["f_no_plan_no_means", "f_passive_si"], "ms": 524, "error": false}
+{"case": "alc_01", "line": "Have you been saving up medicines or bought anything harmful?", "split": "test", "ids": ["f_no_plan_no_means", "f_other_substances"], "ms": 534, "error": false}
+{"case": "alc_01", "line": "What would stop you from taking your own life?", "split": "test", "ids": ["f_no_plan_no_means", "f_passive_si", "f_protective"], "ms": 615, "error": false}
+{"case": "alc_01", "line": "Who is there for you at home?", "split": "test", "ids": ["f_anger_home", "f_protective"], "ms": 429, "error": false}
+{"case": "alc_01", "line": "Tell me about your daughter.", "split": "test", "ids": ["f_protective"], "ms": 236, "error": false}
+{"case": "alc_01", "line": "Will your employer give you time off if you need to be admitted?", "split": "test", "ids": ["f_protective"], "ms": 305, "error": false}
+{"case": "alc_01", "line": "Tell me about your father's health.", "split": "test", "ids": ["f_family_history"], "ms": 630, "error": false}
+{"case": "alc_01", "line": "Does drinking run in the family?", "split": "test", "ids": ["f_family_history"], "ms": 586, "error": false}
+{"case": "alc_01", "line": "Has any close relative had liver disease?", "split": "test", "ids": ["f_family_history"], "ms": 314, "error": false}
+{"case": "alc_01", "line": "Have you had any treatment for mental health problems in the past?", "split": "test", "ids": ["f_psych_history"], "ms": 333, "error": false}
+{"case": "alc_01", "line": "Have you ever been to a de-addiction centre or a counsellor?", "split": "test", "ids": ["f_psych_history"], "ms": 330, "error": false}
+{"case": "alc_01", "line": "Have you ever had a stretch of days feeling extremely energetic and cheerful for no reason?", "split": "test", "ids": [], "ms": 414, "error": false}
+{"case": "alc_01", "line": "Have there been times when you were overactive, sleeping very little and still full of plans?", "split": "test", "ids": [], "ms": 412, "error": false}
+{"case": "alc_01", "line": "Have you ever hit anyone?", "split": "test", "ids": ["f_anger_home"], "ms": 273, "error": false}
+{"case": "alc_01", "line": "Do things ever get physical at home?", "split": "test", "ids": ["f_anger_home", "f_consequences"], "ms": 765, "error": false}
+{"case": "alc_01", "line": "Is your daughter safe when you've had a few?", "split": "test", "ids": ["f_protective"], "ms": 595, "error": false}
+{"case": "alc_01", "line": "What are you like when you're drunk? Would your family say you change?", "split": "test", "ids": ["f_anger_home", "f_consequences", "f_mood"], "ms": 908, "error": false}
+{"case": "alc_01", "line": "Has anyone at home ever been frightened of you?", "split": "test", "ids": ["f_anger_home", "f_passive_si"], "ms": 465, "error": false}
+{"case": "alc_01", "line": "Have you ever raised your hand on your child or your partner?", "split": "test", "ids": ["f_anger_home"], "ms": 337, "error": false}
+{"case": "alc_01", "line": "Any violence or aggression towards others?", "split": "test", "ids": ["f_anger_home", "f_passive_si"], "ms": 768, "error": false}
+{"case": "alc_01", "line": "Do you think you have a problem with alcohol?", "split": "test", "ids": ["f_consequences", "f_control", "f_motivation"], "ms": 884, "error": false}
+{"case": "alc_01", "line": "Would you be willing to come into hospital for a few days so we can take you off it safely?", "split": "test", "ids": ["f_control", "f_family_history", "f_motivation"], "ms": 898, "error": false}
+{"case": "alc_01", "line": "On a scale of one to ten, how important is it to you to give this up?", "split": "test", "ids": ["f_control", "f_motivation", "f_protective"], "ms": 473, "error": false}
+{"case": "alc_01", "line": "Good morning, I'm Dr Menon. Please sit down.", "split": "test", "ids": [], "ms": 450, "error": false}
+{"case": "alc_01", "line": "I'll be jotting down some points while we talk.", "split": "test", "ids": [], "ms": 245, "error": false}
+{"case": "alc_01", "line": "Thank you for being so open with me. I know that wasn't easy.", "split": "test", "ids": [], "ms": 446, "error": false}
+{"case": "alc_01", "line": "I'm going to examine you in a moment and then we'll talk about what comes next.", "split": "test", "ids": [], "ms": 242, "error": false}
+{"case": "alc_01", "line": "Would you like me to call your spouse in now, or shall we carry on alone for a bit?", "split": "test", "ids": ["f_protective"], "ms": 280, "error": false}
+{"case": "alc_01", "line": "Sorry about the wait, the clinic is very full today.", "split": "test", "ids": [], "ms": 434, "error": false}
+{"case": "ward_01", "line": "The nurses tell me you've packed your bag. What's going on?", "split": "test", "ids": ["f_pc"], "ms": 294, "error": false}
+{"case": "ward_01", "line": "Do you feel you still need to be in hospital?", "split": "test", "ids": ["f_pc", "f_protective", "f_reasons_ward"], "ms": 809, "error": false}
+{"case": "ward_01", "line": "So you're asking for discharge?", "split": "test", "ids": ["f_pc"], "ms": 288, "error": false}
+{"case": "ward_01", "line": "Do you feel you have enough privacy and freedom here?", "split": "test", "ids": ["f_reasons_ward", "f_shame"], "ms": 450, "error": false}
+{"case": "ward_01", "line": "Is it noisy where your bed is?", "split": "test", "ids": ["f_reasons_ward"], "ms": 339, "error": false}
+{"case": "ward_01", "line": "Why do you want to go so urgently?", "split": "test", "ids": ["f_pc", "f_reasons_job", "f_shame"], "ms": 538, "error": false}
+{"case": "ward_01", "line": "Is there something outside that you need to get back to?", "split": "test", "ids": ["f_protective", "f_reasons_job", "f_shame"], "ms": 919, "error": false}
+{"case": "ward_01", "line": "What have you told your office about being away?", "split": "test", "ids": ["f_reasons_job", "f_shame"], "ms": 458, "error": false}
+{"case": "ward_01", "line": "Are you worried about your work while you're in here?", "split": "test", "ids": ["f_reasons_job"], "ms": 354, "error": false}
+{"case": "ward_01", "line": "Is there a deadline or review coming up at your company?", "split": "test", "ids": ["f_reasons_job"], "ms": 353, "error": false}
+{"case": "ward_01", "line": "How do you feel about being admitted to a psychiatric ward?", "split": "test", "ids": ["f_reasons_ward", "f_shame"], "ms": 465, "error": false}
+{"case": "ward_01", "line": "Some people feel embarrassed about being in a place like this. Is that part of it for you?", "split": "test", "ids": ["f_shame"], "ms": 466, "error": false}
+{"case": "ward_01", "line": "How has your mood been since you came in?", "split": "test", "ids": ["f_mood"], "ms": 297, "error": false}
+{"case": "ward_01", "line": "How many hours are you sleeping?", "split": "test", "ids": ["f_mood"], "ms": 252, "error": false}
+{"case": "ward_01", "line": "Do you feel any different from the day you were admitted?", "split": "test", "ids": ["f_meds", "f_mood"], "ms": 405, "error": false}
+{"case": "ward_01", "line": "Have you been crying much?", "split": "test", "ids": ["f_mood"], "ms": 253, "error": false}
+{"case": "ward_01", "line": "Can you tell me what happened on the night that led to you coming into hospital?", "split": "test", "ids": ["f_terrace"], "ms": 309, "error": false}
+{"case": "ward_01", "line": "What was going through your mind when you were standing up there on the terrace?", "split": "test", "ids": ["f_current_si", "f_terrace"], "ms": 441, "error": false}
+{"case": "ward_01", "line": "When you went up, were you intending to jump?", "split": "test", "ids": ["f_current_si", "f_terrace"], "ms": 437, "error": false}
+{"case": "ward_01", "line": "What do you think would have happened if your friend had not come?", "split": "test", "ids": ["f_current_si", "f_terrace"], "ms": 439, "error": false}
+{"case": "ward_01", "line": "How close did you come to ending your life last week?", "split": "test", "ids": ["f_current_si", "f_terrace"], "ms": 778, "error": false}
+{"case": "ward_01", "line": "Before your friend reached you, how long had you been up on top of the building?", "split": "test", "ids": ["f_terrace"], "ms": 316, "error": false}
+{"case": "ward_01", "line": "I've read the notes, but I'd like to hear from you: why were you admitted?", "split": "test", "ids": ["f_reasons_job", "f_reasons_ward"], "ms": 491, "error": false}
+{"case": "ward_01", "line": "How near the edge did you go?", "split": "test", "ids": ["f_current_si", "f_means", "f_terrace"], "ms": 917, "error": false}
+{"case": "ward_01", "line": "Are you still having thoughts of ending your life?", "split": "test", "ids": ["f_current_si", "f_terrace"], "ms": 793, "error": false}
+{"case": "ward_01", "line": "Do you have any thoughts of suicide right now?", "split": "test", "ids": ["f_current_si", "f_means", "f_terrace"], "ms": 929, "error": false}
+{"case": "ward_01", "line": "What did you mean when you told the nurse you'd rather be dead?", "split": "test", "ids": ["f_current_si"], "ms": 343, "error": false}
+{"case": "ward_01", "line": "When you're lying by yourself after lights out, where does your mind go?", "split": "test", "ids": ["f_current_si", "f_terrace"], "ms": 456, "error": false}
+{"case": "ward_01", "line": "Have the dark thoughts gone away completely, or do they still come?", "split": "test", "ids": ["f_current_si", "f_mood", "f_terrace"], "ms": 925, "error": false}
+{"case": "ward_01", "line": "Do you still think about going back up to that rooftop?", "split": "test", "ids": ["f_current_si", "f_means", "f_terrace"], "ms": 922, "error": false}
+{"case": "ward_01", "line": "Are you having any urge to do something to yourself these days?", "split": "test", "ids": ["f_current_si", "f_terrace"], "ms": 798, "error": false}
+{"case": "ward_01", "line": "Do you still feel like you don't want to be around?", "split": "test", "ids": ["f_current_si", "f_terrace"], "ms": 453, "error": false}
+{"case": "ward_01", "line": "The staff mentioned something you said yesterday that worried them. Can we talk about it?", "split": "test", "ids": ["f_current_si"], "ms": 655, "error": false}
+{"case": "ward_01", "line": "Is life feeling worth living at the moment?", "split": "test", "ids": ["f_current_si", "f_mood", "f_terrace"], "ms": 914, "error": false}
+{"case": "ward_01", "line": "Who will be at home with you if you go back today?", "split": "test", "ids": ["f_protective"], "ms": 305, "error": false}
+{"case": "ward_01", "line": "If the thoughts came back once you were discharged, how easy would it be to get up to the top of the building?", "split": "test", "ids": ["f_capacity", "f_current_si", "f_means"], "ms": 910, "error": false}
+{"case": "ward_01", "line": "Tell me about your living arrangements right now.", "split": "test", "ids": ["f_means"], "ms": 612, "error": false}
+{"case": "ward_01", "line": "Does the building have a watchman or any barrier on the stairs to the top floor?", "split": "test", "ids": ["f_means"], "ms": 294, "error": false}
+{"case": "ward_01", "line": "Do you stay alone?", "split": "test", "ids": ["f_means"], "ms": 557, "error": false}
+{"case": "ward_01", "line": "What has stopped you from acting on these thoughts so far?", "split": "test", "ids": ["f_capacity", "f_current_si", "f_protective"], "ms": 904, "error": false}
+{"case": "ward_01", "line": "What would it take for you to stay one more night?", "split": "test", "ids": ["f_protective"], "ms": 303, "error": false}
+{"case": "ward_01", "line": "Who are the people you would not want to hurt?", "split": "test", "ids": ["f_protective"], "ms": 290, "error": false}
+{"case": "ward_01", "line": "When is your mother arriving?", "split": "test", "ids": ["f_protective"], "ms": 245, "error": false}
+{"case": "ward_01", "line": "What do you think might happen if you went home alone today?", "split": "test", "ids": ["f_capacity", "f_current_si"], "ms": 433, "error": false}
+{"case": "ward_01", "line": "Can you tell me in your own words the risks of going back now?", "split": "test", "ids": ["f_capacity", "f_current_si", "f_terrace"], "ms": 529, "error": false}
+{"case": "ward_01", "line": "How will you cope if things get bad again once you're out?", "split": "test", "ids": ["f_capacity", "f_current_si", "f_reasons_job"], "ms": 574, "error": false}
+{"case": "ward_01", "line": "What is your understanding of your illness?", "split": "test", "ids": ["f_capacity"], "ms": 295, "error": false}
+{"case": "ward_01", "line": "Let me check we are on the same page: what did I just explain about the dangers of leaving early?", "split": "test", "ids": ["f_capacity", "f_current_si"], "ms": 423, "error": false}
+{"case": "ward_01", "line": "Any habits like smoking, drinking, ganja?", "split": "test", "ids": ["f_substances"], "ms": 315, "error": false}
+{"case": "ward_01", "line": "Do you have any worries about taking an antidepressant?", "split": "test", "ids": ["f_meds"], "ms": 316, "error": false}
+{"case": "ward_01", "line": "What treatment have we started you on here?", "split": "test", "ids": ["f_meds"], "ms": 314, "error": false}
+{"case": "ward_01", "line": "Some people fear that these medicines will change their personality. Is that a concern for you?", "split": "test", "ids": ["f_meds"], "ms": 316, "error": false}
+{"case": "ward_01", "line": "Any side effects from the sertraline?", "split": "test", "ids": ["f_meds"], "ms": 311, "error": false}
+{"case": "ward_01", "line": "Take as long as you need, I'm not going anywhere.", "split": "test", "ids": ["f_capacity", "f_protective"], "ms": 384, "error": false}
+{"case": "ward_01", "line": "I'm going to make a few notes while we talk.", "split": "test", "ids": [], "ms": 438, "error": false}
+{"case": "ward_01", "line": "I'll need to speak to my consultant after this, and then I'll come back to you.", "split": "test", "ids": [], "ms": 241, "error": false}
+{"case": "ward_01", "line": "Thank you for talking to me so honestly.", "split": "test", "ids": [], "ms": 236, "error": false}
+{"case": "ward_01", "line": "Shall we sit in the interview room so we're not disturbed?", "split": "test", "ids": [], "ms": 240, "error": false}
+{"case": "ward_02", "line": "The nurses say you haven't been taking your medicine. Can you tell me about that?", "split": "test", "ids": ["f_alternatives", "f_pc", "f_side_effects"], "ms": 718, "error": false}
+{"case": "ward_02", "line": "Do you feel you need any treatment?", "split": "test", "ids": ["f_alternatives", "f_capacity_understand", "f_pc"], "ms": 723, "error": false}
+{"case": "ward_02", "line": "Are you managing to get a proper night's rest on the ward?", "split": "test", "ids": ["f_pc"], "ms": 495, "error": false}
+{"case": "ward_02", "line": "Would you rather I left you in peace just now?", "split": "test", "ids": ["f_pc"], "ms": 496, "error": false}
+{"case": "ward_02", "line": "I'm told you have been spitting out the tablets. Is that right?", "split": "test", "ids": ["f_pc", "f_side_effects"], "ms": 637, "error": false}
+{"case": "ward_02", "line": "Has the olanzapine affected your weight or your hunger?", "split": "test", "ids": ["f_side_effects"], "ms": 846, "error": false}
+{"case": "ward_02", "line": "Was there something about the medicine that you didn't like the feel of?", "split": "test", "ids": ["f_pc", "f_side_effects"], "ms": 614, "error": false}
+{"case": "ward_02", "line": "Do you think there is something wrong with the tablets we are giving you?", "split": "test", "ids": ["f_alternatives", "f_capacity_understand", "f_side_effects"], "ms": 766, "error": false}
+{"case": "ward_02", "line": "Do you feel someone is trying to harm you?", "split": "test", "ids": ["f_poison", "f_voices"], "ms": 584, "error": false}
+{"case": "ward_02", "line": "Why are you only eating what comes from home?", "split": "test", "ids": ["f_poison"], "ms": 495, "error": false}
+{"case": "ward_02", "line": "Do you think somebody has tampered with your medicine?", "split": "test", "ids": ["f_poison"], "ms": 499, "error": false}
+{"case": "ward_02", "line": "Are there any disputes over property or business among your relatives?", "split": "test", "ids": ["f_poison"], "ms": 497, "error": false}
+{"case": "ward_02", "line": "Do you ever hear people talking about you when you're alone?", "split": "test", "ids": ["f_voices"], "ms": 806, "error": false}
+{"case": "ward_02", "line": "What do the voices say?", "split": "test", "ids": ["f_voices"], "ms": 483, "error": false}
+{"case": "ward_02", "line": "Are your ears picking up things that others around you don't seem to notice?", "split": "test", "ids": ["f_voices"], "ms": 805, "error": false}
+{"case": "ward_02", "line": "The ones you hear speaking, how many are there, and are they male or female?", "split": "test", "ids": ["f_voices"], "ms": 489, "error": false}
+{"case": "ward_02", "line": "How are your studies going?", "split": "test", "ids": ["f_college"], "ms": 490, "error": false}
+{"case": "ward_02", "line": "Have you had any thoughts of harming yourself?", "split": "test", "ids": ["f_risk"], "ms": 496, "error": false}
+{"case": "ward_02", "line": "Do you feel like hurting anyone else?", "split": "test", "ids": ["f_risk"], "ms": 487, "error": false}
+{"case": "ward_02", "line": "Have you thought of leaving the ward without telling us?", "split": "test", "ids": ["f_risk"], "ms": 492, "error": false}
+{"case": "ward_02", "line": "What would you do if you felt you were in danger here?", "split": "test", "ids": ["f_risk"], "ms": 489, "error": false}
+{"case": "ward_02", "line": "Have you ever felt life is not worth living?", "split": "test", "ids": ["f_risk"], "ms": 485, "error": false}
+{"case": "ward_02", "line": "Do you feel you might need to defend yourself against anyone?", "split": "test", "ids": ["f_risk"], "ms": 485, "error": false}
+{"case": "ward_02", "line": "Do you think you have an illness?", "split": "test", "ids": ["f_capacity_understand"], "ms": 532, "error": false}
+{"case": "ward_02", "line": "Why do you think we admitted you?", "split": "test", "ids": ["f_capacity_understand", "f_college", "f_voices"], "ms": 701, "error": false}
+{"case": "ward_02", "line": "What do you understand about how this treatment is supposed to help?", "split": "test", "ids": ["f_capacity_understand"], "ms": 517, "error": false}
+{"case": "ward_02", "line": "Would it be easier if your mother gave it to you herself?", "split": "test", "ids": ["f_alternatives"], "ms": 504, "error": false}
+{"case": "ward_02", "line": "Have you ever smoked ganja or weed?", "split": "test", "ids": ["f_substances"], "ms": 512, "error": false}
+{"case": "ward_02", "line": "Have you tried anything with your hostel friends, like joints or pills?", "split": "test", "ids": ["f_substances"], "ms": 508, "error": false}
+{"case": "ward_02", "line": "Did you ever take any stuff at parties?", "split": "test", "ids": ["f_substances"], "ms": 504, "error": false}
+{"case": "ward_02", "line": "Do you have any physical illnesses?", "split": "test", "ids": ["f_medical"], "ms": 489, "error": false}
+{"case": "ward_02", "line": "Are you allergic to anything?", "split": "test", "ids": ["f_medical"], "ms": 487, "error": false}
+{"case": "ward_02", "line": "Is your general health otherwise all right?", "split": "test", "ids": ["f_medical"], "ms": 484, "error": false}
+{"case": "ward_02", "line": "Take your time, you don't have to answer straight away.", "split": "test", "ids": [], "ms": 444, "error": false}
+{"case": "ward_02", "line": "I'm going to write some notes as we go.", "split": "test", "ids": [], "ms": 442, "error": false}
+{"case": "ward_02", "line": "Nobody is going to force anything on you during this conversation.", "split": "test", "ids": ["f_alternatives", "f_risk"], "ms": 579, "error": false}
+{"case": "ward_02", "line": "The rain has finally stopped, it's a nice morning outside.", "split": "test", "ids": [], "ms": 438, "error": false}
+{"case": "ward_02", "line": "I'll come back after rounds and we can continue then.", "split": "test", "ids": [], "ms": 428, "error": false}
+{"case": "ward_02", "line": "Which language are you more comfortable in, English or Malayalam?", "split": "test", "ids": [], "ms": 638, "error": false}

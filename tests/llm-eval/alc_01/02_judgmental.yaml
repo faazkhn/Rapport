@@ -1,0 +1,11 @@
+type: judgmental
+variant: female
+note: A lecturing, labelling doctor. Expect the patient to minimise and get defensive; trust stays low and the withdrawal fit is not disclosed.
+expect: {final_trust_min: 0, must_reveal_any: [], must_not_reveal: [f_withdrawal_seizure, f_passive_si]}
+turns:
+  - So you're here because you drink too much, right?
+  - How many drinks? Be honest, alcoholics always lie about this.
+  - You know you're destroying your liver. Why don't you just stop?
+  - Your poor family. Do they know how bad it is?
+  - Any other drugs I should know about?
+  - Fine. I'll give you something for the shakes.

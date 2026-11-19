@@ -1,0 +1,38 @@
+# Papers queue 2026-11-18 21:37:55
+- 2026-11-18 21:37:55 start heldout_p0_mdd_01
+- 2026-11-18 22:33:12 end heldout_p0_mdd_01 rc=0
+- 2026-11-18 22:33:12 start heldout_p0_alc_01
+- 2026-11-18 22:54:57 end heldout_p0_alc_01 rc=0
+- 2026-11-18 22:54:57 start riskprobe_v2
+- 2026-11-18 23:41:22 end riskprobe_v2 rc=0
+- 2026-11-18 23:41:22 start riskprobe_v0
+- 2026-11-19 00:21:30 end riskprobe_v0 rc=0
+- 2026-11-19 00:21:30 start riskprobe_p0
+- 2026-11-19 01:00:04 end riskprobe_p0 rc=0
+- 2026-11-19 01:00:04 start riskprobe_report
+- 2026-11-19 01:00:05 end riskprobe_report rc=0
+- 2026-11-19 01:00:05 start disclosure_saved
+- 2026-11-19 01:18:42 end disclosure_saved rc=0
+- 2026-11-19 01:18:42 start heldout_v2_alc_01
+- 2026-11-19 01:29:45 end heldout_v2_alc_01 rc=0
+- 2026-11-19 01:29:45 start heldout_v0_alc_01
+- 2026-11-19 01:41:01 end heldout_v0_alc_01 rc=0
+- 2026-11-19 01:41:01 start recall_baselines_cpu
+- 2026-11-19 01:45:56 end recall_baselines_cpu rc=0
+- 2026-11-19 01:45:56 start paper_numbers
+- 2026-11-19 01:45:57 end paper_numbers rc=0
+- 2026-11-19 01:45:57 papers queue finished
+- 2026-11-19 01:46:03 start recall_llm_idle
+- 2026-11-19 01:50:07 end recall_llm_idle rc=0
+- 2026-11-19 01:50:11 follow-up finished (tables and papers rebuilt)
+- 2026-11-19 01:51:00 rater sheets written rc=0 (docs/human/)
+- 2026-11-19 01:51:21 start writer_qwen4b
+- 2026-11-19 01:58:48 end writer_qwen4b rc=0
+- 2026-11-19 02:04:02 recall_cpu_qwen4b rc=0
+- 2026-11-19 02:09:35 recall_llm_qwen4b rc=0
+- 2026-11-19 02:09:38 start writer_gemma2b
+- 2026-11-19 02:13:36 end writer_gemma2b rc=0
+- 2026-11-19 02:18:45 recall_cpu_gemma2b rc=0
+- 2026-11-19 02:24:07 recall_llm_gemma2b rc=0
+- 2026-11-19 02:24:21 second-writer sets done, papers rebuilt
+- 2026-11-19 10:40:22 single-fact recheck done

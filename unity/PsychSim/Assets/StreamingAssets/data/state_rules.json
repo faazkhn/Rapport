@@ -11,12 +11,16 @@
     "greet_introduce": { "trust": 2, "engagement": 2 },
     "explain_confidentiality": { "trust": 5 },
     "open_question": { "trust": 2, "engagement": 2 },
-    "empathy_statement": { "trust": 4, "distress": -3, "engagement": 2 },
+    "empathy_statement": { "trust": 4, "distress": -3, "agitation": -3, "engagement": 2 },
     "summarise": { "trust": 3, "engagement": 2 },
     "check_understanding": { "trust": 2 },
     "ask_suicidal_ideation": { "distress": 3 },
     "ask_trauma": { "distress": 4 },
     "judgmental_language": { "trust": -8, "distress": 5, "agitation": 5, "engagement": -5 },
-    "interrupt": { "trust": -4, "agitation": 3, "engagement": -3 }
+    "interrupt": { "trust": -4, "agitation": 3, "engagement": -3 },
+    "explain_rights_status": { "trust": 3, "agitation": -3 },
+    "offer_choice": { "trust": 3, "agitation": -5, "engagement": 2 },
+    "explore_reasons": { "trust": 2, "agitation": -2, "engagement": 2 },
+    "threaten_coerce": { "trust": -10, "agitation": 12, "engagement": -5 }
   }
 }

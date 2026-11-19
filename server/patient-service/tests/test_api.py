@@ -10,7 +10,7 @@ STATE = {"trust": 30, "distress": 55, "agitation": 15, "engagement": 35}
 
 
 def test_health_and_bad_requests():
-    c = TestClient(service.app)  # no context manager: lifespan (TTS load) is skipped
+    c = TestClient(service.app, client=("127.0.0.1", 50000))  # no context manager: lifespan (TTS load) is skipped
     assert c.get("/health").json()["ok"] is True
     assert c.post("/reply", json={"case_id": "nope", "messages": [{"role": "doctor", "text": "hi"}], "state": STATE}).status_code == 404
     assert c.post("/reply", json={"case_id": "../cases/mdd_01", "messages": [{"role": "doctor", "text": "hi"}], "state": STATE}).status_code == 404
@@ -19,7 +19,7 @@ def test_health_and_bad_requests():
 
 @pytest.fixture(scope="module")
 def tts_client():
-    with TestClient(service.app) as c:
+    with TestClient(service.app, client=("127.0.0.1", 50000)) as c:
         if not c.get("/health").json()["tts_loaded"]:
             pytest.skip("KittenTTS model could not load")
         yield c
@@ -40,7 +40,7 @@ def test_tts_returns_wav(tts_client):
 
 @pytest.mark.live
 def test_live_reply_greeting():
-    c = TestClient(service.app)
+    c = TestClient(service.app, client=("127.0.0.1", 50000))
     r = c.post("/reply", json={"case_id": "mdd_01", "messages": [{"role": "doctor", "text": "Hello, I'm Dr Rao. What brings you in today?"}], "state": STATE})
     out = r.json()
     assert r.status_code == 200
@@ -55,7 +55,7 @@ def test_twin_ws_replays_history():
     import twin_bus
     twin_bus.publish({"type": "init", "t": 0.0})
     twin_bus.publish({"type": "doctor_end", "turn": 1, "t": 1.0})
-    c = TestClient(service.app)
+    c = TestClient(service.app, client=("127.0.0.1", 50000))
     with c.websocket_connect("/twin/ws") as ws:
         assert ws.receive_json()["type"] == "init"
         assert ws.receive_json() == {"type": "doctor_end", "turn": 1, "t": 1.0}
@@ -72,7 +72,7 @@ def test_feedback_endpoint(monkeypatch, tmp_path):
     monkeypatch.setattr(brain, "DATA_DIR", tmp_path / "data")
     brain.load_json.cache_clear(), brain._resolved.cache_clear()
     monkeypatch.setattr(learning, "distill_principle", lambda *a, **k: "Keep it short.")
-    c = TestClient(service.app)
+    c = TestClient(service.app, client=("127.0.0.1", 50000))
     body = {"case_id": "mdd_01", "doctor": "How do you sleep?", "utterance": "Badly.", "rating": "up", "author": "Dr A"}
     r = c.post("/learning/feedback", json=body).json()
     assert r["principle"].startswith("Keep it short. (faculty: Dr A, ")
@@ -86,3 +86,46 @@ def test_feedback_endpoint(monkeypatch, tmp_path):
     assert c.post("/learning/approve", json={"case_id": "mdd_01", "entry_id": "nope"}).status_code == 404
     brain.load_json.cache_clear(), brain._resolved.cache_clear()
     learning._cache.clear()
+
+
+def test_patient_endpoint_previews_a_seeded_patient():
+    c = TestClient(service.app, client=("127.0.0.1", 50000))
+    a = c.get("/patient", params={"case_id": "mdd_01", "variant": "male", "seed": 11}).json()
+    assert a == c.get("/patient", params={"case_id": "mdd_01", "variant": "male", "seed": 11}).json()
+    assert a["name"] == "Arjun Rao" and set(a["slots"]) == {"hobby", "hobby_short", "sibling", "hometown"}
+    base = c.get("/patient", params={"case_id": "mdd_01"}).json()
+    assert base["slots"] == {} and base["style"] == "plain"
+    assert c.get("/patient", params={"case_id": "mdd_01", "seed": 11, "mode": "assessment"}).json()["style"] == "plain"
+    assert c.get("/patient", params={"case_id": "nope"}).status_code == 404
+    assert c.get("/patient", params={"case_id": "mdd_01", "seed": -1}).status_code == 422
+
+
+def test_network_clients_see_only_the_twin():
+    lan = TestClient(service.app, client=("192.168.1.20", 50000))
+    assert lan.get("/twin/").status_code == 200
+    assert lan.get("/health").status_code == 200
+    assert lan.post("/reply", json={"case_id": "nope", "messages": [{"role": "doctor", "text": "hi"}], "state": STATE}).status_code == 403
+    assert lan.get("/patient?case_id=mdd_01").status_code == 403
+    with pytest.raises(Exception):
+        with lan.websocket_connect("/session"):
+            pass
+
+
+def test_tts_serves_staged_doctor_wav(monkeypatch, tmp_path):
+    import json
+
+    import numpy as np
+    import soundfile as sf
+
+    import staged
+    (tmp_path / "doctor").mkdir()
+    (tmp_path / "script.json").write_text(json.dumps({"turns": [{"doctor": "Hello? "}], "arjun_turns": []}))
+    sf.write(tmp_path / "doctor" / "female_0.wav", np.zeros(24000, np.float32), 48000)
+    monkeypatch.setattr(staged, "PATH", str(tmp_path / "script.json"))
+    monkeypatch.setitem(service.tts, "model", None)  # an earlier test may have loaded KittenTTS; a 200 must be the staged WAV
+    c = TestClient(service.app, client=("127.0.0.1", 50000))
+    r = c.post("/tts", json={"text": "Hello?", "voice": "Hugo"})
+    assert r.status_code == 200 and r.headers["content-type"] == "audio/wav"
+    channels, rate = struct.unpack("<HI", r.content[22:28])
+    assert (channels, rate) == (1, service.SAMPLE_RATE) and abs((len(r.content) - 44) / 2 / rate - 0.5) < 0.02
+    assert c.post("/tts", json={"text": "Something else", "voice": "Hugo"}).status_code == 503

@@ -297,7 +297,7 @@ def test_generate_reply_meta_brain_version_and_examples(monkeypatch):
     v = {**learning.load_version("v0"), "id": "v9", "examples_k": 2, "realism_rules": "TALK LIKE A TIRED PERSON."}
     monkeypatch.setattr(learning, "retrieve", lambda case_id, text, mode, k, upto=None: [{"id": "e1", "doctor": "Sleep ok?", "utterance": "Not really."}])
     out = brain.generate_reply({**REQ, "mode": "practice"}, client=llm, tagger=TAG, version=v)
-    assert out["meta"]["brain_version"] == "twin-0.1+v9" and out["meta"]["examples"] == ["e1"]
+    assert out["meta"]["brain_version"] == "twin-0.2+v9" and out["meta"]["examples"] == ["e1"]
     msgs = llm.calls[0]["messages"]
     assert "TALK LIKE A TIRED PERSON." in msgs[0]["content"] and brain.REALISM_RULES not in msgs[0]["content"]
     assert "Patient: Not really." in msgs[-1]["content"]
@@ -323,3 +323,35 @@ def test_meta_doctor_line_gets_stay_in_character_note():
         assert "does not understand" in last.split("---")[-1], line
     plain = brain.build_messages(case, state, [{"role": "doctor", "text": "How have you been sleeping?"}])[-1]["content"]
     assert "does not understand" not in plain
+
+
+def test_the_patient_can_say_their_own_full_name():
+    case = brain.load_case("mdd_01")
+    assert brain.strip_banned("I am Ananya Rao. I am 24.", case["banned_words"])[0] == "I am Ananya Rao. I am 24."
+    reply, _ = brain.guard({"utterance": "Ananya Rao. Twenty-four.", "state_delta": {k: 0 for k in brain.STATE_KEYS}}, case, 30)
+    assert reply["utterance"] == "Ananya Rao. Twenty-four."
+
+
+def test_stage_direction_read_out_is_detected():
+    ev = [{"id": "x", "say": "Someone shouts in the corridor; Ananya flinches and says this is exactly why she cannot sleep here."}]
+    assert brain.is_stage_direction("Someone shouts in the corridor.", ev, "Ananya Rao")
+    assert brain.is_stage_direction("Ananya Rao flinches and looks at the door.", ev, "Ananya Rao")  # third-person narration
+    assert not brain.is_stage_direction("I can't sleep here, doctor.", ev, "Ananya Rao")
+    assert not brain.is_stage_direction("Yes.", ev, "Ananya Rao")
+    leave = [{"id": "l", "say": "The doctor has just said Arjun Rao can go home. Arjun Rao is taken aback, then relieved; he may ask what happens next."}]
+    assert not brain.is_stage_direction("What happens next, doctor?", leave, "Arjun Rao")  # the patient's own words, not a read-out
+
+
+def test_recall_block_tells_the_patient_to_answer():
+    """Playtest 2026-10-26: unlocked, recalled facts were still dodged ('Why do you need to know that?')."""
+    block = brain.recall_block(CASE, {"open": ["f_sleep"], "locked_hit": [], "discomfort": False})
+    assert "answer with them now" in block and "does not dodge" in block
+
+
+def test_low_trust_band_does_not_tell_the_patient_to_deflect():
+    assert "deflect" not in brain.describe_state({**LOW, "trust": 10})
+
+
+def test_background_details_are_shareable():
+    prompt = brain.build_system_prompt(CASE)
+    assert "Everyday details in the Background" in prompt

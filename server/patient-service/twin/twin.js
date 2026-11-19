@@ -1,9 +1,11 @@
 /* Digital Twin. Everything drawn is a pure function of time t (seconds) and the timeline, so render mode is deterministic.
-   Modes: replay (?timeline=url, default: bundled demo_timeline.js), render (&render=1), live (?live=1). See README.md. */
+   Modes: live (default over http, or ?live=1), replay (?timeline=url, or ?live=0 for the bundled demo_timeline.js), render (&render=1). See README.md. */
 (() => {
   "use strict";
   const Q = new URLSearchParams(location.search);
-  const RENDER = Q.get("render") === "1", LIVE = Q.get("live") === "1";
+  const RENDER = Q.get("render") === "1";
+  // served by the patient service, the plain link is the live session; ?live=0 plays the bundled demo
+  const LIVE = Q.get("live") === "1" || (Q.get("live") !== "0" && !RENDER && !Q.has("timeline") && location.protocol.startsWith("http"));
   const theme = Q.get("theme") || (RENDER ? "dark" : null);
   if (theme) document.documentElement.dataset.theme = theme;
   if (RENDER) document.body.classList.add("render");
@@ -51,6 +53,7 @@
       else if (e.type === "patient_start") r.ps = e.t;
       else if (e.type === "patient_end") r.pe = e.t;
       else if (e.type === "snapshot") { r.snap = e; r.doctor = r.doctor ?? e.doctor; }
+      else if (e.type === "ward_event") (r.ward ||= []).push(e);
     }
     for (const r of turns.values()) {
       r.start = r.ds ?? r.de ?? r.snap?.t ?? r.ps ?? 0;
@@ -94,7 +97,7 @@
   const gaugeEls = {};
   function buildStatic() {
     const meta = TL.meta || {};
-    $("who").innerHTML = meta.patient ? `<b>${esc(meta.patient)}</b>${meta.age ? ", " + meta.age : ""} · ${esc(meta.case_id || "")}${meta.title ? " · " + esc(meta.title) : ""}` : (LIVE ? "Live · waiting for session" : "—");
+    $("who").innerHTML = meta.patient ? `<b>${esc(meta.patient)}</b>${meta.age ? ", " + meta.age : ""} · ${esc(meta.case_id || "")}${meta.title ? " · " + esc(meta.title) : ""}${meta.style ? " · style " + esc(meta.style) : ""}${meta.seed != null ? " · seed " + esc(String(meta.seed)) : ""}` : (LIVE ? "Live · waiting for session" : "—");
     $("tPatName").textContent = meta.patient ? meta.patient.split(" ")[0] : "Patient";
     const gl = document.querySelector(".glist"); gl.innerHTML = "";
     for (const [k, label, c] of KEYS) {
@@ -222,7 +225,8 @@
     // now card
     if (snap) {
       setText($("nReact"), human(snap.reaction)); setText($("nBeh"), human(snap.behaviour)); setText($("nRes"), human(snap.resistance));
-      setText($("nWhy"), snap.why || ""); setText($("nowTurn"), "turn " + snap.turn);
+      const ward = (M.turns.find((x) => x.n === snap.turn)?.ward || []).map((w) => "Event: " + w.say).join(" ");
+      setText($("nWhy"), (ward ? ward + " " : "") + (snap.why || "")); setText($("nowTurn"), "turn " + snap.turn);
       setHTML($("nInt"), Array.from({ length: 10 }, (_, i) => `<i class="${i < (snap.intensity ?? 0) ? "on" : ""}"></i>`).join(""), "int");
     } else { setText($("nReact"), "—"); setText($("nWhy"), "Waiting for the first turn."); setHTML($("nInt"), Array.from({ length: 10 }, () => "<i></i>").join(""), "int"); }
     const fresh = snap ? env(t, snap.t, .35, 1e6, 0) : 1;
@@ -324,7 +328,7 @@
 
   // ---------- live ----------
   let liveT0 = now(), liveTurn = 0;
-  const EVT = new Set(["doctor_start", "doctor_end", "patient_start", "patient_end", "snapshot"]);
+  const EVT = new Set(["doctor_start", "doctor_end", "patient_start", "patient_end", "snapshot", "ward_event"]);
   function push(o) {
     if (!o || typeof o !== "object") return;
     if (o.type === "init") { TL = { meta: o.meta || {}, memory_items: o.memory_items || [], formulation: o.formulation || {}, state_start: o.state_start, events: [] }; liveT0 = now() - (o.t ?? 0); liveTurn = 0; prepare(TL); buildStatic(); return; }

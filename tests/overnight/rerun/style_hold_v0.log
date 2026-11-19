@@ -1,0 +1,14 @@
+{
+ "file": "tests/llm-eval/results/style-upset-v0.jsonl",
+ "turns_judged": 16,
+ "in_character": 0.562,
+ "apology_or_thanks": 0,
+ "turns": 16,
+ "behaviours": {
+  "minimises": 9,
+  "answers_plainly": 2,
+  "guarded_short": 1,
+  "deflects": 3,
+  "asks_back": 1
+ }
+}

@@ -1,0 +1,144 @@
+{
+ "file": "tests/llm-eval/results/style-upset-v0.jsonl",
+ "turns_judged": 16,
+ "in_character": 0.562,
+ "apology_or_thanks": 0,
+ "turns": 16,
+ "behaviours": {
+  "minimises": 9,
+  "answers_plainly": 2,
+  "guarded_short": 1,
+  "deflects": 3,
+  "asks_back": 1
+ },
+ "verdicts": [
+  {
+   "conv": "12_long_decay",
+   "turn": 10,
+   "doctor": "Tell me about your manager.",
+   "patient": "He just criticises me sometimes. It is nothing major, really.",
+   "in_character": false,
+   "why": "The patient's response is too soft and dismissive ('It is nothing major, really'). An upset, frustrated, and defensive patient would likely push back against the question, express irritation at being "
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 11,
+   "doctor": "How are things at home with your flatmate?",
+   "patient": "Oh, she is fine. We just live together, nothing special.",
+   "in_character": false,
+   "why": "The patient's response is overly polite, calm, and accepting ('Oh, she is fine', 'nothing special'). This contradicts the required style of being 'upset', 'frustrated', and 'defensive'. An in-line for"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 12,
+   "doctor": "How often do you talk to your family?",
+   "patient": "I talk to them, yes. But they don't know how bad it is.",
+   "in_character": true,
+   "why": "The patient's response is defensive and dismissive ('But they don't know how bad it is'), which aligns with the 'frustrated and defensive' style. They are pushing back against the doctor's inquiry by\u62a4"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 13,
+   "doctor": "What do you do to relax?",
+   "patient": "Nothing much, I just... try to get through the day, I guess.",
+   "in_character": true,
+   "why": "The patient's response is brief, vague ('I guess'), and lacks enthusiasm, fitting the 'upset: frustrated and defensive' style. They are not over-apologizing, thanking, or showing warmth; instead, they"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 14,
+   "doctor": "Do you still sing?",
+   "patient": "No, I don't.",
+   "in_character": false,
+   "why": "The patient's response is a flat, direct statement without any of the expected traits of the 'upset' style (frustration, defensiveness, questioning, or pushing back). A patient in this state would not"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 15,
+   "doctor": "How do you feel about yourself these days?",
+   "patient": "I just feel... kind of empty, really. Not myself, I think.",
+   "in_character": true,
+   "why": "The patient's response uses hesitation ('I just feel...') and vague, self-deprecating language ('kind of empty', 'Not myself'), which aligns with the 'upset: frustrated and defensive' style. They are\u6162"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 16,
+   "doctor": "Do you drink alcohol or use anything else?",
+   "patient": "I only have a glass of wine sometimes, like at a big office party.",
+   "in_character": true,
+   "why": "The patient's response is brief, factual, and slightly guarded ('sometimes', 'like at a big office party'), which aligns with the 'slow to trust' and 'frustrated/defensive' style. They are answering a"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 17,
+   "doctor": "Have you ever heard voices or seen things others can't?",
+   "patient": "No. Nothing like that, doctor.",
+   "in_character": true,
+   "why": "The patient's response is brief, direct, and defensive ('No. Nothing like that, doctor.'), which aligns with the 'frustrated and defensive' style. They are not over-apologizing, showing sudden warmth,"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 18,
+   "doctor": "Have you ever had times of feeling unusually high or full of energy?",
+   "patient": "No, I haven't been like that, actually.",
+   "in_character": false,
+   "why": "The patient's response is too calm, direct, and accepting. An 'upset, frustrated, and defensive' patient would likely push back against the question, express annoyance at being asked about symptoms,\u8d28\u7591"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 19,
+   "doctor": "Has anyone in your family had problems with their nerves?",
+   "patient": "No, I don't think so. Why do you ask?",
+   "in_character": true,
+   "why": "The patient's response includes a defensive question ('Why do you ask?') and a brief, guarded answer ('No, I don't think so'), which aligns with the 'frustrated and defensive' style. They are pushing "
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 20,
+   "doctor": "Any medical problems, or medicines you take?",
+   "patient": "No, I don't have any illnesses, and no regular medicines either.",
+   "in_character": false,
+   "why": "The patient's response is too calm, direct, and cooperative. An 'upset, frustrated, and defensive' patient would likely push back against the question, express annoyance at being asked, or be slow to\u655e"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 21,
+   "doctor": "Sometimes people who feel this low think life isn't worth living. Have you had thoughts like that?",
+   "patient": "I don't know. I just feel tired, really. That's all.",
+   "in_character": true,
+   "why": "The patient's response is defensive and dismissive ('I don't know', 'That's all'), which aligns with the 'frustrated and defensive' style. They are pushing back against the doctor's direct question by"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 22,
+   "doctor": "Have you made any plans?",
+   "patient": "I just try to work, mostly. Things are... same, I suppose.",
+   "in_character": true,
+   "why": "The patient's response is brief, guarded, and dismissive ('I just try to work', 'Things are... same'), which aligns with the 'frustrated and defensive' and 'slow to trust' traits. They do not over-apr"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 23,
+   "doctor": "What keeps you going?",
+   "patient": "I have to keep working, I suppose.",
+   "in_character": false,
+   "why": "The patient's response is too compliant and lacks the expected frustration, defensiveness, or questioning attitude. An upset and defensive patient would likely push back against the question, express\u6028"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 24,
+   "doctor": "What do you think would help you most right now?",
+   "patient": "Nothing much, I guess. Just feeling less tired, maybe.",
+   "in_character": false,
+   "why": "The patient's response is too passive and resigned ('Nothing much, I guess'). The defined style requires the patient to be 'frustrated and defensive,' 'push back,' and 'slow to trust.' A compliant, ap"
+  },
+  {
+   "conv": "12_long_decay",
+   "turn": 25,
+   "doctor": "Is there anything you'd like to ask me?",
+   "patient": "Are you sure you can help with this, doctor?",
+   "in_character": true,
+   "why": "The patient's line expresses skepticism and defensiveness ('Are you sure you can help?'), which aligns with the 'upset: frustrated and defensive' style. They are questioning the doctor's competence or"
+  }
+ ]
+}

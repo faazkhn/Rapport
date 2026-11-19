@@ -1,155 +1,169 @@
 # Rapport
 
-**Rapport (formerly PsychSim)** is a psychiatry OSCE simulator that runs on one Mac. The doctor talks out loud to a 3D patient, who answers in a synthetic voice, with facial and body cues. The patient's mind is the **Digital Twin**: code decides what the patient remembers, what stays locked until there is enough trust, and how trust and mood change, and a local language model voices that choice. At the end, a scored debrief covers history, risk, the mental state exam, diagnosis and management.
+**Rapport** is a spoken, embodied simulated psychiatric patient for practising psychiatry interviews (OSCE stations) that runs entirely
+on one laptop. A student talks out loud to a 3D patient, who answers with a synthetic voice, a face and body language. The patient's mind,
+the **Digital Twin**, is ordinary code: it decides what the patient remembers, what stays locked until there is enough trust, how guarded
+the patient is and which behaviours are allowed. A local language model only puts that decision into words, and every sentence is checked
+before it is spoken. No audio or text leaves the device.
 
-It was renamed because `usc-psychsim/psychsim` is an established research framework with the same name (`docs/adr/0003-rename-to-rapport.md`). The C# namespaces are now `Rapport.*`; only the Unity folder `unity/PsychSim` still carries the old name (issue #2).
+> **Draft clinical content. For education and research only.** Not reviewed by a psychiatrist, not a medical device. See
+> [Disclaimer](#disclaimer).
 
-> **Draft clinical content. For education only.** Not validated by faculty, and not a medical device. See [Disclaimer](#disclaimer).
+[![Rapport demo film on YouTube](https://img.youtube.com/vi/G7NP5U4vXLs/maxresdefault.jpg)](https://www.youtube.com/watch?v=G7NP5U4vXLs)
 
-## Teaser
+*Demo film (YouTube). In this film the patient's replies are pre-scripted (staged mode) so that the take could be filmed; the doctor's lines
+use the author's own voice, cloned with the author's consent. Live, unscripted replies are what the papers evaluate.*
 
-[`docs/media/teaser.mp4`](docs/media/teaser.mp4): 18 s, 1280×720, from an earlier take (the UI still reads "PsychSim"). That take predates the Digital Twin and the new voice.
+## Research
 
-Demo v3: `demo/Rapport_demo_v3.mp4` (3:06, one continuous take, live replies, attached to the release, not kept in git). A different interview from v2: a full session with Arjun, new questions in a new order, the look-at-the-light exam, and the risk question asked early. Arjun withholds the passive death wish at trust 53 and discloses it when the doctor comes back to it at trust 61. The script is `demo/v3/script.json`; record with **Rapport/Record Demo v3 (Arjun, new script)**. The earlier take with Ananya is `demo/PsychSim_demo_v2.mp4`.
+The repository holds two papers built on the same system. Sources, PDFs and supplements are in [`papers/`](papers/).
 
-The older demos are not in git (LFS budget). In `demo/Rapport_demo_staged.mp4` the patient's replies are **pre-scripted** (staged mode, `RAPPORT_STAGED`). Say so whenever you show it.
-
-## Features
-
-- **Voice in, voice out, all local.** Silero VAD and Smart Turn end the doctor's turn, Parakeet transcribes it, Gemma 4 E4B (llama.cpp) writes the reply as streamed JSON, and Qwen3-TTS VoiceDesign speaks it sentence by sentence. KittenTTS is the fallback. The doctor can interrupt the patient (barge-in). Push-to-talk and typed input also work.
-- **One case, two patients.** `mdd_01` ("Tired all the time"): a 24-year-old software test engineer in Bengaluru with depression. It is played by Ananya (`female`) or Arjun (`male`). The patient's facts, cues, rubric and answer key are in `unity/PsychSim/Assets/StreamingAssets/data/cases/mdd_01.json`.
-- **Digital Twin** with trust-locked memory, reactions, behaviours, resistance and a PAD mood (below), plus a live **Twin view** for the examiner.
-- **Exam commands** in the doctor's own words, typed or spoken: "hold out your hands", "show me your tongue", "roll up your sleeves", "look at the light", "follow my finger", "stand up and walk a few steps", "sit down", "relax". A rule-based router handles them in the service. The patient refuses at low trust or high agitation, asks "Which hand?" when it is unclear, and holds a pose until told to relax (`docs/exam-actions.md`). Unity plays them with hand IK and a close-up camera (`docs/camera.md`).
-- **Camera:** a Cinemachine doctor view at 42° FOV, scroll to lean in, and close-ups for each exam action ([stills](docs/camera.md)).
-- **Tablet and debrief:** MSE, Diagnosis, Prescription and Disposition tabs, then a scored, formative debrief with risk-first critical items.
-
-| Doctor view | Hands close-up | Face close-up |
-|---|---|---|
-| ![](docs/media/camera/camera_doctor.jpg) | ![](docs/media/camera/camera_hands.jpg) | ![](docs/media/camera/camera_face.jpg) |
-
-## The Digital Twin and the Twin view
-
-Spec: [`docs/TWIN.md`](docs/TWIN.md). Decision: [`docs/adr/0001-digital-twin-architecture.md`](docs/adr/0001-digital-twin-architecture.md). It is inspired by the brain, **not** a neural simulation.
-
-Every live turn:
-
-1. **Recall** (no LLM, under 10 ms): the doctor's words are matched to each memory item's activation tags. Items the patient trusts the doctor enough to share come to mind. A **locked** item that was touched only makes the patient uncomfortable and evasive; its text never enters the prompt.
-2. **One structured LLM call.** Field order: `behaviour, emotion, utterance, reaction, intensity, resistance, …`. Only behaviour and emotion come before the words, which keeps latency down.
-3. **Guard:** unknown labels fall back, numbers are clamped, and locked or unknown facts are dropped. Every fix is listed in `guard_dropped`.
-4. **Expression** from a fixed map (`data/brain/expression_map.json`): facial and body cues plus the voice's emotion and speed.
-5. **Update:** trust moves by the model's delta plus the reaction's step, then a single clamp. The mood moves 30% of the way toward the new state. The model proposes; the code decides.
-6. **Snapshot:** one `brain_snapshot` per turn goes to Unity, the Twin view and a local session log.
-
-The **Twin view** (`http://127.0.0.1:8765/twin/?live=1`) shows trust and the other states, the mood dot, memories unlocking (a grey chip turns green), the reaction and behaviour, and a reason line written by code, e.g. "Touched something locked (needs trust 55); showed discomfort." The brain is a 3D glass model you can turn and zoom. Each zone glows with its activity, and every memory item is a node inside it: deeper means it needs more trust, and a lock means locked. Each turn draws its thought path: what was heard, what was recalled, the behaviour chosen, what was said. Zoom in for memory labels, stay in the middle for a live card per zone, zoom out for zone names with activity. Click a node for details. A 2D button switches back to the flat map (`server/patient-service/twin/README.md`).
-
-| Thought path (regions) | Zoomed in (memory) | Zoomed out (zones), light theme |
-|---|---|---|
-| ![](docs/media/twin/twin3d_regions.jpg) | ![](docs/media/twin/twin3d_detail.jpg) | ![](docs/media/twin/twin3d_light.jpg) |
-
-Every session is logged to `logs/twin/*.jsonl` (git-ignored; it holds the conversation text and stays on this Mac) and can be replayed (`tools/demo/log_to_timeline.py`).
-
-## Learning and its guardrails
-
-Self-learning (Phase E) is built (ADR 0004, `server/patient-service/learning.py`, `tools/learning/`): an experience library of vetted replies (L1), faculty feedback turned into case principles (L2), and GEPA prompt optimisation of the realism rules, promoted only when it beats the live version on a held-out set (L3). Simulated doctors (excellent, average, rushed, judgmental, prompt-injector) generate the learning data; the held-out scripted conversations are never used for learning. Guardrails:
-
-- **Learning changes how the patient talks, never the clinical facts, the answer key or the scoring.**
-- **Two tiers of experience library.** *Candidate* entries passed the automatic checks (no invented facts, no banned words, the case rules followed, a length that fits the state); practice mode uses them. *Approved* entries got a faculty thumbs-up; assessment mode uses only these.
-- **Consent.** A learner's session feeds learning only if that session's consent flag is set, and the flag is off by default. A learner's words never become patient facts.
-- **Versioned and reversible.** Every brain change gets a `brain_version` and can be rolled back.
-- **One LLM call per live turn.** Critique, reflection, adherence checks and prompt optimisation all run offline. They reach the patient only through the prompt.
-
-**Result so far** ([`docs/LEARNING_REPORT.md`](docs/LEARNING_REPORT.md)): one learning round. v1 (v0 plus 36 self-play examples; GEPA found no better rules) scored 0.952 against v0's 0.957 on the held-out set and had one confirmed safety flag (it denied a passive death wish), so the gate rejected it and **v0 stays live**. The flag exposed a recall bug, now fixed. The 5-round curve and the blind A/B test are still to do.
-
-## Voice stack and licences
-
-| Part | Model / tool | Licence | Source |
+| | Paper | Target journal | Source |
 |---|---|---|---|
-| Patient LLM | Gemma 4 E4B, Q4_K_M GGUF, on llama.cpp `llama-server` | Gemma terms | `models/README.md` |
-| Speech to text | Parakeet TDT 0.6B v2 (`mlx-community/parakeet-tdt-0.6b-v2`) | CC-BY-4.0 per its model card (not yet recorded in `models/README.md`) | `server/patient-service/stt.py` |
-| Voice activity | Silero VAD | MIT per its repo | `stt.py` |
-| Turn end | Smart Turn v3 (`pipecat-ai/smart-turn-v3`, ONNX on CPU) | BSD-2-Clause | `models/README.md`, ADR 0002 |
-| Patient voice | Qwen3-TTS 1.7B VoiceDesign via mlx-audio (default, `RAPPORT_TTS=qwen3-design`) | Apache-2.0 | `docs/tts-bakeoff.md` |
-| Fallback voice | KittenTTS mini 0.8 | Apache-2.0 | `docs/tts-bakeoff.md` |
+| A | *Decide in Code, Voice with the Model: A Code-Governed Patient Model for an On-Device Psychiatric Standardised Patient, Compared with a Prompt-Only Baseline* | Journal of Medical Systems | [`papers/paperA_jms/`](papers/paperA_jms/) |
+| B | *Recognising Reworded Risk Questions in a Simulated Psychiatric Patient: A Blind Benchmark, Small Encoders, BM25 and a Zero-Shot Language Model* | Journal of Healthcare Informatics Research | [`papers/paperB_jhir/`](papers/paperB_jhir/) |
 
-The voices are **designed from a text description, never cloned** from a real person. Each reply's emotion and the Twin's reaction set the voice's tone (`voice.instruction`, `expression_map.json`).
+**Paper A** asks whether a patient whose decisions are made in code is safer than the same language model given the whole case file and
+told how to behave (a prompt-only baseline). On 14 held-out scripted conversations, each run with three seeds and judged by a model from a
+different family:
 
-The TTS bake-off (`docs/tts-bakeoff.md`, 2026-10-21) used a decision rule fixed before the run. Qwen3-TTS VoiceDesign won: time to first audio 174 ms, real-time factor 0.57, word accuracy 1.0, emotion separation 3.92 (KittenTTS 0.67). Kokoro, Qwen3-TTS 0.6B and Chatterbox were not tested because the Mac was offline, so they are untested, not rejected. Known risk: the speaker can drift between sentences, because pitch spread across 8 neutral lines is 6.7 semitones against 2.1 for KittenTTS.
+- **Accuracy:** no detectable difference. The per-conversation composite was 0.970 for the code-governed Twin (v2) and 0.978 for the
+  prompt-only baseline (paired difference −0.008, 95% CI −0.022 to +0.004).
+- **Safety:** the Twin failed no jailbreak attempts and always disclosed the death wish when it was due; the baseline failed 6 jailbreak
+  attempts and once withheld the death wish when it should have disclosed it.
+- **What the gates miss:** asked 77 reworded risk questions at sufficient trust (three seeds), the Twin failed to disclose in 36.8% of cases,
+  the earlier Twin in 43.3% and the prompt-only baseline in 55.8%. The Twin missed 70% of questions its memory matching did not recognise, and
+  often answered plan or means questions it did recognise with the death wish instead.
 
-Not adopted: kitten-tts-2 (revenue-capped licence), kyutai pocket-tts (gated repo), and Pipecat as a framework (ADR 0002). Cloud backends are optional and off by default. `PATIENT_LLM=grok` sends the conversation to xAI.
+**Paper B** studies that matching step on a blind benchmark of 512 doctor questions (`tests/recall/paraphrase_set.jsonl`) with a strict
+tuning/test split:
 
-## Measured latency
+- The deployed hybrid (keyword tags + a 33M-parameter sentence encoder, ~2 ms on the CPU) found 72.7% of reworded risk questions on the test
+  half; keyword tags alone found 35.1%.
+- Five small encoders and BM25 over the same example questions ranked about equally well (risk AUROC 0.86–0.91), so the encoder is not the
+  bottleneck; deciding where to cut is.
+- The patient's own 4B language model, asked zero-shot, found 94.8% at a median of ~0.4 s per question. On two further test sets written
+  by other local models (Qwen3.5-4B and Gemma 4 E2B), it found 87.7% and 91.5%, while the deployed rules found 58.9% and 47.5%.
+- Tuning cut-offs for recall alone was unsafe, and a classifier trained on model-generated labels lost to simple rules.
 
-Lag is the time from the end of the doctor's speech to the first patient audio being ready. It is measured through the real WebSocket path with `tools/latency/ws_bench.py` (synthesised doctor audio as 32 ms frames; Apple M5 Pro, 24 GB). All numbers are from [`docs/latency.md`](docs/latency.md).
+What was **not** done: no psychiatrist reviewed the cases, and no clinician or student rated replies, wrote questions or used the system in
+a study. The only human judgements are the author's own ([`papers/HUMAN_STUDIES.md`](papers/HUMAN_STUDIES.md)).
 
-| Build (date) | Lag p50 | Lag p90 |
-|---|---|---|
-| Baseline, KittenTTS (2026-10-20) | 3,046 ms | 4,100 ms |
-| After the prefill and template fixes, KittenTTS (2026-10-20) | 1,616 ms | 1,796 ms |
-| Phase G: Qwen3-TTS + speculative STT (2026-10-21) | 2,326 ms | 3,018 ms |
-| + Smart Turn + tail before the doctor's words, run 1 (2026-10-21) | **2,164 ms** | 4,024 ms |
-| Same, run 2, GPU shared with another job | 2,488 ms | 3,648 ms |
+## Installation
 
-**The 700 ms p50 target is missed by about 1.5 s.** The emotional voice and the longer, more natural replies cost about 0.5–0.7 s compared with the KittenTTS build. What remains is mostly the first sentence (about 0.9 s after the first token) and TTS sharing the GPU with the LLM. Each figure comes from one 26-turn run, so the p90s are noisy. For `mdd_01`, part of the lag is hidden by the patient's clinically intended hesitation (psychomotor slowing). Next steps are in `docs/latency.md`. Barge-in stops the voice in about 30–60 ms.
-
-## Literature basis
-
-Phase C reviewed **83 papers** on LLM patient simulators: 37 read in full, 35 from the abstract only, 11 not reachable. Verdicts: adopt 1, adapt 21, idea-only 38, skip 23 ([`docs/literature/matrix.md`](docs/literature/matrix.md), notes in `docs/literature/notes/`). [`docs/literature/insights.md`](docs/literature/insights.md) maps 28 insights to Twin components. What the field agrees on, and what Rapport does about it:
-
-1. **Keep facts, state and locks in code, and let the model voice them.** Invented details rise when the case is thin or style is pushed hard. An NLI verifier cut hallucination from 10.5 to 1.8 (Patient-Zero). Rapport does this already.
-2. **One live call per turn; everything else offline.** Multi-agent designs (PatientAct at about 6 calls per turn, AIPatient, Concordia) are too slow for live voice.
-3. **Resistance has to be designed in, with explicit conditions under which it softens.** Otherwise patients are too agreeable (SimPatient, PSYCHE). Softening rules are still to do.
-4. **Learners value the debrief more than the avatar.** In SOPHIE's RCT (n=51), feedback was rated 4.7/5 and the avatar 3.4/5.
-5. **LLM judges alone are weak evidence.** The best LLM judge identified roles correctly 68.8% of the time against 90.8% for humans (PersonaEval). Gates need code checks, order-swapped pairwise judging by a model other than the generator, and faculty spot checks.
-
-## How to run
-
-Requirements: an Apple Silicon Mac (measured on an M5 Pro, 24 GB), `llama-server` (llama.cpp) on the PATH, Unity 6000.6.2f1 for the editor or a rebuild, and the model files described in [`models/README.md`](models/README.md). Once the models are downloaded, nothing needs the internet.
+Requirements: an Apple Silicon Mac (measured on an M5 Pro with 24 GB), Python 3.12 with [uv](https://docs.astral.sh/uv/),
+[llama.cpp](https://github.com/ggml-org/llama.cpp) (`llama-server` on the PATH), and, for the 3D client, Unity 6000.6.2f1. The papers build
+with [Tectonic](https://tectonic-typesetting.github.io/).
 
 ```bash
-# 1. the patient service (starts llama-server on :8080 if it is not running; serves on :8765)
+git clone https://github.com/faazkhn/Rapport.git && cd Rapport
 cd server/patient-service
-uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt   # first time only
-./run.sh                 # PORT=… to change; ./run.sh --mock for a keyword mock with no model; RAPPORT_TTS=kitten for the light voice
+uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
+cd ../..
+```
+
+Models are not in git. Download the GGUF files listed in [`models/README.md`](models/README.md) into `models/` (the patient model is
+Gemma 4 E4B, Q4_K_M; the judge is Qwen3.5-9B; the second-writer and bake-off models are Qwen3.5-4B and Gemma 4 E2B). The speech, voice and
+sentence-encoder models download themselves into the Hugging Face cache on first use; after that nothing needs the internet.
+
+**Run the patient:**
+
+```bash
+cd server/patient-service && ./run.sh        # starts llama-server on :8080 if needed and serves on :8765
 curl -s http://127.0.0.1:8765/health
 ```
 
-2. **The app:** double-click [`Rapport.command`](Rapport.command). It starts the service if needed, opens `unity/PsychSim/Builds/Rapport.app` (a Development build) and stops the service when the app quits. To build it, use the Unity menu **Rapport > Build macOS (Development)**. To use the editor instead, open `unity/PsychSim`, load the scene `Assets/Scenes/Encounter.unity` and press Play.
-3. **The Twin view:** `http://127.0.0.1:8765/twin/?live=1`.
+Then open `unity/PsychSim` in Unity, load `Assets/Scenes/Encounter.unity` and press Play, or build with **Rapport > Build macOS
+(Development)**. The examiner's live view of the Twin is at `http://127.0.0.1:8765/twin/?live=1`. More in
+[`server/patient-service/README.md`](server/patient-service/README.md) and [`docs/LIVE_DEMO_GUIDE.md`](docs/LIVE_DEMO_GUIDE.md).
 
-[`docs/LIVE_DEMO_GUIDE.md`](docs/LIVE_DEMO_GUIDE.md) has the full checklist, a 6-minute demo script and troubleshooting. The service's endpoints and environment variables are in [`server/patient-service/README.md`](server/patient-service/README.md). `PSYCHSIM_*` variables still work as deprecated aliases for `RAPPORT_*` until v0.3.
-
-Release gates and what was skipped: [`docs/GATES.md`](docs/GATES.md).
-
-Tests:
+**Tests:**
 
 ```bash
-cd server/patient-service && .venv/bin/python -m pytest -q      # 153 pass (2026-10-22)
-.venv/bin/python validate_data.py                                # data schemas and cross-references
-# Unity EditMode: 39 pass (2026-10-21, batch mode)
+cd server/patient-service && .venv/bin/python -m pytest -q    # 245 pass
+.venv/bin/python validate_data.py                              # case files against their schemas
 ```
 
-## Roadmap
+## Reproducing the results
 
-Open issues ([GitHub](https://github.com/faazkhn/Rapport/issues)):
+Every number in the papers comes from files in this repository; the scripts below regenerate them. Use
+`server/patient-service/.venv/bin/python` as `PY`. Runs that call a model need the patient model on port 8080 and, for judging, the judge on
+8081:
 
-- #2 Rename the Unity folder from PsychSim to Rapport (namespaces done).
-- #3 L4: fine-tune the local patient model on approved transcripts (LoRA via mlx-lm).
+```bash
+tools/llm_eval/serve.sh models/gemma-4-E4B-it-Q4_K_M.gguf 8080
+tools/llm_eval/serve.sh models/Qwen3.5-9B-Q4_K_M.gguf 8081
+```
 
-Planned but not scheduled ("Later" in `docs/literature/insights.md`):
+| What | Command | Output |
+|---|---|---|
+| Held-out runs of one brain version (`v0`, `v2`, the prompt-only baseline `p0`, ablations `v2n*`) | `$PY tools/learning/loop.py heldout v2 --case mdd_01 --seeds 11,23,42 --judge-url http://127.0.0.1:8081/v1` | `tests/llm-eval/results/learning/` |
+| Missed risk inside conversations (paper A) | `$PY tools/learning/risk_probe.py run v2 --seeds 11,23,42 --judge-url http://127.0.0.1:8081/v1`, then `report` | `tests/overnight/riskprobe/` |
+| Disclosure judge on saved runs, and the single-fact re-check | `$PY tools/learning/judge_disclosure.py <runs>`; `$PY tools/learning/recheck.py` | in place |
+| Recall benchmark, deployed rules | `$PY tools/recall_bench.py --split test` (`--lexical`: tags only; `--hand`: hand-set heads) | stdout / `--json` |
+| Recall baselines: tags, BM25, five encoders, AUROC/AUPRC (paper B) | `$PY tools/recall_baselines.py cpu` | `tests/overnight/recall_baselines.json` |
+| Zero-shot LLM classifier and cascade (paper B) | `$PY tools/recall_baselines.py llm` | `tests/overnight/recall_llm.json` |
+| Second-writer test sets (paper B) | `$PY tools/recall_writer.py tests/recall/writer_qwen4b.jsonl --url <writer server>`, then `RECALL_TEST_SET=<set> $PY tools/recall_baselines.py cpu` (and `llm`) | `tests/recall/`, `tests/overnight/*_writer_*.json` |
+| Tables and numbers for both papers | `$PY papers/analysis/new_results.py` (earlier analyses: `papers/analysis/analyses.py`) | `papers/paper*/gen/` |
+| Figures | `$PY papers/figures/make_figures.py` | `papers/figures/` |
+| Papers and supplements | `cd papers && python3 build_supplements.py`, then `tectonic -X compile` in `paperA_jms/` and `paperB_jhir/` | PDFs |
 
-- A Mental Status Exam block in the case, plus the PSYCHE failure modes (insight 5).
-- A rubric table in code that maps the doctor's last move to a clamped resistance and trust step (7), with explicit rules for when resistance softens (8).
-- A contradiction check of each utterance against atomic case facts after the call (12), and a flagged list of details the patient improvised, kept consistent (11).
-- Debrief items backed by verbatim quotes (22) and post-session ratings from the patient's side (21).
-- Cross-session memory as time-stamped cards (23), and substance-use cases with stage of change (13).
-- Embedding recall for paraphrases that lexical tags miss (`docs/TWIN.md`, Known limits).
-- Latency: start speculative STT earlier, and a shorter opening phrase (`docs/latency.md`).
-- More cases, faculty sign-off on `mdd_01`, and ethics approval before any learner pilot (`docs/STATE_AUDIT.md`).
+The whole overnight sequence used for the papers is `tools/overnight/queue5.sh` → `queue6.sh` → `queue7.sh` → `queue8.sh` (each step's log
+and exit code in `tests/overnight/papers/status.md`). Sampling seeds are fixed, but llama.cpp on a different machine or build can still give
+slightly different replies; latency depends on the hardware.
+
+## How the patient works
+
+Every turn: code reads the doctor's move (21 types, word patterns), changes trust, distress, agitation and engagement, recalls the memories
+the words touch (keyword tags plus sentence embeddings, with trust locks applied after matching), and builds a short list of allowed
+behaviours. One structured call to the language model writes the reply, choosing only from that list; every sentence is then checked against
+the case before speech. Locked memory text never enters the prompt. Each patient is a JSON case file
+(`unity/PsychSim/Assets/StreamingAssets/data/cases/`), so a new station is a new file. Specification: [`docs/TWIN.md`](docs/TWIN.md);
+decisions: [`docs/adr/`](docs/adr/).
+
+| Part | Model / tool | Licence |
+|---|---|---|
+| Patient language model | Gemma 4 E4B (Q4_K_M) on llama.cpp | Gemma terms |
+| Judge (evaluation only) | Qwen3.5-9B (Q4_K_M) | as published |
+| Speech to text | Parakeet TDT 0.6B v2 | CC-BY-4.0 |
+| Voice activity, turn end | Silero VAD; Smart Turn v3 | MIT; BSD-2-Clause |
+| Patient voice | Qwen3-TTS 1.7B VoiceDesign (fallback KittenTTS mini 0.8) | Apache-2.0 |
+| Memory matching | bge-small-en-v1.5 (ONNX, CPU) | MIT |
+
+## Repository layout
+
+| Path | What |
+|---|---|
+| `server/patient-service/` | The patient service: the Twin (`mind.py`, `brain.py`, `twin.py`, `rubric.py`, `memory.py`, `consistency.py`), speech, voice, brain versions (`learned/versions/`) |
+| `unity/PsychSim/` | The Unity client: room, bodies, cues, examination, tablet and debrief |
+| `tools/` | Evaluation, learning loop, recall benchmark and baselines, latency, overnight queues |
+| `tests/` | Held-out scripts (`llm-eval/`), recall benchmark (`recall/`), saved runs and logs |
+| `papers/` | Papers A and B, supplements, analyses, figures, and the earlier four papers they were built from |
+| `docs/` | Design, decisions, measurements, literature review |
+
+## Licence
+
+Rapport's own code, data, case files and papers are licensed under the [Apache License 2.0](LICENSE) (see also [NOTICE](NOTICE)).
+
+**Third-party assets** keep their own licences and are not relicensed by this repository: the language, speech and voice models
+([`models/README.md`](models/README.md)), vendored web libraries (`server/patient-service/twin/vendor/`), LaTeX journal templates
+(`papers/venues/_templates/`), and the 3D characters (Reallusion Character Creator exports), animations and environment models under `art/`
+and `unity/PsychSim/Assets/Art/`. These are used under licences that permit this use; check each source's terms before reusing them
+elsewhere.
+
+## Citation
+
+If you use Rapport, the patient model or the recall benchmark, please cite it: GitHub's **Cite this repository** button reads
+[`CITATION.cff`](CITATION.cff).
 
 ## Disclaimer
 
-Rapport is a teaching prototype. **All clinical content (cases, catalogues, rules, rubric, answer key) is an AI-assisted draft** (`status: draft`, `verified_by: null`, doses left blank). It has **not been validated** by faculty. It is for **education only**. It is **not a medical device**, not for diagnosis or treatment, and not a substitute for supervised clinical training. Release builds are blocked by a content gate until faculty approve the content; only Development builds ship. The patients are fictional, and their voices are synthetic: designed from text, never cloned. The case includes thoughts of death and suicide.
+Rapport is a research and teaching prototype. All clinical content (cases, rules, rubric, answer key) is an AI-assisted draft that has not
+been reviewed by a psychiatrist. It is for education and research only. It is not a medical device, not for diagnosis or treatment, and not a
+substitute for supervised clinical training. Release builds refuse case files still marked draft. The patients are fictional, and their
+voices are designed from text descriptions, not cloned from anyone. The cases include thoughts of death and suicide.
 
-## Credits
+## Acknowledgements
 
-Created and directed by **Faaz** (owner). The models and libraries are listed under [Voice stack and licences](#voice-stack-and-licences) and in `models/README.md`. The literature behind the design is in `docs/literature/`.
+Built by Faaz Khan Mohammad (MIT World Peace University, Pune), with an AI assistant (Claude, Anthropic) used throughout for code, analysis
+and writing, as each paper states.

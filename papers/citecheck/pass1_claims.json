@@ -1,0 +1,720 @@
+[
+ {
+  "id": "p1-001",
+  "paper": "p1_brain",
+  "keys": [
+   "harden1975osce"
+  ],
+  "claim": "A student has to notice slow speech and a lowered gaze, ask open questions, build enough trust for a patient to admit that some nights they wish they would not wake up, and then ask about risk properly, all inside a timed examination station (an OSCE \\cite{harden1975osce}).",
+  "numeric": false
+ },
+ {
+  "id": "p1-002",
+  "paper": "p1_brain",
+  "keys": [
+   "piot2021simulation"
+  ],
+  "claim": "Actors trained as standardised patients make this practice possible, but they are expensive, not always available, and hard to keep consistent from one student to the next \\cite{piot2021simulation}.",
+  "numeric": false
+ },
+ {
+  "id": "p1-003",
+  "paper": "p1_brain",
+  "keys": [
+   "chen2023llmempowered",
+   "wang2024patient",
+   "lee2025psyche",
+   "sabour2026patientact",
+   "sabour2026patienthub",
+   "louie2024roleplaydoh"
+  ],
+  "claim": "Large language models can play a patient, and many research systems now do \\cite{chen2023llmempowered,wang2024patient,lee2025psyche,sabour2026patientact,sabour2026patienthub,louie2024roleplaydoh}.",
+  "numeric": false
+ },
+ {
+  "id": "p1-004",
+  "paper": "p1_brain",
+  "keys": [
+   "kilincel2026meta"
+  ],
+  "claim": "A 2026 meta-analysis found that AI virtual patients help psychiatric interview training \\cite{kilincel2026meta}.",
+  "numeric": true
+ },
+ {
+  "id": "p1-005",
+  "paper": "p1_brain",
+  "keys": [
+   "lai2025patientzero"
+  ],
+  "claim": "But three problems keep appearing when the model is trusted with the patient's mind: \\begin{itemize} \\item It makes things up. Models invent symptoms or history to please the interviewer, more so when the case is thin \\cite{lai2025patientzero}.",
+  "numeric": false
+ },
+ {
+  "id": "p1-006",
+  "paper": "p1_brain",
+  "keys": [
+   "steenstra2025scaffolding",
+   "bodonhelyi2025modeling"
+  ],
+  "claim": "\\item It is too nice. Small, safety-tuned models soften hostility into apology, and patients agree too easily \\cite{steenstra2025scaffolding,bodonhelyi2025modeling}.",
+  "numeric": false
+ },
+ {
+  "id": "p1-007",
+  "paper": "p1_brain",
+  "keys": [
+   "sabour2026patientact"
+  ],
+  "claim": "\\end{itemize} Some systems answer this with several model calls per turn (one to appraise, one to plan, one to speak) \\cite{sabour2026patientact}.",
+  "numeric": false
+ },
+ {
+  "id": "p1-008",
+  "paper": "p1_brain",
+  "keys": [
+   "wang2024patient",
+   "lee2025psyche",
+   "sabour2026patientact",
+   "louie2024roleplaydoh",
+   "sabour2026patienthub"
+  ],
+  "claim": "\\bottomrule \\end{tabularx} \\end{table} \\section{Related Work} Psychiatric LLM patients base their behaviour on cognitive models and conversation styles \\cite{wang2024patient}, on Mental Status Examination (MSE) constructs \\cite{lee2025psyche}, on trust-gated memory with resistance patterns \\cite{sabour2026patientact}, and on principles written by experts \\cite{louie2024roleplaydoh}; PatientHub collects many of them behind one interface \\cite{sabour2026patienthub}.",
+  "numeric": false
+ },
+ {
+  "id": "p1-009",
+  "paper": "p1_brain",
+  "keys": [
+   "du2024llms",
+   "almansoori2025selfevolving",
+   "li2024agent",
+   "agrawal2025gepa",
+   "khattab2023dspy"
+  ],
+  "claim": "Learning simulators improve patients through self-play and libraries of past replies \\cite{du2024llms,almansoori2025selfevolving,li2024agent}, and prompt optimisers such as GEPA \\cite{agrawal2025gepa} and DSPy \\cite{khattab2023dspy} tune the instructions.",
+  "numeric": false
+ },
+ {
+  "id": "p1-010",
+  "paper": "p1_brain",
+  "keys": [
+   "lai2025patientzero",
+   "wang2025talkdep"
+  ],
+  "claim": "Patient-Zero checks what a patient says against small, single facts from the case \\cite{lai2025patientzero}; TalkDep grounds depression personas clinically \\cite{wang2025talkdep}.",
+  "numeric": false
+ },
+ {
+  "id": "p1-011",
+  "paper": "p1_brain",
+  "keys": [
+   "zheng2023judging",
+   "zhou2025personaeval"
+  ],
+  "claim": "Marking by LLM judges is cheap but biased, for example towards the judge's own model \\cite{zheng2023judging,zhou2025personaeval}.",
+  "numeric": false
+ },
+ {
+  "id": "p1-012",
+  "paper": "p1_brain",
+  "keys": [
+   "sabour2026patientact"
+  ],
+  "claim": "Our model shares trust-locked memory and resistance with PatientAct \\cite{sabour2026patientact}; the difference is that we keep the decision itself, not only the facts, outside the language model.",
+  "numeric": false
+ },
+ {
+  "id": "p1-013",
+  "paper": "p1_brain",
+  "keys": [
+   "brainminds"
+  ],
+  "claim": "The Twin borrows ideas such as ``trust changes when expectations are not met'' from the computational programme of the Brain/MINDS Digital Brain project \\cite{brainminds}, but it is not a simulation of the brain.",
+  "numeric": false
+ },
+ {
+  "id": "p1-014",
+  "paper": "p1_brain",
+  "keys": [
+   "jiang2024personallm",
+   "serapio2023personality",
+   "gupta2023selfassessment",
+   "tosato2025persist"
+  ],
+  "claim": "Prompted Big Five personalities show up in large models \\cite{jiang2024personallm,serapio2023personality}, but self-report tests of a model's personality are unreliable: three equivalent prompts give significantly different scores \\cite{gupta2023selfassessment}, re-ordering the questions alone moves scores by about a fifth of the scale, and a long conversation history makes small models less stable \\cite{tosato2025persist}.",
+  "numeric": false
+ },
+ {
+  "id": "p1-015",
+  "paper": "p1_brain",
+  "keys": [
+   "li2024instruction",
+   "hu2024persona",
+   "samuel2025personagym",
+   "lee2025trait"
+  ],
+  "claim": "Instructions drift within about eight rounds of dialogue \\cite{li2024instruction}; persona variables explain under 10\\% of the variance in what simulated people say \\cite{hu2024persona}; model size does not predict persona adherence \\cite{samuel2025personagym}; and some traits, such as high psychopathy or low conscientiousness, cannot be prompted reliably at all \\cite{lee2025trait}.",
+  "numeric": true
+ },
+ {
+  "id": "p1-016",
+  "paper": "p1_brain",
+  "keys": [
+   "abdulhai2025consistent",
+   "wang2023incharacter"
+  ],
+  "claim": "Multi-turn reinforcement learning improves consistency \\cite{abdulhai2025consistent}, and interviews, not questionnaires, are the better way to test a role-playing agent \\cite{wang2023incharacter}.",
+  "numeric": false
+ },
+ {
+  "id": "p1-017",
+  "paper": "p1_brain",
+  "keys": [
+   "lai2025patientzero",
+   "wang2025talkdep"
+  ],
+  "claim": "\\midrule Models invent symptoms to please the interviewer, more so when a case is thin \\cite{lai2025patientzero,wang2025talkdep} & Facts, state and locks live in code; every sentence is checked against the case",
+  "numeric": false
+ },
+ {
+  "id": "p1-018",
+  "paper": "p1_brain",
+  "keys": [
+   "sabour2026patientact",
+   "yu2024simulated",
+   "park2023generative"
+  ],
+  "claim": "Multi-agent designs (about six calls per turn) are too slow for live voice \\cite{sabour2026patientact,yu2024simulated,park2023generative} & One model call per live turn; reflection and optimisation run offline",
+  "numeric": false
+ },
+ {
+  "id": "p1-019",
+  "paper": "p1_brain",
+  "keys": [
+   "steenstra2025scaffolding",
+   "lee2025psyche",
+   "bodonhelyi2025modeling"
+  ],
+  "claim": "Simulated patients are too agreeable unless resistance is designed in; fully rigid resistance reads as unreal \\cite{steenstra2025scaffolding,lee2025psyche,bodonhelyi2025modeling} & Resistance levels 0--3 set by code, with explicit softening rules",
+  "numeric": true
+ },
+ {
+  "id": "p1-020",
+  "paper": "p1_brain",
+  "keys": [
+   "haut2025ai",
+   "hicke2025medsimai",
+   "brugge2024llm"
+  ],
+  "claim": "Learners value feedback more than the avatar \\cite{haut2025ai,hicke2025medsimai,brugge2024llm} & A debrief built from what the patient actually showed and said",
+  "numeric": false
+ },
+ {
+  "id": "p1-021",
+  "paper": "p1_brain",
+  "keys": [
+   "zheng2023judging",
+   "zhou2025personaeval"
+  ],
+  "claim": "LLM judges are weak evidence on their own \\cite{zheng2023judging,zhou2025personaeval} & A judge from another model family, every flag checked by hand, and code checks as gates",
+  "numeric": false
+ },
+ {
+  "id": "p1-022",
+  "paper": "p1_brain",
+  "keys": [
+   "mehrabian1996pad"
+  ],
+  "claim": "A mood value in pleasure, arousal and dominance \\cite{mehrabian1996pad} moves 30\\% of the way towards the new state each turn, so the patient's mood changes smoothly.",
+  "numeric": true
+ },
+ {
+  "id": "p1-023",
+  "paper": "p1_brain",
+  "keys": [
+   "llamacpp"
+  ],
+  "claim": "Both run on the same code with features switched on or off per version, using Gemma 4 E4B (4-bit) through llama.cpp \\cite{llamacpp} on one Apple M5 Pro laptop.",
+  "numeric": true
+ },
+ {
+  "id": "p2-024",
+  "paper": "p2_architecture",
+  "keys": [
+   "dupuy2020guidelines"
+  ],
+  "claim": "Virtual patients with bodies and voices have been designed for psychiatric interview practice for years \\cite{dupuy2020guidelines}.",
+  "numeric": false
+ },
+ {
+  "id": "p2-025",
+  "paper": "p2_architecture",
+  "keys": [
+   "voigt2025llmpowered",
+   "haut2025ai",
+   "brugge2024llm"
+  ],
+  "claim": "Recent systems let a language model choose what a 3D patient does \\cite{voigt2025llmpowered} or hold difficult conversations about serious illness \\cite{haut2025ai}, and a randomised trial found that patient simulation with structured feedback improved students' clinical decisions \\cite{brugge2024llm}.",
+  "numeric": true
+ },
+ {
+  "id": "p2-026",
+  "paper": "p2_architecture",
+  "keys": [
+   "wang2024patient",
+   "lee2025psyche",
+   "sabour2026patientact"
+  ],
+  "claim": "Most psychiatric language-model patients, however, are still text chats \\cite{wang2024patient,lee2025psyche,sabour2026patientact}.",
+  "numeric": false
+ },
+ {
+  "id": "p2-027",
+  "paper": "p2_architecture",
+  "keys": [
+   "llamacpp"
+  ],
+  "claim": "Only the read-only examiner view can be opened from another device.} \\label{fig:arch} \\end{figure*} Three programs run on one Apple M5 Pro laptop with 24\\,GB of memory (Fig.~\\ref{fig:arch}): \\begin{itemize} \\item a Unity~6 client: the 3D consulting room, the patient's body, the screens the student uses, microphone capture and lip sync; \\item a Python patient service: listening, speech recognition, the patient model, the exam router and speech synthesis; \\item llama.cpp \\cite{llamacpp} serving Gemma 4 E4B, a 4-billion-parameter language model, compressed to 4 bits so it fits beside everything e",
+  "numeric": true
+ },
+ {
+  "id": "p2-028",
+  "paper": "p2_architecture",
+  "keys": [
+   "mhca2017"
+  ],
+  "claim": "\\item ``I want to go home'': the same patient a week later on a ward, asking to leave, under India's Mental Healthcare Act \\cite{mhca2017}.",
+  "numeric": false
+ },
+ {
+  "id": "p2-029",
+  "paper": "p2_architecture",
+  "keys": [
+   "nice2010cg100"
+  ],
+  "claim": "\\item Alcohol dependence with early withdrawal: a sales manager whose hands shake in the morning, with a past withdrawal fit \\cite{nice2010cg100}.",
+  "numeric": false
+ },
+ {
+  "id": "p2-030",
+  "paper": "p2_architecture",
+  "keys": [
+   "wang2024patient"
+  ],
+  "claim": "Table~\\ref{tab:styles} shows the six conversation styles \\cite{wang2024patient}.",
+  "numeric": false
+ },
+ {
+  "id": "p3-031",
+  "paper": "p3_recall",
+  "keys": [
+   "sabour2026patientact",
+   "wang2024patient",
+   "lee2025psyche"
+  ],
+  "claim": "\\end{abstract} \\begin{IEEEkeywords} semantic matching, sentence embeddings, paraphrase robustness, simulated patients, safety, evaluation methodology \\end{IEEEkeywords} \\section{Introduction} Many simulated-patient systems separate what the patient knows from what it may say: each memory has a trust level, and the patient shares it only when the doctor asks and trust allows \\cite{sabour2026patientact,wang2024patient,lee2025psyche}.",
+  "numeric": false
+ },
+ {
+  "id": "p3-032",
+  "paper": "p3_recall",
+  "keys": [
+   "reimers2019sentencebert",
+   "wang2020minilm",
+   "gao2021simcse",
+   "wang2022e5",
+   "xiao2023cpack"
+  ],
+  "claim": "\\section{Related Work} Sentence embeddings. Sentence-BERT made it practical to compare sentences by meaning with one vector each \\cite{reimers2019sentencebert}; MiniLM showed that small, distilled models keep most of the quality \\cite{wang2020minilm}; contrastive training (SimCSE, E5, the BGE family) is the current standard recipe for small general-purpose encoders \\cite{gao2021simcse,wang2022e5,xiao2023cpack}.",
+  "numeric": true
+ },
+ {
+  "id": "p3-033",
+  "paper": "p3_recall",
+  "keys": [
+   "karpukhin2020dpr",
+   "thakur2021beir",
+   "muennighoff2022mteb"
+  ],
+  "claim": "Dense retrieval matches questions to passages the same way \\cite{karpukhin2020dpr}, and benchmarks such as BEIR and MTEB showed that retrieval quality varies a lot from one domain to another and must be measured in the target domain \\cite{thakur2021beir,muennighoff2022mteb}.",
+  "numeric": false
+ },
+ {
+  "id": "p3-034",
+  "paper": "p3_recall",
+  "keys": [
+   "zhang2019paws"
+  ],
+  "claim": "PAWS showed that models trained on easy paraphrase pairs fail on pairs that share words but differ in meaning \\cite{zhang2019paws}; our problem is the reverse, questions that share no words but mean the same.",
+  "numeric": false
+ },
+ {
+  "id": "p3-035",
+  "paper": "p3_recall",
+  "keys": [
+   "sabour2026patientact",
+   "yu2024simulated",
+   "lai2025patientzero",
+   "park2023generative"
+  ],
+  "claim": "Memory in simulated patients. PatientAct gives each memory a trust level and activation cues \\cite{sabour2026patientact}; AIPatient retrieves from a knowledge graph built from health records with several agents per turn \\cite{yu2024simulated}; Patient-Zero checks replies against single facts \\cite{lai2025patientzero}; generative agents retrieve memories by recency, importance and relevance \\cite{park2023generative}.",
+  "numeric": false
+ },
+ {
+  "id": "p3-036",
+  "paper": "p3_recall",
+  "keys": [
+   "xiao2023cpack"
+  ],
+  "claim": "Sentence-model layer. We use bge-small-en-v1.5 \\cite{xiao2023cpack}, a 33-million-parameter sentence model, run on the processor (not the graphics chip).",
+  "numeric": true
+ },
+ {
+  "id": "p3-037",
+  "paper": "p3_recall",
+  "keys": [
+   "wang2020minilm"
+  ],
+  "claim": "\\midrule MiniLM-L6 \\cite{wang2020minilm} & memory text & 0.534 & 0.777",
+  "numeric": true
+ },
+ {
+  "id": "p3-038",
+  "paper": "p3_recall",
+  "keys": [
+   "wang2020minilm",
+   "reimers2019sentencebert",
+   "xiao2023cpack"
+  ],
+  "claim": "Hand-written probes raised the share of questions whose correct memory ranked first from 0.53 to 0.71 for MiniLM \\cite{wang2020minilm,reimers2019sentencebert}, and bge-small \\cite{xiao2023cpack} put the correct memory in the top three 93\\% of the time.",
+  "numeric": true
+ },
+ {
+  "id": "p4-039",
+  "paper": "p4_system",
+  "keys": [
+   "harden1975osce"
+  ],
+  "claim": "A trainee has to notice slow speech and a lowered gaze, ask open questions, earn enough trust for a patient to admit a wish not to wake up, and assess risk properly, all inside a timed OSCE station \\cite{harden1975osce}.",
+  "numeric": false
+ },
+ {
+  "id": "p4-040",
+  "paper": "p4_system",
+  "keys": [
+   "piot2021simulation"
+  ],
+  "claim": "Standardised patient actors make this possible, but they are costly, not always available, and hard to keep consistent between students \\cite{piot2021simulation}.",
+  "numeric": false
+ },
+ {
+  "id": "p4-041",
+  "paper": "p4_system",
+  "keys": [
+   "wang2024patient",
+   "lee2025psyche",
+   "sabour2026patientact"
+  ],
+  "claim": "Psychiatric ones now model a patient's thinking patterns, resistance and trust-gated disclosure \\cite{wang2024patient,lee2025psyche,sabour2026patientact}.",
+  "numeric": false
+ },
+ {
+  "id": "p4-042",
+  "paper": "p4_system",
+  "keys": [
+   "chen2023llmempowered",
+   "wang2024patient",
+   "lee2025psyche",
+   "sabour2026patientact",
+   "sabour2026patienthub",
+   "louie2024roleplaydoh"
+  ],
+  "claim": "\\section{Related Work} Psychiatric AI patients. Chen et al.\\ built chatbots validated by clinicians for depression interviews \\cite{chen2023llmempowered}; PATIENT-$\\Psi$ bases patients on expert cognitive models with six conversation styles \\cite{wang2024patient}; PSYCHE builds a Mental Status Exam framework to evaluate assessment agents \\cite{lee2025psyche}; PatientAct adds trust-gated memory, reactions and resistance \\cite{sabour2026patientact}; PatientHub collects many simulators \\cite{sabour2026patienthub}; Roleplay-doh lets experts steer a patient with written principles \\cite{louie2024ro",
+  "numeric": false
+ },
+ {
+  "id": "p4-043",
+  "paper": "p4_system",
+  "keys": [
+   "du2024llms",
+   "almansoori2025selfevolving",
+   "li2024agent"
+  ],
+  "claim": "Patients that learn. EvoPatient improves patients through simulated doctor--patient practice and a checked library of past replies \\cite{du2024llms}; MedAgentSim and Agent Hospital evolve agents in simulated clinics \\cite{almansoori2025selfevolving,li2024agent}.",
+  "numeric": false
+ },
+ {
+  "id": "p4-044",
+  "paper": "p4_system",
+  "keys": [
+   "dupuy2020guidelines",
+   "voigt2025llmpowered",
+   "haut2025ai",
+   "steenstra2025scaffolding",
+   "hicke2025medsimai"
+  ],
+  "claim": "Patients with bodies and voices. Design guidelines for psychiatric virtual patients predate language models \\cite{dupuy2020guidelines}; recent language-model 3D patients include Voigt et al.\\ \\cite{voigt2025llmpowered} and SOPHIE \\cite{haut2025ai}; SimPatient and MedSimAI add feedback on the student's performance \\cite{steenstra2025scaffolding,hicke2025medsimai}.",
+  "numeric": true
+ },
+ {
+  "id": "p4-045",
+  "paper": "p4_system",
+  "keys": [
+   "brugge2024llm",
+   "geathers2025benchmarking",
+   "kilincel2026meta"
+  ],
+  "claim": "Does it help? A randomised trial found that patient simulation with structured feedback improved students' clinical decisions \\cite{brugge2024llm}; AI scoring of OSCE interview transcripts agrees with experts within one point 67--87\\% of the time \\cite{geathers2025benchmarking}; a 2026 meta-analysis supports AI virtual patients for psychiatric interview training \\cite{kilincel2026meta}.",
+  "numeric": true
+ },
+ {
+  "id": "p4-046",
+  "paper": "p4_system",
+  "keys": [
+   "zheng2023judging"
+  ],
+  "claim": "AI judges are cheap but biased \\cite{zheng2023judging}.",
+  "numeric": false
+ },
+ {
+  "id": "p4-047",
+  "paper": "p4_system",
+  "keys": [
+   "brainminds"
+  ],
+  "claim": "Digital brains. The Brain/MINDS Digital Brain programme \\cite{brainminds} builds data-driven models of the brain; the Twin is not a brain model and only borrows its ideas as behaviour rules (for example, trust changes when expectations are not met).",
+  "numeric": false
+ },
+ {
+  "id": "p4-048",
+  "paper": "p4_system",
+  "keys": [
+   "sabour2026patientact"
+  ],
+  "claim": "\\midrule Memories with trust levels, reactions and resistance labels \\cite{sabour2026patientact} & Trust-locked memories; a locked memory gives only a discomfort signal",
+  "numeric": false
+ },
+ {
+  "id": "p4-049",
+  "paper": "p4_system",
+  "keys": [
+   "sabour2026patientact"
+  ],
+  "claim": "``Feel first, speak second'' \\cite{sabour2026patientact} & Behaviour and emotion are chosen before the words",
+  "numeric": false
+ },
+ {
+  "id": "p4-050",
+  "paper": "p4_system",
+  "keys": [
+   "steenstra2025scaffolding",
+   "lee2025psyche",
+   "bodonhelyi2025modeling"
+  ],
+  "claim": "Patients too agreeable unless resistance is designed \\cite{steenstra2025scaffolding,lee2025psyche}; too rigid is unreal \\cite{bodonhelyi2025modeling} & Resistance 0--3 in code with softening rules",
+  "numeric": true
+ },
+ {
+  "id": "p4-051",
+  "paper": "p4_system",
+  "keys": [
+   "lee2025psyche"
+  ],
+  "claim": "Mental Status Exam constructs and failure modes \\cite{lee2025psyche} & A mental-status profile per case, enforced by code",
+  "numeric": false
+ },
+ {
+  "id": "p4-052",
+  "paper": "p4_system",
+  "keys": [
+   "wang2024patient"
+  ],
+  "claim": "Six conversation styles \\cite{wang2024patient} & Seeded patients with one style per session",
+  "numeric": false
+ },
+ {
+  "id": "p4-053",
+  "paper": "p4_system",
+  "keys": [
+   "lai2025patientzero"
+  ],
+  "claim": "Check replies against single facts \\cite{lai2025patientzero} & Every sentence checked against the case before it is spoken",
+  "numeric": false
+ },
+ {
+  "id": "p4-054",
+  "paper": "p4_system",
+  "keys": [
+   "haut2025ai",
+   "bodonhelyi2025modeling"
+  ],
+  "claim": "Readable, slightly exaggerated cues from a fixed map; free-written cues get repetitive \\cite{haut2025ai,bodonhelyi2025modeling} & A fixed emotion-to-body map",
+  "numeric": false
+ },
+ {
+  "id": "p4-055",
+  "paper": "p4_system",
+  "keys": [
+   "du2024llms",
+   "li2024agent",
+   "agrawal2025gepa"
+  ],
+  "claim": "Learn offline, keep a change only if a replay shows it helps \\cite{du2024llms,li2024agent,agrawal2025gepa} & Versioned learning loop with gates and rollback",
+  "numeric": false
+ },
+ {
+  "id": "p4-056",
+  "paper": "p4_system",
+  "keys": [
+   "louie2024roleplaydoh"
+  ],
+  "claim": "Faculty principles reduce awkward replies \\cite{louie2024roleplaydoh} & Case-level principles in the prompt",
+  "numeric": false
+ },
+ {
+  "id": "p4-057",
+  "paper": "p4_system",
+  "keys": [
+   "hicke2025medsimai"
+  ],
+  "claim": "Quote-based rubric feedback \\cite{hicke2025medsimai} & Debrief comments quote the student's own lines",
+  "numeric": false
+ },
+ {
+  "id": "p4-058",
+  "paper": "p4_system",
+  "keys": [
+   "tosato2025persist",
+   "li2024instruction"
+  ],
+  "claim": "\\bottomrule \\end{tabularx} \\end{table} Personality: vary the person, not the answer. Persona prompting is fragile in small models: self-report personality scores shift with question order and conversation history \\cite{tosato2025persist}, and instructions drift within about eight rounds \\cite{li2024instruction}.",
+  "numeric": false
+ },
+ {
+  "id": "p4-059",
+  "paper": "p4_system",
+  "keys": [
+   "walonoski2018synthea"
+  ],
+  "claim": "Synthetic-patient generators such as Synthea build the full history first and render it afterwards \\cite{walonoski2018synthea}; human standardised-patient programmes likewise let several actors play one case while the case stays fixed.",
+  "numeric": false
+ },
+ {
+  "id": "p4-060",
+  "paper": "p4_system",
+  "keys": [
+   "mhca2017"
+  ],
+  "claim": "``I want to go home'' & On a ward, the same patient asks to leave; explore reasons, explain rights honestly under the Mental Healthcare Act \\cite{mhca2017}, assess capacity and current risk, offer choices.",
+  "numeric": false
+ },
+ {
+  "id": "p4-061",
+  "paper": "p4_system",
+  "keys": [
+   "nice2010cg100"
+  ],
+  "claim": "Alcohol withdrawal & A sales manager with shaking hands, about 12 hours after his last drink, with a past withdrawal fit; find the real amount, morning drinking and the fit; plan supervised withdrawal \\cite{nice2010cg100}.",
+  "numeric": true
+ },
+ {
+  "id": "p4-062",
+  "paper": "p4_system",
+  "keys": [
+   "llamacpp"
+  ],
+  "claim": "\\section{System} \\subsection{Overview} \\begin{figure}[t] \\centering \\begin{tikzpicture}[node distance=4mm] \\tikzset{b/.style={box=#1, text width=25mm}} \\node[b=green!10] (u) {Unity client: room,\\\\body, voice in and out,\\\\tablet, debrief}; \\node[b=cyan!8, right=13mm of u] (s) {Patient service:\\\\listening, Digital Twin,\\\\exam rules, voice}; \\node[b=orange!12, below=of s] (l) {Local language model\\\\(Gemma 4 E4B)}; \\node[b=gray!10, below=of u] (c) {Case files\\\\(one per patient)}; \\node[b=green!10, above=of s] (v) {Examiner view\\\\(browser, read-only)}; \\draw[<->] (u) -- node[lab, above]{one\\\\WebSoc",
+  "numeric": true
+ },
+ {
+  "id": "p4-063",
+  "paper": "p4_system",
+  "keys": [
+   "mehrabian1996pad"
+  ],
+  "claim": "\\subsection{The Digital Twin} Each turn the Twin: \\begin{enumerate} \\item finds the memories the doctor's words touch, by keywords and by meaning, then applies the trust locks, so a locked memory gives only a sign of discomfort; \\item reads what the doctor just did (empathy, judgement, jargon, a risk question and others), changes trust, updates how guarded the patient is by fixed rules, and makes a short list of allowed behaviours; \\item makes one call to the language model, which may only choose among the allowed behaviours, and writes the behaviour and emotion before the words; \\item checks ",
+  "numeric": false
+ },
+ {
+  "id": "p4-064",
+  "paper": "p4_system",
+  "keys": [
+   "nice2022ng225"
+  ],
+  "claim": "No risk ``category'' is printed, following NICE guidance \\cite{nice2022ng225}.",
+  "numeric": false
+ },
+ {
+  "id": "p4-065",
+  "paper": "p4_system",
+  "keys": [
+   "simmenroth2014calgary"
+  ],
+  "claim": "\\item Communication (12). Six items from the Master Interview Rating Scale and the Calgary--Cambridge guides \\cite{simmenroth2014calgary} (introduction, confidentiality, open questions, empathy, summarising, checking understanding), with deductions for judgmental lines, real interruptions, jargon and stacked questions.",
+  "numeric": true
+ },
+ {
+  "id": "p4-066",
+  "paper": "p4_system",
+  "keys": [
+   "nice2022ng225"
+  ],
+  "claim": "\\midrule NICE NG225: no risk tools or low/medium/high labels to predict suicide or decide care \\cite{nice2022ng225} & Risk is a list of items assessed; no category is printed",
+  "numeric": true
+ },
+ {
+  "id": "p4-067",
+  "paper": "p4_system",
+  "keys": [
+   "posner2011cssrs"
+  ],
+  "claim": "C-SSRS: wish to be dead, then active thoughts, method, intent, plan, behaviour \\cite{posner2011cssrs} & Plan and means unlock after the death wish; partial credit when asked too early",
+  "numeric": false
+ },
+ {
+  "id": "p4-068",
+  "paper": "p4_system",
+  "keys": [
+   "stanley2012safety"
+  ],
+  "claim": "Safety planning: warning signs, coping, contacts, crisis lines, a safe environment \\cite{stanley2012safety} & A safety plan is the required disposition when there are suicidal thoughts",
+  "numeric": false
+ },
+ {
+  "id": "p4-069",
+  "paper": "p4_system",
+  "keys": [
+   "tripathi2026depression"
+  ],
+  "claim": "Indian depression guideline: assess ideation, plan, means, past attempts, protective factors; screen for bipolarity \\cite{tripathi2026depression} & Answer key and teaching points of the depression case",
+  "numeric": false
+ },
+ {
+  "id": "p4-070",
+  "paper": "p4_system",
+  "keys": [
+   "nice2010cg100"
+  ],
+  "claim": "NICE CG100: admit for supervised withdrawal if there is a risk of fits or delirium \\cite{nice2010cg100} & Past withdrawal fit is a critical item; supervised withdrawal required",
+  "numeric": true
+ },
+ {
+  "id": "p4-071",
+  "paper": "p4_system",
+  "keys": [
+   "geathers2025benchmarking"
+  ],
+  "claim": "LLM scoring of OSCE interviews agrees exactly with experts only 27--44\\% of the time; non-verbal items unreliable \\cite{geathers2025benchmarking} & AI examiner notes are verbal-only, quote-checked and never scored",
+  "numeric": true
+ },
+ {
+  "id": "p4-072",
+  "paper": "p4_system",
+  "keys": [
+   "haut2025ai",
+   "brugge2024llm"
+  ],
+  "claim": "Learners rated feedback above the avatar \\cite{haut2025ai}; structured feedback improved history taking \\cite{brugge2024llm} & The debrief leads with three concrete changes and words to try",
+  "numeric": false
+ }
+]

@@ -1,0 +1,27 @@
+% Shared preamble for the Springer Nature (sn-jnl) versions: papers A and B. Load right after \documentclass{sn-jnl}.
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,shapes.geometric,shapes.misc}
+\graphicspath{{../figures/}}
+% sn-jnl loads breakurl, which expects pdfTeX/dvips; Tectonic runs XeTeX
+\makeatletter\def\headerps@out#1{}\makeatother
+\AtBeginDocument{\def\doi#1{\href{https://doi.org/#1}{doi:\detokenize{#1}}}}\providecommand\burl{\url}
+% a result the overnight runs have not produced yet (papers/analysis/new_results.py fills it in)
+\newcommand{\pending}{\textcolor{red}{[pending]}}
+% a step that needs people (raters, reviewers, ethics); see papers/HUMAN_STUDIES.md
+\newcommand{\humanpending}[1]{\textcolor{red}{[#1]}}
+\tikzset{
+  >={Stealth[length=1.8mm]},
+  box/.style={draw, rounded corners=2pt, align=center, font=\scriptsize, minimum height=7mm, inner sep=2pt, fill=#1},
+  box/.default=cyan!8,
+  decision/.style={draw, diamond, aspect=2.2, align=center, font=\scriptsize, inner sep=1pt, fill=yellow!12},
+  state/.style={draw, circle, align=center, font=\scriptsize, minimum size=12mm, fill=#1},
+  state/.default=cyan!8,
+  lab/.style={font=\tiny, align=center},
+}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}

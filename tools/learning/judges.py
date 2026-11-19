@@ -2,15 +2,16 @@
 amount disclosed fits the trust locks (resistance appropriateness), and a yes/no check against the case's faculty principles.
 """
 import json
+import re
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools/llm_eval"))
-from judge import judge_one as invented  # noqa: E402,F401  (client, case, turn) -> {unsupported_claims, broke_character, why}
+from judge import ask_json, judge_one as invented  # noqa: E402,F401  (client, case, turn) -> {unsupported_claims, broke_character, why}
 
 YES = {"type": "object", "additionalProperties": False, "required": ["ok", "why"],
-       "properties": {"ok": {"type": "boolean"}, "why": {"type": "string"}}}
+       "properties": {"ok": {"type": "boolean"}, "why": {"type": "string", "maxLength": 240}}}
 
 RESISTANCE = """You check one line of a simulated psychiatric patient for ACCURACY against disclosure rules. Not realism, not style.
 Rules:
@@ -23,11 +24,7 @@ ok = true if the line follows these rules. Answer with the JSON only."""
 
 
 def _ask(client, system: str, user: str) -> dict:
-    r = client.chat.completions.create(model="judge", temperature=0, max_tokens=200,
-                                       messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-                                       response_format={"type": "json_schema", "json_schema": {"name": "j", "strict": True, "schema": YES}},
-                                       extra_body={"chat_template_kwargs": {"enable_thinking": False}})
-    return json.loads(r.choices[0].message.content)
+    return ask_json(client, system, user, YES, {"ok": None, "why": ""})
 
 
 def resistance(client, case: dict, turn: dict) -> bool:
@@ -46,3 +43,41 @@ def principles(client, rules: list[str], turn: dict) -> bool | None:
     user = ("Principles:\n" + "\n".join(f"- {p}" for p in rules) + f"\nDoctor said: {turn['doctor']}\nPatient said: {turn['reply']['utterance']}")
     return _ask(client, "Does the patient's line break any of these principles about how the patient talks? ok = true if it follows "
                         "all of them (a principle that does not apply counts as followed). Answer with the JSON only.", user)["ok"]
+
+
+DISCLOSED = {"type": "object", "additionalProperties": False, "required": ["revealed"],
+             "properties": {"revealed": {"type": "array", "maxItems": 4, "items": {
+                 "type": "object", "additionalProperties": False, "required": ["id", "quote"],
+                 "properties": {"id": {"type": "string"}, "quote": {"type": "string", "maxLength": 160}}}}}}
+
+DISCLOSED_SYSTEM = """You check what one line of a simulated patient gives away. For each fact in the case file whose SPECIFIC content the
+patient's line states or clearly confirms, give its id and copy the exact words from the patient's line that state it.
+Not revealed: a fact the line does not mention; a vague, evasive or deflecting line; a denial ("no, nothing like that"), unless the fact
+itself is that something is absent (for example "no plan", "never attempted") and the line states that; something only the doctor said. Most lines reveal zero or one fact. An empty list is the usual answer. Answer with the JSON only."""
+
+
+def _norm(s: str) -> str:
+    return " ".join(re.sub(r"[^a-z0-9' ]", " ", s.lower()).split())
+
+
+def disclosed(client, case: dict, turn: dict) -> list[str]:
+    """Which case facts the patient's line actually reveals, read from the words (not from the model's own revealed_fact_ids), so a
+    system with no code locks (the prompt-only baseline) is scored by the same yardstick as the Twin. A fact counts only when the
+    judge quotes words that really are in the line."""
+    ids = {f["id"] for f in case["facts"]}
+    facts = "\n".join(f"- [{f['id']}] {f['text']}" for f in case["facts"])
+    u = turn["reply"]["utterance"]
+    user = f"Case file:\n{facts}\n\nDoctor said: {turn['doctor']}\nPatient's line: {u}"
+    r = ask_json(client, DISCLOSED_SYSTEM, user, DISCLOSED, {"revealed": []})
+    return sorted({x["id"] for x in r["revealed"] if x["id"] in ids and _norm(x["quote"]) and _norm(x["quote"]) in _norm(u)})
+
+
+CONFIRMS = """You check one line of a simulated patient against ONE fact from the case file. ok = true if the patient's line reveals or clearly
+confirms this specific fact, in any words, even partly. If the fact says something is absent (for example "no plan", "never attempted", "no
+means at home"), a line that states that absence counts. A vague, evasive or deflecting line does not count, and neither does a line about a
+different fact. Answer with the JSON only."""
+
+
+def confirms(client, fact_text: str, doctor: str, utterance: str) -> bool:
+    """One fact, yes or no: steadier than asking the judge to list every fact a line reveals (which misses facts about absence)."""
+    return bool(_ask(client, CONFIRMS, f"Fact: {fact_text}\nDoctor said: {doctor}\nPatient said: {utterance}")["ok"])

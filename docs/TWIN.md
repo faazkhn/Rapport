@@ -2,7 +2,9 @@
 
 The Digital Twin is the patient's mind for each live turn. It decides what the patient recalls, what stays locked, how they answer and how their trust and mood change; the language model only voices that choice. It supersedes `PATIENT_BRAIN.md` §3–5. Brain-inspired, **not** a neural simulation. All clinical content is draft.
 
-Version: `twin-0.1` (sent in every snapshot as `brain_version`).
+Version: `twin-0.2` (sent in every snapshot as `brain_version`, e.g. `twin-0.2+v2`). The twin-0.2 features are switched on per
+brain version (`learned/versions/<id>.json` `features`): `v2` has them all, `v0` none, so `python learning.py rollback v0` restores
+the twin-0.1 behaviour on the voice path. The section "twin-0.2" below describes them; the table that follows is the v0 order.
 
 ## Per-turn order
 
@@ -30,10 +32,11 @@ A painful locked hit always ends with a reaction that does not raise trust (`twi
 - `data/brain/expression_map.json`: reaction/behaviour → cues + speed.
 - Case facts (key stays `facts`; code calls them memory items) gain `activation_tags`, `kind`, `generates_discomfort` and an optional examiner-facing `label` (≤ 40 chars). Cases gain `formulation` (5Ps), `core_belief`, `attachment_style`, `dialect`. Migrate a case with `server/patient-service/scripts/migrate_memory.py <case.json>`, then hand-write the tags.
 - `state_rules.json` gains `reaction_trust_unit` (2) and `mood_rate` (0.3), both draft.
+- Seeded patients (`slots`, `styles_allowed`), conversation styles (`data/brain/styles.json`) and ward `events`: `docs/PATIENTS.md`.
 
 ## Twin view
 
-- Live: `http://127.0.0.1:8765/twin/?live=1`. The page reads `ws://<host>/twin/ws`; a late viewer receives the session so far and its clock catches up.
+- Live: `http://127.0.0.1:8765/twin/`. The page reads `ws://<host>/twin/ws`; a late viewer receives the session so far and its clock catches up.
 - Replay: every live session is logged to `logs/twin/<time>_<case>.jsonl` (git-ignored, local only). `python3 tools/demo/log_to_timeline.py <log> -o <timeline.json>`, then `?timeline=<url>`.
 - Unity writes each `brain_snapshot` to its `SessionLog`.
 
@@ -43,9 +46,9 @@ A painful locked hit always ends with a reaction that does not raise trust (`twi
 
 ## Known limits
 
-- Recall is lexical. A paraphrase with none of the tag words is missed; add tags or move to embeddings (Phase D2).
+- (v0 only) Recall is lexical. twin-0.2 adds embeddings; see below.
 - At low trust the patient still tends to say "No... not like that" to a direct suicide question; tune in the voice-quality pass (Phase G).
-- Reaction is generated after the words, so it describes the reply rather than steering it; behaviour steers it.
+- (v0 only) Reaction is generated after the words. In twin-0.2 code decides the reaction shortlist before the call.
 - Substance-case states (SimPatient, stage of change) and learning are later plans.
 
 ## Decisions (supersede `PATIENT_BRAIN.md` §3–6)
@@ -67,3 +70,30 @@ A painful locked hit always ends with a reaction that does not raise trust (`twi
 - explicit rules for when resistance softens;
 - a contradiction check against atomic case facts after the call (Patient-Zero);
 - debrief items backed by verbatim quotes (MedSimAI).
+
+
+## twin-0.2 (v0.3, 2026-11-14)
+
+One pipeline for both paths (`mind.py`): the voice session (`session.run_turn`) and typed `POST /reply` (`brain.generate_reply`)
+run the same steps. The typed path returns the new `state` and the session's `twin` (the mind: mood, memory, resistance, fired
+events), which the client sends back next turn (`mind.load` and `memory.sanitize` check every field), so typed turns now get ward
+events, the trust step and the PAD mood too. Unity's `PatientBrain` applies the service's state and carries the mind.
+
+| Step | Where | What it does |
+|---|---|---|
+| Move | `rubric.moves`, `data/brain/rubric.json` (draft) | Reads the doctor's line as moves: greeting, open/closed question, empathy, explaining why, apology, choice, summary, judgement, abuse, threat, premature reassurance, jargon, stacked questions, rushing, jailbreak, "are you an AI", small talk, repeated question, interruption, risk question. Code only. |
+| Pre-step | `rubric.pre_step` | The moves step trust, distress, agitation and engagement before recall (style gains; a kind line never lowers trust), so a kind risk question can be answered kindly. The prompt prefix still uses the start-of-turn state (cache). |
+| Recall | `twin.recall` | Tags plus bge-small-en-v1.5 similarity over each fact's `recall_probes`, generated doctor lines (`data/recall/<case>.json`), tags and text; thresholds in `data/brain/recall.json` (dev half). Trust locks after matching. `strong` hits (tag or similarity >= `SIM_STRONG`) are the only ones that can force a disclosure. |
+| Resistance | `rubric.resistance` | Level 0 open .. 3 hostile. Rises with judgement, abuse, threats (+2) and interrupting, rushing, premature reassurance (+1); falls by one a turn with validation, explaining why, apology or a choice, and after two calm turns towards the style's base; capped at 1 past the style's `softens_at_trust`. An upset style starts at 2. |
+| Decide | `rubric.decide` | Shortlists 1-3 behaviours, reactions and resistance labels; the reply schema only allows those (the model picks within). Open risk fact asked kindly and strongly: disclose behaviours. Locked hit: evasive behaviours, never `denies`. Variety: a behaviour used on each of the last two turns goes to the back. MSE: no tangents unless the case allows them. |
+| Memory | `memory.py` | Episodes: what the patient already told (and in what words), locked questions, hurt and its repair, kindness, promises, permission to leave, and everyday backstory the patient made up. At most three lines a turn ("You asked me that already"). |
+| Prompt | `brain.build_messages` | Post-tail adds `THIS MOMENT` (the decision) and `REMEMBERS FROM THIS CONSULTATION`. System prompt adds the case's MSE line and, with `improvise`, a hard rule that allows made-up everyday details and forbids anything clinical. |
+| Speech | `mind.speakable`, `consistency.py` | Every sentence before TTS: numbers and durations corrected to the facts the line touched, age, fixed names (a brother is always Rohan), the death wish dropped when locked or never asked (`locked_leak`, `volunteered_risk`), apology stripped while an upset patient is still upset, near-repeats dropped. A possible flat denial is held to the end of the reply: an open, kindly asked risk fact is never flatly denied (the case's `disclosure_line` is said instead), a locked one gets evasion, not "No". Every clash is in `meta.consistency` and the Twin log. |
+| After | `mind.finish` | Guard, labels held to the shortlist, MSE intensity cap; state update with the model's own trust delta limited to +-3 and the per-turn clamp counted from the start of the turn; mood; memory. |
+| End | `mind._should_end` | Three hurtful moves within six turns at trust <= 15, or agitation >= 90: the patient ends the interview (stage direction, stands up, `patient_ended` to Unity, which turns hands-free off). |
+
+Voice: one TTS instruction per reply (with Qwen3-TTS VoiceDesign the instruction is the speaker, so a new one per sentence drifted),
+carrying the decided reaction from the first word, scaled by distress or agitation, with pace words and a pitch-preserving stretch.
+
+Case data added (draft, for clinician review): `mse` blocks, `disclosure_line` on must-ask risk facts, `recall_probes`, `topics`.
+Measured results and gates: `docs/GATES_v0.3.md`.

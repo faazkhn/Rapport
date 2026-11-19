@@ -1,0 +1,17 @@
+{
+ "pairs": 247,
+ "top1": 0.733,
+ "top3": 0.923,
+ "top5": 0.964,
+ "median_rank": 1,
+ "correct_sim_median": 0.823,
+ "none_best_median": 0.658,
+ "none_lines": 22,
+ "nonrisk_lines": 187,
+ "nonrisk_best_risk_over_0.78": 0.112,
+ "risk_misses": {
+  "matched another risk memory": 5,
+  "matched nothing": 8,
+  "matched a non-risk memory": 8
+ }
+}

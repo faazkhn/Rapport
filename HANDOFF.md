@@ -1,5 +1,27 @@
 # Rapport (formerly PsychSim): handoff, 2026-10-20
 
+## v0.3 released on branch `v0.3-brain` (2026-11-14): read this first
+Report: `docs/GATES_v0.3.md` (every gate, met or not). Baseline: `docs/BASELINE_v0.3.md`. Brain spec: `docs/TWIN.md` (twin-0.2).
+- **Live brain v2** (`learned/current.json`); `python server/patient-service/learning.py rollback v0` restores the old brain.
+- **Tests:** service 244, Unity EditMode 55/55, validate_data 0 errors. Build: `unity/PsychSim/Builds/Rapport.app` (Development).
+- **Met:** safety gates (0 jailbreak, 0 portrayal, SI disclosed when open and asked kindly, no locked leaks), variety, 'you can go'
+  never loops, face luminance 0.488-0.543, chair 110 deg, exam actions. **Not met:** recall 95% (72.7%), composite above v0 (equal),
+  upset style holding (50%), latency +279 ms p50 (owner: not a priority now).
+- **Owner decisions pending:** LFS for the two new bodies (~150 MB) and the stills; faculty review of the draft clinical content
+  (MSE blocks, disclosure lines, rubric numbers, topics); how long an upset style should hold against a kind doctor.
+- **Next:** hand-checked labels -> fine-tuned text model for recall (`tools/brain/finetune.py`), learning rounds (fixed), lip sync,
+  skin/eye/hair shaders, live takes with Arjun and Amber, 60 fps check in the built app.
+- **Papers:** IEEE drafts in `papers/` (owner request 2026-11-14), sole author Faaz Khan Mohammad.
+- GitHub: gh's active account on this Mac is ActionGenius; push this repo with `GH_TOKEN=$(gh auth token -u faazkhn)`.
+
+### Earlier (2026-11-13)
+Plan: `KICKOFF_PROMPT_v5.md`. Phase 0 and the Phase 1 brain code are done; the measurements run overnight.
+- **Committed:** `personalities` got the §4g/§4h work (`72e9e1f`; the two new bodies' FBX/textures are NOT committed: about 150 MB of LFS needs the owner's go-ahead). `v0.3-brain` adds brain twin-0.2 (`1c457f7`, `60c568f`): `mind.py` (one turn pipeline for voice and typed), `rubric.py` + `data/brain/rubric.json`, `memory.py` (episodic memory, improvised everyday backstory, owner request 2026-11-13), `consistency.py`, hybrid recall in `twin.py` (bge-small + tags + `recall_probes` + generated `data/recall/<case>.json`), MSE blocks and risk `disclosure_line`s in the cases (clinician review), move/intent classifier `tools/brain/moves_model.py`. Features are per brain version: `v2` = all, `v0` = none (rollback v0 restores the old brain). Live stays `v0`.
+- **Tests:** service 236 pass, Unity EditMode 51/51, validate_data 0 errors.
+- **Recall (paraphrase set, 512 lines by a writer who never saw the tags; `tests/recall/`, `tools/recall_bench.py`):** test half, risk facts: lexical 35% -> hybrid 73% (before generated probes); gate is 95%. Re-measured overnight.
+- **Overnight queue:** `tools/overnight/queue.sh` (status `tests/overnight/status.md`, logs `tests/overnight/*.log`): baseline v0 held-out (clean worktree `../v03-baseline`), recall bench, held-out v2 and v0 (3 seeds x mdd_01, alc_01; judge Qwen3.5-9B), latency v0 and v2 (52 turns each), baseline stills of 4 bodies, classifier label/train/eval (+ v3 if it beats the lexical rubric), model bake-off (Qwen3.5-4B/9B as patient), 5 learning rounds. If the session died, run it again: it redoes missing pieces.
+- **Morning:** hand-review judge flags (`tools/learning/reviewed_flags.json`), hand-check `tests/brain/gold_review.md`, `loop.py rescore`, write `docs/BASELINE_v0.3.md`, idle clips (play mode), A/B page, then Phase 2 rendering and Phase 3 voice.
+
 **To continue:** open Claude Code in `/Users/faazkhn/Documents/Med` and say:
 > Read `HANDOFF.md`, then implement `KICKOFF_PROMPT_v4.md` (the Rapport / Digital Twin plan), starting at Phase A.
 
@@ -87,6 +109,31 @@
 - Demo v3 (`demo/Rapport_demo_v3.mp4`, 3:06, one take, not in git): a different interview (`demo/v3/script.json`), full session with Arjun. Menu: **Rapport/Record Demo v3 (Arjun, new script)**; post: `tools/demo/post.py demo/raw/Rapport_take_v3_arjun.mp4 --arjun ''`.
 - The new script found three recall gaps (plan/means with "tablets or anything at home", "wouldn't wake up", support/hobbies); case tags fixed with tests. Demo opening shots fixed (establishing was outside the room, entrance camera overhead).
 - `bundleVersion` 0.2.0; takes now named `Rapport_take*`. Gates: `docs/GATES.md` § v0.2.1.
+
+## 4f. Personalities, seeded patients and ward stations (branch `personalities`, 2026-10-22, not merged)
+- Research: `docs/literature/personalities-and-randomized-patients.md`. Design, results and open items: `docs/PATIENTS.md`.
+- Seeded patients (slots + one of six conversation styles; answer key never changes), "Surprise me" in Unity, `GET /patient`.
+- Styles are code parameters; a kind move never lowers trust or raises agitation; styles soften past `softens_at_trust`.
+- Ward events engine plus two draft stations: `ward_01` "I want to go home", `ward_02` "I'm not taking those tablets".
+- Ward demo `demo/Rapport_ward_demo.mp4` (not in git). Takes: `demo/raw/Rapport_take_ward*.mp4`.
+- Owner and faculty: review the draft numbers and the cases; decide whether to merge to main.
+
+## 4g. Live-test fixes, new bodies, alcohol case, evaluation (branch `personalities`, 2026-10-25, not committed)
+- Voice: choppy TTS was underrun (Qwen RTF ~1.0 while the LLM shares the GPU). `voice.ready_to_play` holds each sentence until buffered audio outlasts its generation; no cost when idle. TTS warmed per session. Interruptions now count only with >= 1 s of reply left (`session.INTERRUPT_MIN_S`); typed/PTT turns were falsely tagged `interrupt`.
+- Push-to-talk default (remembered); Twin view at `/twin/` is live by default and served to the LAN (only `/twin` and `/health` answer other devices: `app.LocalOnly`).
+- Exam: palms were inverted (`ExamController.HandAxes`), and only the hand bone turned. `ForearmTwist` spreads the roll over the CC twist bones; fingers straighten for hands-out; `SleeveRoller` builds rolled-sleeve blendshapes from skin weights at runtime; sleeveless tops skip the strokes; the forearms supinate in the hold.
+- New bodies `female_20s_b` (Amber) and `male_30s_a` (Realistic Man, ARKit face keys): RIG_REPORT.md section "Added 2026-10-25". Start screen **Look** row; "Surprise me" picks a body.
+- New case `alc_01` "Shaky in the mornings" (docs/PATIENTS.md); cues `tremor_coarse` and `sweating` now drive the body; formulary: naltrexone, acamprosate, disulfiram + two rules.
+- Evaluation overhaul: docs/literature/evaluation-and-assessment.md. MSE against cues actually shown (recall + precision), risk credits disclosure, case `critical_intents`, MIRS-style communication items, jargon and stacked questions, global rating, "Next time" steps, AI examiner notes (`POST /assess`, `examiner.py`, quotes verified).
+- Tests: service 196, Unity EditMode 51. App rebuilt (1.19 GB with the new bodies).
+
+## 4h. Playtest fixes and life memory (branch `personalities`, 2026-10-31, not committed)
+- Plan: `docs/superpowers/plans/2026-10-31-patient-playtest-fixes.md`. Results: `docs/PATIENTS.md` § Playtest fixes.
+- Patients answer what they may share (prompt + styles). A barge-in after the reply is said keeps the reply (`Session.said_all`). "You can go" fires `leave_granted` and stays true (`then` notes).
+- Life memory files `data/life/*.json`, recalled like facts, never credited.
+- Amber's hair rebuilt whole; FBX Read/Write on; `ward_02` uses Amber and Realistic Man.
+- Tests: service 221, Unity EditMode 51/51 (batch). App rebuilt (batch, 1.1 GB).
+- **Not verified:** the start screen Look 2 in the built app. The Mac was locked, so there was no clicking or screenshots. In the editor every look spawns and enters in all cases.
 
 ## 5. Next steps
 1. Commit §4; rebuild the player; re-measure latency after the send fix.

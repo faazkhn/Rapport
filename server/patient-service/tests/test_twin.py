@@ -23,7 +23,23 @@ def test_recall_same_line_unlocked():
 
 
 def test_recall_no_match():
-    assert twin.recall(CASE, 30, "Nice weather today") == {"open": [], "locked_hit": [], "discomfort": False}
+    assert twin.recall(CASE, 30, "Okay, I see.") == {"open": [], "locked_hit": [], "discomfort": False, "life": [], "strong": []}
+
+
+def test_life_memories_come_to_mind_and_are_never_facts():
+    """Owner 2026-10-31: patients need a detailed life to draw on (family, school, work, food, festivals...)."""
+    r = twin.recall(CASE, 0, "Tell me about your father.")
+    assert "l_father" in r["life"] and not any(i.startswith("l_") for i in r["open"] + r["locked_hit"])
+    assert len(r["life"]) <= 2
+    block = brain.recall_block(CASE, r)
+    assert "Suresh Rao" in block and "answer with them now" in block
+
+
+def test_life_follows_variant_and_slots():
+    male = brain.load_case("mdd_01", "male", seed=3)
+    ids = {m["id"] for m in male["life"]}
+    assert "l_flatmate_m" in ids and "l_flatmate_f" not in ids
+    assert not any("{" in m["text"] for m in male["life"])
 
 
 def test_recall_fast():

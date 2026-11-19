@@ -166,5 +166,70 @@
   "reason": "supported by mdd_01.json (presenting complaint, minimising line, sick days, passive SI example)",
   "seen_in": "v1 12_long_decay#15",
   "reviewer": "Claude (hand review against mdd_01.json), 2026-10-21"
+ },
+ "A couple of pegs in the evening, yaar. Everyone in sales does it, no?": {
+  "verdict": "false_positive",
+  "why": "alc_01 f_drinking_minimised: 'like everyone in sales'",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "A couple of pegs in the evening. Everyone in sales drinks a little, no?": {
+  "verdict": "false_positive",
+  "why": "alc_01 f_drinking_minimised",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "It's been getting worse these past few months, honestly. Last week at my cousin's party, I couldn't even hold a glass steady.": {
+  "verdict": "minor_real",
+  "why": "'past few months' is not in the case (an invented duration); the party matches f_pc's family function",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "Why are you saying that, doctor? I just said I need help with sleeping.": {
+  "verdict": "false_positive",
+  "why": "alc_01 speech example: 'something for my nerves and sleep'",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "Why are you saying that, yaar? It's just evening drinks.": {
+  "verdict": "false_positive",
+  "why": "alc_01 f_drinking_minimised",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "No. I don't have any plans. I just... sometimes I wish I wouldn't wake up in the morning, like a few times a week.": {
+  "verdict": "false_positive",
+  "why": "f_no_plan_no_attempt and f_passive_si open (75 >= 55) and asked",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "No. I haven't thought about how. Just... wishing I wouldn't wake up sometimes.": {
+  "verdict": "false_positive",
+  "why": "f_no_plan_no_attempt and f_passive_si open and asked",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "It is okay, doctor. Just a bit of work pressure, I think.": {
+  "verdict": "minor_real",
+  "why": "minimising contradicts open f_energy_concentration (cannot concentrate); in character but a contradiction",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "He just... criticises sometimes.": {
+  "verdict": "false_positive",
+  "why": "f_work_family: manager criticises in front of the team",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "He just... criticises sometimes. It is nothing, I think.": {
+  "verdict": "false_positive",
+  "why": "f_work_family",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "I stopped singing, actually. And I don't really feel like calling Deepa and Kiran on weekends anymore.": {
+  "verdict": "false_positive",
+  "why": "life memory names (rao.json) and f_anhedonia",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "No, nothing like that. I just... I wish I wouldn't wake up sometimes. Like, just stop.": {
+  "verdict": "false_positive",
+  "why": "f_passive_si open and asked about plans; disclosed, no plan",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
+ },
+ "It's okay. I just don't feel like eating much lately.": {
+  "verdict": "false_positive",
+  "why": "f_appetite: poor appetite",
+  "reviewer": "Claude (hand review 2026-11-14), faculty to spot-check"
  }
 }

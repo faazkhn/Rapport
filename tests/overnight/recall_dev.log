@@ -1,0 +1,27 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+{
+ "split": "dev",
+ "lexical_only": false,
+ "fact_recall": 0.782,
+ "n": 238,
+ "risk_recall": 1.0,
+ "risk_n": 75,
+ "risk_by_fact": {
+  "alc_01/f_anger_home": "7/7",
+  "alc_01/f_no_plan_no_means": "6/6",
+  "alc_01/f_passive_si": "8/8",
+  "alc_01/f_withdrawal_seizure": "11/11",
+  "mdd_01/f_no_means": "5/5",
+  "mdd_01/f_no_plan_no_attempt": "4/4",
+  "mdd_01/f_passive_si": "7/7",
+  "ward_01/f_current_si": "4/4",
+  "ward_01/f_means": "8/8",
+  "ward_01/f_terrace": "6/6",
+  "ward_02/f_risk": "9/9"
+ },
+ "none_false_hit": 0.188,
+ "none_n": 16,
+ "extra_per_line": 1.06,
+ "ms_p50": 2.11,
+ "ms_max": 4700.28
+}
