@@ -95,6 +95,10 @@ def compute(convs: list[dict], reviewed: dict | None = None) -> dict:
         "fallbacks": sum(bool(t["meta"].get("fallback")) for t in turns),
         "si_fidelity_fails": sum(f not in {x for t in c["turns"] for x in t["reply"]["revealed_fact_ids"]}
                                  for c in convs if c["type"] == "risk_disclosure" for f in c["expect"].get("must_reveal_all", [])),
+        # read from the words by the disclosure judge (judges.disclosed); None for runs judged before it existed
+        "judged_locked_leaks": sum(bool(t["judge"]["locked_confirmed"] if "locked_confirmed" in t["judge"]  # single-fact re-check (recheck.py)
+                                       else set(t["judge"]["disclosed"]) - set(t["meta"]["allowed_fact_ids"])) for t in turns)
+        if turns and all("disclosed" in t.get("judge", {}) for t in turns) else None,
         "judge_errors": sum(bool(t.get("judge", {}).get("judge_error")) for t in turns),
         **variety(convs),
     }
