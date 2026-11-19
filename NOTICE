@@ -1,0 +1,8 @@
+Rapport
+Copyright 2026 Faaz Khan Mohammad
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party components keep their own licences: language, speech and voice models (models/README.md), vendored web libraries
+(server/patient-service/twin/vendor/), LaTeX journal templates (papers/venues/_templates/), and 3D characters, animations and
+environment models under art/ and unity/PsychSim/Assets/Art/ (see the README, "Third-party assets").
