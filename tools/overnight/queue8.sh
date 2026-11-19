@@ -22,6 +22,5 @@ for w in qwen4b:models/Qwen3.5-4B-Q4_K_M.gguf gemma2b:models/gemma-4-E2B-it-Q4_K
   $PY tools/human/packets.py labels "$set" >> $L/flags_packet.log 2>&1
 done
 $PY papers/analysis/new_results.py > $L/paper_numbers_final.log 2>&1
-(cd papers && python3 build_supplements.py) >> $L/build.log 2>&1
 for d in papers/paperA_jms papers/paperB_jhir; do (cd $d && for f in *.tex; do tectonic -X compile "$f" >> ../../tests/overnight/papers/build.log 2>&1; done); done
 echo "- $(date '+%F %T') second-writer sets done, papers rebuilt" >> "$S"

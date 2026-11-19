@@ -1,0 +1,515 @@
+\documentclass{article}
+\title{An Integrated, On-Device Architecture for Patient-Specific Embodied Psychiatric Simulation}
+\begin{document}
+\maketitle
+\textbf{Article type:} Original Research
+
+\textbf{Title:} An Integrated, On-Device Architecture for Patient-Specific Embodied Psychiatric Simulation
+
+\textbf{Author:} Faaz Khan Mohammad, Rapport project
+
+\textbf{Corresponding author:} Faaz Khan Mohammad, faazkhn1000@gmail.com
+
+\textbf{Keywords:} virtual patients, embodied conversational agents, speech interfaces, on-device language models, medical simulation, system architecture
+
+\section*{Abstract}
+\textbf{Background:} A simulated psychiatric patient that students talk to out loud must hear, decide, speak and move within the pause of a real patient, privately and on hardware a school owns.
+
+\textbf{Methods:} We describe the architecture of Rapport: a Unity client, a patient service and a local language model on one laptop, with one patient model shared by typed and spoken turns, patients defined as data files, seeded conversation styles and timed ward events. We measured each stage of a spoken turn, face brightness and framing, and recorded the failures found during testing.
+
+\textbf{Results:} The median time from the student stopping to the patient's first audio was 1.82 s (90th percentile 2.96 s), against 3.05 s before optimisation. The body, voice and examiner view follow one decision per turn, and examination requests were recognised on all 385 test sentences.
+
+\textbf{Conclusions:} An embodied, spoken psychiatric patient can run privately on one laptop if the patient is data, code makes the decisions and the body reads the same decision as the voice.
+
+\section{Introduction}
+Much of what a psychiatrist notices is not in the words: how slowly someone speaks, how long they pause before answering, whether they look
+away, how they sit. Text chat cannot carry these signs. Virtual patients with bodies and voices have been designed for psychiatric interview
+practice for years \cite{dupuy2020guidelines}. Recent systems give a language-model patient actions beyond text \cite{voigt2025llmpowered} or a lifelike avatar for difficult conversations about serious illness \cite{haut2025ai}. A randomised trial found that patient simulation with structured feedback improved students' clinical decisions \cite{brugge2024llm}. Most psychiatric language-model patients, however, are still
+text chats \cite{wang2024patient,lee2025psyche,sabour2026patientact}.
+
+Building a spoken, embodied psychiatric patient means meeting five requirements at the same time:
+\begin{enumerate}
+\item \textbf{Speed.} The patient should start speaking within about two seconds; longer feels broken.
+\item \textbf{Privacy.} A student's voice and words should not leave the device.
+\item \textbf{Patient-specific truth.} Each case is a different person with fixed clinical facts that must never change, even when other
+details vary.
+\item \textbf{Safety.} Locked memories must stay private, and suicide risk must be handled exactly as the case says.
+\item \textbf{One person.} Voice, words and body must agree with each other and stay consistent for the whole interview.
+\end{enumerate}
+This paper shows how one architecture meets them on a single laptop. A companion paper describes the patient's decision model and its
+validation in detail; another describes how memories are recalled from the doctor's words.
+
+\section{Architecture Overview}
+
+\begin{figure}[t]
+\centering
+[Diagram: insert from the PDF version]
+\caption{Rapport's turn loop on one laptop. Blue: the Python patient service; orange: the language model; green: the Unity client and the
+examiner's browser. Solid arrows: the path from the doctor's last word to the patient's first sound. Dashed: the patient's state sent to the
+body, the exam actions and the examiner view after each turn. Only the read-only examiner view can be opened from another device.}
+\label{fig:arch}
+\end{figure}
+
+Three programs run on one Apple M5 Pro laptop with 24\,GB of memory (Fig.~\ref{fig:arch}):
+\begin{itemize}
+\item a \textbf{Unity~6 client}: the 3D consulting room, the patient's body, the screens the student uses, microphone capture and lip sync;
+\item a \textbf{Python patient service}: listening, speech recognition, the patient model, the exam router and speech synthesis;
+\item \textbf{llama.cpp} \cite{llamacpp} serving Gemma 4 E4B, a 4-billion-parameter language model, compressed to 4 bits so it fits beside
+everything else, with a grammar that forces it to reply in valid JSON.
+\end{itemize}
+The client and the service talk over one WebSocket per session. No audio or text leaves the laptop.
+
+\section{One Spoken Turn, Step by Step}
+Here is what happens between the moment the doctor stops talking and the moment the patient starts. Fig.~\ref{fig:timeline} shows how long
+each step takes.
+
+\textbf{1. Hearing the end of the turn.} The microphone sends 32\,ms chunks of sound. A voice-activity detector notices silence and proposes
+that the doctor has finished. A small turn-end model then checks the last few seconds of speech and confirms whether the sentence sounded
+complete, so the patient does not jump in when the doctor only paused for breath. This takes about 280\,ms.
+
+\textbf{2. Understanding the words.} Speech recognition (Parakeet) starts \emph{speculatively} as soon as the first pause appears, before the
+turn is confirmed. If the doctor keeps talking, that work is thrown away; if not, the transcript is usually ready when the turn ends, so the
+patient waits only 70--140\,ms for it.
+
+\textbf{3. Deciding.} The patient model runs in code: it reads what the doctor did, adjusts trust, finds the memories the question touches,
+applies the trust locks and chooses a short list of allowed behaviours. This takes a few milliseconds.
+
+\textbf{4. Wording it.} One call to the language model. The reply comes back as a stream of JSON, and its fields are ordered so that the
+behaviour and emotion arrive \emph{before} the words. The first token arrives after about 280--410\,ms.
+
+\textbf{5. Speaking sentence by sentence.} As soon as the first sentence of the reply is complete, it is checked by code and sent to speech
+synthesis, while the model is still writing the rest. Speech synthesis returns its first audio after about 300--350\,ms.
+
+\begin{figure}[t]
+\centering
+\includegraphics{fig_turn_timeline.png}
+\caption{Where the time goes in one turn: median time spent in each stage, earlier patient model (v0) and new decision layer (v2). The bars
+add up the stage medians, which is close to, but not the same as, the median of the whole turn.}
+\label{fig:timeline}
+\end{figure}
+
+\section{The Parts in More Detail}
+
+\subsection{Speaking with feeling}
+The voice is Qwen3-TTS 1.7B VoiceDesign, with KittenTTS as a fallback if it fails. This model creates a voice from a written description of the
+speaker, and we add the emotion of the moment to that description. Two problems shaped the final design.
+\begin{itemize}
+\item \textbf{The speaker changed mid-reply.} With this model the description \emph{is} the voice. The first version rebuilt the description for
+each sentence as more labels arrived, so sentence two could sound like a different person. Now it is built once per reply, and it carries the
+reaction that code decided before the call, scaled by how distressed or agitated the patient is.
+\item \textbf{The voice broke up when the computer was busy.} Speech synthesis runs about twice as fast as real time when the computer is free,
+but only about real time while the language model is also running. Audio sent from the first chunk then ran out mid-word. The service now holds
+each sentence until the audio already buffered is longer than the time it will take to make the rest. On a free computer this costs nothing.
+\end{itemize}
+The model ignores a speed setting. So fast, pressured speech or slow, depressed speech is created in two ways: with words in the description (``speaking fast, words tumbling out''), and with a time-stretch that keeps the pitch the same.
+
+\subsection{The body}
+Four patient bodies, two of each sex, share one skeleton and one set of face shapes, so every movement works on all of them. After each turn the
+patient model sends its state (emotion, reaction, intensity from 0 to 10, behaviour, resistance and the four state values). A body-language
+component turns that into movement, blended smoothly and scaled by intensity (Table~\ref{tab:body}, Fig.~\ref{fig:body}). It always gives way to
+physical-examination actions and to standing up.
+
+\begin{table}[t]
+\caption{How the patient model's emotion becomes body language}
+\label{tab:body}
+\centering
+\scriptsize
+\begin{tabular}{ll}
+\toprule
+Emotion & What the body does\\
+\midrule
+Angry, hostile & leans in, turns the head away and back, sets the jaw, sharp hand gesture\\
+Anxious & fidgets, raises the shoulders, bounces a knee, quick glances\\
+Sad & slumps, head and eyes down, slower movements\\
+Ashamed & slumps, eyes down, turns slightly aside\\
+Happy & small smile; a short laugh at high intensity\\
+Confused & tilts the head\\
+Suspicious & sits back, slightly side-on\\
+Flat & barely moves\\
+\midrule
+Always (idle life) & blinks about 17 times a minute (1 in 8 a double blink); small eye movements; breathing that quickens with anxiety or
+anger; a posture shift every 8--20\,s; eyes wander while ``thinking''; nods while the doctor talks; eye contact that rises with trust and falls
+with shame or sadness\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics{fig_body_language.png}
+\caption{Body language driven by the patient model's emotion (one frame each, high intensity, from a scripted sequence on one body).}
+\label{fig:body}
+\end{figure}
+
+\subsection{Physical examination}
+Requests such as ``hold out your hands'', ``roll up your sleeves'', ``look at this light'' or ``stand up and walk'' are recognised by rules, not by
+the language model. On 385 test sentences the rules chose the exact action every time, with no false triggers on 56 sentences that were not
+requests (one author wrote both the rules and the test, so this is optimistic). Trust and agitation decide whether the patient complies; below
+the case's level, the patient refuses in their own words. Actions play with inverse kinematics: palms turn with the forearm, sleeves roll up with
+shapes generated at run time, held hands show the case's tremor, and sweating shows as a sheen on the skin.
+
+\subsection{The examiner view}
+A web page shows the patient model's state live: trust, distress, agitation and engagement; the mood over time; memories unlocking as trust
+rises; and a one-line reason for each reply written by code (for example ``Mood memory open (trust 39 $\ge$ 20). Touched something locked (needs
+trust 55); showed discomfort.''). An examiner can open it on a second laptop on the same network. Nothing else on the service answers other
+devices.
+
+\subsection{One brain for typed and spoken turns}\label{sec:paths}
+
+\begin{figure}[t]
+\centering
+[Diagram: insert from the PDF version]
+\caption{Typed and spoken turns use the same pipeline. For typed turns the client carries the patient's mind between requests, signed so that
+it cannot be forged.}
+\label{fig:paths}
+\end{figure}
+
+Students can also type. Typed turns go through the same pipeline as spoken ones (Fig.~\ref{fig:paths}). Each typed reply returns the patient's new
+state and its \emph{mind}: mood, the memory of the conversation, resistance and which events have happened. The client sends the mind back with
+the next request. The service signs it with a secret key and accepts only minds it issued, so a client can neither invent memories nor slip
+instructions into the prompt; a changed or oversized mind simply starts fresh. Before this change, typed turns skipped events, the trust step and
+the mood update, and an independent review found that the mind was also silently thrown away, so the typed patient forgot everything each turn.
+
+\subsection{Hearing when the doctor has finished}
+Deciding when the doctor has stopped talking is the first delay in every turn. A fixed silence is a poor rule: too long for a finished sentence,
+too short for a doctor who pauses to think. The service listens with Silero voice-activity detection. After 200\,ms of silence it asks a small turn-end model (Smart Turn v3, about 12\,ms on the processor) whether the sentence sounds finished. If it does, the turn ends there. If not, the service keeps listening, up to a hard limit. At the same 200\,ms point it starts transcribing the audio so far with Parakeet, speculatively; if the
+doctor carries on, that transcript is thrown away. The student can also hold a key to talk, which skips detection entirely.
+
+\subsection{How the parts talk to each other}
+The client and the service share one WebSocket per session (Table~\ref{tab:proto}). Microphone audio goes up as raw 32\,ms frames; everything
+else is small JSON messages. The typed path uses one HTTP call instead, and carries the patient's memory between turns in a signed envelope
+(Section~\ref{sec:paths}).
+
+\begin{table}[t]
+\caption{Messages on the session connection}
+\label{tab:proto}
+\centering
+\scriptsize
+\begin{tabular}{ll}
+\toprule
+Message & Meaning\\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Client to service}}\\
+start & Case, patient seed and mode; the service loads the case and pre-reads the fixed prompt\\
+audio frames & 32\,ms of 16\,kHz microphone audio\\
+ptt\_begin / ptt\_end & Push-to-talk pressed and released\\
+hands\_free & Switch to automatic turn-end detection\\
+text & A typed doctor line instead of speech\\
+state & Slow drift of the patient's state between turns (clamped by the service)\\
+stop & The student talked over the patient: stop speaking now\\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Service to client}}\\
+listening, thinking, speaking & What the patient is doing, for the interface\\
+transcript & What the service heard the doctor say\\
+sentence & One sentence of the reply with its audio, emotion and cues, sent as soon as it is ready\\
+reply & The whole reply when it is complete\\
+exam & An examination action to perform, refuse or ask about (``Which hand?'')\\
+brain\_snapshot & The Twin's state, for the body and the examiner view\\
+intents & What the doctor's line covered, for the debrief\\
+patient\_ended & The patient has ended the interview\\
+timing & Per-stage timings for the benchmark\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{The Patient Is Data}
+
+\begin{figure}[t]
+\centering
+[Diagram: insert from the PDF version]
+\caption{What a case file holds. Yellow parts may vary with a seed; red parts never change.}
+\label{fig:case}
+\end{figure}
+
+Every patient is a case file (Fig.~\ref{fig:case}), checked against a schema when it loads. Making a new patient means writing a new file, not new
+code. There are four draft stations today:
+\begin{itemize}
+\item \textbf{Moderate depression}: a 24-year-old software tester, two months of low mood, early waking, and a passive wish not to wake up.
+\item \textbf{``I want to go home''}: the same patient a week later on a ward, asking to leave, under India's Mental Healthcare Act \cite{mhca2017}.
+\item \textbf{``I'm not taking those tablets''}: a young patient refusing medicine, guarded and suspicious.
+\item \textbf{Alcohol dependence with early withdrawal}: a sales manager whose hands shake in the morning, with a past withdrawal fit
+\cite{nice2010cg100}.
+\end{itemize}
+
+\subsection{Seeded patients: different people, same answers}
+A \emph{seed} (any number) picks one option for each ``slot'' and one conversation style. The same seed always gives the same patient. In the
+depression case the slots are a hobby (Carnatic singing, badminton, guitar or drawing), a younger brother's name (Rohan, Karthik or Varun) and a home
+town (four options). The answer key never changes: across 40 seeds, the correct answers, scales, exam findings, every trust level and all risk
+memories stayed identical to the authored case. Table~\ref{tab:styles} shows the six conversation styles \cite{wang2024patient}. Each style has a
+part the model sees (a label, a description and example lines) and a part code enforces (numbers that change how trust and agitation move, and a
+limit on how many words the patient says).
+
+\begin{table}[t]
+\caption{Conversation styles: what code enforces (draft numbers)}
+\label{tab:styles}
+\centering
+\scriptsize
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Style & Start change & Trust up/down & Agit. & Words & Softens\\
+\midrule
+Plain & none & 1.0 / 1.0 & 1.0 & 120 & --\\
+Reserved & T$-$5, E$-$10 & 0.8 / 1.2 & 1.0 & 20 & T 45\\
+Eager to please & T+5 & 1.2 / 0.8 & 0.8 & 35 & --\\
+Upset & T$-$10, A+15 & 0.7 / 1.2 & 1.3 & 35 & T 40\\
+Talkative & E+10 & 1.0 / 1.0 & 1.0 & 70 & --\\
+Tangential & none & 1.0 / 1.0 & 1.0 & 70 & --\\
+\bottomrule
+\end{tabular}
+\\[1mm]\raggedright\scriptsize T trust, E engagement, A agitation. ``Softens'': trust at which the style relaxes.
+\end{table}
+
+\subsection{Ward events}
+On ward stations, things happen during the interview. \emph{Code} decides when; the language model only acts it out, from a stage direction it is
+told never to read aloud (and any sentence that copies it is dropped). Fig.~\ref{fig:events} shows the events of the ``I want to go home''
+station. Against a coercive typed doctor (``You can't go home'', ``calm down''), the patient's trust fell from 25 to 0, agitation rose from 45 to 92, and the patient stood up. Against a doctor who explored reasons, explained rights honestly and offered choices, trust rose to 70 and agitation fell to 25.
+
+\begin{figure}[t]
+\centering
+[Diagram: insert from the PDF version]
+\caption{Events in the ``I want to go home'' ward station. Each fires at most once, when its condition first holds.}
+\label{fig:events}
+\end{figure}
+
+A tester found a loop: after ``You're free to go home'', the patient denied it and asked to go home again, over and over. Two fixes closed it.
+Permission to leave is now recognised in 24 everyday phrasings (``You can head home'', ``Off you go'', ``Go home if you want'', ``I'm discharging
+you''), while 16 refusals, conditions and questions (``You can't go home'', ``If you feel better you can go'') are not. Once permission is given,
+any sentence asking to leave again is dropped before it is spoken. Replayed on the real model, the patient asked what happens next and worried
+about their job, and never asked to leave again.
+
+\section{Results}
+
+\subsection{Speed}
+Table~\ref{tab:lat} and Fig.~\ref{fig:lat} show the time from the doctor's last sound to the patient's first sound, taken from the service's own
+timing log, with nothing else using the graphics processor. The new decision layer added 279\,ms at the median. Most of it is in the first token
+(+134\,ms) and the speech-recognition wait (+70\,ms). We also tried two other local models as the patient. Both were slower (medians 2.19\,s and
+2.88\,s). On one test run the judge flagged 53 and 62 replies with unsupported claims for them, against 1--8 per run for Gemma; the judges differed
+(no model judged itself), so this is only an indication. Gemma 4 E4B stays.
+
+\begin{table}[t]
+\caption{Time per stage, median milliseconds}
+\label{tab:lat}
+\centering
+\footnotesize
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Stage & v0 & v2 & Q3.5-4B & Q3.5-9B\\
+\midrule
+Turn-end detection & 277 & 278 & 278 & 279\\
+Speech-to-text wait & 72 & 142 & 156 & 180\\
+Model first token & 276 & 410 & 424 & 599\\
+Model first sentence & 848 & 937 & 950 & 1385\\
+Speech first audio & 296 & 350 & 758 & 983\\
+\midrule
+\textbf{Patient audio ready, median} & \textbf{1540} & \textbf{1819} & \textbf{2186} & \textbf{2882}\\
+90th percentile & 2560 & 2962 & 2824 & 4126\\
+Turns measured & 80 & 37 & 22 & 22\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics{fig_latency.png}
+\caption{How long patients took to start speaking, as a cumulative share of turns.}
+\label{fig:lat}
+\end{figure}
+
+\subsection{How the speed was won}
+Table~\ref{tab:history} follows the median time to the patient's first audio through the project. The first measurement, 3.0\,s, came before any
+tuning, and a deliberate pause for a slowed patient was added \emph{on top}, so the patient started about 4.9\,s after the doctor stopped. Five changes brought it to 1.6\,s. (1) The deliberate pause now runs \emph{during} the computing time instead of after it, saving up to 1.9\,s. (2) A new chat template stops the model from opening a hidden ``thinking'' section, which had blocked the reply format and run some turns to the token limit. (3) Every list and number in the reply has a limit, so lists cannot grow until the cap. (4) The next turn's prompt is pre-read while the doctor is still talking. (5) The end-of-turn silence is shorter. Switching to the more expressive voice cost about 0.7\,s at
+first, because speech synthesis and the language model then shared the graphics chip. Turn-end detection with Smart Turn ended finished sentences
+about 200\,ms sooner but saved nothing overall, because the speculative transcript started at the same moment and was not ready yet. Moving the
+part of the prompt known before the doctor speaks in front of the doctor's words saved 100--140\,ms on the first token.
+
+\begin{table}[t]
+\caption{Median time to the patient's first audio over the project (ms)}
+\label{tab:history}
+\centering
+\scriptsize
+\begin{tabular}{lrrr}
+\toprule
+Stage of the project (turns) & Median & p90 & First token\\
+\midrule
+Baseline, light voice (52) & 3,046 & 4,100 & 1,099\\
+After the five speed fixes (26) & 1,616 & 1,796 & 224\\
+Expressive voice, speculative transcript (26) & 2,326 & 3,018 & 402\\
++ turn-end model, prompt reordered (26) & 2,164 & 4,024 & 273\\
+v0.3, previous Twin v0 (80) & 1,540 & 2,560 & 276\\
+v0.3, current Twin v2 (37) & 1,819 & 2,962 & 410\\
+\bottomrule
+\end{tabular}
+\\[1mm]\raggedright\scriptsize Single runs on one laptop; the p90 swings by several hundred ms between repeated runs, so only large differences are meaningful.
+\end{table}
+
+\subsection{Choosing the models}
+\textbf{Language model.} Table~\ref{tab:bench} gives raw speeds on the laptop. Gemma 4 E2B is about 1.8 times faster at writing, and with the
+template fix it produced valid output on every one of 24 test conversations with no character breaks. Gemma 4 E4B was kept because its replies
+were clearly better on the same scripted interview (terser and more in character), and its speed is enough once the prompt is cached. Cloud models were considered as a fallback for slower laptops, but not as the default. They send the conversation off the device. One free service could not stream structured output, and another's free tier may use prompts for training.
+
+\begin{table}[t]
+\caption{Raw model speed on the laptop (tokens per second, 4-bit)}
+\label{tab:bench}
+\centering
+\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Model & Reading the prompt & Writing\\
+\midrule
+Gemma 4 E2B & 2,497 & 68.5\\
+Gemma 4 E4B (patient) & 1,463 & 38.1\\
+Qwen3.5 4B & 1,569 & 39.0\\
+Qwen3.5 9B (judge) & 711 & 22.4\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Voice.} The voice was chosen by a rule fixed before testing. A candidate needed an open licence (MIT, Apache or BSD), word accuracy of at least 0.93 when its output is transcribed back, first audio within 450\,ms, and a real-time factor of at most 0.8. Among the models that pass, the one with the largest difference between a sad and an anxious reading of the same sentence wins. Table~\ref{tab:tts} shows the result. Three
+other candidates could not be tested because the laptop was offline that day; they are untested, not rejected, and two others were excluded on
+licence grounds. The chosen model builds the voice from a description on every call, so the same speaker can drift. Across eight neutral lines its median pitch spread over 6.7 semitones, against 2.1 for the light voice. Fixing the random seed for each session, and building the description
+once per reply, keeps one speaker.
+
+\begin{table}[t]
+\caption{Voice bake-off (idle graphics chip)}
+\label{tab:tts}
+\centering
+\scriptsize
+
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Model & First audio & RTF & Words & Emotion gap & Styled\\
+\midrule
+KittenTTS mini & 410\,ms & 0.08 & 1.00 & 0.67 & no\\
+Qwen3-TTS 1.7B VoiceDesign & 174\,ms & 0.57 & 1.00 & 3.92 & yes\\
+\bottomrule
+\end{tabular}
+\\[1mm]\raggedright\scriptsize RTF: real-time factor. Emotion gap: pitch and loudness distance between a sad and an anxious reading (a proxy, not a
+judgement of naturalness).
+\end{table}
+
+\subsection{The examination rules in detail}
+The rules map a doctor's words to ordered actions with details: \emph{hold out hands} (which hand, palms up or down), \emph{show forearms},
+\emph{roll up sleeves}, \emph{look at the light}, \emph{follow my finger}, \emph{open mouth}, \emph{stick out tongue}, \emph{stand up},
+\emph{sit down}, \emph{walk a few steps} and \emph{relax}. If a detail is missing the patient asks (``Which hand?'') and the doctor's next line
+completes the action. The test set of 385 sentences was written before the rules and includes 56 sentences that only look like requests (``walk
+me through what happened'', ``stand up for yourself''). Matching takes 0.01\,ms. Table~\ref{tab:cam} shows the camera shot used for each action.
+
+\begin{table}[t]
+\caption{Camera shots}
+\label{tab:cam}
+\centering
+\scriptsize
+\begin{tabular}{ll}
+\toprule
+Shot & Setting\\
+\midrule
+Doctor's view (default) & Seated eye height 1.2\,m, about 1.5\,m from the patient, 30$^\circ$ field of view: head to waist, face about 200
+pixels tall at 1080p; follows the patient's head; the student can look around within limits\\
+Lean in & Scroll: 0.25\,m closer over 0.4\,s, 26$^\circ$\\
+Hands & Centre of the hands, 0.85\,m, 32$^\circ$\\
+Forearms & Centre of the forearms, 0.9\,m, 34$^\circ$\\
+Eyes & Between the eyes, 0.45\,m, 22$^\circ$\\
+Face and tongue & Jaw and head, 0.5\,m, 24$^\circ$\\
+Whole body & From the doctor's seat, 70$^\circ$ (the room is only about 1.1\,m deep)\\
+\bottomrule
+\end{tabular}
+\\[1mm]\raggedright\scriptsize Shots blend over 0.6\,s; a close-up starts only if its action is still running after 0.3\,s, so ``please have a seat''
+to a seated patient never cuts.
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics{fig_camera_grid.png}
+\caption{Camera shots for the doctor's view and the examination close-ups. Stills from the October 2026 build, before the doctor's view was
+narrowed to a 30$^\circ$ field of view in v0.3 (Fig.~\ref{fig:stills} shows the current view).}
+\label{fig:camgrid}
+\end{figure}
+
+Fig.~\ref{fig:camgrid} shows the shots.
+
+\subsection{Lighting}
+The room is lit like a bright, warm consulting room. Daylight comes through a window (a 5,000\,K key light from the doctor's side), and a warm ceiling lamp adds fill (3,200\,K, baked). A soft rim light separates the patient from the wall. New in this version, a small face light touches only the patient. Indirect light is baked once (two bounces), so only three lights are computed live and only the key light casts live shadows. One
+mistake is worth passing on: setting a light's colour from a colour-temperature conversion that returns linear values made 3,200\,K look like
+about 2,000\,K, far too orange; the engine's own colour-temperature mode is correct.
+
+\subsection{How the patient looks}
+Before the rendering pass, the doctor's camera showed a wide shot with the face only about 67 pixels wide. The faces were darker than the room, and every patient sat turned away: their seat faced about 156 degrees from the doctor. Now the seat faces the doctor at 110 degrees, and the camera frames the patient at conversation distance (face about 142 pixels wide). A soft light that shines only on the patient brightens the face without brightening the room. Face brightness moved into the target range for all four bodies (Fig.~\ref{fig:lum}, Fig.~\ref{fig:stills},
+Fig.~\ref{fig:bodies}) with no washed-out pixels. The closer view also revealed that two imported bodies were drawn without hair and eyes from some
+angles, because their size boxes were wrong; they are now computed from the skeleton. Rendering one frame at 1920$\times$1080 took 6.4--8.1\,ms in
+the editor. The 60-frames-per-second check in the finished app, during a live conversation, has not been run yet.
+
+\begin{figure}[t]
+\centering
+\includegraphics{fig_luminance.png}
+\caption{Face brightness of the four bodies; green band: target.}
+\label{fig:lum}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics{fig_stills.png}
+\caption{The doctor's view before and after the rendering pass (same body).}
+\label{fig:stills}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics{fig_bodies.png}
+\caption{All four bodies from the doctor's seat after the rendering pass.}
+\label{fig:bodies}
+\end{figure}
+
+\subsection{Failures we found, and what they teach}
+\begin{itemize}
+\item \textbf{Two programs sharing one model slot mixed up replies.} During one test, a replay script and a timing benchmark used the same model server and the same reserved slot at the same time. Replies went to the wrong program. A live session has only one client, so students were
+not affected, but test runs must never share the patient's model server.
+\item \textbf{Typed turns forgot everything}, as described above.
+\item \textbf{The timing benchmark crashed} when the service decided the doctor had finished before the recorded sentence ended; it now records
+this as an ``early turn end'' and carries on.
+\item \textbf{The voice changed speaker mid-reply}, because the voice description changed between sentences.
+\end{itemize}
+
+\subsection{Software quality}
+The patient service has 244 automated tests, including one for each defect found by the independent safety review; the Unity client has 55
+editor tests. Four architecture decisions are written down with their reasons and the options rejected. They cover the Digital Twin's split between code and model, turn detection (Smart Turn adopted, a larger voice-agent framework not), the product name, and the learning loop. Every brain version can be rolled back with one command, and the old brain's tests still pass when it is
+live.
+
+\section{Discussion and Limitations}
+The main trade-off is between deciding more in code and starting to speak sooner. Each check is cheap, but holding a whole reply back on a risk
+turn (so a denial can be replaced) and the longer prompt both cost time. A median of 1.8\,s is close to the thoughtful pause of a low-mood
+patient, but misses a 1.2\,s target for brisker cases. There are other limits. Only one laptop model was measured. Lip sync is still weak: the mouth opens mostly with the jaw. Skin, eye and hair shading use the standard pipeline. And no students have used this version yet.
+
+\section{Conclusion}
+A spoken, embodied psychiatric patient can run privately on one laptop if the patient is data, code makes the decisions, a local model speaks, and
+the body reads the same decision as the voice. Each of these choices made a class of failure visible and fixable.
+
+\section*{Ethics}
+No human participants or real patient data were involved. Voices are designed from written descriptions, not copied from real people. All clinical
+content is draft until faculty review it.
+\section*{Appendix}
+\subsection*{System requirements and set-up}
+Measured on an Apple M5 Pro with 24\,GB of memory; the voice model alone peaked at 8.1\,GB in the bake-off, so a machine with less
+memory may not fit the expressive voice alongside the language model. The model server (llama.cpp with Metal) runs with flash attention,
+all layers on the graphics chip and two parallel slots. Benchmarks use \texttt{tools/latency/ws\_bench.py}, which plays synthesised Indian-English doctor lines
+into the real session connection as 32\,ms frames and never uses the microphone; results in this paper come from the service's own timing log.
+
+\section*{Ethics}
+No human participants, patient data or human-originated material were involved; all evaluations used scripted conversations and automated measurements, so institutional review was not required. Any study with students or faculty will seek ethics approval first.
+
+\section*{Funding}
+None.
+
+\section*{Conflicts of interest}
+None declared.
+
+\section*{Data availability}
+The case files, scripted conversations, benchmark, result files and analysis scripts are held in the project repository and will be shared on request until a public release.
+
+\section*{Acknowledgements and use of AI}
+The text of this article, its figures, tables and analysis scripts, and the \LaTeX{} source were
+drafted with an AI assistant (Claude, Anthropic, used through Claude Code), working from the project's code, experiment logs and result
+files under the author's direction. The same assistant helped write the software described here, ran the analyses, and checked the
+citations against their sources. Within the system itself, AI models are components (speech recognition, the patient's language model and speech synthesis), as described in the paper. The author takes full responsibility for the content of this article.
+
+\section*{References}
+\end{document}

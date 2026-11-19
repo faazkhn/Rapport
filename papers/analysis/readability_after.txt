@@ -1,4 +1,0 @@
-p1_brain {'sentences': 248, 'words_per_sentence': 18.8, 'over_30_words': 0.121, 'flesch': 56.8}
-p2_architecture {'sentences': 187, 'words_per_sentence': 19.3, 'over_30_words': 0.144, 'flesch': 59.7}
-p3_recall {'sentences': 199, 'words_per_sentence': 19.3, 'over_30_words': 0.136, 'flesch': 58.9}
-p4_system {'sentences': 253, 'words_per_sentence': 17.4, 'over_30_words': 0.067, 'flesch': 54.4}

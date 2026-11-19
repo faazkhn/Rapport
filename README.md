@@ -106,7 +106,7 @@ tools/llm_eval/serve.sh models/Qwen3.5-9B-Q4_K_M.gguf 8081
 | Second-writer test sets (paper B) | `$PY tools/recall_writer.py tests/recall/writer_qwen4b.jsonl --url <writer server>`, then `RECALL_TEST_SET=<set> $PY tools/recall_baselines.py cpu` (and `llm`) | `tests/recall/`, `tests/overnight/*_writer_*.json` |
 | Tables and numbers for both papers | `$PY papers/analysis/new_results.py` (earlier analyses: `papers/analysis/analyses.py`) | `papers/paper*/gen/` |
 | Figures | `$PY papers/figures/make_figures.py` | `papers/figures/` |
-| Papers and supplements | `cd papers && python3 build_supplements.py`, then `tectonic -X compile` in `paperA_jms/` and `paperB_jhir/` | PDFs |
+| Papers and supplements | `tectonic -X compile` on each `.tex` in `papers/paperA_jms/` and `papers/paperB_jhir/` | PDFs |
 
 The whole overnight sequence used for the papers is `tools/overnight/queue5.sh` → `queue6.sh` → `queue7.sh` → `queue8.sh` (each step's log
 and exit code in `tests/overnight/papers/status.md`). Sampling seeds are fixed, but llama.cpp on a different machine or build can still give
@@ -138,7 +138,7 @@ decisions: [`docs/adr/`](docs/adr/).
 | `unity/PsychSim/` | The Unity client: room, bodies, cues, examination, tablet and debrief |
 | `tools/` | Evaluation, learning loop, recall benchmark and baselines, latency, overnight queues |
 | `tests/` | Held-out scripts (`llm-eval/`), recall benchmark (`recall/`), saved runs and logs |
-| `papers/` | Papers A and B, supplements, analyses, figures, and the earlier four papers they were built from |
+| `papers/` | Papers A and B with their supplements, the analyses and figures behind them |
 | `docs/` | Design, decisions, measurements, literature review |
 
 ## Licence
@@ -147,7 +147,7 @@ Rapport's own code, data, case files and papers are licensed under the [Apache L
 
 **Third-party assets** keep their own licences and are not relicensed by this repository: the language, speech and voice models
 ([`models/README.md`](models/README.md)), vendored web libraries (`server/patient-service/twin/vendor/`), LaTeX journal templates
-(`papers/venues/_templates/`), and the 3D characters (Reallusion Character Creator exports), animations and environment models under `art/`
+(the Springer Nature class in `papers/paperA_jms/` and `papers/paperB_jhir/`), and the 3D characters (Reallusion Character Creator exports), animations and environment models under `art/`
 and `unity/PsychSim/Assets/Art/`. These are used under licences that permit this use; check each source's terms before reusing them
 elsewhere.
 
