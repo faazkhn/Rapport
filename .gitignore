@@ -43,3 +43,21 @@ art/RealisticMan/
 Realistic+man_Blend.zip
 tests/overnight/rerun/bench_audio/
 tests/overnight/bench_audio/
+
+# media stays out of git (the demo film is on YouTube, linked from the README)
+demo/
+brag-output/
+brag-output-*/
+output/
+docs/media/v0.3/
+docs/media/teaser.mp4
+unity/PsychSim/Assets/Art/Patients/female_20s_b/
+unity/PsychSim/Assets/Art/Patients/female_20s_b.meta
+unity/PsychSim/Assets/Art/Patients/male_30s_a/
+unity/PsychSim/Assets/Art/Patients/male_30s_a.meta
+# local agent state
+.claude/
+.superpowers/
+# LaTeX build logs
+papers/**/*.log
+papers/**/*.blg
