@@ -6,6 +6,8 @@ the **Digital Twin**, is ordinary code: it decides what the patient remembers, w
 the patient is and which behaviours are allowed. A local language model only puts that decision into words, and every sentence is checked
 before it is spoken. No audio or text leaves the device.
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24367080.svg)](https://doi.org/10.5281/zenodo.24367080)
+
 > **Draft clinical content. For education and research only.** Not reviewed by a psychiatrist, not a medical device. See
 > [Disclaimer](#disclaimer).
 
@@ -153,8 +155,9 @@ elsewhere.
 
 ## Citation
 
-If you use Rapport, the patient model or the recall benchmark, please cite it: GitHub's **Cite this repository** button reads
-[`CITATION.cff`](CITATION.cff).
+If you use Rapport, the patient model or the recall benchmark, please cite the Zenodo archive,
+[doi:10.5281/zenodo.24367080](https://doi.org/10.5281/zenodo.24367080) (version 0.3.0: 10.5281/zenodo.24367081). GitHub's **Cite this
+repository** button reads [`CITATION.cff`](CITATION.cff).
 
 ## Disclaimer
 
