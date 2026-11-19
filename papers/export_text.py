@@ -58,7 +58,8 @@ def convert(tex: Path) -> str:
     s = unwrap(s, "title", "# Title: %s\n")
     s = re.sub(r"\\(author\*?|affil\*?)(\[[^]]*\])?\{.*", "", s)
     s = re.sub(r"\\email\{[^}]*\}", "", s)
-    for cmd, fmt in (("section*", "\n# %s\n"), ("section", "\n# %s\n"), ("subsection", "\n## %s\n"), ("bmhead", "\n## %s\n"),
+    s = re.sub(r"\\begin\{center\}.*?\\end\{center\}", "", s, flags=re.S)  # supplement title block
+    for cmd, fmt in (("subsubsection", "\n### %s\n"), ("paragraph", "\n#### %s\n"), ("section*", "\n# %s\n"), ("section", "\n# %s\n"), ("subsection", "\n## %s\n"), ("bmhead", "\n## %s\n"),
                      ("textbf", "%s"), ("emph", "%s"), ("texttt", "%s"), ("url", "%s"), ("humanpending", "[TO DO: %s]"),
                      ("pending", "[pending]")):
         s = unwrap(s, cmd, fmt)
