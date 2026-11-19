@@ -11,6 +11,14 @@ version: 0.3.0
 date-released: 2026-11-19
 license: Apache-2.0
 repository-code: "https://github.com/faazkhn/Rapport"
+doi: 10.5281/zenodo.24367080
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24367080
+    description: All versions (resolves to the latest)
+  - type: doi
+    value: 10.5281/zenodo.24367081
+    description: Version 0.3.0
 keywords:
   - simulated patients
   - psychiatry education
