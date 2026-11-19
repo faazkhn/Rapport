@@ -126,8 +126,7 @@ set cut-offs). The test half therefore measures new wording, not a new writer. T
 from different families each wrote a further test set from the same memory descriptions and instructions (Appendix~\ref{app:writer}), with about
 one line in four in code-mixed Hindi--English (Hinglish): Qwen3.5-4B and Gemma 4 E2B. Each shares something with a compared method (a Qwen model
 wrote the generated probes; a larger Gemma is the zero-shot classifier), so a result counts only if it holds on both. These sets are used once,
-with every cut-off still taken from the original dev half. Their labels come from the writer models; \humanpending{the first author will label every
-line without seeing the writer's labels, and we will report Cohen's $\kappa$ between the two}.
+with every cut-off still taken from the original dev half. Their labels come from the writer models and were not checked by a person.
 
 \section{Methods}\label{sec:method}
 
@@ -412,7 +411,7 @@ and the call is separate from the reply, nothing locked reaches the patient's pr
 that it is worth that cost on risk questions.
 
 \textbf{Limitations.} All test questions were written by language models, never by students or clinicians, so their phrasing may be more
-regular than a nervous student's. Labels came from the writers alone, and the first author's check is pending. About 75
+regular than a nervous student's. Labels came from the writers alone and were not checked by a person. About 75
 risk pairs per half make each recall figure uncertain by several points. The zero-shot prompt was written once and not tuned; a tuned prompt might
 do better, and a different model might do worse. Latency was measured on one high-end laptop. The cases are drafts that a psychiatrist must
 still review. Only one variety of English was tested.
