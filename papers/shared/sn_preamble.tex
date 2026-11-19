@@ -10,7 +10,7 @@
 \graphicspath{{../figures/}}
 % sn-jnl loads breakurl, which expects pdfTeX/dvips; Tectonic runs XeTeX
 \makeatletter\def\headerps@out#1{}\makeatother
-\AtBeginDocument{\def\doi#1{\href{https://doi.org/#1}{doi:\detokenize{#1}}}}\providecommand\burl{\url}
+\AtBeginDocument{\def\doi#1{\url{https://doi.org/#1}}}\providecommand\burl{\url}
 % a result the overnight runs have not produced yet (papers/analysis/new_results.py fills it in)
 \newcommand{\pending}{\textcolor{red}{[pending]}}
 % a step that needs people (raters, reviewers, ethics); see papers/HUMAN_STUDIES.md

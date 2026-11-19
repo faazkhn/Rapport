@@ -6,7 +6,7 @@ authors:
   - family-names: Mohammad
     given-names: Faaz Khan
     email: faazkhn1000@gmail.com
-    affiliation: MIT World Peace University, Pune, India
+    affiliation: Department of Computer Engineering and Technology, Dr. Vishwanath Karad MIT World Peace University, Pune, India
 version: 0.3.0
 date-released: 2026-11-19
 license: Apache-2.0
@@ -25,6 +25,8 @@ references:
     authors:
       - family-names: Mohammad
         given-names: Faaz Khan
+      - family-names: Salvi
+        given-names: Sanket
     year: 2026
     notes: "Manuscript in preparation for the Journal of Medical Systems. Source: papers/paperA_jms/paperA.tex"
   - type: unpublished
@@ -32,5 +34,7 @@ references:
     authors:
       - family-names: Mohammad
         given-names: Faaz Khan
+      - family-names: Salvi
+        given-names: Sanket
     year: 2026
     notes: "Manuscript in preparation for the Journal of Healthcare Informatics Research. Source: papers/paperB_jhir/paperB.tex"
