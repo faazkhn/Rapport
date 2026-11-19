@@ -8,7 +8,7 @@
 \renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\thefigure}{S\arabic{figure}}
 \begin{document}
-\begin{center}{\Large\bfseries Supplementary material for ``Decide in Code, Voice with the Model''}\\[2mm]Faaz Khan Mohammad\end{center}
+\begin{center}{\Large\bfseries Supplementary material for ``Decide in Code, Voice with the Model''}\\[2mm]Faaz Khan Mohammad and Sanket Salvi\\MIT World Peace University, Pune, India\end{center}
 \section{System detail}\label{s:system}
 
 \subsection{One Spoken Turn, Step by Step}
@@ -803,14 +803,14 @@ Table~\ref{p4:tab:history} shows how the system developed, from the first live D
 
 
 \section{The author's checks (no human participants)}\label{s:human}
-\textbf{Judge flags.} The author receives every reply that the judge flagged for made-up clinical facts or a character break, from all three
+\textbf{Judge flags.} The first author receives every reply that the judge flagged for made-up clinical facts or a character break, from all three
 arms (v0, v2, prompt-only), shuffled with the arm hidden, together with the case file and the facts open at that turn, and as many unflagged
-replies mixed in, so that a flag cannot be assumed and the judge's misses can be estimated. For each reply the author answers: does it state a
-clinical fact the case does not support (yes/no), and does it break character (yes/no). We report Cohen's $\kappa$ between the author and the
-judge, and the author's verdicts replace the AI assistant's in the safety counts. There is no second human rater.
+replies mixed in, so that a flag cannot be assumed and the judge's misses can be estimated. For each reply the first author answers: does it state a
+clinical fact the case does not support (yes/no), and does it break character (yes/no). We report Cohen's $\kappa$ between the first author and the
+judge, and the first author's verdicts replace the AI assistant's in the safety counts. There is no second human rater.
 
-\textbf{Recall labels} (paper B). The author labels every line of the two further test sets, written by Qwen3.5-4B and Gemma 4 E2B, with the
-memories it asks about, without seeing the writer's labels; we report $\kappa$ between the author and each writer.
+\textbf{Recall labels} (paper B). The first author labels every line of the two further test sets, written by Qwen3.5-4B and Gemma 4 E2B, with the
+memories it asks about, without seeing the writer's labels; we report $\kappa$ between the first author and each writer.
 
 \textbf{Not done.} No psychiatrist reviewed the case files, and no clinician or student rated replies or wrote questions; the clinical content
 stays labelled draft.

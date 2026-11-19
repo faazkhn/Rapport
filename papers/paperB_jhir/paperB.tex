@@ -1,5 +1,5 @@
 \expandafter\def\csname ver@breakurl.sty\endcsname{2013/04/10}\expandafter\def\csname opt@breakurl.sty\endcsname{hyphenbreaks}% skip breakurl (dvips only); Tectonic runs XeTeX
-\documentclass[sn-vancouver,Numbered]{sn-jnl}
+\documentclass[sn-mathphys-num]{sn-jnl}
 \input{../shared/sn_preamble}
 \input{gen/numbers}
 
@@ -10,26 +10,27 @@ Small Encoders, BM25 and a Zero-Shot Language Model}
 
 % Author checks still to do: papers/HUMAN_STUDIES.md
 \author*[1]{\fnm{Faaz Khan} \sur{Mohammad}}\email{faazkhn1000@gmail.com}
-\affil*[1]{\orgname{MIT World Peace University}, \orgaddress{\city{Pune}, \country{India}}}
+\author[1]{\fnm{Sanket} \sur{Salvi}}
+\affil[1]{\orgname{MIT World Peace University}, \orgaddress{\city{Pune}, \state{Maharashtra}, \country{India}}}
 
 \abstract{A simulated psychiatric patient must recognise when a student asks about suicidal thoughts, plans, means or other risk, however the
 question is worded, because a missed question can make the patient deny something it should disclose. We built a blind benchmark of 512 doctor
 questions over four cases, written from what each memory means by a writer that never saw the matching rules, and split by checksum into a
 tuning half and a test half. On the test half, keyword tags found 35.1\% of risk questions; a hybrid of tags and a 33-million-parameter
 sentence encoder, run on the processor in a few milliseconds, found 72.7\% while wrongly matching 15.2\% of non-risk questions. Five small
-encoders and BM25 over the same example questions gave overlapping threshold-free results (risk AUROC 0.86--0.91), so the encoder choice was
+encoders and BM25 over the same example questions gave overlapping threshold-free results (area under the receiver operating characteristic curve 0.86--0.91 for risk), so the encoder choice was
 not the bottleneck. The same 4-billion-parameter model that voices the patient, used as a zero-shot classifier, found \numLLMrisk{} of risk
 questions with \numLLMfalse{} wrong matches, at a median of \numLLMmsMed\,ms per question; screening with the hybrid first kept \numCasRisk{}
 recall while sending \numCasShare{} of questions to the model. Tuning cut-offs for recall alone was unsafe, and a classifier trained on
 model-generated labels lost to simple rules. On two further test sets written by other local models, the deployed rules found \numWQwenDep{} and \numWGemmaDep{} of risk questions
 and the zero-shot model \numWQwenLLM{} and \numWGemmaLLM. Inside conversations, missed matches became missed disclosures.}
 
-\keywords{semantic matching, paraphrase, sentence embeddings, suicide risk assessment, simulated patients, benchmark, medical education}
+\keywords{semantic matching, paraphrase, sentence embeddings, suicide risk assessment, simulated patients, benchmark}
 
 \maketitle
 
 \section{Introduction}\label{sec:intro}
-In the Rapport simulator, a spoken standardised patient for psychiatry teaching \cite{companionA}, keyword matching caused every serious bug
+In the Rapport simulator, a spoken standardised patient for psychiatry teaching described in a companion manuscript by the same authors, keyword matching caused every serious bug
 found during evaluation. ``Thoughts that life \emph{isn't} worth living'', ``wishing you \emph{wouldn't} wake up'' and ``tablets or anything at
 home'' each missed the memory they asked about, and one of these misses let the patient deny a passive death wish it should have disclosed.
 Adding keywords fixed each case, but there is no end to the ways people phrase a question.
@@ -125,7 +126,7 @@ set cut-offs). The test half therefore measures new wording, not a new writer. T
 from different families each wrote a further test set from the same memory descriptions and instructions (Appendix~\ref{app:writer}), with about
 one line in four in code-mixed Hindi--English (Hinglish): Qwen3.5-4B and Gemma 4 E2B. Each shares something with a compared method (a Qwen model
 wrote the generated probes; a larger Gemma is the zero-shot classifier), so a result counts only if it holds on both. These sets are used once,
-with every cut-off still taken from the original dev half. Their labels come from the writer models; \humanpending{the author will label every
+with every cut-off still taken from the original dev half. Their labels come from the writer models; \humanpending{the first author will label every
 line without seeing the writer's labels, and we will report Cohen's $\kappa$ between the two}.
 
 \section{Methods}\label{sec:method}
@@ -155,7 +156,7 @@ line without seeing the writer's labels, and we will report Cohen's $\kappa$ bet
 
 \textbf{Sentence-model layer.} bge-small-en-v1.5 \cite{xiao2023cpack}, 33 million parameters, runs on the processor. When a case loads, every
 \emph{probe} of every memory is turned into a unit vector once; a question's similarity to a memory is its highest cosine to that memory's probes.
-A memory's probes are 4--12 doctor-style questions written for it by the author and an AI assistant from its meaning
+A memory's probes are 4--12 doctor-style questions written for it by the first author and an AI assistant from its meaning
 (``hand-written'' below, to set them apart from bulk-generated ones); about 50 doctor questions per memory written offline
 by another language model from the memory's topic; and the keyword tags and the memory's own text. Comparing a question with example
 \emph{questions} works much better than comparing it with the memory's \emph{statement}: on the dev half, hand-written probes raised the share of
@@ -179,7 +180,7 @@ reworded question about a locked memory therefore still produces only a discomfo
 level marks what the doctor \emph{clearly} asked about: a keyword hit or a similarity of at least 0.83. Only this level may force the patient to
 disclose an unlocked risk memory; an ordinary match never does.
 
-\textbf{Hand-set heads.} For five risk topics (suicidal thoughts, plans, means, harm to others, withdrawal) the author and an AI assistant wrote 10--17
+\textbf{Hand-set heads.} For five risk topics (suicidal thoughts, plans, means, harm to others, withdrawal) the first author and an AI assistant wrote 10--17
 example questions from standard clinical phrasing (Appendix~\ref{app:heads}). Each topic's weight vector is the normalised mean of their vectors,
 \begin{equation}
 w_k = \bar{e}_k / \lVert \bar{e}_k \rVert, \qquad \text{match if } w_k^\top e(u) \ge 0.76,
@@ -206,6 +207,16 @@ model, which then decides. The floor is the highest that keeps dev-half risk rec
 \textbf{Probe quality filter.} 46\% of the generated probes for risk memories contain no risk word. We drop those, using a fixed word list (death,
 dying, kill, harm, hurt, plan, pills, rope, jump, overdose, better off, not be here, wake up, fits, shaking, withdrawal, anger, hit, safe and
 related forms; \numFilterDropped{} of \numFilterTotal{} probes), and re-run every probe-based method.
+
+\subsection{Use of language models}
+All local models ran through llama.cpp (4-bit Q4\_K\_M) on one laptop between 13 and 19 November 2026. The original benchmark was written by
+an AI agent (Claude, Anthropic, through Claude Code) that saw only the memory descriptions. Qwen3.5-9B wrote the generated probes and the
+classifier's training lines (temperature 0.95) and labelled the training lines (temperature 0); Qwen3.5-4B and Gemma 4 E2B wrote the two
+further test sets (temperature 0.9, fixed seeds); Gemma 4 E4B is the zero-shot classifier (temperature 0, JSON schema). All prompts are in
+\texttt{tools/recall\_writer.py}, \texttt{tools/recall\_baselines.py} and \texttt{tools/brain/gen\_lines.py} in the code repository. The AI
+assistant (Claude Opus 5.5, Anthropic, through Claude Code, October--November 2026) also drafted the analysis scripts and much of the text of
+this manuscript under the authors' direction. The authors reviewed the text, checked every reported number against the saved results, and
+take responsibility for the content.
 
 \section{Results}\label{sec:results}
 
@@ -381,7 +392,7 @@ version using them scored lower in held-out conversations and was not shipped. W
 and a few hundred hand-checked labels are worth more than thousands of generated ones (Supplementary Section~S3).
 
 \subsection{What a missed match costs in conversation}
-The companion paper \cite{companionA} asked every test-half risk question as the second turn of a short conversation that starts with enough
+Our companion manuscript asked every test-half risk question as the second turn of a short conversation that starts with enough
 trust for the memory to be open. The patient failed to disclose in \numRPmissVtwo{} of cases; \numRPmissNoRecVtwo{} of questions the hybrid did not
 match went undisclosed, against \numRPmissRecVtwo{} of those it did. A missed match is therefore not only a benchmark error: it is a risk question
 the patient may answer as if it were small talk.
@@ -401,7 +412,7 @@ and the call is separate from the reply, nothing locked reaches the patient's pr
 that it is worth that cost on risk questions.
 
 \textbf{Limitations.} All test questions were written by language models, never by students or clinicians, so their phrasing may be more
-regular than a nervous student's. Labels came from the writers alone, and the author's check is pending. About 75
+regular than a nervous student's. Labels came from the writers alone, and the first author's check is pending. About 75
 risk pairs per half make each recall figure uncertain by several points. The zero-shot prompt was written once and not tuned; a tuned prompt might
 do better, and a different model might do worse. Latency was measured on one high-end laptop. The cases are drafts that a psychiatrist must
 still review. Only one variety of English was tested.
@@ -437,22 +448,19 @@ home been afraid of you?'', ``Have arguments ever got physical?''.
 Supplementary material (\texttt{supplementB.pdf}) gives recall by case, difficulty, kind of memory and risk memory (S1), rank and probe ablations,
 similarity distributions and the cut-offs (S2), and the classifier's data and results (S3).
 
-\section*{Declarations}
+\section*{Statements and Declarations}
 \begin{itemize}
-\item \textbf{Funding:} none.
-\item \textbf{Competing interests:} the author develops Rapport.
-\item \textbf{Ethics approval and consent to participate:} not applicable. The study involved no human participants and no patient data;
-the only human judgements are the author's own.
-\item \textbf{Data availability:} the benchmark, its split, the two further test sets, the probes and every method's per-question output are
+\item \textbf{Funding:} The authors did not receive support from any organization for the submitted work.
+\item \textbf{Competing interests:} F.K.M.\ develops Rapport, which is open source. S.S.\ has no competing interests to declare.
+\item \textbf{Ethics approval:} Not applicable. The study involved no human participants and no patient data.
+\item \textbf{Consent to participate and to publish:} Not applicable.
+\item \textbf{Data availability:} The benchmark, its split, the two further test sets, the probes and every method's per-question output are
 available at \url{https://github.com/faazkhn/Rapport}.
-\item \textbf{Code availability:} \url{https://github.com/faazkhn/Rapport} (including \texttt{tools/recall\_bench.py}, \texttt{tools/recall\_baselines.py} and
-\texttt{tools/recall\_writer.py}), under the Apache License 2.0.
-\item \textbf{Author contribution:} F.K.M.\ designed the study, built the system, ran the experiments and wrote the paper.
-\item \textbf{Use of AI tools:} the text, figures, tables and analysis scripts were drafted with an AI assistant (Claude, Anthropic) under the
-author's direction. AI models were also research instruments: an AI agent wrote the benchmark, Qwen3.5-4B and Gemma 4 E2B wrote the two
-further test sets, another language model wrote the generated probes
-and the classifier's training lines, Qwen3.5-9B labelled them, and Gemma 4 E4B is a compared method. The author takes full responsibility for the
-content.
+\item \textbf{Code availability:} \url{https://github.com/faazkhn/Rapport} (including \texttt{tools/recall\_bench.py}, \texttt{tools/recall\_baselines.py}
+and \texttt{tools/recall\_writer.py}), under the Apache License 2.0.
+\item \textbf{Author contributions:} Conceptualization, methodology, software, investigation, formal analysis and writing (original draft):
+F.K.M. Supervision and writing (review and editing): S.S. Both authors read and approved the final manuscript.
+\item \textbf{Use of AI tools:} Described under ``Use of language models'' in the Methods.
 \end{itemize}
 
 \bibliography{../shared/refs}

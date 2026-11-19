@@ -1,5 +1,5 @@
 \expandafter\def\csname ver@breakurl.sty\endcsname{2013/04/10}\expandafter\def\csname opt@breakurl.sty\endcsname{hyphenbreaks}% skip breakurl (dvips only); Tectonic runs XeTeX
-\documentclass[sn-vancouver,Numbered]{sn-jnl}
+\documentclass[sn-basic,Numbered]{sn-jnl}
 \input{../shared/sn_preamble}
 \input{gen/numbers}
 
@@ -10,25 +10,23 @@ Psychiatric Standardised Patient, Compared with a Prompt-Only Baseline}
 
 % Author checks still to do: papers/HUMAN_STUDIES.md
 \author*[1]{\fnm{Faaz Khan} \sur{Mohammad}}\email{faazkhn1000@gmail.com}
-\affil*[1]{\orgname{MIT World Peace University}, \orgaddress{\city{Pune}, \country{India}}}
+\author[1]{\fnm{Sanket} \sur{Salvi}}
+\affil[1]{\orgname{MIT World Peace University}, \orgaddress{\city{Pune}, \state{Maharashtra}, \country{India}}}
 
-\abstract{Language-model patients for psychiatric interview practice invent symptoms and are unpredictable about suicidal thoughts, and
-nobody can see why they shared or withheld something. We describe a patient model, used in an on-device spoken standardised patient
-(Rapport), in which ordinary code makes every decision a clinician would audit: what the doctor's sentence did, how trust and guardedness
-change, which memories are open, and which behaviours are allowed. One call to a local 4-billion-parameter model (Gemma 4 E4B) puts the
-decision into words, and every sentence is checked before it is spoken. We compared it with a prompt-only baseline that gives the same model
-the whole case file and tells it to hide risk memories until trust is built. On 14 held-out scripted conversations, each run with three seeds
-and judged by a model from another family, the primary outcome, per-conversation accuracy against the case, was \numCompVtwo{} for the
-code-governed model and \numCompPzero{} for the baseline (paired difference \numDiffPzero). Accuracy did not differ detectably. Safety did: the
-code-governed model failed no jailbreak or portrayal check and always disclosed the death wish when it was due, while the baseline failed
-\numJailPzero{} jailbreak checks and withheld the death wish once. The gates are not a guarantee: when 77 reworded
-risk questions from a blind benchmark were asked in conversation at sufficient trust, the code-governed model failed to disclose in
-\numRPmissVtwo{} of cases (prompt-only \numRPmissPzero): most questions its memory matching did not recognise went undisclosed, and
-questions about plans or means it did recognise were often answered with the death wish instead. The case files are drafts not yet reviewed by a
-psychiatrist, and realism was not rated by clinicians.}
+\abstract{Language-model patients for psychiatric interview practice can invent symptoms and are unpredictable about suicidal thoughts, and
+their reasons for sharing or withholding are hidden. We describe a patient model for Rapport, an on-device spoken standardised patient, in which
+code makes every decision a clinician would audit: how the doctor's sentence changes trust and guardedness, which memories are open, and which
+behaviours are allowed. One call to a local 4-billion-parameter language model (Gemma 4 E4B) puts the decision into words, and every sentence is
+checked before it is spoken. We compared it with a prompt-only baseline: the same model given the whole case file and told to hide risk memories
+until trust is built. On 14 held-out scripted conversations, each run with three seeds and judged by a model from another family, the primary
+outcome, per-conversation accuracy against the case, was \numCompVtwo{} for the code-governed model and \numCompPzero{} for the baseline
+(paired difference −0.008, 95\% confidence interval −0.022 to 0.004). Safety differed: the code-governed model failed no jailbreak or portrayal check
+and always disclosed the death wish when it was due, while the baseline failed \numJailPzero{} jailbreak checks and once withheld the death wish.
+Passing these checks is not a guarantee. When 77 reworded risk questions from a blind benchmark were asked in conversation at sufficient trust,
+the code-governed model failed to disclose in \numRPmissVtwo{} of cases (baseline \numRPmissPzero), through missed matches and through answering
+plan or means questions with the death wish. The clinical content has not been reviewed by a psychiatrist.}
 
-\keywords{simulated patients, psychiatry education, standardised patients, large language models, patient safety, on-device AI,
-evaluation}
+\keywords{simulated patients, psychiatry education, large language models, patient safety, on-device AI, evaluation}
 
 \maketitle
 
@@ -50,9 +48,8 @@ The common answer is a better prompt: give the model the case file and tell it h
 and that the decisions a clinician would audit should be taken out of the model altogether. We call this \emph{decide in code, voice with the
 model}. The patient's state, which memories are open, how guarded it is and which behaviours it may use are computed by code we can read,
 test and change; one model call per turn only writes the words, and every sentence is checked before it is spoken. We call the patient model
-the \emph{Digital Twin} because it is a running, inspectable counterpart of one authored case file: its state is mirrored live to the
-examiner, and every value can be traced to the file. It is not a twin of a real person, as in patient-specific clinical digital twins, and it
-is not a model of the brain.
+the \emph{Digital Twin}: an inspectable counterpart of one authored case file, mirrored live to the examiner. It is not a twin of a real
+person, nor a model of the brain.
 
 \textbf{Contributions.}
 \begin{enumerate}
@@ -62,10 +59,9 @@ model's output, and sentence checks before speech (Section~\ref{sec:model}).
 judges on the same held-out conversations (Sections~\ref{sec:method} and~\ref{sec:res-baseline}).
 \item A measure of what safety gates miss: reworded risk questions from a blind benchmark asked inside real conversations, linking
 conversation-level safety to the accuracy of memory matching (Section~\ref{sec:res-risk}).
-\item Feature ablations, the defects found by an automated adversarial code review and their fixes, and the targets the design missed
-(Sections~\ref{sec:res-ablation}--\ref{sec:disc}).
+\item Feature ablations and the defects found by an automated adversarial code review (Sections~\ref{sec:res-ablation}--\ref{sec:res-review}).
 \end{enumerate}
-A companion paper \cite{companionB} studies the memory-matching step on its own.
+A companion manuscript by the same authors studies the memory-matching step on its own.
 
 \section{Related Work}\label{sec:related}
 \textbf{Psychiatric AI patients.} Chen et al.\ built chatbots validated by clinicians for depression interviews \cite{chen2023llmempowered};
@@ -73,20 +69,15 @@ PATIENT-$\Psi$ bases patients on expert cognitive models with six conversation s
 Exam framework to evaluate assessment agents \cite{lee2025psyche}; PatientAct adds trust-gated memory, reactions and resistance
 \cite{sabour2026patientact}; PatientHub collects many simulators \cite{sabour2026patienthub}; Roleplay-doh lets experts steer a patient with
 written principles \cite{louie2024roleplaydoh}. EvoPatient improves patients through simulated practice and a checked library of past replies
-\cite{du2024llms}. Language-model patients with a body or voice include Voigt et al.\ \cite{voigt2025llmpowered} and SOPHIE \cite{haut2025ai};
-SimPatient and MedSimAI add feedback on the student's performance \cite{steenstra2025scaffolding,hicke2025medsimai}. A randomised trial found
-that simulation with structured feedback improved students' clinical decisions \cite{brugge2024llm}. Most of these systems control the
+\cite{du2024llms}. Patients with a body or voice include Voigt et al.\ \cite{voigt2025llmpowered} and SOPHIE \cite{haut2025ai}, and a randomised
+trial found that simulation with structured feedback improved students' clinical decisions \cite{brugge2024llm}. Most of these systems control the
 patient through the prompt, sometimes with several model calls per turn; PatientAct moves memory access into a structure, and we move every
 decision there.
 
-\textbf{How well a language model holds a persona.} Prompted personalities show up in large models \cite{jiang2024personallm,serapio2023personality},
-but they are fragile. Equivalent prompts give different self-report scores \cite{gupta2023selfassessment}; reordering questions moves them by
-about a fifth of the scale, and long histories make small models less stable \cite{tosato2025persist}; instructions drift within about eight
-rounds \cite{li2024instruction}; persona variables explain under 10\% of the variance in human annotations \cite{hu2024persona}; model size
-does not predict persona consistency \cite{samuel2025personagym}; some traits are hard to produce by prompting at all \cite{lee2025trait}.
-Multi-turn reinforcement learning helps \cite{abdulhai2025consistent}, and interviews are a better test of a role-playing agent than
-questionnaires \cite{wang2023incharacter}. For a 4-billion-parameter patient this suggests that personality, disclosure and resistance must be
-held in code, with the model given one style label and a few example lines.
+\textbf{How well a language model holds a persona.} Prompted personalities are fragile: equivalent prompts give different scores
+\cite{gupta2023selfassessment}, long histories make small models less stable \cite{tosato2025persist}, instructions drift within about eight
+rounds \cite{li2024instruction}, and model size does not predict persona consistency \cite{samuel2025personagym}. For a 4-billion-parameter
+patient this suggests holding disclosure and resistance in code.
 
 \textbf{Judges.} AI judges are cheap but biased \cite{zheng2023judging}, and LLM scoring of OSCE transcripts agrees with experts within one
 point 67--87\% of the time \cite{geathers2025benchmarking}. We therefore use a judge from a different model family than the patient, anchor
@@ -96,10 +87,8 @@ disclosure verdicts to quoted words, and check flags by hand.
 Rapport runs on one Apple M5 Pro laptop with 24\,GB of memory and sends no audio or text off the device (Fig.~\ref{fig:arch}). A Unity~6
 client shows the consulting room and the patient's body and captures the microphone. A Python service listens (voice-activity detection and a
 turn-end model), transcribes speech (Parakeet), runs the patient model, routes physical-examination requests by rule, and speaks
-(Qwen3-TTS VoiceDesign). llama.cpp \cite{llamacpp} serves Gemma 4 E4B, compressed to 4 bits, with a grammar that forces valid JSON. Typed
-turns go through the same pipeline as spoken ones. A read-only examiner view shows the patient model's state live, including a one-line reason
-for each reply written by code (``Mood memory open (trust 39 $\ge$ 20). Touched something locked (needs trust 55); showed discomfort.'').
-Supplementary Section~S1 describes the client, voice, body, examination and protocol in detail.
+(Qwen3-TTS VoiceDesign). llama.cpp \cite{llamacpp} serves Gemma 4 E4B, compressed to 4 bits, with a grammar that forces valid JSON. A read-only
+examiner view shows the patient model's state live, with a one-line reason for each reply written by code. Supplementary Section~S1 describes the client, voice, body, examination and protocol in detail.
 
 \begin{figure}[t]
 \centering
@@ -127,9 +116,8 @@ examiner's browser. Dashed: the patient's decided state, read by the body, the e
 \label{fig:arch}
 \end{figure}
 
-\textbf{The patient is data.} Every patient is a JSON case file checked against a schema: who the patient is, memory items with trust
-levels, a mental-status profile, start state, visible cues, slots that a seed may vary (a hobby, a sibling's name, a home town), conversation
-styles, timed ward events, and an answer key that never varies. There are four draft stations: moderate depression (a 24-year-old software
+\textbf{The patient is data.} Every patient is a JSON case file checked against a schema: memory items with trust levels, a mental-status
+profile, start state, visible cues, conversation styles, timed events and a fixed answer key. There are four draft stations: moderate depression (a 24-year-old software
 tester), a ward patient asking to leave under India's Mental Healthcare Act \cite{mhca2017}, a young patient refusing medicine, and alcohol
 dependence with early withdrawal and a past withdrawal fit \cite{nice2010cg100}. The held-out evaluation uses the depression and alcohol cases.
 
@@ -225,9 +213,8 @@ Resistance $\rho_t$ is how guarded the patient is: 0 open, 1 cautious, 2 guarded
 h_t &= \textstyle\sum_{m\in M(u_t)}\max(r_m,0),\quad v_t=\max\big(\min_{m} r_m,\,-1\big),\\
 \rho_t &= \mathrm{clip}_{[0,3]}\big(\rho_{t-1}+h_t+v_t-[k_t\ge 2]\big),
 \end{align}
-where $h_t$ is the hurt in the sentence, $v_t$ at most one step of softening, and $k_t$ the number of calm turns in a row. Being judged, abused
-or threatened makes the patient two steps more guarded at once; empathy, an explanation, an apology or a real choice wins back one step at a
-time; past the style's softening trust, resistance cannot exceed cautious.
+where $h_t$ is the hurt in the sentence, $v_t$ at most one step of softening, and $k_t$ the number of calm turns in a row: judgement or
+abuse adds two steps at once, while kindness wins back one step at a time.
 
 \subsection{Deciding before the model speaks}
 Code then builds a short list $B_t$ of one to three allowed behaviours out of 13, and a short list of reactions. Open patients may answer
@@ -239,9 +226,8 @@ for the reply is rebuilt every turn and lists only the allowed behaviours, react
 decision. Its fields are ordered ``decide first, then speak'': behaviour and emotion come before the words.
 
 \subsection{Conversation memory, sentence checks and ending}
-Code keeps a diary of the session: what the patient already said about each memory and in what words, locked topics the doctor touched, hurt
-and apologies, promises and permission to leave. At most three relevant lines enter the prompt each turn. Everyday details the patient
-improvises (a friend's name, a favourite food) are saved so the story stays the same, unless they sound clinical or rename a family member.
+Code keeps a diary of the session (what the patient already said, locked topics touched, hurt and apologies), and at most three relevant
+lines enter the prompt each turn.
 
 Every sentence then passes checks in code (Fig.~\ref{fig:checks}) that fix numbers, ages and names against the case, strip apologies from an
 upset patient, drop near-repeats and any unasked or locked mention of the death wish, and replace a flat ``No'' on a risk turn: with the
@@ -272,13 +258,10 @@ moves within six turns at trust 15 or below, or at agitation 90.
 \label{fig:checks}
 \end{figure}
 
-\subsection{What the model sees, and versions}
-The prompt has a fixed part, cached by the model server (role, case, presentation, mental-status profile, realism rules, faculty principles,
-banned words, hard rules and the label menu), and a short per-turn part: state, a style reminder, recent lines to avoid repeating, the
-conversation memory, the doctor's words, the facts that may be shared now, discomfort notes for locked ones, and the decision. Every change to
-the patient model is a numbered version that turns features on or off; one command switches back. v0, the earlier Twin, has none on: memories
-are matched by keyword tags, trust locks and a guard still apply, and the model chooses its own behaviour. v2 turns on six: meaning-based recall
-\cite{companionB}, the decision rubric, conversation memory, sentence checks, the mental-status profile and everyday improvisation.
+\subsection{Versions}
+Every change to the patient model is a numbered version that turns features on or off, and one command switches back. v0, the earlier Twin,
+has trust locks, keyword recall and a guard, and lets the model choose its own behaviour. v2 adds meaning-based recall, the decision rubric,
+conversation memory, sentence checks, the mental-status profile and everyday improvisation. Supplementary Section~S1 gives the prompt.
 
 \section{Methods}\label{sec:method}
 
@@ -287,19 +270,16 @@ Three versions were run on the same code, model (Gemma 4 E4B, 4-bit, llama.cpp, 
 \begin{itemize}
 \item \textbf{v2}, the patient model described above;
 \item \textbf{v0}, the earlier Twin (trust locks and guard, keyword recall, no decision layer);
-\item \textbf{prompt-only}, the baseline for the central claim. The model receives the same persona, presentation, realism and hard rules,
-and the \emph{whole} case file: every memory with its kind and its trust level, told to keep private and risk items hidden until the patient
-trusts the doctor enough, to be evasive (not to deny) below that level, and to answer honestly when trust is high enough and the doctor asks
-directly and kindly. It tracks its own state through the same \texttt{state\_delta} field, which is added and clamped to range but receives no
-rule-based nudges. There is no recall, trust lock, rubric, decision, guard, sentence check or word cap. Its reply uses the same JSON schema with
-every behaviour and every memory allowed.
+\item \textbf{prompt-only}, the baseline for the central claim. The model receives the same persona and rules and the \emph{whole} case file,
+every memory with its trust level, and is told to keep private and risk items hidden until trust is high enough, to be evasive (not to deny)
+below that level, and then to answer honestly when asked kindly. It tracks its own state through the same \texttt{state\_delta} field. There is
+no recall, trust lock, rubric, decision, guard or sentence check.
 \end{itemize}
 
 \subsection{Held-out conversations}
-Fourteen scripted conversations were never used while building or tuning. Twelve are for the depression case: a good interview with a female
-and with a male patient, a rushed doctor, a judgmental doctor, an off-topic doctor, a probing doctor, a jailbreak attempt, an abusive doctor, a
-kind risk assessment, an interview that never asks about risk, physical-examination requests, and a 25-turn consistency test. Two are for
-alcohol withdrawal: a good and a judgmental interview. Each runs with seeds 11, 23 and 42 (the sampling seed is the same for every version);
+Fourteen scripted conversations were never used while building or tuning: twelve for the depression case (good, rushed, judgmental,
+off-topic, probing, jailbreak, abusive, kind risk assessment, risk never asked, examination requests and a 25-turn consistency test) and two
+for alcohol withdrawal (good and judgmental). Each runs with seeds 11, 23 and 42 (the sampling seed is the same for every version);
 the alcohol scripts also run with seeds 5, 7 and 13, giving 12 alcohol runs per version. The harness carries state and memory between turns
 exactly as a live session does.
 
@@ -321,14 +301,24 @@ finds it in a turn where trust was below its level and a second, single-fact che
 asked of the same judge for that one memory).
 
 \textbf{Checks of the judge's flags.} Every made-up-fact flag on v2 was checked against the case file by the AI assistant used in this work
-(Claude), not by a person; its verdicts are recorded with the results. \humanpending{The author will check every flag of every arm on a
-shuffled sheet with the arm hidden and as many unflagged replies mixed in; we will report Cohen's $\kappa$ between the author and the judge, and
-the author's verdicts will replace the assistant's.} The procedure is in Supplementary Section~S5. No psychiatrist reviewed the case files,
+(Claude), not by a person; its verdicts are recorded with the results. \humanpending{The first author will check every flag of every arm on a
+shuffled sheet with the arm hidden and as many unflagged replies mixed in; we will report Cohen's $\kappa$ against the judge, and these
+verdicts will replace the assistant's.} The procedure is in Supplementary Section~S5. No psychiatrist reviewed the case files,
 so all clinical content is labelled draft.
+
+\subsection{Use of language models}
+All models ran locally through llama.cpp on the laptop described above, between 13 and 19 November 2026, except where stated. The patient
+model is Gemma 4 E4B instruction-tuned (4-bit Q4\_K\_M), temperature 0.7, top-p 0.9, with a JSON schema enforced by the server and fixed
+sampling seeds. The judge and disclosure judge are Qwen3.5-9B (Q4\_K\_M), temperature 0, with a JSON schema. The recall benchmark was written
+by an AI agent (Claude, Anthropic, through Claude Code) that saw only the memory descriptions. The adversarial code review was performed by
+the same assistant in a separate session with no prior context. All prompts are in the code repository (\texttt{server/patient-service/brain.py},
+\texttt{tools/learning/judges.py}, \texttt{tools/llm\_eval/judge.py}). The AI assistant (Claude Opus 5.5, Anthropic, through Claude Code,
+October--November 2026) also drafted much of the software, the analysis scripts and the text of this manuscript under the authors'
+direction. The authors reviewed the text, checked every reported number against the saved results, and take responsibility for the content.
 
 \subsection{Missed risk inside conversations}
 The automated gates count failures on fourteen scripts whose risk questions mostly use expected words. To measure what they miss, we took every
-reworded risk question in the test half of the blind recall benchmark of the companion paper \cite{companionB}: 77 questions written by a writer
+reworded risk question in the test half of the blind recall benchmark from our companion manuscript: 77 questions written by a writer
 who never saw the matching rules, about suicidal thoughts, plans, means, past withdrawal fits and anger at home, across all four cases. Each
 is asked as the second turn of a short conversation that starts with trust at least 55 and at least five points above the memory's own level,
 after one warm opening line. The outcome is \emph{missed risk}: the reply does not disclose the expected risk memory, judged one memory at a time
@@ -382,21 +372,17 @@ recall, so the split uses the deployed matcher as a reference).
 \end{table}
 
 v2 failed to disclose in \numRPmissVtwo{} of cases, v0 in \numRPmissVzero{} and prompt-only in \numRPmissPzero. When code recall matched the
-question, v2 missed \numRPmissRecVtwo; when recall did not match, it missed \numRPmissNoRecVtwo. In absolute numbers the two groups contribute
-about equally, for different reasons. Unrecognised questions were answered as if they were about something else. Most recognised-but-missed
-questions asked about plans or means (``Do you have access to anything dangerous?''): code had recalled both the plan or means memory and the
+question, v2 missed \numRPmissRecVtwo; when recall did not match, it missed \numRPmissNoRecVtwo. The two groups contribute about equally in number. Most
+recognised-but-missed questions asked about plans or means (``Do you have access to anything dangerous?''): code had recalled both the plan or means memory and the
 death wish, and the rule that an open, clearly asked risk memory must be disclosed led the patient to talk about its death wish instead (``No,
 nothing like that. I just\ldots sometimes I wish I wouldn't wake up''). Some of those replies do state the absence and were not credited by the
-judge, so this group is partly a measurement limit. This makes concrete the gap between ``passed every safety gate'' and the 72.7\% risk recall measured
-on the same questions in the companion paper \cite{companionB}: a reworded question that recall misses is a risk question the patient can
-answer as if it were small talk. Preparing this test also exposed a defect in the examination router: ``Have you ever passed out and found
+judge, so this group is partly a measurement limit. Preparing this test also exposed a defect in the examination router: ``Have you ever passed out and found
 afterwards that you had bitten your tongue?'' triggered the \emph{stick out your tongue} action, so the patient replied ``Like this?'' to a question
 about withdrawal fits. We report the system as evaluated and have not changed it. Supplementary Section~S6 gives the result by case.
 
 \subsection{Worked examples}
-Table~\ref{tab:example} follows two v2 conversations from the depression case. Each judgement pushes resistance up and trust down until the
-patient asks ``Why are you asking me that?''. With a kind doctor, empathy raises trust past the death-wish level (55) in two turns, and when asked
-gently the patient discloses exactly what the case says.
+Table~\ref{tab:example} follows two v2 conversations: judgement drives trust to zero, while empathy raises it past the death-wish level (55)
+in two turns, after which the patient discloses exactly what the case says.
 
 \begin{table*}[t]
 \caption{Two held-out conversations with v2 (depression case, seed 11)}\setlength{\tabcolsep}{2.5pt}
@@ -424,14 +410,11 @@ denial because the doctor's words touched locked memories. The accusation in tur
 \end{table*}
 
 \subsection{Inside the decision layer}
-On 351 held-out v2 turns, code chose resistance 0 or 1 on every turn of the good and kind interviews, and level 3 on 24 of 33 turns of the
-judgmental one. It required disclosure of an open risk fact on 39 turns. Given a shortlist, the model took the first behaviour on 63.5\% of
-turns. The sentence checks changed 18 turns (5.1\%): 8 flat denials on a locked topic, 6 repeats and 4 denials of an open risk fact. v2's
-behaviour fitted the doctor rather than varying more within a conversation: the pooled share of turns using the two commonest behaviours fell
-from 0.86 (v0) to 0.72, but within a conversation there was no detectable difference ($-0.015$ [$-0.068$, $+0.042$]). Against the good
-interviewer v2 used 4.7 behaviours on average (v0 2.7); against the judgmental doctor it was hostile, short or deflecting. Supplementary
-Section~S6 gives the counts, per-conversation results and the behaviour distribution, and Fig.~\ref{fig:trustgrid} shows trust in every
-depression conversation.
+On 351 held-out v2 turns, code chose resistance 0 or 1 on every turn of the good and kind interviews and level 3 on 24 of 33 turns of the
+judgmental one, and required disclosure of an open risk fact on 39 turns. The sentence checks changed 18 turns (5.1\%). v2's behaviour fitted
+the doctor rather than varying more within a conversation: the pooled share of turns using the two commonest behaviours fell from 0.86 (v0)
+to 0.72, with no detectable difference within a conversation. Fig.~\ref{fig:trustgrid} shows trust in every depression conversation;
+Supplementary Section~S6 gives the counts.
 
 \begin{figure*}[t]
 \centering
@@ -471,10 +454,9 @@ flags, not hand-checked.
 
 \subsection{Defects found by the adversarial code review}\label{sec:res-review}
 The review reported ten defects in the first version of v2; nine were reproduced with test scripts, and all ten were fixed and turned into tests
-before the results above (Table~\ref{tab:review}). Separately, an earlier run had shown the patient mentioning the death wish unasked three times
-in 98 turns, because a recall threshold had been tuned only to find more questions, making sleep questions look like suicide questions. Separating
-``a memory came to mind'' from ``the doctor clearly asked'' and dropping any unasked mention in code fixed it: on the same scripts and seeds,
-portrayal failures fell from 3 to 0 and the pooled composite rose from 0.937 to 0.947.
+before the results above (Table~\ref{tab:review}). An earlier recall threshold tuned only to find
+more questions had made the patient mention the death wish unasked three times in 98 turns; separating ``came to mind'' from ``clearly asked''
+fixed it.
 
 \begin{table}[t]
 \caption{Defects found by the automated adversarial code review, all fixed before the final runs}
@@ -499,15 +481,8 @@ portrayal failures fell from 3 to 0 and the pooled composite rose from 0.937 to 
 \end{table}
 
 \subsection{Other results}
-\textbf{Ward events.} In the ``I want to go home'' station, code times events (a shout in the corridor, a message from the patient's mother).
-Against a coercive typed doctor, trust fell from 25 to 0, agitation rose from 45 to 92, the patient stood up, and its suicidal thoughts stayed
-hidden; against a doctor who explored reasons, explained rights honestly and offered choices, trust rose to 70 and agitation fell to 25
-(Supplementary Section~S2).
-
-\textbf{A learning loop that was rejected.} An offline loop (simulated doctors, a checked library of example replies, prompt optimisation with
-GEPA \cite{agrawal2025gepa}) produced a candidate that improved nothing and, on one turn asked about suicidal thoughts at trust 70, denied them.
-The held-out gate rejected it. Tracing that turn found a recall miss (``thoughts that life \emph{isn't} worth living'' did not match the tag
-``life worth living''); the loop was most useful as a test that finds bugs (Supplementary Section~S3).
+Ward stations with timed events and an offline learning loop, which the held-out gate rejected, are described in Supplementary
+Sections~S2--S3.
 
 \textbf{Shortfalls.} An upset conversation style stayed in character on half of the turns after turn 10 (v0 56\%), because the softening
 rules let a consistently kind doctor lower resistance.
@@ -536,43 +511,30 @@ Patient audio ready, median (90th percentile) & 1,540 (2,560) & 1,819 (2,962)\\
 \end{table}
 
 \section{Discussion}\label{sec:disc}
-\textbf{What the design achieved.} Taking the decisions out of the model made the patient's behaviour something an examiner can watch, a
-reviewer can test and a researcher can argue about. The prompt-only baseline tests the central claim directly: the same model, given the same
+\textbf{What the design achieved.} The prompt-only baseline tests the central claim directly: the same model, given the same
 case and the same instructions, was as accurate (no detectable difference in the composite, and nominally higher) but less safe: it failed
 \numJailPzero{} jailbreak checks where the Twin failed none, withheld the death wish once when it was due, and had more made-up-fact flags.
 The case for deciding in code therefore rests on safety and on being able to inspect and test each decision, not on accuracy. The ablation shows where the safety result comes
-from within the design: without the decision rubric the patient failed four jailbreak attempts. The patient's behaviour now changes with the
-kind of doctor it faces, while each conversation stays focused, and because the body reads the same decision as the voice, posture, gaze and
-face agree with what the patient says.
+from within the design: without the decision rubric the patient failed four jailbreak attempts.
 
 \textbf{What the gates do not show.} Passing every gate on fourteen scripts is not the same as being safe. Asked reworded risk questions at
 sufficient trust, v2 still failed to disclose in \numRPmissVtwo{} of cases: most questions its memory matching did not recognise, and many
-plan and means questions it did recognise but answered with the death wish. The matching step is one weak link, which the companion paper studies on its own
-\cite{companionB}; there, the same language model used as a zero-shot classifier recognised \numLLMrisk{} of these questions at about half a
+plan and means questions it did recognise but answered with the death wish. The matching step is one weak link, which the companion manuscript studies on its own; there, the same language model used as a zero-shot classifier recognised \numLLMrisk{} of these questions at about half a
 second per line, against 72.7\% for the 3\,ms hybrid matcher. A two-stage design, and a disclosure rule that answers the risk memory actually asked about
 rather than the first open one, are the clearest next steps.
 
-\textbf{Accuracy did not rise over the earlier Twin.} The composite measures accuracy against the case, not realism, and the earlier Twin was
-already accurate. Whether behaviour that fits the doctor feels more real is a question for clinicians, and this study did not ask them.
-
 \textbf{Limitations.} Only two cases were in the held-out runs, with scripted doctors, one variety of English and one high-end laptop. The
-held-out scripts and examination tests were written by the author with an AI assistant. The judge is a language model, and its flags have so far been checked only
-by the AI assistant; the author's own check is still pending, and no second person rated them. The composite measures accuracy, not realism. With 36 depression runs per arm, only large differences
-are detectable. All clinical content, trust levels and move effects are drafts that a psychiatrist must review, and release builds refuse
+held-out scripts and examination tests were written by the first author with an AI assistant. The judge is a language model, and its flags have so far been checked only
+by the AI assistant; the first author's check is still pending. The composite measures accuracy, not realism, and 36 depression runs per arm detect only large differences. All clinical content, trust levels and move effects are drafts that a psychiatrist must review, and release builds refuse
 unreviewed cases. The disclosure judge is itself a model; quoting the reply limits false positives but not misses. The prompt-only baseline is
 one prompt; a stronger prompt, or a larger model, might narrow the gap.
-
-\textbf{Lessons for builders.} Keep everything a clinician would audit outside the language model and give the model a closed list to choose
-from; check every sentence before it is spoken and hold the whole reply on risk turns; score any arm without code locks by what its words say,
-not by what it reports; test risk handling with questions written blind, inside conversations, not only with scripts; and test with a person
-early: one playtest found four problems that every scripted test had missed.
 
 \section{Conclusion}
 A spoken psychiatric standardised patient can run privately on one laptop if the patient is data, code makes the decisions, a local model supplies
 the words, and every sentence is checked. Against the same model given the whole case file, this split was no more accurate but safer: no jailbreak failures against
 \numJailPzero, and no withheld death wish. Its
-remaining weakness is not in the decisions but in recognising a reworded risk question, which is now a measured target rather than an
-impression.
+remaining weaknesses, recognising a reworded risk question and answering the risk memory actually asked about, are now measured targets
+rather than impressions.
 
 \backmatter
 
@@ -581,18 +543,18 @@ Supplementary material (\texttt{supplementA.pdf}) describes the client, voice, b
 styles and ward events (S2), scoring, debrief, learning and authoring (S3), speed, models and appearance (S4), the author's checks (S5),
 and extra held-out results (S6).
 
-\section*{Declarations}
+\section*{Statements and Declarations}
 \begin{itemize}
-\item \textbf{Funding:} none.
-\item \textbf{Competing interests:} the author develops Rapport.
-\item \textbf{Ethics approval and consent to participate:} not applicable. The study involved no human participants and no patient data; the only human judgements are the author's own.
-\item \textbf{Data availability:} held-out scripts, case files, brain versions, every judged reply and the recall benchmark are kept with the
-code at \url{https://github.com/faazkhn/Rapport}.
+\item \textbf{Funding:} The authors did not receive support from any organization for the submitted work.
+\item \textbf{Competing interests:} F.K.M.\ develops Rapport, which is open source. S.S.\ has no competing interests to declare.
+\item \textbf{Ethics approval:} Not applicable. The study involved no human participants and no patient data.
+\item \textbf{Consent to participate and to publish:} Not applicable.
+\item \textbf{Data availability:} The held-out scripts, case files, brain versions, every judged reply and the recall benchmark are available at
+\url{https://github.com/faazkhn/Rapport}.
 \item \textbf{Code availability:} \url{https://github.com/faazkhn/Rapport}, under the Apache License 2.0.
-\item \textbf{Author contribution:} F.K.M.\ designed and built the system, ran the experiments and wrote the paper.
-\item \textbf{Use of AI tools:} the text, figures, tables, analysis scripts and much of the software were drafted with an AI assistant (Claude,
-Anthropic) under the author's direction; AI models were also research instruments (the judge, the disclosure judge, the recall benchmark's
-writer and the adversarial code review), as described in Methods. The author takes full responsibility for the content.
+\item \textbf{Author contributions:} Conceptualization, methodology, software, investigation, formal analysis and writing (original draft):
+F.K.M. Supervision and writing (review and editing): S.S. Both authors read and approved the final manuscript.
+\item \textbf{Use of AI tools:} Described under ``Use of language models'' in the Methods.
 \end{itemize}
 
 \bibliography{../shared/refs}
