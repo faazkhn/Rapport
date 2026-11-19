@@ -1,7 +1,8 @@
 # Papers
 
 Two papers in the Springer Nature `sn-jnl` template, each in its journal's reference style (Paper A: `sn-basic`, numbered; Paper B:
-`sn-mathphys-num`). Authors: Faaz Khan Mohammad and Sanket Salvi, MIT World Peace University, Pune.
+`sn-mathphys-num`). Authors: Faaz Khan Mohammad and Sanket Salvi, Department of Computer Engineering and Technology, Dr. Vishwanath Karad MIT World
+Peace University, Pune.
 
 | | Paper | Journal | Source | Supplement |
 |---|---|---|---|---|
