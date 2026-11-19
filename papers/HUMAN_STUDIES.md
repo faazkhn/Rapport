@@ -21,4 +21,4 @@ Psychiatrist case review as a study, a second human rater, faculty A/B ratings, 
 
 ## Before submission
 - Make https://github.com/faazkhn/Rapport public under AGPL-3.0 (the papers already point there), with the benchmark files in it.
-- Verify every reference by hand (`citecheck/REPORT.md` is the automated pass); cover letters naming the companion submission.
+- Verify every reference by hand; cover letters naming the companion submission.
