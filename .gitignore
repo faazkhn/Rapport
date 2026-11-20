@@ -27,11 +27,6 @@ unity/PsychSim/Captures/
 # downloaded AI weights
 models/*
 !models/README.md
-# arXiv non-exclusive licence: link only, never commit
-references/2501.01594.pdf
-references/2405.19660.pdf
-references/2407.00870.pdf
-references/2508.13943v1.pdf
 tools/demo/node_modules/
 logs/
 tools/tts_lab/bakeoff/
@@ -61,3 +56,17 @@ unity/PsychSim/Assets/Art/Patients/male_30s_a.meta
 # LaTeX build logs
 papers/**/*.log
 papers/**/*.blg
+
+# kept locally, out of the public repo (2026-11-20 cleanup): source art, working notes, agent plans, sample audio, reference PDFs
+art/
+briefs/
+docs/superpowers/
+KICKOFF_PROMPT*.md
+HANDOFF.md
+STAGE_1_NOTES.md
+RIG_REPORT.md
+PLAN_insights.md
+tools/tts/samples/
+unity/PsychSim/Assets/Screenshots/
+unity/PsychSim/Assets/Screenshots.meta
+references/*.pdf

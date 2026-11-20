@@ -1,2 +1,0 @@
-{"note": "Kept exchanges of demo/raw/PsychSim_take.mp4 (video seconds). Waiting time between a doctor line and the reply is cut (the measured latency is on the end card and in docs/latency.md). Turns 2, 3, 5, 10 and 11 are dropped for length.",
- "keep": [[0, 27.0], [32.3, 39.8], [87.3, 90.8], [103.9, 110.8], [141.1, 145.8], [166.7, 177.6], [211.0, 224.5], [251.5, 264.7], [296.2, 301.8], [417.2, 443.6]]}

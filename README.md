@@ -149,8 +149,8 @@ Rapport's own code, data, case files and papers are licensed under the [Apache L
 
 **Third-party assets** keep their own licences and are not relicensed by this repository: the language, speech and voice models
 ([`models/README.md`](models/README.md)), vendored web libraries (`server/patient-service/twin/vendor/`), LaTeX journal templates
-(the Springer Nature class in `papers/paperA_jms/` and `papers/paperB_jhir/`), and the 3D characters (Reallusion Character Creator exports), animations and environment models under `art/`
-and `unity/PsychSim/Assets/Art/`. These are used under licences that permit this use; check each source's terms before reusing them
+(the Springer Nature class in `papers/paperA_jms/` and `papers/paperB_jhir/`), and the 3D characters (Reallusion Character Creator exports), animations and environment models under
+`unity/PsychSim/Assets/Art/`. These are used under licences that permit this use; check each source's terms before reusing them
 elsewhere.
 
 ## Citation
