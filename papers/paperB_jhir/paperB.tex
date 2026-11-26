@@ -190,7 +190,7 @@ threshold was picked from the dev curve (dev risk recall 96.0\% at 15.9\% false 
 
 \subsection{Baselines}
 \textbf{BM25} \cite{robertson2009bm25} ($k_1=1.5$, $b=0.75$) indexes every probe as a document with the same stemming, and scores a memory by its best
-probe. \textbf{Five small encoders} replace bge-small with all-MiniLM-L6-v2 \cite{wang2020minilm}, e5-small-v2 (with its ``query:'' prefix)
+probe. \textbf{Five small encoders} replace bge-small with all-MiniLM-L6-v2 \cite{wang2020minilm}, e5-small-v2 (with its \texttt{query:} prefix)
 \cite{wang2022e5}, gte-small \cite{li2023gte}, bge-small-en-v1.5 and bge-base-en-v1.5 \cite{xiao2023cpack}, each scoring a memory by its best
 probe over the same probes. The \textbf{hybrid's score} for threshold-free metrics is its similarity plus 0.05 per tag point, with any tag hit ranked
 above any embedding-only score, which is the order its rules use. Because cut-offs belong to a model, each scored method also gets an
@@ -204,7 +204,7 @@ temperature 0. It yields one operating point and a latency. We timed it with the
 \textbf{Cascade.} The hybrid screens every question on the processor; only questions whose best risk score reaches a floor go to the language
 model, which then decides. The floor is the highest that keeps dev-half risk recall within two points of the model alone.
 
-\textbf{Probe quality filter.} 46\% of the generated probes for risk memories contain no risk word. We drop those, using a fixed word list (death,
+\textbf{Probe quality filter.} 45\% of the generated probes for risk memories contain no risk word. We drop those, using a fixed word list (death,
 dying, kill, harm, hurt, plan, pills, rope, jump, overdose, better off, not be here, wake up, fits, shaking, withdrawal, anger, hit, safe and
 related forms; \numFilterDropped{} of \numFilterTotal{} probes), and re-run every probe-based method.
 

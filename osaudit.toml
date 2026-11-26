@@ -1,0 +1,2984 @@
+schema = "https://github.com/ASSERT-KTH/assert-research-agent/blob/main/schemas/audit-v1.json"
+
+# Paper B (Recognising Reworded Risk Questions). The text and its generated tables are audited; the \newcommand values in
+# gen/numbers.tex are written by papers/analysis/new_results.py from the same saved runs and are not printed numbers of the source.
+# papers/paperB_jhir/values.py collects every reported value from the committed results into values.json (regenerate: see its
+# docstring). Each number is named by file, line and occurrence.
+
+[paper]
+tex = ["papers/paperB_jhir/paperB.tex", "papers/paperB_jhir/gen/tab_*.tex"]
+
+[results]
+files = ["papers/paperB_jhir/values.json"]
+instruments = ["papers/paperB_jhir/values.py"]
+
+[[numbers.allow]]
+value = "2013"
+reason = "the date in the LaTeX package version string that skips breakurl"
+file = "papers/paperB_jhir/paperB.tex"
+line = 1
+occurrence = 1
+
+[[numbers.allow]]
+value = "1"
+reason = "an affiliation marker"
+file = "papers/paperB_jhir/paperB.tex"
+line = 12
+occurrence = 1
+
+[[numbers.allow]]
+value = "1"
+reason = "an affiliation marker"
+file = "papers/paperB_jhir/paperB.tex"
+line = 13
+occurrence = 1
+
+[[numbers.allow]]
+value = "1"
+reason = "an affiliation marker"
+file = "papers/paperB_jhir/paperB.tex"
+line = 14
+occurrence = 1
+
+[[numbers.derive]]
+value = "512"
+expr = "values.benchmark.mdd_01.lines + values.benchmark.alc_01.lines + values.benchmark.ward_01.lines + values.benchmark.ward_02.lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 17
+occurrence = 1
+
+[[numbers.derive]]
+value = "35.1\\%"
+expr = "values.keywords_test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 19
+occurrence = 1
+
+[[numbers.allow]]
+value = "33"
+reason = "model size of bge-small-en-v1.5 (33 million parameters), from its model card"
+file = "papers/paperB_jhir/paperB.tex"
+line = 19
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.deployed.test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 20
+occurrence = 1
+
+[[numbers.derive]]
+value = "15.2\\%"
+expr = "values.deployed.test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 20
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.86"
+expr = "values.baselines.methods[\"bm25\"].risk_auroc[0]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 21
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.91"
+expr = "values.baselines.methods[\"bge-base\"].risk_auroc[0]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 21
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "model size of Gemma 4 E4B (4 billion parameters)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 22
+occurrence = 1
+
+[[numbers.derive]]
+value = "512"
+expr = "values.benchmark.mdd_01.lines + values.benchmark.alc_01.lines + values.benchmark.ward_01.lines + values.benchmark.ward_02.lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 46
+occurrence = 1
+
+[[numbers.derive]]
+value = "512"
+expr = "values.benchmark.mdd_01.lines + values.benchmark.alc_01.lines + values.benchmark.ward_01.lines + values.benchmark.ward_02.lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 95
+occurrence = 1
+
+[[numbers.derive]]
+value = "38"
+expr = "values.benchmark.mdd_01.none + values.benchmark.alc_01.none + values.benchmark.ward_01.none + values.benchmark.ward_02.none"
+file = "papers/paperB_jhir/paperB.tex"
+line = 95
+occurrence = 1
+
+[[numbers.derive]]
+value = "249"
+expr = "values.benchmark.mdd_01.hard + values.benchmark.alc_01.hard + values.benchmark.ward_01.hard + values.benchmark.ward_02.hard"
+file = "papers/paperB_jhir/paperB.tex"
+line = 95
+occurrence = 1
+
+[[numbers.allow]]
+value = "32"
+reason = "CRC-32, the name of the checksum"
+file = "papers/paperB_jhir/paperB.tex"
+line = 97
+occurrence = 1
+
+[[numbers.derive]]
+value = "176"
+expr = "values.benchmark.mdd_01.lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 108
+occurrence = 1
+
+[[numbers.derive]]
+value = "10"
+expr = "values.benchmark.mdd_01.none"
+file = "papers/paperB_jhir/paperB.tex"
+line = 108
+occurrence = 1
+
+[[numbers.derive]]
+value = "89"
+expr = "values.benchmark.mdd_01.hard"
+file = "papers/paperB_jhir/paperB.tex"
+line = 108
+occurrence = 1
+
+[[numbers.derive]]
+value = "41"
+expr = "values.benchmark.mdd_01.risk_pairs"
+file = "papers/paperB_jhir/paperB.tex"
+line = 108
+occurrence = 1
+
+[[numbers.derive]]
+value = "154"
+expr = "values.benchmark.alc_01.lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 109
+occurrence = 1
+
+[[numbers.derive]]
+value = "10"
+expr = "values.benchmark.alc_01.none"
+file = "papers/paperB_jhir/paperB.tex"
+line = 109
+occurrence = 1
+
+[[numbers.derive]]
+value = "77"
+expr = "values.benchmark.alc_01.hard"
+file = "papers/paperB_jhir/paperB.tex"
+line = 109
+occurrence = 1
+
+[[numbers.derive]]
+value = "55"
+expr = "values.benchmark.alc_01.risk_pairs"
+file = "papers/paperB_jhir/paperB.tex"
+line = 109
+occurrence = 1
+
+[[numbers.derive]]
+value = "104"
+expr = "values.benchmark.ward_01.lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 110
+occurrence = 1
+
+[[numbers.derive]]
+value = "9"
+expr = "values.benchmark.ward_01.none"
+file = "papers/paperB_jhir/paperB.tex"
+line = 110
+occurrence = 1
+
+[[numbers.derive]]
+value = "52"
+expr = "values.benchmark.ward_01.hard"
+file = "papers/paperB_jhir/paperB.tex"
+line = 110
+occurrence = 1
+
+[[numbers.derive]]
+value = "41"
+expr = "values.benchmark.ward_01.risk_pairs"
+file = "papers/paperB_jhir/paperB.tex"
+line = 110
+occurrence = 1
+
+[[numbers.derive]]
+value = "78"
+expr = "values.benchmark.ward_02.lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 111
+occurrence = 1
+
+[[numbers.derive]]
+value = "9"
+expr = "values.benchmark.ward_02.none"
+file = "papers/paperB_jhir/paperB.tex"
+line = 111
+occurrence = 1
+
+[[numbers.derive]]
+value = "31"
+expr = "values.benchmark.ward_02.hard"
+file = "papers/paperB_jhir/paperB.tex"
+line = 111
+occurrence = 1
+
+[[numbers.derive]]
+value = "15"
+expr = "values.benchmark.ward_02.risk_pairs"
+file = "papers/paperB_jhir/paperB.tex"
+line = 111
+occurrence = 1
+
+[[numbers.derive]]
+value = "512"
+expr = "values.benchmark.mdd_01.lines + values.benchmark.alc_01.lines + values.benchmark.ward_01.lines + values.benchmark.ward_02.lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 113
+occurrence = 1
+
+[[numbers.derive]]
+value = "38"
+expr = "values.benchmark.mdd_01.none + values.benchmark.alc_01.none + values.benchmark.ward_01.none + values.benchmark.ward_02.none"
+file = "papers/paperB_jhir/paperB.tex"
+line = 113
+occurrence = 1
+
+[[numbers.derive]]
+value = "249"
+expr = "values.benchmark.mdd_01.hard + values.benchmark.alc_01.hard + values.benchmark.ward_01.hard + values.benchmark.ward_02.hard"
+file = "papers/paperB_jhir/paperB.tex"
+line = 113
+occurrence = 1
+
+[[numbers.derive]]
+value = "152"
+expr = "values.benchmark.mdd_01.risk_pairs + values.benchmark.alc_01.risk_pairs + values.benchmark.ward_01.risk_pairs + values.benchmark.ward_02.risk_pairs"
+file = "papers/paperB_jhir/paperB.tex"
+line = 113
+occurrence = 1
+
+[[numbers.derive]]
+value = "77"
+expr = "values.baselines.risk_pairs.test"
+file = "papers/paperB_jhir/paperB.tex"
+line = 119
+occurrence = 1
+
+[[numbers.allow]]
+value = "95\\%"
+reason = "the confidence level chosen for the intervals, not a result"
+file = "papers/paperB_jhir/paperB.tex"
+line = 122
+occurrence = 1
+
+[[numbers.allow]]
+value = "1,000"
+reason = "the number of bootstrap resamples, an analysis setting in tools/recall_baselines.py"
+file = "papers/paperB_jhir/paperB.tex"
+line = 122
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "the version in a model name (Gemma 4), not a quantity"
+file = "papers/paperB_jhir/paperB.tex"
+line = 127
+occurrence = 1
+
+[[numbers.allow]]
+value = "2"
+reason = "the score of a phrase tag, a setting of the keyword layer"
+file = "papers/paperB_jhir/paperB.tex"
+line = 155
+occurrence = 1
+
+[[numbers.allow]]
+value = "1"
+reason = "the score of a word tag, a setting of the keyword layer"
+file = "papers/paperB_jhir/paperB.tex"
+line = 155
+occurrence = 1
+
+[[numbers.allow]]
+value = "33"
+reason = "model size of bge-small-en-v1.5 (33 million parameters), from its model card"
+cite = "xiao2023cpack"
+file = "papers/paperB_jhir/paperB.tex"
+line = 157
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "lower end of the number of hand-written probes per memory (case files)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 159
+occurrence = 1
+
+[[numbers.allow]]
+value = "12"
+reason = "upper end of the number of hand-written probes per memory (case files)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 159
+occurrence = 1
+
+[[numbers.allow]]
+value = "50"
+reason = "approximate number of generated probes requested per memory, a setting of the probe generator"
+file = "papers/paperB_jhir/paperB.tex"
+line = 160
+occurrence = 1
+
+[[numbers.allow]]
+value = "0.53"
+reason = "reported from a dev-half analysis run during development whose output file is not committed"
+file = "papers/paperB_jhir/paperB.tex"
+line = 163
+occurrence = 1
+
+[[numbers.allow]]
+value = "0.71"
+reason = "reported from a dev-half analysis run during development whose output file is not committed"
+file = "papers/paperB_jhir/paperB.tex"
+line = 163
+occurrence = 1
+
+[[numbers.allow]]
+value = "93\\%"
+reason = "reported from a dev-half analysis run during development whose output file is not committed"
+file = "papers/paperB_jhir/paperB.tex"
+line = 163
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.83"
+expr = "values.deployed.settings.SIM_HIT"
+file = "papers/paperB_jhir/paperB.tex"
+line = 165
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.78"
+expr = "values.deployed.settings.SIM_RISK"
+file = "papers/paperB_jhir/paperB.tex"
+line = 165
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.02"
+expr = "values.deployed.settings.SIM_NEAR"
+file = "papers/paperB_jhir/paperB.tex"
+line = 166
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.76"
+expr = "values.deployed.settings.SIM_FLOOR"
+file = "papers/paperB_jhir/paperB.tex"
+line = 166
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.06"
+expr = "values.deployed.settings.RISK_MARGIN"
+file = "papers/paperB_jhir/paperB.tex"
+line = 166
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.66"
+expr = "values.deployed.settings.RISK_NEAR"
+file = "papers/paperB_jhir/paperB.tex"
+line = 166
+occurrence = 1
+
+[[numbers.allow]]
+value = "0.005"
+reason = "read from the worked example drawn in fig_recall_example.pdf (papers/figures/make_figures.py)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 174
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.83"
+expr = "values.deployed.settings.SIM_HIT"
+file = "papers/paperB_jhir/paperB.tex"
+line = 180
+occurrence = 1
+
+[[numbers.allow]]
+value = "10"
+reason = "fewest example questions of a hand-set head (Appendix B)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 183
+occurrence = 1
+
+[[numbers.allow]]
+value = "17"
+reason = "most example questions of a hand-set head (Appendix B)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 183
+occurrence = 1
+
+[[numbers.allow]]
+value = "0.76"
+reason = "the hand-set heads' threshold, a setting chosen on the dev half"
+file = "papers/paperB_jhir/paperB.tex"
+line = 186
+occurrence = 1
+
+[[numbers.allow]]
+value = "96.0\\%"
+reason = "reported from a dev-half analysis run during development whose output file is not committed (Supplementary Section S2)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 189
+occurrence = 1
+
+[[numbers.allow]]
+value = "15.9\\%"
+reason = "reported from a dev-half analysis run during development whose output file is not committed (Supplementary Section S2)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 189
+occurrence = 1
+
+[[numbers.allow]]
+value = "1.5"
+reason = "BM25 parameter k1, the standard setting"
+cite = "robertson2009bm25"
+file = "papers/paperB_jhir/paperB.tex"
+line = 192
+occurrence = 1
+
+[[numbers.allow]]
+value = "0.75"
+reason = "BM25 parameter b, the standard setting"
+cite = "robertson2009bm25"
+file = "papers/paperB_jhir/paperB.tex"
+line = 192
+occurrence = 1
+
+[[numbers.allow]]
+value = "0.05"
+reason = "the weight per tag point in the hybrid's score, a setting"
+file = "papers/paperB_jhir/paperB.tex"
+line = 195
+occurrence = 1
+
+[[numbers.derive]]
+value = "12.7\\%"
+expr = "values.deployed.dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 197
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "the version in a model name (Gemma 4), not a quantity"
+file = "papers/paperB_jhir/paperB.tex"
+line = 200
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "4-bit quantisation, a run setting"
+file = "papers/paperB_jhir/paperB.tex"
+line = 200
+occurrence = 2
+
+[[numbers.allow]]
+value = "0"
+reason = "temperature 0, a run setting"
+file = "papers/paperB_jhir/paperB.tex"
+line = 202
+occurrence = 1
+
+[[numbers.derive]]
+value = "45\\%"
+expr = "values.filter.dropped_no_risk_word / values.filter.generated_risk_probes"
+file = "papers/paperB_jhir/paperB.tex"
+line = 207
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "4-bit quantisation, a run setting"
+file = "papers/paperB_jhir/paperB.tex"
+line = 212
+occurrence = 1
+
+[[numbers.allow]]
+value = "13"
+reason = "a date, not a result"
+file = "papers/paperB_jhir/paperB.tex"
+line = 212
+occurrence = 1
+
+[[numbers.allow]]
+value = "19"
+reason = "a date, not a result"
+file = "papers/paperB_jhir/paperB.tex"
+line = 212
+occurrence = 1
+
+[[numbers.allow]]
+value = "2026"
+reason = "a date, not a result"
+file = "papers/paperB_jhir/paperB.tex"
+line = 212
+occurrence = 1
+
+[[numbers.allow]]
+value = "0.95"
+reason = "sampling temperature, a run setting"
+file = "papers/paperB_jhir/paperB.tex"
+line = 214
+occurrence = 1
+
+[[numbers.allow]]
+value = "0"
+reason = "temperature 0, a run setting"
+file = "papers/paperB_jhir/paperB.tex"
+line = 214
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "the version in a model name (Gemma 4), not a quantity"
+file = "papers/paperB_jhir/paperB.tex"
+line = 214
+occurrence = 1
+
+[[numbers.allow]]
+value = "0.9"
+reason = "sampling temperature, a run setting"
+file = "papers/paperB_jhir/paperB.tex"
+line = 215
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "the version in a model name (Gemma 4), not a quantity"
+file = "papers/paperB_jhir/paperB.tex"
+line = 215
+occurrence = 1
+
+[[numbers.allow]]
+value = "0"
+reason = "temperature 0, a run setting"
+file = "papers/paperB_jhir/paperB.tex"
+line = 215
+occurrence = 1
+
+[[numbers.allow]]
+value = "5.5"
+reason = "the version in a model name (Claude Opus 5.5)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 217
+occurrence = 1
+
+[[numbers.allow]]
+value = "2026"
+reason = "a date, not a result"
+file = "papers/paperB_jhir/paperB.tex"
+line = 217
+occurrence = 1
+
+[[numbers.derive]]
+value = "5.2"
+expr = "100 * (values.hands_test.risk_recall - values.deployed.test.risk_recall)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 225
+occurrence = 1
+
+[[numbers.derive]]
+value = "6.0"
+expr = "100 * (values.hands_test.risk_false_hit - values.deployed.test.risk_false_hit)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 225
+occurrence = 1
+
+[[numbers.derive]]
+value = "77"
+expr = "values.baselines.risk_pairs.test"
+file = "papers/paperB_jhir/paperB.tex"
+line = 225
+occurrence = 1
+
+[[numbers.allow]]
+value = "95\\%"
+reason = "the confidence level chosen for the intervals, not a result"
+file = "papers/paperB_jhir/paperB.tex"
+line = 225
+occurrence = 1
+
+[[numbers.derive]]
+value = "62.3"
+expr = "100 * values.hybrid_test.risk_ci[1]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 226
+occurrence = 1
+
+[[numbers.derive]]
+value = "81.8\\%"
+expr = "values.hybrid_test.risk_ci[2]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 226
+occurrence = 1
+
+[[numbers.allow]]
+value = "95\\%"
+reason = "the 95% recall target the text compares against, not a result"
+file = "papers/paperB_jhir/paperB.tex"
+line = 226
+occurrence = 1
+
+[[numbers.allow]]
+value = "2"
+reason = "lower end of the hybrid's median matching time, 2.57-3.03 ms (values.deployed.test.ms_p50; papers/analysis/results.json recall_ms.p50)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 227
+occurrence = 1
+
+[[numbers.allow]]
+value = "3"
+reason = "upper end of the hybrid's median matching time, 2.57-3.03 ms (values.deployed.test.ms_p50; papers/analysis/results.json recall_ms.p50)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 227
+occurrence = 1
+
+[[numbers.derive]]
+value = "41.3\\%"
+expr = "values.keywords_test.fact_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 237
+occurrence = 1
+
+[[numbers.derive]]
+value = "35.1\\%"
+expr = "values.keywords_test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 237
+occurrence = 1
+
+[[numbers.derive]]
+value = "6.1\\%"
+expr = "values.keywords_test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 237
+occurrence = 1
+
+[[numbers.derive]]
+value = "22.7\\%"
+expr = "values.keywords_test.none_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 237
+occurrence = 1
+
+[[numbers.derive]]
+value = "73.3\\%"
+expr = "values.hybrid_test.all"
+file = "papers/paperB_jhir/paperB.tex"
+line = 238
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.deployed.test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 238
+occurrence = 1
+
+[[numbers.derive]]
+value = "15.2\\%"
+expr = "values.deployed.test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 238
+occurrence = 1
+
+[[numbers.derive]]
+value = "22.7\\%"
+expr = "values.deployed.test.none_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 238
+occurrence = 1
+
+[[numbers.derive]]
+value = "74.9\\%"
+expr = "values.hands_test.fact_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 239
+occurrence = 1
+
+[[numbers.derive]]
+value = "77.9\\%"
+expr = "values.hands_test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 239
+occurrence = 1
+
+[[numbers.derive]]
+value = "21.2\\%"
+expr = "values.hands_test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 239
+occurrence = 1
+
+[[numbers.derive]]
+value = "22.7\\%"
+expr = "values.hands_test.none_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 239
+occurrence = 1
+
+[[numbers.derive]]
+value = "61.2\\%"
+expr = "values.hybrid_test.per_case.alc_01"
+file = "papers/paperB_jhir/paperB.tex"
+line = 244
+occurrence = 1
+
+[[numbers.derive]]
+value = "57.1\\%"
+expr = "values.hybrid_test.hard"
+file = "papers/paperB_jhir/paperB.tex"
+line = 245
+occurrence = 1
+
+[[numbers.derive]]
+value = "92.1\\%"
+expr = "values.hybrid_test.easy"
+file = "papers/paperB_jhir/paperB.tex"
+line = 245
+occurrence = 1
+
+[[numbers.derive]]
+value = "19.5\\%"
+expr = "values.hybrid_test.keywords_hard"
+file = "papers/paperB_jhir/paperB.tex"
+line = 245
+occurrence = 1
+
+[[numbers.derive]]
+value = "66.7\\%"
+expr = "values.hybrid_test.keywords_easy"
+file = "papers/paperB_jhir/paperB.tex"
+line = 245
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.88"
+expr = "values.baselines.methods[\"e5-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 250
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.91"
+expr = "values.baselines.methods[\"bge-base\"].risk_auroc[0]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 250
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.66"
+expr = "values.baselines.methods[\"tags\"].risk_auroc[0]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 250
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.86"
+expr = "values.baselines.methods[\"bm25\"].risk_auroc[0]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 250
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.007"
+expr = "values.baselines.methods[\"bge-base\"].risk_auroc[0] - values.baselines.methods[\"bge-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 251
+occurrence = 1
+
+[[numbers.allow]]
+value = "66"
+reason = "lower end of the encoders' matched-point risk recall, bge-small's 66.2% (values.baselines.methods[\"bge-small\"].test.risk_recall)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 251
+occurrence = 1
+
+[[numbers.derive]]
+value = "78\\%"
+expr = "values.baselines.methods[\"bge-base\"].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 251
+occurrence = 1
+
+[[numbers.derive]]
+value = "77.9\\%"
+expr = "values.baselines.methods[\"bge-base\"].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 252
+occurrence = 1
+
+[[numbers.derive]]
+value = "17.6\\%"
+expr = "values.baselines.methods[\"bge-base\"].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 252
+occurrence = 1
+
+[[numbers.derive]]
+value = "73.3\\%"
+expr = "values.ranks.top1"
+file = "papers/paperB_jhir/paperB.tex"
+line = 253
+occurrence = 1
+
+[[numbers.derive]]
+value = "92.3\\%"
+expr = "values.ranks.top3"
+file = "papers/paperB_jhir/paperB.tex"
+line = 253
+occurrence = 1
+
+[[numbers.derive]]
+value = "96.4\\%"
+expr = "values.ranks.top5"
+file = "papers/paperB_jhir/paperB.tex"
+line = 253
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.82"
+expr = "values.ranks.correct_sim_median"
+file = "papers/paperB_jhir/paperB.tex"
+line = 254
+occurrence = 1
+
+[[numbers.derive]]
+value = "11.2\\%"
+expr = "values.ranks[\"nonrisk_best_risk_over_0.78\"]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 254
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.78"
+expr = "values.deployed.settings.SIM_RISK"
+file = "papers/paperB_jhir/paperB.tex"
+line = 254
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.098"
+expr = "values.baselines.methods[\"hybrid\"].prevalence"
+file = "papers/paperB_jhir/paperB.tex"
+line = 262
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.69"
+expr = "values.baselines.methods[\"tags\"].all_auroc"
+file = "papers/paperB_jhir/paperB.tex"
+line = 263
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.86"
+expr = "values.baselines.methods[\"bm25\"].all_auroc"
+file = "papers/paperB_jhir/paperB.tex"
+line = 263
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.91"
+expr = "values.baselines.methods[\"minilm\"].all_auroc"
+file = "papers/paperB_jhir/paperB.tex"
+line = 263
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.94"
+expr = "values.baselines.methods[\"gte-small\"].all_auroc"
+file = "papers/paperB_jhir/paperB.tex"
+line = 263
+occurrence = 1
+
+[[numbers.derive]]
+value = "12.7\\%"
+expr = "values.deployed.dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 263
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.deployed.test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 264
+occurrence = 1
+
+[[numbers.derive]]
+value = "15.2\\%"
+expr = "values.deployed.test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 264
+occurrence = 1
+
+[[numbers.allow]]
+value = "2"
+reason = "lower end of the hybrid's median matching time, 2.57-3.03 ms (values.deployed.test.ms_p50; papers/analysis/results.json recall_ms.p50)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 277
+occurrence = 1
+
+[[numbers.allow]]
+value = "3"
+reason = "upper end of the hybrid's median matching time, 2.57-3.03 ms (values.deployed.test.ms_p50; papers/analysis/results.json recall_ms.p50)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 277
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "the version in a model name (Gemma 4), not a quantity"
+file = "papers/paperB_jhir/paperB.tex"
+line = 305
+occurrence = 1
+
+[[numbers.derive]]
+value = "7.9\\%"
+expr = "values.writers.qwen4b.llm.test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 306
+occurrence = 1
+
+[[numbers.derive]]
+value = "6.8\\%"
+expr = "values.writers.gemma2b.llm.test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 306
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.deployed.test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 306
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.81"
+expr = "values.writers.qwen4b.baselines.methods[\"bge-base\"].risk_auroc[0]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 309
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.85"
+expr = "values.writers.gemma2b.baselines.methods[\"gte-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 309
+occurrence = 1
+
+[[numbers.derive]]
+value = "55.6\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"bm25\"].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 310
+occurrence = 1
+
+[[numbers.derive]]
+value = "71.4\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"bm25\"].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 310
+occurrence = 1
+
+[[numbers.derive]]
+value = "16"
+expr = "values.writers.qwen4b.hinglish.risk_pairs"
+file = "papers/paperB_jhir/paperB.tex"
+line = 311
+occurrence = 1
+
+[[numbers.derive]]
+value = "31.2\\%"
+expr = "values.writers.qwen4b.hinglish.deployed"
+file = "papers/paperB_jhir/paperB.tex"
+line = 311
+occurrence = 1
+
+[[numbers.derive]]
+value = "43.8\\%"
+expr = "values.writers.gemma2b.hinglish.deployed"
+file = "papers/paperB_jhir/paperB.tex"
+line = 311
+occurrence = 1
+
+[[numbers.derive]]
+value = "87.5\\%"
+expr = "values.writers.qwen4b.hinglish.llm"
+file = "papers/paperB_jhir/paperB.tex"
+line = 312
+occurrence = 1
+
+[[numbers.derive]]
+value = "21"
+expr = "values.ranks.risk_misses[\"matched another risk memory\"] + values.ranks.risk_misses[\"matched nothing\"] + values.ranks.risk_misses[\"matched a non-risk memory\"]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 332
+occurrence = 1
+
+[[numbers.derive]]
+value = "8"
+expr = "values.ranks.risk_misses[\"matched nothing\"]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 332
+occurrence = 1
+
+[[numbers.derive]]
+value = "8"
+expr = "values.ranks.risk_misses[\"matched a non-risk memory\"]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 332
+occurrence = 2
+
+[[numbers.derive]]
+value = "5"
+expr = "values.ranks.risk_misses[\"matched another risk memory\"]"
+file = "papers/paperB_jhir/paperB.tex"
+line = 332
+occurrence = 1
+
+[[numbers.derive]]
+value = "90.7\\%"
+expr = "values.deployed.dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 356
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.deployed.test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 356
+occurrence = 1
+
+[[numbers.allow]]
+value = "98.7\\%"
+reason = "dev risk recall of an earlier setting; reported from a dev-half analysis run during development whose output file is not committed"
+file = "papers/paperB_jhir/paperB.tex"
+line = 357
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.deployed.test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 357
+occurrence = 1
+
+[[numbers.derive]]
+value = "75"
+expr = "values.baselines.risk_pairs.dev"
+file = "papers/paperB_jhir/paperB.tex"
+line = 357
+occurrence = 1
+
+[[numbers.derive]]
+value = "100\\%"
+expr = "values.recall_only_tune.dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 358
+occurrence = 1
+
+[[numbers.derive]]
+value = "36.9\\%"
+expr = "values.recall_only_tune.dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 359
+occurrence = 1
+
+[[numbers.derive]]
+value = "37.6\\%"
+expr = "values.recall_only_tune.test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 359
+occurrence = 1
+
+[[numbers.allow]]
+value = "3"
+reason = "turns with an unasked death-wish mention in the held-out run of the recall-only setting; that run's transcripts are not committed"
+file = "papers/paperB_jhir/paperB.tex"
+line = 360
+occurrence = 1
+
+[[numbers.allow]]
+value = "98"
+reason = "turns in the 12 held-out conversations (docs/GATES.md)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 360
+occurrence = 1
+
+[[numbers.allow]]
+value = "95\\%"
+reason = "the 95% recall target the text compares against, not a result"
+file = "papers/paperB_jhir/paperB.tex"
+line = 362
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.72"
+expr = "values.cutoff_sweep[0].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 362
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.72"
+expr = "values.cutoff_sweep[0].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 374
+occurrence = 1
+
+[[numbers.derive]]
+value = "100\\%"
+expr = "values.cutoff_sweep[0].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 374
+occurrence = 1
+
+[[numbers.derive]]
+value = "34.4\\%"
+expr = "values.cutoff_sweep[0].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 374
+occurrence = 1
+
+[[numbers.derive]]
+value = "89.6\\%"
+expr = "values.cutoff_sweep[0].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 374
+occurrence = 1
+
+[[numbers.derive]]
+value = "34.5\\%"
+expr = "values.cutoff_sweep[0].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 374
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.74"
+expr = "values.cutoff_sweep[1].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 375
+occurrence = 1
+
+[[numbers.derive]]
+value = "98.7\\%"
+expr = "values.cutoff_sweep[1].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 375
+occurrence = 1
+
+[[numbers.derive]]
+value = "23.6\\%"
+expr = "values.cutoff_sweep[1].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 375
+occurrence = 1
+
+[[numbers.derive]]
+value = "83.1\\%"
+expr = "values.cutoff_sweep[1].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 375
+occurrence = 1
+
+[[numbers.derive]]
+value = "25.5\\%"
+expr = "values.cutoff_sweep[1].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 375
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.76"
+expr = "values.cutoff_sweep[2].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 376
+occurrence = 1
+
+[[numbers.derive]]
+value = "93.3\\%"
+expr = "values.cutoff_sweep[2].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 376
+occurrence = 1
+
+[[numbers.derive]]
+value = "17.8\\%"
+expr = "values.cutoff_sweep[2].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 376
+occurrence = 1
+
+[[numbers.derive]]
+value = "76.6\\%"
+expr = "values.cutoff_sweep[2].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 376
+occurrence = 1
+
+[[numbers.derive]]
+value = "19.4\\%"
+expr = "values.cutoff_sweep[2].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 376
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.78"
+expr = "values.cutoff_sweep[3].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 377
+occurrence = 1
+
+[[numbers.derive]]
+value = "90.7\\%"
+expr = "values.cutoff_sweep[3].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 377
+occurrence = 1
+
+[[numbers.derive]]
+value = "12.7\\%"
+expr = "values.cutoff_sweep[3].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 377
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.cutoff_sweep[3].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 377
+occurrence = 1
+
+[[numbers.derive]]
+value = "15.2\\%"
+expr = "values.cutoff_sweep[3].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 377
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.80"
+expr = "values.cutoff_sweep[4].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 378
+occurrence = 1
+
+[[numbers.derive]]
+value = "81.3\\%"
+expr = "values.cutoff_sweep[4].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 378
+occurrence = 1
+
+[[numbers.derive]]
+value = "8.9\\%"
+expr = "values.cutoff_sweep[4].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 378
+occurrence = 1
+
+[[numbers.derive]]
+value = "70.1\\%"
+expr = "values.cutoff_sweep[4].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 378
+occurrence = 1
+
+[[numbers.derive]]
+value = "12.7\\%"
+expr = "values.cutoff_sweep[4].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 378
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.82"
+expr = "values.cutoff_sweep[5].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 379
+occurrence = 1
+
+[[numbers.derive]]
+value = "81.3\\%"
+expr = "values.cutoff_sweep[5].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 379
+occurrence = 1
+
+[[numbers.derive]]
+value = "5.1\\%"
+expr = "values.cutoff_sweep[5].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 379
+occurrence = 1
+
+[[numbers.derive]]
+value = "66.2\\%"
+expr = "values.cutoff_sweep[5].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 379
+occurrence = 1
+
+[[numbers.derive]]
+value = "9.7\\%"
+expr = "values.cutoff_sweep[5].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 379
+occurrence = 1
+
+[[numbers.derive]]
+value = "100\\%"
+expr = "values.recall_only_tune.dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 381
+occurrence = 1
+
+[[numbers.derive]]
+value = "36.9\\%"
+expr = "values.recall_only_tune.dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 381
+occurrence = 1
+
+[[numbers.derive]]
+value = "84.4\\%"
+expr = "values.recall_only_tune.test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 381
+occurrence = 1
+
+[[numbers.derive]]
+value = "37.6\\%"
+expr = "values.recall_only_tune.test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 381
+occurrence = 1
+
+[[numbers.derive]]
+value = "3,301"
+expr = "values.classifier.generated_lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 386
+occurrence = 1
+
+[[numbers.derive]]
+value = "369"
+expr = "values.classifier.log_lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 387
+occurrence = 1
+
+[[numbers.derive]]
+value = "50.1\\%"
+expr = "values.classifier.judge_agrees"
+file = "papers/paperB_jhir/paperB.tex"
+line = 388
+occurrence = 1
+
+[[numbers.allow]]
+value = "38.8\\%"
+reason = "judge agreement on the simulated tester's lines; reported from a dev-half analysis run during development whose output file is not committed (Supplementary Section S3)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 389
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.32"
+expr = "values.classifier.micro_f1.moves_classifier"
+file = "papers/paperB_jhir/paperB.tex"
+line = 390
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.20"
+expr = "values.classifier.micro_f1.moves_lexical"
+file = "papers/paperB_jhir/paperB.tex"
+line = 390
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.66"
+expr = "values.classifier.micro_f1.intents_classifier"
+file = "papers/paperB_jhir/paperB.tex"
+line = 390
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.69"
+expr = "values.classifier.micro_f1.intents_llm_tagger"
+file = "papers/paperB_jhir/paperB.tex"
+line = 390
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "model size of Gemma 4 E4B (4 billion parameters)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 403
+occurrence = 1
+
+[[numbers.derive]]
+value = "75"
+expr = "values.baselines.risk_pairs.dev"
+file = "papers/paperB_jhir/paperB.tex"
+line = 415
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "an instruction given to the writer (Appendix A)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 431
+occurrence = 1
+
+[[numbers.allow]]
+value = "12"
+reason = "an instruction given to the writer (Appendix A)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 431
+occurrence = 1
+
+[[numbers.allow]]
+value = "17"
+reason = "the number of example questions of this head, listed in the code"
+file = "papers/paperB_jhir/paperB.tex"
+line = 439
+occurrence = 1
+
+[[numbers.allow]]
+value = "14"
+reason = "the number of example questions of this head, listed in the code"
+file = "papers/paperB_jhir/paperB.tex"
+line = 440
+occurrence = 1
+
+[[numbers.allow]]
+value = "12"
+reason = "the number of example questions of this head, listed in the code"
+file = "papers/paperB_jhir/paperB.tex"
+line = 441
+occurrence = 1
+
+[[numbers.allow]]
+value = "2.0"
+reason = "the version of the Apache License"
+file = "papers/paperB_jhir/paperB.tex"
+line = 460
+occurrence = 1
+
+[[numbers.allow]]
+value = "95\\%"
+reason = "the confidence level chosen for the intervals, not a result"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 3
+occurrence = 1
+
+[[numbers.allow]]
+value = "95\\%"
+reason = "the confidence level chosen for the intervals, not a result"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 3
+occurrence = 2
+
+[[numbers.derive]]
+value = "0.661"
+expr = "values.baselines.methods[\"tags\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.61"
+expr = "values.baselines.methods[\"tags\"].risk_auroc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.72"
+expr = "values.baselines.methods[\"tags\"].risk_auroc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.277"
+expr = "values.baselines.methods[\"tags\"].risk_auprc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.20"
+expr = "values.baselines.methods[\"tags\"].risk_auprc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.38"
+expr = "values.baselines.methods[\"tags\"].risk_auprc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "35.1\\%"
+expr = "values.baselines.methods[\"tags\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "5.3\\%"
+expr = "values.baselines.methods[\"tags\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.863"
+expr = "values.baselines.methods[\"bm25\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.82"
+expr = "values.baselines.methods[\"bm25\"].risk_auroc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.90"
+expr = "values.baselines.methods[\"bm25\"].risk_auroc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.518"
+expr = "values.baselines.methods[\"bm25\"].risk_auprc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.42"
+expr = "values.baselines.methods[\"bm25\"].risk_auprc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.63"
+expr = "values.baselines.methods[\"bm25\"].risk_auprc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "55.8\\%"
+expr = "values.baselines.methods[\"bm25\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "20.3\\%"
+expr = "values.baselines.methods[\"bm25\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.888"
+expr = "values.baselines.methods[\"minilm\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.85"
+expr = "values.baselines.methods[\"minilm\"].risk_auroc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.93"
+expr = "values.baselines.methods[\"minilm\"].risk_auroc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.604"
+expr = "values.baselines.methods[\"minilm\"].risk_auprc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.51"
+expr = "values.baselines.methods[\"minilm\"].risk_auprc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.70"
+expr = "values.baselines.methods[\"minilm\"].risk_auprc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "70.1\\%"
+expr = "values.baselines.methods[\"minilm\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "14.4\\%"
+expr = "values.baselines.methods[\"minilm\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.882"
+expr = "values.baselines.methods[\"e5-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.84"
+expr = "values.baselines.methods[\"e5-small\"].risk_auroc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.93"
+expr = "values.baselines.methods[\"e5-small\"].risk_auroc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.653"
+expr = "values.baselines.methods[\"e5-small\"].risk_auprc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.57"
+expr = "values.baselines.methods[\"e5-small\"].risk_auprc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.74"
+expr = "values.baselines.methods[\"e5-small\"].risk_auprc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "71.4\\%"
+expr = "values.baselines.methods[\"e5-small\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "10.7\\%"
+expr = "values.baselines.methods[\"e5-small\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.906"
+expr = "values.baselines.methods[\"gte-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.87"
+expr = "values.baselines.methods[\"gte-small\"].risk_auroc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.94"
+expr = "values.baselines.methods[\"gte-small\"].risk_auroc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.612"
+expr = "values.baselines.methods[\"gte-small\"].risk_auprc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.53"
+expr = "values.baselines.methods[\"gte-small\"].risk_auprc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.70"
+expr = "values.baselines.methods[\"gte-small\"].risk_auprc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.baselines.methods[\"gte-small\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "13.9\\%"
+expr = "values.baselines.methods[\"gte-small\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.900"
+expr = "values.baselines.methods[\"bge-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.87"
+expr = "values.baselines.methods[\"bge-small\"].risk_auroc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.93"
+expr = "values.baselines.methods[\"bge-small\"].risk_auroc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.620"
+expr = "values.baselines.methods[\"bge-small\"].risk_auprc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.54"
+expr = "values.baselines.methods[\"bge-small\"].risk_auprc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.71"
+expr = "values.baselines.methods[\"bge-small\"].risk_auprc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "66.2\\%"
+expr = "values.baselines.methods[\"bge-small\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "13.4\\%"
+expr = "values.baselines.methods[\"bge-small\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.907"
+expr = "values.baselines.methods[\"bge-base\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.87"
+expr = "values.baselines.methods[\"bge-base\"].risk_auroc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.94"
+expr = "values.baselines.methods[\"bge-base\"].risk_auroc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.638"
+expr = "values.baselines.methods[\"bge-base\"].risk_auprc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.56"
+expr = "values.baselines.methods[\"bge-base\"].risk_auprc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.73"
+expr = "values.baselines.methods[\"bge-base\"].risk_auprc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "77.9\\%"
+expr = "values.baselines.methods[\"bge-base\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "17.6\\%"
+expr = "values.baselines.methods[\"bge-base\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.898"
+expr = "values.baselines.methods[\"hybrid\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.86"
+expr = "values.baselines.methods[\"hybrid\"].risk_auroc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.93"
+expr = "values.baselines.methods[\"hybrid\"].risk_auroc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.552"
+expr = "values.baselines.methods[\"hybrid\"].risk_auprc[0]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.47"
+expr = "values.baselines.methods[\"hybrid\"].risk_auprc[1]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.66"
+expr = "values.baselines.methods[\"hybrid\"].risk_auprc[2]"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "67.5\\%"
+expr = "values.baselines.methods[\"hybrid\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "13.9\\%"
+expr = "values.baselines.methods[\"hybrid\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 12
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "the version in a model name (Gemma 4 E4B, Gemma 4 E2B), not a quantity"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 14
+occurrence = 1
+
+[[numbers.derive]]
+value = "94.8\\%"
+expr = "values.llm.test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 14
+occurrence = 1
+
+[[numbers.derive]]
+value = "4.8\\%"
+expr = "values.llm.test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 14
+occurrence = 1
+
+[[numbers.derive]]
+value = "93.5\\%"
+expr = "values.llm.cascade_test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 15
+occurrence = 1
+
+[[numbers.derive]]
+value = "3.7\\%"
+expr = "values.llm.cascade_test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_baselines.tex"
+line = 15
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.50"
+expr = "values.llm.cascade_sweep_test[0].floor"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "94.8\\%"
+expr = "values.llm.cascade_sweep_test[0].risk_recall"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "4.8\\%"
+expr = "values.llm.cascade_sweep_test[0].risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "100\\%"
+expr = "values.llm.cascade_sweep_test[0].share_sent_to_llm"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.55"
+expr = "values.llm.cascade_sweep_test[1].floor"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "94.8\\%"
+expr = "values.llm.cascade_sweep_test[1].risk_recall"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "4.8\\%"
+expr = "values.llm.cascade_sweep_test[1].risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "99\\%"
+expr = "values.llm.cascade_sweep_test[1].share_sent_to_llm"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.60"
+expr = "values.llm.cascade_sweep_test[2].floor"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "94.8\\%"
+expr = "values.llm.cascade_sweep_test[2].risk_recall"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "4.8\\%"
+expr = "values.llm.cascade_sweep_test[2].risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "96\\%"
+expr = "values.llm.cascade_sweep_test[2].share_sent_to_llm"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.65"
+expr = "values.llm.cascade_sweep_test[3].floor"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "94.8\\%"
+expr = "values.llm.cascade_sweep_test[3].risk_recall"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "4.3\\%"
+expr = "values.llm.cascade_sweep_test[3].risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "86\\%"
+expr = "values.llm.cascade_sweep_test[3].share_sent_to_llm"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.70"
+expr = "values.llm.cascade_sweep_test[4].floor"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "93.5\\%"
+expr = "values.llm.cascade_sweep_test[4].risk_recall"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "3.7\\%"
+expr = "values.llm.cascade_sweep_test[4].risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "63\\%"
+expr = "values.llm.cascade_sweep_test[4].share_sent_to_llm"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.75"
+expr = "values.llm.cascade_sweep_test[5].floor"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "83.1\\%"
+expr = "values.llm.cascade_sweep_test[5].risk_recall"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "2.7\\%"
+expr = "values.llm.cascade_sweep_test[5].risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "41\\%"
+expr = "values.llm.cascade_sweep_test[5].share_sent_to_llm"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.80"
+expr = "values.llm.cascade_sweep_test[6].floor"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "63.6\\%"
+expr = "values.llm.cascade_sweep_test[6].risk_recall"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "2.1\\%"
+expr = "values.llm.cascade_sweep_test[6].risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "26\\%"
+expr = "values.llm.cascade_sweep_test[6].share_sent_to_llm"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.85"
+expr = "values.llm.cascade_sweep_test[7].floor"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "48.1\\%"
+expr = "values.llm.cascade_sweep_test[7].risk_recall"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "1.6\\%"
+expr = "values.llm.cascade_sweep_test[7].risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "19\\%"
+expr = "values.llm.cascade_sweep_test[7].share_sent_to_llm"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.90"
+expr = "values.llm.cascade_sweep_test[8].floor"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "42.9\\%"
+expr = "values.llm.cascade_sweep_test[8].risk_recall"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "1.6\\%"
+expr = "values.llm.cascade_sweep_test[8].risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "17\\%"
+expr = "values.llm.cascade_sweep_test[8].share_sent_to_llm"
+file = "papers/paperB_jhir/gen/tab_cascade.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.863"
+expr = "values.baselines.methods[\"bm25\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.864"
+expr = "values.baselines.methods[\"bm25+filter\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "55.8\\%"
+expr = "values.baselines.methods[\"bm25\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "58.4\\%"
+expr = "values.baselines.methods[\"bm25+filter\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "20.3\\%"
+expr = "values.baselines.methods[\"bm25\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "20.3\\%"
+expr = "values.baselines.methods[\"bm25+filter\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 5
+occurrence = 2
+
+[[numbers.derive]]
+value = "0.888"
+expr = "values.baselines.methods[\"minilm\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.888"
+expr = "values.baselines.methods[\"minilm+filter\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 6
+occurrence = 2
+
+[[numbers.derive]]
+value = "70.1\\%"
+expr = "values.baselines.methods[\"minilm\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "71.4\\%"
+expr = "values.baselines.methods[\"minilm+filter\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "14.4\\%"
+expr = "values.baselines.methods[\"minilm\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "18.7\\%"
+expr = "values.baselines.methods[\"minilm+filter\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.882"
+expr = "values.baselines.methods[\"e5-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.868"
+expr = "values.baselines.methods[\"e5-small+filter\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "71.4\\%"
+expr = "values.baselines.methods[\"e5-small\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "71.4\\%"
+expr = "values.baselines.methods[\"e5-small+filter\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 7
+occurrence = 2
+
+[[numbers.derive]]
+value = "10.7\\%"
+expr = "values.baselines.methods[\"e5-small\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "13.9\\%"
+expr = "values.baselines.methods[\"e5-small+filter\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.906"
+expr = "values.baselines.methods[\"gte-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.903"
+expr = "values.baselines.methods[\"gte-small+filter\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.baselines.methods[\"gte-small\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.baselines.methods[\"gte-small+filter\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 8
+occurrence = 2
+
+[[numbers.derive]]
+value = "13.9\\%"
+expr = "values.baselines.methods[\"gte-small\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "14.4\\%"
+expr = "values.baselines.methods[\"gte-small+filter\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.900"
+expr = "values.baselines.methods[\"bge-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.898"
+expr = "values.baselines.methods[\"bge-small+filter\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "66.2\\%"
+expr = "values.baselines.methods[\"bge-small\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "67.5\\%"
+expr = "values.baselines.methods[\"bge-small+filter\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "13.4\\%"
+expr = "values.baselines.methods[\"bge-small\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "12.3\\%"
+expr = "values.baselines.methods[\"bge-small+filter\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.907"
+expr = "values.baselines.methods[\"bge-base\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.906"
+expr = "values.baselines.methods[\"bge-base+filter\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "77.9\\%"
+expr = "values.baselines.methods[\"bge-base\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.baselines.methods[\"bge-base+filter\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "17.6\\%"
+expr = "values.baselines.methods[\"bge-base\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "15.0\\%"
+expr = "values.baselines.methods[\"bge-base+filter\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.898"
+expr = "values.baselines.methods[\"hybrid\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.896"
+expr = "values.baselines.methods[\"hybrid+filter\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "67.5\\%"
+expr = "values.baselines.methods[\"hybrid\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "71.4\\%"
+expr = "values.baselines.methods[\"hybrid+filter\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "13.9\\%"
+expr = "values.baselines.methods[\"hybrid\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "14.4\\%"
+expr = "values.baselines.methods[\"hybrid+filter\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 11
+occurrence = 1
+
+[[numbers.derive]]
+value = "90.7\\%"
+expr = "values.baselines.deployed.dev.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "86.7\\%"
+expr = "values.baselines.deployed_filtered.dev.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "12.7\\%"
+expr = "values.baselines.deployed.dev.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "7.6\\%"
+expr = "values.baselines.deployed_filtered.dev.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.baselines.deployed.test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 14
+occurrence = 1
+
+[[numbers.derive]]
+value = "68.8\\%"
+expr = "values.baselines.deployed_filtered.test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 14
+occurrence = 1
+
+[[numbers.derive]]
+value = "15.2\\%"
+expr = "values.baselines.deployed.test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 14
+occurrence = 1
+
+[[numbers.derive]]
+value = "12.1\\%"
+expr = "values.baselines.deployed_filtered.test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_filter.tex"
+line = 14
+occurrence = 1
+
+[[numbers.derive]]
+value = "70"
+expr = "values.writers.qwen4b.hinglish.lines"
+file = "papers/paperB_jhir/gen/tab_hinglish.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "16"
+expr = "values.writers.qwen4b.hinglish.risk_pairs"
+file = "papers/paperB_jhir/gen/tab_hinglish.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "31.2\\%"
+expr = "values.writers.qwen4b.hinglish.deployed"
+file = "papers/paperB_jhir/gen/tab_hinglish.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "87.5\\%"
+expr = "values.writers.qwen4b.hinglish.llm"
+file = "papers/paperB_jhir/gen/tab_hinglish.tex"
+line = 5
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "the version in a model name (Gemma 4 E4B, Gemma 4 E2B), not a quantity"
+file = "papers/paperB_jhir/gen/tab_hinglish.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "49"
+expr = "values.writers.gemma2b.hinglish.lines"
+file = "papers/paperB_jhir/gen/tab_hinglish.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "16"
+expr = "values.writers.gemma2b.hinglish.risk_pairs"
+file = "papers/paperB_jhir/gen/tab_hinglish.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "43.8\\%"
+expr = "values.writers.gemma2b.hinglish.deployed"
+file = "papers/paperB_jhir/gen/tab_hinglish.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "87.5\\%"
+expr = "values.writers.gemma2b.hinglish.llm"
+file = "papers/paperB_jhir/gen/tab_hinglish.tex"
+line = 6
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "the version in a model name (Gemma 4 E4B, Gemma 4 E2B), not a quantity"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 3
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.693"
+expr = "values.writers.qwen4b.baselines.methods[\"tags\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "44.5\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"tags\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "6.0\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"tags\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.566"
+expr = "values.writers.gemma2b.baselines.methods[\"tags\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "18.4\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"tags\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "12.3\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"tags\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 5
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.780"
+expr = "values.writers.qwen4b.baselines.methods[\"bm25\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "87.0\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"bm25\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "55.6\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"bm25\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.731"
+expr = "values.writers.gemma2b.baselines.methods[\"bm25\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "78.7\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"bm25\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "71.4\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"bm25\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 6
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.789"
+expr = "values.writers.qwen4b.baselines.methods[\"bge-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "33.6\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"bge-small\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "6.9\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"bge-small\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.785"
+expr = "values.writers.gemma2b.baselines.methods[\"bge-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "37.6\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"bge-small\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "22.7\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"bge-small\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 7
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.808"
+expr = "values.writers.qwen4b.baselines.methods[\"bge-base\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "45.9\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"bge-base\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "11.6\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"bge-base\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.824"
+expr = "values.writers.gemma2b.baselines.methods[\"bge-base\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "62.4\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"bge-base\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "25.0\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"bge-base\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 8
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.826"
+expr = "values.writers.qwen4b.baselines.methods[\"gte-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "50.0\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"gte-small\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "7.4\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"gte-small\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.846"
+expr = "values.writers.gemma2b.baselines.methods[\"gte-small\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "48.9\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"gte-small\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "17.3\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"gte-small\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 9
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.834"
+expr = "values.writers.qwen4b.baselines.methods[\"hybrid\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "54.8\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"hybrid\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "11.1\\%"
+expr = "values.writers.qwen4b.baselines.methods[\"hybrid\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.782"
+expr = "values.writers.gemma2b.baselines.methods[\"hybrid\"].risk_auroc[0]"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "41.1\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"hybrid\"].test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "29.1\\%"
+expr = "values.writers.gemma2b.baselines.methods[\"hybrid\"].test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 10
+occurrence = 1
+
+[[numbers.derive]]
+value = "58.9\\%"
+expr = "values.writers.qwen4b.baselines.deployed.test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "9.9\\%"
+expr = "values.writers.qwen4b.baselines.deployed.test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "47.5\\%"
+expr = "values.writers.gemma2b.baselines.deployed.test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 12
+occurrence = 1
+
+[[numbers.derive]]
+value = "25.5\\%"
+expr = "values.writers.gemma2b.baselines.deployed.test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 12
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "the version in a model name (Gemma 4 E4B, Gemma 4 E2B), not a quantity"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "87.7\\%"
+expr = "values.writers.qwen4b.llm.test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "7.9\\%"
+expr = "values.writers.qwen4b.llm.test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "91.5\\%"
+expr = "values.writers.gemma2b.llm.test.risk_recall"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 13
+occurrence = 1
+
+[[numbers.derive]]
+value = "6.8\\%"
+expr = "values.writers.gemma2b.llm.test.risk_false_hit"
+file = "papers/paperB_jhir/gen/tab_writers.tex"
+line = 13
+occurrence = 1
