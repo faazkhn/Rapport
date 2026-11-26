@@ -59,5 +59,30 @@
   }
  },
  "tester_lines": 1099,
- "tester_judge_agrees": 0.38762511373976344
+ "tester_judge_agrees": 0.38762511373976344,
+ "provenance": {
+  "schema": "https://github.com/ASSERT-KTH/assert-research-agent/blob/main/schemas/provenance-v1.json",
+  "command": [
+   "server/patient-service/.venv/bin/python",
+   "papers/paperB/extra.py"
+  ],
+  "cwd": ".",
+  "inputs": [
+   {
+    "path": "tests/recall/paraphrase_set.jsonl",
+    "sha256": "c9e684dd7db8ee0edc997f94453ef99c0c07a939dd6d7f73aaa45b82960ec35a"
+   },
+   {
+    "path": "tests/brain/train_labelled.jsonl",
+    "sha256": "de141e375f0fd233feebee0f5adaf2a3ece0bb10d70492f824cea7b5a45bff77"
+   },
+   {
+    "path": "unity/PsychSim/Assets/StreamingAssets/data",
+    "sha256": "a97821f716ea3485e12a931bf466131a197e68cfbf25d279f24009721b13296d"
+   }
+  ],
+  "commit": "04ef065acb7d3b2be10985bca66172619f2a852e",
+  "now": "2026-11-26T06:01:14+00:00",
+  "osaudit": "0.7.0"
+ }
 }
