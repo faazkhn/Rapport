@@ -1589,5 +1589,82 @@
    "intents_classifier": 0.657,
    "intents_llm_tagger": 0.692
   }
+ },
+ "provenance": {
+  "schema": "https://github.com/ASSERT-KTH/assert-research-agent/blob/main/schemas/provenance-v1.json",
+  "command": [
+   "python3",
+   "papers/paperB_jhir/values.py"
+  ],
+  "cwd": ".",
+  "inputs": [
+   {
+    "path": "tests/overnight/recall_baselines.json",
+    "sha256": "b5afd5aeb4181d63af6c3ef3fa43cb55dc272e85704d1d0c93926d00d8d1dd7a"
+   },
+   {
+    "path": "tests/overnight/recall_llm.json",
+    "sha256": "02add3f28ccc152deaade3dc98c529981d0c89e7d7f92edf97564d56c1403683"
+   },
+   {
+    "path": "tests/overnight/recall_test_lexical.json",
+    "sha256": "393bb868e275677745438c4862a558084301992ce348e6645770d3ea0f0f003b"
+   },
+   {
+    "path": "tests/overnight/rerun/recall_test_hand.json",
+    "sha256": "474c921624f79cc9a1542cd513a59814ce884b8f96e2b3db27d4efdc6d7ea205"
+   },
+   {
+    "path": "tests/overnight/riskprobe/summary.json",
+    "sha256": "09c61e154490bdd61f997be6eb73703ec8f9dfcfa716ad142c1521f1d663081d"
+   },
+   {
+    "path": "tests/overnight/moves_label.log",
+    "sha256": "54c0750aabbe9b352206242c5eac1f8f9b1a5aab93e3b1ae667117d0c979eeb8"
+   },
+   {
+    "path": "papers/analysis/results.json",
+    "sha256": "38f92ad09d02745b7f38302dc1825512cf2bbb26b4790346eaea4f638bbc4718"
+   },
+   {
+    "path": "papers/analysis/recall_extra.json",
+    "sha256": "60a0679a76f26ca0c9c86c33d50a111d1d01ae486ed25a24f0b9360adffff4f9"
+   },
+   {
+    "path": "papers/analysis/recall_sensitivity.json",
+    "sha256": "47bd79a2defc96811b634ce6a50c4285b3d7d5cacd777a82c6bd783e685dfe7a"
+   },
+   {
+    "path": "papers/analysis/new_results.json",
+    "sha256": "269b150e1e82bd02199b3d7d92f2cfb2d068f39638dd6320f65ad4e79c309b57"
+   },
+   {
+    "path": "tests/brain/eval_moves-v1.json",
+    "sha256": "db93cfac1a33d11a83c24a869b3557793f528ea062730cffe20d00af08690bce"
+   },
+   {
+    "path": "tests/brain/gen_moves.log",
+    "sha256": "7f544fbd940cb5f4a8566a32c429c4fecf87b5aeb933c4933274962be3386fba"
+   },
+   {
+    "path": "tests/overnight/recall_baselines_writer_qwen4b.json",
+    "sha256": "37b3c9407f4aa63fd623b7e02235c3930b337809b440b9d243220d3ea3cdc5c2"
+   },
+   {
+    "path": "tests/overnight/recall_llm_writer_qwen4b.json",
+    "sha256": "f576090940d66bb3129a19dc790947738848e1c3da9d9f8b356cfcaad8653c36"
+   },
+   {
+    "path": "tests/overnight/recall_baselines_writer_gemma2b.json",
+    "sha256": "fbe3ea2b261ea93f45c731341dd977c231136013a3d158a7e78fb0ee3f99cb25"
+   },
+   {
+    "path": "tests/overnight/recall_llm_writer_gemma2b.json",
+    "sha256": "175e668a7898e6e850098df8436a86f8413c97b949f9c560be6207f33eb8fe9c"
+   }
+  ],
+  "commit": "df124490fe95ed71fd8db5f142f7cb9e6686d97e",
+  "now": "2026-11-26T05:22:48+00:00",
+  "osaudit": "0.7.0"
  }
 }
