@@ -1,16 +1,22 @@
 schema = "https://github.com/ASSERT-KTH/assert-research-agent/blob/main/schemas/audit-v1.json"
 
-# Paper B (Recognising Reworded Risk Questions). The text and its generated tables are audited; the \newcommand values in
+# Paper B (Testing a Safety-Critical Matcher). The text and its generated tables are audited; the \newcommand values in
 # gen/numbers.tex are written by papers/analysis/new_results.py from the same saved runs and are not printed numbers of the source.
-# papers/paperB_jhir/values.py collects every reported value from the committed results into values.json (regenerate: see its
-# docstring). Each number is named by file, line and occurrence.
+# papers/paperB_jhir/values.py collects the reported values from the committed results into values.json; extra.py recomputes the
+# dev-half and classifier figures no earlier script saved into extra.json (regenerate either: see its docstring). Each number is
+# named by file, line and occurrence; this file is written by papers/paperB_jhir/osaudit_toml.py.
 
 [paper]
 tex = ["papers/paperB_jhir/paperB.tex", "papers/paperB_jhir/gen/tab_*.tex"]
 
 [results]
-files = ["papers/paperB_jhir/values.json"]
-instruments = ["papers/paperB_jhir/values.py"]
+files = ["papers/paperB_jhir/values.json", "papers/paperB_jhir/extra.json"]
+instruments = ["papers/paperB_jhir/values.py", "papers/paperB_jhir/extra.py"]
+
+[[results.depends]]  # extra.py imports the matcher and the benchmark code it measures
+file = "papers/paperB_jhir/extra.json"
+instruments = ["papers/paperB_jhir/extra.py", "server/patient-service/twin.py", "server/patient-service/brain.py", "tools/recall_bench.py",
+               "tools/recall_baselines.py", "tools/brain/hand_weights.py"]
 
 [[numbers.allow]]
 value = "2013"
@@ -44,414 +50,413 @@ occurrence = 1
 value = "512"
 expr = "values.benchmark.mdd_01.lines + values.benchmark.alc_01.lines + values.benchmark.ward_01.lines + values.benchmark.ward_02.lines"
 file = "papers/paperB_jhir/paperB.tex"
-line = 17
+line = 20
 occurrence = 1
 
 [[numbers.derive]]
 value = "35.1\\%"
 expr = "values.keywords_test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 19
+line = 21
 occurrence = 1
 
 [[numbers.allow]]
 value = "33"
 reason = "model size of bge-small-en-v1.5 (33 million parameters), from its model card"
 file = "papers/paperB_jhir/paperB.tex"
-line = 19
+line = 22
 occurrence = 1
 
 [[numbers.derive]]
 value = "72.7\\%"
 expr = "values.deployed.test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 20
+line = 22
 occurrence = 1
 
 [[numbers.derive]]
 value = "15.2\\%"
 expr = "values.deployed.test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 20
+line = 22
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.86"
 expr = "values.baselines.methods[\"bm25\"].risk_auroc[0]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 21
+line = 24
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.91"
 expr = "values.baselines.methods[\"bge-base\"].risk_auroc[0]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 21
+line = 24
 occurrence = 1
 
 [[numbers.allow]]
 value = "4"
 reason = "model size of Gemma 4 E4B (4 billion parameters)"
 file = "papers/paperB_jhir/paperB.tex"
-line = 22
+line = 24
 occurrence = 1
 
 [[numbers.derive]]
 value = "512"
 expr = "values.benchmark.mdd_01.lines + values.benchmark.alc_01.lines + values.benchmark.ward_01.lines + values.benchmark.ward_02.lines"
 file = "papers/paperB_jhir/paperB.tex"
-line = 46
+line = 63
 occurrence = 1
 
 [[numbers.derive]]
 value = "512"
 expr = "values.benchmark.mdd_01.lines + values.benchmark.alc_01.lines + values.benchmark.ward_01.lines + values.benchmark.ward_02.lines"
 file = "papers/paperB_jhir/paperB.tex"
-line = 95
+line = 123
 occurrence = 1
 
 [[numbers.derive]]
 value = "38"
 expr = "values.benchmark.mdd_01.none + values.benchmark.alc_01.none + values.benchmark.ward_01.none + values.benchmark.ward_02.none"
 file = "papers/paperB_jhir/paperB.tex"
-line = 95
+line = 123
 occurrence = 1
 
 [[numbers.derive]]
 value = "249"
 expr = "values.benchmark.mdd_01.hard + values.benchmark.alc_01.hard + values.benchmark.ward_01.hard + values.benchmark.ward_02.hard"
 file = "papers/paperB_jhir/paperB.tex"
-line = 95
+line = 123
 occurrence = 1
 
 [[numbers.allow]]
 value = "32"
 reason = "CRC-32, the name of the checksum"
 file = "papers/paperB_jhir/paperB.tex"
-line = 97
+line = 125
 occurrence = 1
 
 [[numbers.derive]]
 value = "176"
 expr = "values.benchmark.mdd_01.lines"
 file = "papers/paperB_jhir/paperB.tex"
-line = 108
+line = 136
 occurrence = 1
 
 [[numbers.derive]]
 value = "10"
 expr = "values.benchmark.mdd_01.none"
 file = "papers/paperB_jhir/paperB.tex"
-line = 108
+line = 136
 occurrence = 1
 
 [[numbers.derive]]
 value = "89"
 expr = "values.benchmark.mdd_01.hard"
 file = "papers/paperB_jhir/paperB.tex"
-line = 108
+line = 136
 occurrence = 1
 
 [[numbers.derive]]
 value = "41"
 expr = "values.benchmark.mdd_01.risk_pairs"
 file = "papers/paperB_jhir/paperB.tex"
-line = 108
+line = 136
 occurrence = 1
 
 [[numbers.derive]]
 value = "154"
 expr = "values.benchmark.alc_01.lines"
 file = "papers/paperB_jhir/paperB.tex"
-line = 109
+line = 137
 occurrence = 1
 
 [[numbers.derive]]
 value = "10"
 expr = "values.benchmark.alc_01.none"
 file = "papers/paperB_jhir/paperB.tex"
-line = 109
+line = 137
 occurrence = 1
 
 [[numbers.derive]]
 value = "77"
 expr = "values.benchmark.alc_01.hard"
 file = "papers/paperB_jhir/paperB.tex"
-line = 109
+line = 137
 occurrence = 1
 
 [[numbers.derive]]
 value = "55"
 expr = "values.benchmark.alc_01.risk_pairs"
 file = "papers/paperB_jhir/paperB.tex"
-line = 109
+line = 137
 occurrence = 1
 
 [[numbers.derive]]
 value = "104"
 expr = "values.benchmark.ward_01.lines"
 file = "papers/paperB_jhir/paperB.tex"
-line = 110
+line = 138
 occurrence = 1
 
 [[numbers.derive]]
 value = "9"
 expr = "values.benchmark.ward_01.none"
 file = "papers/paperB_jhir/paperB.tex"
-line = 110
+line = 138
 occurrence = 1
 
 [[numbers.derive]]
 value = "52"
 expr = "values.benchmark.ward_01.hard"
 file = "papers/paperB_jhir/paperB.tex"
-line = 110
+line = 138
 occurrence = 1
 
 [[numbers.derive]]
 value = "41"
 expr = "values.benchmark.ward_01.risk_pairs"
 file = "papers/paperB_jhir/paperB.tex"
-line = 110
+line = 138
 occurrence = 1
 
 [[numbers.derive]]
 value = "78"
 expr = "values.benchmark.ward_02.lines"
 file = "papers/paperB_jhir/paperB.tex"
-line = 111
+line = 139
 occurrence = 1
 
 [[numbers.derive]]
 value = "9"
 expr = "values.benchmark.ward_02.none"
 file = "papers/paperB_jhir/paperB.tex"
-line = 111
+line = 139
 occurrence = 1
 
 [[numbers.derive]]
 value = "31"
 expr = "values.benchmark.ward_02.hard"
 file = "papers/paperB_jhir/paperB.tex"
-line = 111
+line = 139
 occurrence = 1
 
 [[numbers.derive]]
 value = "15"
 expr = "values.benchmark.ward_02.risk_pairs"
 file = "papers/paperB_jhir/paperB.tex"
-line = 111
+line = 139
 occurrence = 1
 
 [[numbers.derive]]
 value = "512"
 expr = "values.benchmark.mdd_01.lines + values.benchmark.alc_01.lines + values.benchmark.ward_01.lines + values.benchmark.ward_02.lines"
 file = "papers/paperB_jhir/paperB.tex"
-line = 113
+line = 141
 occurrence = 1
 
 [[numbers.derive]]
 value = "38"
 expr = "values.benchmark.mdd_01.none + values.benchmark.alc_01.none + values.benchmark.ward_01.none + values.benchmark.ward_02.none"
 file = "papers/paperB_jhir/paperB.tex"
-line = 113
+line = 141
 occurrence = 1
 
 [[numbers.derive]]
 value = "249"
 expr = "values.benchmark.mdd_01.hard + values.benchmark.alc_01.hard + values.benchmark.ward_01.hard + values.benchmark.ward_02.hard"
 file = "papers/paperB_jhir/paperB.tex"
-line = 113
+line = 141
 occurrence = 1
 
 [[numbers.derive]]
 value = "152"
 expr = "values.benchmark.mdd_01.risk_pairs + values.benchmark.alc_01.risk_pairs + values.benchmark.ward_01.risk_pairs + values.benchmark.ward_02.risk_pairs"
 file = "papers/paperB_jhir/paperB.tex"
-line = 113
+line = 141
 occurrence = 1
 
 [[numbers.derive]]
 value = "77"
 expr = "values.baselines.risk_pairs.test"
 file = "papers/paperB_jhir/paperB.tex"
-line = 119
+line = 147
 occurrence = 1
 
 [[numbers.allow]]
 value = "95\\%"
 reason = "the confidence level chosen for the intervals, not a result"
 file = "papers/paperB_jhir/paperB.tex"
-line = 122
+line = 150
 occurrence = 1
 
 [[numbers.allow]]
 value = "1,000"
 reason = "the number of bootstrap resamples, an analysis setting in tools/recall_baselines.py"
 file = "papers/paperB_jhir/paperB.tex"
-line = 122
+line = 150
 occurrence = 1
 
 [[numbers.allow]]
 value = "4"
 reason = "the version in a model name (Gemma 4), not a quantity"
 file = "papers/paperB_jhir/paperB.tex"
-line = 127
+line = 155
 occurrence = 1
 
 [[numbers.allow]]
 value = "2"
 reason = "the score of a phrase tag, a setting of the keyword layer"
 file = "papers/paperB_jhir/paperB.tex"
-line = 155
+line = 183
 occurrence = 1
 
 [[numbers.allow]]
 value = "1"
 reason = "the score of a word tag, a setting of the keyword layer"
 file = "papers/paperB_jhir/paperB.tex"
-line = 155
+line = 183
 occurrence = 1
 
 [[numbers.allow]]
 value = "33"
 reason = "model size of bge-small-en-v1.5 (33 million parameters), from its model card"
-cite = "xiao2023cpack"
 file = "papers/paperB_jhir/paperB.tex"
-line = 157
+line = 185
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "4"
-reason = "lower end of the number of hand-written probes per memory (case files)"
+expr = "extra.probes_per_memory.hand_written.min"
 file = "papers/paperB_jhir/paperB.tex"
-line = 159
+line = 187
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "12"
-reason = "upper end of the number of hand-written probes per memory (case files)"
+expr = "extra.probes_per_memory.hand_written.max"
 file = "papers/paperB_jhir/paperB.tex"
-line = 159
+line = 187
 occurrence = 1
 
 [[numbers.allow]]
 value = "50"
-reason = "approximate number of generated probes requested per memory, a setting of the probe generator"
+reason = "rounded: generated probes per memory range 46-52, median 49 (extra.probes_per_memory.generated)"
 file = "papers/paperB_jhir/paperB.tex"
-line = 160
+line = 188
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "0.53"
-reason = "reported from a dev-half analysis run during development whose output file is not committed"
+expr = "extra.dev_rank_ablation.minilm.memory_text.top1"
 file = "papers/paperB_jhir/paperB.tex"
-line = 163
+line = 191
 occurrence = 1
 
-[[numbers.allow]]
-value = "0.71"
-reason = "reported from a dev-half analysis run during development whose output file is not committed"
+[[numbers.derive]]
+value = "0.75"
+expr = "extra.dev_rank_ablation.minilm.questions_tags_text.top1"
 file = "papers/paperB_jhir/paperB.tex"
-line = 163
+line = 191
 occurrence = 1
 
-[[numbers.allow]]
-value = "93\\%"
-reason = "reported from a dev-half analysis run during development whose output file is not committed"
+[[numbers.derive]]
+value = "94\\%"
+expr = "extra.dev_rank_ablation.bge_small.questions_tags_text.top3"
 file = "papers/paperB_jhir/paperB.tex"
-line = 163
+line = 191
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.83"
 expr = "values.deployed.settings.SIM_HIT"
 file = "papers/paperB_jhir/paperB.tex"
-line = 165
+line = 193
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.78"
 expr = "values.deployed.settings.SIM_RISK"
 file = "papers/paperB_jhir/paperB.tex"
-line = 165
+line = 193
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.02"
 expr = "values.deployed.settings.SIM_NEAR"
 file = "papers/paperB_jhir/paperB.tex"
-line = 166
+line = 194
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.76"
 expr = "values.deployed.settings.SIM_FLOOR"
 file = "papers/paperB_jhir/paperB.tex"
-line = 166
+line = 194
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.06"
 expr = "values.deployed.settings.RISK_MARGIN"
 file = "papers/paperB_jhir/paperB.tex"
-line = 166
+line = 194
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.66"
 expr = "values.deployed.settings.RISK_NEAR"
 file = "papers/paperB_jhir/paperB.tex"
-line = 166
+line = 194
 occurrence = 1
 
-[[numbers.allow]]
-value = "0.005"
-reason = "read from the worked example drawn in fig_recall_example.pdf (papers/figures/make_figures.py)"
+[[numbers.derive]]
+value = "0.006"
+expr = "values.worked_example_top2[0] - values.worked_example_top2[1]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 174
+line = 202
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.83"
 expr = "values.deployed.settings.SIM_HIT"
 file = "papers/paperB_jhir/paperB.tex"
-line = 180
+line = 208
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "10"
-reason = "fewest example questions of a hand-set head (Appendix B)"
+expr = "extra.head_examples.ask_withdrawal_history"
 file = "papers/paperB_jhir/paperB.tex"
-line = 183
+line = 211
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "17"
-reason = "most example questions of a hand-set head (Appendix B)"
+expr = "extra.head_examples.ask_suicidal_ideation"
 file = "papers/paperB_jhir/paperB.tex"
-line = 183
+line = 211
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "0.76"
-reason = "the hand-set heads' threshold, a setting chosen on the dev half"
+expr = "extra.heads_threshold.ask_suicidal_ideation"
 file = "papers/paperB_jhir/paperB.tex"
-line = 186
+line = 214
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "96.0\\%"
-reason = "reported from a dev-half analysis run during development whose output file is not committed (Supplementary Section S2)"
+expr = "extra.heads_dev.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 189
+line = 217
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "15.9\\%"
-reason = "reported from a dev-half analysis run during development whose output file is not committed (Supplementary Section S2)"
+expr = "extra.heads_dev.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 189
+line = 217
 occurrence = 1
 
 [[numbers.allow]]
@@ -459,7 +464,7 @@ value = "1.5"
 reason = "BM25 parameter k1, the standard setting"
 cite = "robertson2009bm25"
 file = "papers/paperB_jhir/paperB.tex"
-line = 192
+line = 220
 occurrence = 1
 
 [[numbers.allow]]
@@ -467,1036 +472,1036 @@ value = "0.75"
 reason = "BM25 parameter b, the standard setting"
 cite = "robertson2009bm25"
 file = "papers/paperB_jhir/paperB.tex"
-line = 192
+line = 220
 occurrence = 1
 
 [[numbers.allow]]
 value = "0.05"
 reason = "the weight per tag point in the hybrid's score, a setting"
 file = "papers/paperB_jhir/paperB.tex"
-line = 195
+line = 223
 occurrence = 1
 
 [[numbers.derive]]
 value = "12.7\\%"
 expr = "values.deployed.dev.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 197
+line = 225
 occurrence = 1
 
 [[numbers.allow]]
 value = "4"
 reason = "the version in a model name (Gemma 4), not a quantity"
 file = "papers/paperB_jhir/paperB.tex"
-line = 200
+line = 228
 occurrence = 1
 
 [[numbers.allow]]
 value = "4"
 reason = "4-bit quantisation, a run setting"
 file = "papers/paperB_jhir/paperB.tex"
-line = 200
+line = 228
 occurrence = 2
 
 [[numbers.allow]]
 value = "0"
 reason = "temperature 0, a run setting"
 file = "papers/paperB_jhir/paperB.tex"
-line = 202
+line = 230
 occurrence = 1
 
 [[numbers.derive]]
 value = "45\\%"
 expr = "values.filter.dropped_no_risk_word / values.filter.generated_risk_probes"
 file = "papers/paperB_jhir/paperB.tex"
-line = 207
+line = 235
 occurrence = 1
 
 [[numbers.allow]]
 value = "4"
 reason = "4-bit quantisation, a run setting"
 file = "papers/paperB_jhir/paperB.tex"
-line = 212
+line = 240
 occurrence = 1
 
 [[numbers.allow]]
 value = "13"
 reason = "a date, not a result"
 file = "papers/paperB_jhir/paperB.tex"
-line = 212
+line = 240
 occurrence = 1
 
 [[numbers.allow]]
 value = "19"
 reason = "a date, not a result"
 file = "papers/paperB_jhir/paperB.tex"
-line = 212
+line = 240
 occurrence = 1
 
 [[numbers.allow]]
 value = "2026"
 reason = "a date, not a result"
 file = "papers/paperB_jhir/paperB.tex"
-line = 212
+line = 240
 occurrence = 1
 
 [[numbers.allow]]
 value = "0.95"
 reason = "sampling temperature, a run setting"
 file = "papers/paperB_jhir/paperB.tex"
-line = 214
+line = 242
 occurrence = 1
 
 [[numbers.allow]]
 value = "0"
 reason = "temperature 0, a run setting"
 file = "papers/paperB_jhir/paperB.tex"
-line = 214
+line = 242
 occurrence = 1
 
 [[numbers.allow]]
 value = "4"
 reason = "the version in a model name (Gemma 4), not a quantity"
 file = "papers/paperB_jhir/paperB.tex"
-line = 214
+line = 242
 occurrence = 1
 
 [[numbers.allow]]
 value = "0.9"
 reason = "sampling temperature, a run setting"
 file = "papers/paperB_jhir/paperB.tex"
-line = 215
+line = 243
 occurrence = 1
 
 [[numbers.allow]]
 value = "4"
 reason = "the version in a model name (Gemma 4), not a quantity"
 file = "papers/paperB_jhir/paperB.tex"
-line = 215
+line = 243
 occurrence = 1
 
 [[numbers.allow]]
 value = "0"
 reason = "temperature 0, a run setting"
 file = "papers/paperB_jhir/paperB.tex"
-line = 215
+line = 243
 occurrence = 1
 
 [[numbers.allow]]
 value = "5.5"
 reason = "the version in a model name (Claude Opus 5.5)"
 file = "papers/paperB_jhir/paperB.tex"
-line = 217
+line = 245
 occurrence = 1
 
 [[numbers.allow]]
 value = "2026"
 reason = "a date, not a result"
 file = "papers/paperB_jhir/paperB.tex"
-line = 217
+line = 245
 occurrence = 1
 
 [[numbers.derive]]
 value = "5.2"
 expr = "100 * (values.hands_test.risk_recall - values.deployed.test.risk_recall)"
 file = "papers/paperB_jhir/paperB.tex"
-line = 225
+line = 253
 occurrence = 1
 
 [[numbers.derive]]
 value = "6.0"
 expr = "100 * (values.hands_test.risk_false_hit - values.deployed.test.risk_false_hit)"
 file = "papers/paperB_jhir/paperB.tex"
-line = 225
+line = 253
 occurrence = 1
 
 [[numbers.derive]]
 value = "77"
 expr = "values.baselines.risk_pairs.test"
 file = "papers/paperB_jhir/paperB.tex"
-line = 225
+line = 253
 occurrence = 1
 
 [[numbers.allow]]
 value = "95\\%"
 reason = "the confidence level chosen for the intervals, not a result"
 file = "papers/paperB_jhir/paperB.tex"
-line = 225
+line = 253
 occurrence = 1
 
 [[numbers.derive]]
 value = "62.3"
 expr = "100 * values.hybrid_test.risk_ci[1]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 226
+line = 254
 occurrence = 1
 
 [[numbers.derive]]
 value = "81.8\\%"
 expr = "values.hybrid_test.risk_ci[2]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 226
+line = 254
 occurrence = 1
 
 [[numbers.allow]]
 value = "95\\%"
 reason = "the 95% recall target the text compares against, not a result"
 file = "papers/paperB_jhir/paperB.tex"
-line = 226
+line = 254
 occurrence = 1
 
-[[numbers.allow]]
-value = "2"
-reason = "lower end of the hybrid's median matching time, 2.57-3.03 ms (values.deployed.test.ms_p50; papers/analysis/results.json recall_ms.p50)"
+[[numbers.derive]]
+value = "2.6"
+expr = "values.baselines.deployed.test.ms_p50"
 file = "papers/paperB_jhir/paperB.tex"
-line = 227
+line = 255
 occurrence = 1
 
-[[numbers.allow]]
-value = "3"
-reason = "upper end of the hybrid's median matching time, 2.57-3.03 ms (values.deployed.test.ms_p50; papers/analysis/results.json recall_ms.p50)"
+[[numbers.derive]]
+value = "3.0"
+expr = "values.hybrid_ms_p50_timing_run"
 file = "papers/paperB_jhir/paperB.tex"
-line = 227
+line = 255
 occurrence = 1
 
 [[numbers.derive]]
 value = "41.3\\%"
 expr = "values.keywords_test.fact_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 237
+line = 265
 occurrence = 1
 
 [[numbers.derive]]
 value = "35.1\\%"
 expr = "values.keywords_test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 237
+line = 265
 occurrence = 1
 
 [[numbers.derive]]
 value = "6.1\\%"
 expr = "values.keywords_test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 237
+line = 265
 occurrence = 1
 
 [[numbers.derive]]
 value = "22.7\\%"
 expr = "values.keywords_test.none_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 237
+line = 265
 occurrence = 1
 
 [[numbers.derive]]
 value = "73.3\\%"
 expr = "values.hybrid_test.all"
 file = "papers/paperB_jhir/paperB.tex"
-line = 238
+line = 266
 occurrence = 1
 
 [[numbers.derive]]
 value = "72.7\\%"
 expr = "values.deployed.test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 238
+line = 266
 occurrence = 1
 
 [[numbers.derive]]
 value = "15.2\\%"
 expr = "values.deployed.test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 238
+line = 266
 occurrence = 1
 
 [[numbers.derive]]
 value = "22.7\\%"
 expr = "values.deployed.test.none_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 238
+line = 266
 occurrence = 1
 
 [[numbers.derive]]
 value = "74.9\\%"
 expr = "values.hands_test.fact_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 239
+line = 267
 occurrence = 1
 
 [[numbers.derive]]
 value = "77.9\\%"
 expr = "values.hands_test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 239
+line = 267
 occurrence = 1
 
 [[numbers.derive]]
 value = "21.2\\%"
 expr = "values.hands_test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 239
+line = 267
 occurrence = 1
 
 [[numbers.derive]]
 value = "22.7\\%"
 expr = "values.hands_test.none_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 239
+line = 267
 occurrence = 1
 
 [[numbers.derive]]
 value = "61.2\\%"
 expr = "values.hybrid_test.per_case.alc_01"
 file = "papers/paperB_jhir/paperB.tex"
-line = 244
+line = 272
 occurrence = 1
 
 [[numbers.derive]]
 value = "57.1\\%"
 expr = "values.hybrid_test.hard"
 file = "papers/paperB_jhir/paperB.tex"
-line = 245
+line = 273
 occurrence = 1
 
 [[numbers.derive]]
 value = "92.1\\%"
 expr = "values.hybrid_test.easy"
 file = "papers/paperB_jhir/paperB.tex"
-line = 245
+line = 273
 occurrence = 1
 
 [[numbers.derive]]
 value = "19.5\\%"
 expr = "values.hybrid_test.keywords_hard"
 file = "papers/paperB_jhir/paperB.tex"
-line = 245
+line = 273
 occurrence = 1
 
 [[numbers.derive]]
 value = "66.7\\%"
 expr = "values.hybrid_test.keywords_easy"
 file = "papers/paperB_jhir/paperB.tex"
-line = 245
+line = 273
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.88"
 expr = "values.baselines.methods[\"e5-small\"].risk_auroc[0]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 250
+line = 278
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.91"
 expr = "values.baselines.methods[\"bge-base\"].risk_auroc[0]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 250
+line = 278
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.66"
 expr = "values.baselines.methods[\"tags\"].risk_auroc[0]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 250
+line = 278
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.86"
 expr = "values.baselines.methods[\"bm25\"].risk_auroc[0]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 250
+line = 278
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.007"
 expr = "values.baselines.methods[\"bge-base\"].risk_auroc[0] - values.baselines.methods[\"bge-small\"].risk_auroc[0]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 251
-occurrence = 1
-
-[[numbers.allow]]
-value = "66"
-reason = "lower end of the encoders' matched-point risk recall, bge-small's 66.2% (values.baselines.methods[\"bge-small\"].test.risk_recall)"
-file = "papers/paperB_jhir/paperB.tex"
-line = 251
+line = 279
 occurrence = 1
 
 [[numbers.derive]]
-value = "78\\%"
-expr = "values.baselines.methods[\"bge-base\"].test.risk_recall"
+value = "66.2"
+expr = "100 * values.baselines.methods[\"bge-small\"].test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 251
+line = 279
 occurrence = 1
 
 [[numbers.derive]]
 value = "77.9\\%"
 expr = "values.baselines.methods[\"bge-base\"].test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 252
+line = 279
+occurrence = 1
+
+[[numbers.derive]]
+value = "77.9\\%"
+expr = "values.baselines.methods[\"bge-base\"].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 280
 occurrence = 1
 
 [[numbers.derive]]
 value = "17.6\\%"
 expr = "values.baselines.methods[\"bge-base\"].test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 252
+line = 280
 occurrence = 1
 
 [[numbers.derive]]
 value = "73.3\\%"
 expr = "values.ranks.top1"
 file = "papers/paperB_jhir/paperB.tex"
-line = 253
+line = 281
 occurrence = 1
 
 [[numbers.derive]]
 value = "92.3\\%"
 expr = "values.ranks.top3"
 file = "papers/paperB_jhir/paperB.tex"
-line = 253
+line = 281
 occurrence = 1
 
 [[numbers.derive]]
 value = "96.4\\%"
 expr = "values.ranks.top5"
 file = "papers/paperB_jhir/paperB.tex"
-line = 253
+line = 281
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.82"
 expr = "values.ranks.correct_sim_median"
 file = "papers/paperB_jhir/paperB.tex"
-line = 254
+line = 282
 occurrence = 1
 
 [[numbers.derive]]
 value = "11.2\\%"
 expr = "values.ranks[\"nonrisk_best_risk_over_0.78\"]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 254
+line = 282
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.78"
 expr = "values.deployed.settings.SIM_RISK"
 file = "papers/paperB_jhir/paperB.tex"
-line = 254
+line = 282
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.098"
 expr = "values.baselines.methods[\"hybrid\"].prevalence"
 file = "papers/paperB_jhir/paperB.tex"
-line = 262
+line = 290
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.69"
 expr = "values.baselines.methods[\"tags\"].all_auroc"
 file = "papers/paperB_jhir/paperB.tex"
-line = 263
+line = 291
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.86"
 expr = "values.baselines.methods[\"bm25\"].all_auroc"
 file = "papers/paperB_jhir/paperB.tex"
-line = 263
+line = 291
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.91"
 expr = "values.baselines.methods[\"minilm\"].all_auroc"
 file = "papers/paperB_jhir/paperB.tex"
-line = 263
+line = 291
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.94"
 expr = "values.baselines.methods[\"gte-small\"].all_auroc"
 file = "papers/paperB_jhir/paperB.tex"
-line = 263
+line = 291
 occurrence = 1
 
 [[numbers.derive]]
 value = "12.7\\%"
 expr = "values.deployed.dev.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 263
+line = 291
 occurrence = 1
 
 [[numbers.derive]]
 value = "72.7\\%"
 expr = "values.deployed.test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 264
+line = 292
 occurrence = 1
 
 [[numbers.derive]]
 value = "15.2\\%"
 expr = "values.deployed.test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 264
+line = 292
 occurrence = 1
 
-[[numbers.allow]]
-value = "2"
-reason = "lower end of the hybrid's median matching time, 2.57-3.03 ms (values.deployed.test.ms_p50; papers/analysis/results.json recall_ms.p50)"
+[[numbers.derive]]
+value = "2.6"
+expr = "values.baselines.deployed.test.ms_p50"
 file = "papers/paperB_jhir/paperB.tex"
-line = 277
+line = 305
 occurrence = 1
 
-[[numbers.allow]]
-value = "3"
-reason = "upper end of the hybrid's median matching time, 2.57-3.03 ms (values.deployed.test.ms_p50; papers/analysis/results.json recall_ms.p50)"
+[[numbers.derive]]
+value = "3.0"
+expr = "values.hybrid_ms_p50_timing_run"
 file = "papers/paperB_jhir/paperB.tex"
-line = 277
+line = 305
 occurrence = 1
 
 [[numbers.allow]]
 value = "4"
 reason = "the version in a model name (Gemma 4), not a quantity"
 file = "papers/paperB_jhir/paperB.tex"
-line = 305
+line = 333
 occurrence = 1
 
 [[numbers.derive]]
 value = "7.9\\%"
 expr = "values.writers.qwen4b.llm.test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 306
+line = 334
 occurrence = 1
 
 [[numbers.derive]]
 value = "6.8\\%"
 expr = "values.writers.gemma2b.llm.test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 306
+line = 334
 occurrence = 1
 
 [[numbers.derive]]
 value = "72.7\\%"
 expr = "values.deployed.test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 306
+line = 334
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.81"
 expr = "values.writers.qwen4b.baselines.methods[\"bge-base\"].risk_auroc[0]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 309
+line = 337
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.85"
 expr = "values.writers.gemma2b.baselines.methods[\"gte-small\"].risk_auroc[0]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 309
+line = 337
 occurrence = 1
 
 [[numbers.derive]]
 value = "55.6\\%"
 expr = "values.writers.qwen4b.baselines.methods[\"bm25\"].test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 310
+line = 338
 occurrence = 1
 
 [[numbers.derive]]
 value = "71.4\\%"
 expr = "values.writers.gemma2b.baselines.methods[\"bm25\"].test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 310
+line = 338
 occurrence = 1
 
 [[numbers.derive]]
 value = "16"
 expr = "values.writers.qwen4b.hinglish.risk_pairs"
 file = "papers/paperB_jhir/paperB.tex"
-line = 311
+line = 339
 occurrence = 1
 
 [[numbers.derive]]
 value = "31.2\\%"
 expr = "values.writers.qwen4b.hinglish.deployed"
 file = "papers/paperB_jhir/paperB.tex"
-line = 311
+line = 339
 occurrence = 1
 
 [[numbers.derive]]
 value = "43.8\\%"
 expr = "values.writers.gemma2b.hinglish.deployed"
 file = "papers/paperB_jhir/paperB.tex"
-line = 311
+line = 339
 occurrence = 1
 
 [[numbers.derive]]
 value = "87.5\\%"
 expr = "values.writers.qwen4b.hinglish.llm"
 file = "papers/paperB_jhir/paperB.tex"
-line = 312
+line = 340
 occurrence = 1
 
 [[numbers.derive]]
 value = "21"
 expr = "values.ranks.risk_misses[\"matched another risk memory\"] + values.ranks.risk_misses[\"matched nothing\"] + values.ranks.risk_misses[\"matched a non-risk memory\"]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 332
+line = 360
 occurrence = 1
 
 [[numbers.derive]]
 value = "8"
 expr = "values.ranks.risk_misses[\"matched nothing\"]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 332
+line = 360
 occurrence = 1
 
 [[numbers.derive]]
 value = "8"
 expr = "values.ranks.risk_misses[\"matched a non-risk memory\"]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 332
+line = 360
 occurrence = 2
 
 [[numbers.derive]]
 value = "5"
 expr = "values.ranks.risk_misses[\"matched another risk memory\"]"
 file = "papers/paperB_jhir/paperB.tex"
-line = 332
+line = 360
 occurrence = 1
 
 [[numbers.derive]]
 value = "90.7\\%"
 expr = "values.deployed.dev.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 356
+line = 384
 occurrence = 1
 
 [[numbers.derive]]
 value = "72.7\\%"
 expr = "values.deployed.test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 356
-occurrence = 1
-
-[[numbers.allow]]
-value = "98.7\\%"
-reason = "dev risk recall of an earlier setting; reported from a dev-half analysis run during development whose output file is not committed"
-file = "papers/paperB_jhir/paperB.tex"
-line = 357
-occurrence = 1
-
-[[numbers.derive]]
-value = "72.7\\%"
-expr = "values.deployed.test.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 357
-occurrence = 1
-
-[[numbers.derive]]
-value = "75"
-expr = "values.baselines.risk_pairs.dev"
-file = "papers/paperB_jhir/paperB.tex"
-line = 357
-occurrence = 1
-
-[[numbers.derive]]
-value = "100\\%"
-expr = "values.recall_only_tune.dev.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 358
-occurrence = 1
-
-[[numbers.derive]]
-value = "36.9\\%"
-expr = "values.recall_only_tune.dev.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 359
-occurrence = 1
-
-[[numbers.derive]]
-value = "37.6\\%"
-expr = "values.recall_only_tune.test.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 359
-occurrence = 1
-
-[[numbers.allow]]
-value = "3"
-reason = "turns with an unasked death-wish mention in the held-out run of the recall-only setting; that run's transcripts are not committed"
-file = "papers/paperB_jhir/paperB.tex"
-line = 360
-occurrence = 1
-
-[[numbers.allow]]
-value = "98"
-reason = "turns in the 12 held-out conversations (docs/GATES.md)"
-file = "papers/paperB_jhir/paperB.tex"
-line = 360
-occurrence = 1
-
-[[numbers.allow]]
-value = "95\\%"
-reason = "the 95% recall target the text compares against, not a result"
-file = "papers/paperB_jhir/paperB.tex"
-line = 362
-occurrence = 1
-
-[[numbers.derive]]
-value = "0.72"
-expr = "values.cutoff_sweep[0].cutoff"
-file = "papers/paperB_jhir/paperB.tex"
-line = 362
-occurrence = 1
-
-[[numbers.derive]]
-value = "0.72"
-expr = "values.cutoff_sweep[0].cutoff"
-file = "papers/paperB_jhir/paperB.tex"
-line = 374
-occurrence = 1
-
-[[numbers.derive]]
-value = "100\\%"
-expr = "values.cutoff_sweep[0].dev.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 374
-occurrence = 1
-
-[[numbers.derive]]
-value = "34.4\\%"
-expr = "values.cutoff_sweep[0].dev.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 374
-occurrence = 1
-
-[[numbers.derive]]
-value = "89.6\\%"
-expr = "values.cutoff_sweep[0].test.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 374
-occurrence = 1
-
-[[numbers.derive]]
-value = "34.5\\%"
-expr = "values.cutoff_sweep[0].test.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 374
+line = 384
 occurrence = 1
 
 [[numbers.derive]]
 value = "0.74"
 expr = "values.cutoff_sweep[1].cutoff"
 file = "papers/paperB_jhir/paperB.tex"
-line = 375
+line = 385
 occurrence = 1
 
 [[numbers.derive]]
 value = "98.7\\%"
 expr = "values.cutoff_sweep[1].dev.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 375
-occurrence = 1
-
-[[numbers.derive]]
-value = "23.6\\%"
-expr = "values.cutoff_sweep[1].dev.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 375
+line = 385
 occurrence = 1
 
 [[numbers.derive]]
 value = "83.1\\%"
 expr = "values.cutoff_sweep[1].test.risk_recall"
 file = "papers/paperB_jhir/paperB.tex"
-line = 375
+line = 385
 occurrence = 1
 
 [[numbers.derive]]
 value = "25.5\\%"
 expr = "values.cutoff_sweep[1].test.risk_false_hit"
 file = "papers/paperB_jhir/paperB.tex"
-line = 375
-occurrence = 1
-
-[[numbers.derive]]
-value = "0.76"
-expr = "values.cutoff_sweep[2].cutoff"
-file = "papers/paperB_jhir/paperB.tex"
-line = 376
-occurrence = 1
-
-[[numbers.derive]]
-value = "93.3\\%"
-expr = "values.cutoff_sweep[2].dev.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 376
-occurrence = 1
-
-[[numbers.derive]]
-value = "17.8\\%"
-expr = "values.cutoff_sweep[2].dev.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 376
-occurrence = 1
-
-[[numbers.derive]]
-value = "76.6\\%"
-expr = "values.cutoff_sweep[2].test.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 376
-occurrence = 1
-
-[[numbers.derive]]
-value = "19.4\\%"
-expr = "values.cutoff_sweep[2].test.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 376
-occurrence = 1
-
-[[numbers.derive]]
-value = "0.78"
-expr = "values.cutoff_sweep[3].cutoff"
-file = "papers/paperB_jhir/paperB.tex"
-line = 377
-occurrence = 1
-
-[[numbers.derive]]
-value = "90.7\\%"
-expr = "values.cutoff_sweep[3].dev.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 377
-occurrence = 1
-
-[[numbers.derive]]
-value = "12.7\\%"
-expr = "values.cutoff_sweep[3].dev.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 377
-occurrence = 1
-
-[[numbers.derive]]
-value = "72.7\\%"
-expr = "values.cutoff_sweep[3].test.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 377
-occurrence = 1
-
-[[numbers.derive]]
-value = "15.2\\%"
-expr = "values.cutoff_sweep[3].test.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 377
-occurrence = 1
-
-[[numbers.derive]]
-value = "0.80"
-expr = "values.cutoff_sweep[4].cutoff"
-file = "papers/paperB_jhir/paperB.tex"
-line = 378
-occurrence = 1
-
-[[numbers.derive]]
-value = "81.3\\%"
-expr = "values.cutoff_sweep[4].dev.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 378
-occurrence = 1
-
-[[numbers.derive]]
-value = "8.9\\%"
-expr = "values.cutoff_sweep[4].dev.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 378
-occurrence = 1
-
-[[numbers.derive]]
-value = "70.1\\%"
-expr = "values.cutoff_sweep[4].test.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 378
-occurrence = 1
-
-[[numbers.derive]]
-value = "12.7\\%"
-expr = "values.cutoff_sweep[4].test.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 378
-occurrence = 1
-
-[[numbers.derive]]
-value = "0.82"
-expr = "values.cutoff_sweep[5].cutoff"
-file = "papers/paperB_jhir/paperB.tex"
-line = 379
-occurrence = 1
-
-[[numbers.derive]]
-value = "81.3\\%"
-expr = "values.cutoff_sweep[5].dev.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 379
-occurrence = 1
-
-[[numbers.derive]]
-value = "5.1\\%"
-expr = "values.cutoff_sweep[5].dev.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 379
-occurrence = 1
-
-[[numbers.derive]]
-value = "66.2\\%"
-expr = "values.cutoff_sweep[5].test.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 379
-occurrence = 1
-
-[[numbers.derive]]
-value = "9.7\\%"
-expr = "values.cutoff_sweep[5].test.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 379
-occurrence = 1
-
-[[numbers.derive]]
-value = "100\\%"
-expr = "values.recall_only_tune.dev.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 381
-occurrence = 1
-
-[[numbers.derive]]
-value = "36.9\\%"
-expr = "values.recall_only_tune.dev.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 381
-occurrence = 1
-
-[[numbers.derive]]
-value = "84.4\\%"
-expr = "values.recall_only_tune.test.risk_recall"
-file = "papers/paperB_jhir/paperB.tex"
-line = 381
-occurrence = 1
-
-[[numbers.derive]]
-value = "37.6\\%"
-expr = "values.recall_only_tune.test.risk_false_hit"
-file = "papers/paperB_jhir/paperB.tex"
-line = 381
-occurrence = 1
-
-[[numbers.derive]]
-value = "3,301"
-expr = "values.classifier.generated_lines"
-file = "papers/paperB_jhir/paperB.tex"
-line = 386
-occurrence = 1
-
-[[numbers.derive]]
-value = "369"
-expr = "values.classifier.log_lines"
-file = "papers/paperB_jhir/paperB.tex"
-line = 387
-occurrence = 1
-
-[[numbers.derive]]
-value = "50.1\\%"
-expr = "values.classifier.judge_agrees"
-file = "papers/paperB_jhir/paperB.tex"
-line = 388
-occurrence = 1
-
-[[numbers.allow]]
-value = "38.8\\%"
-reason = "judge agreement on the simulated tester's lines; reported from a dev-half analysis run during development whose output file is not committed (Supplementary Section S3)"
-file = "papers/paperB_jhir/paperB.tex"
-line = 389
-occurrence = 1
-
-[[numbers.derive]]
-value = "0.32"
-expr = "values.classifier.micro_f1.moves_classifier"
-file = "papers/paperB_jhir/paperB.tex"
-line = 390
-occurrence = 1
-
-[[numbers.derive]]
-value = "0.20"
-expr = "values.classifier.micro_f1.moves_lexical"
-file = "papers/paperB_jhir/paperB.tex"
-line = 390
-occurrence = 1
-
-[[numbers.derive]]
-value = "0.66"
-expr = "values.classifier.micro_f1.intents_classifier"
-file = "papers/paperB_jhir/paperB.tex"
-line = 390
-occurrence = 1
-
-[[numbers.derive]]
-value = "0.69"
-expr = "values.classifier.micro_f1.intents_llm_tagger"
-file = "papers/paperB_jhir/paperB.tex"
-line = 390
-occurrence = 1
-
-[[numbers.allow]]
-value = "4"
-reason = "model size of Gemma 4 E4B (4 billion parameters)"
-file = "papers/paperB_jhir/paperB.tex"
-line = 403
+line = 385
 occurrence = 1
 
 [[numbers.derive]]
 value = "75"
 expr = "values.baselines.risk_pairs.dev"
 file = "papers/paperB_jhir/paperB.tex"
+line = 385
+occurrence = 1
+
+[[numbers.derive]]
+value = "100\\%"
+expr = "values.recall_only_tune.dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 386
+occurrence = 1
+
+[[numbers.derive]]
+value = "36.9\\%"
+expr = "values.recall_only_tune.dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 387
+occurrence = 1
+
+[[numbers.derive]]
+value = "37.6\\%"
+expr = "values.recall_only_tune.test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 387
+occurrence = 1
+
+[[numbers.allow]]
+value = "95\\%"
+reason = "the 95% recall target the text compares against, not a result"
+file = "papers/paperB_jhir/paperB.tex"
+line = 391
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.72"
+expr = "values.cutoff_sweep[0].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 391
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.72"
+expr = "values.cutoff_sweep[0].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 403
+occurrence = 1
+
+[[numbers.derive]]
+value = "100\\%"
+expr = "values.cutoff_sweep[0].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 403
+occurrence = 1
+
+[[numbers.derive]]
+value = "34.4\\%"
+expr = "values.cutoff_sweep[0].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 403
+occurrence = 1
+
+[[numbers.derive]]
+value = "89.6\\%"
+expr = "values.cutoff_sweep[0].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 403
+occurrence = 1
+
+[[numbers.derive]]
+value = "34.5\\%"
+expr = "values.cutoff_sweep[0].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 403
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.74"
+expr = "values.cutoff_sweep[1].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 404
+occurrence = 1
+
+[[numbers.derive]]
+value = "98.7\\%"
+expr = "values.cutoff_sweep[1].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 404
+occurrence = 1
+
+[[numbers.derive]]
+value = "23.6\\%"
+expr = "values.cutoff_sweep[1].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 404
+occurrence = 1
+
+[[numbers.derive]]
+value = "83.1\\%"
+expr = "values.cutoff_sweep[1].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 404
+occurrence = 1
+
+[[numbers.derive]]
+value = "25.5\\%"
+expr = "values.cutoff_sweep[1].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 404
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.76"
+expr = "values.cutoff_sweep[2].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 405
+occurrence = 1
+
+[[numbers.derive]]
+value = "93.3\\%"
+expr = "values.cutoff_sweep[2].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 405
+occurrence = 1
+
+[[numbers.derive]]
+value = "17.8\\%"
+expr = "values.cutoff_sweep[2].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 405
+occurrence = 1
+
+[[numbers.derive]]
+value = "76.6\\%"
+expr = "values.cutoff_sweep[2].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 405
+occurrence = 1
+
+[[numbers.derive]]
+value = "19.4\\%"
+expr = "values.cutoff_sweep[2].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 405
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.78"
+expr = "values.cutoff_sweep[3].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 406
+occurrence = 1
+
+[[numbers.derive]]
+value = "90.7\\%"
+expr = "values.cutoff_sweep[3].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 406
+occurrence = 1
+
+[[numbers.derive]]
+value = "12.7\\%"
+expr = "values.cutoff_sweep[3].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 406
+occurrence = 1
+
+[[numbers.derive]]
+value = "72.7\\%"
+expr = "values.cutoff_sweep[3].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 406
+occurrence = 1
+
+[[numbers.derive]]
+value = "15.2\\%"
+expr = "values.cutoff_sweep[3].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 406
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.80"
+expr = "values.cutoff_sweep[4].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 407
+occurrence = 1
+
+[[numbers.derive]]
+value = "81.3\\%"
+expr = "values.cutoff_sweep[4].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 407
+occurrence = 1
+
+[[numbers.derive]]
+value = "8.9\\%"
+expr = "values.cutoff_sweep[4].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 407
+occurrence = 1
+
+[[numbers.derive]]
+value = "70.1\\%"
+expr = "values.cutoff_sweep[4].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 407
+occurrence = 1
+
+[[numbers.derive]]
+value = "12.7\\%"
+expr = "values.cutoff_sweep[4].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 407
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.82"
+expr = "values.cutoff_sweep[5].cutoff"
+file = "papers/paperB_jhir/paperB.tex"
+line = 408
+occurrence = 1
+
+[[numbers.derive]]
+value = "81.3\\%"
+expr = "values.cutoff_sweep[5].dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 408
+occurrence = 1
+
+[[numbers.derive]]
+value = "5.1\\%"
+expr = "values.cutoff_sweep[5].dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 408
+occurrence = 1
+
+[[numbers.derive]]
+value = "66.2\\%"
+expr = "values.cutoff_sweep[5].test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 408
+occurrence = 1
+
+[[numbers.derive]]
+value = "9.7\\%"
+expr = "values.cutoff_sweep[5].test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 408
+occurrence = 1
+
+[[numbers.derive]]
+value = "100\\%"
+expr = "values.recall_only_tune.dev.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 410
+occurrence = 1
+
+[[numbers.derive]]
+value = "36.9\\%"
+expr = "values.recall_only_tune.dev.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 410
+occurrence = 1
+
+[[numbers.derive]]
+value = "84.4\\%"
+expr = "values.recall_only_tune.test.risk_recall"
+file = "papers/paperB_jhir/paperB.tex"
+line = 410
+occurrence = 1
+
+[[numbers.derive]]
+value = "37.6\\%"
+expr = "values.recall_only_tune.test.risk_false_hit"
+file = "papers/paperB_jhir/paperB.tex"
+line = 410
+occurrence = 1
+
+[[numbers.derive]]
+value = "3,301"
+expr = "values.classifier.generated_lines"
+file = "papers/paperB_jhir/paperB.tex"
 line = 415
+occurrence = 1
+
+[[numbers.derive]]
+value = "369"
+expr = "values.classifier.log_lines"
+file = "papers/paperB_jhir/paperB.tex"
+line = 416
+occurrence = 1
+
+[[numbers.derive]]
+value = "50.1\\%"
+expr = "values.classifier.judge_agrees"
+file = "papers/paperB_jhir/paperB.tex"
+line = 417
+occurrence = 1
+
+[[numbers.derive]]
+value = "38.8\\%"
+expr = "extra.tester_judge_agrees"
+file = "papers/paperB_jhir/paperB.tex"
+line = 418
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.32"
+expr = "values.classifier.micro_f1.moves_classifier"
+file = "papers/paperB_jhir/paperB.tex"
+line = 419
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.20"
+expr = "values.classifier.micro_f1.moves_lexical"
+file = "papers/paperB_jhir/paperB.tex"
+line = 419
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.66"
+expr = "values.classifier.micro_f1.intents_classifier"
+file = "papers/paperB_jhir/paperB.tex"
+line = 419
+occurrence = 1
+
+[[numbers.derive]]
+value = "0.69"
+expr = "values.classifier.micro_f1.intents_llm_tagger"
+file = "papers/paperB_jhir/paperB.tex"
+line = 419
+occurrence = 1
+
+[[numbers.allow]]
+value = "4"
+reason = "model size of Gemma 4 E4B (4 billion parameters)"
+file = "papers/paperB_jhir/paperB.tex"
+line = 435
+occurrence = 1
+
+[[numbers.derive]]
+value = "75"
+expr = "values.baselines.risk_pairs.dev"
+file = "papers/paperB_jhir/paperB.tex"
+line = 447
 occurrence = 1
 
 [[numbers.allow]]
 value = "4"
 reason = "an instruction given to the writer (Appendix A)"
 file = "papers/paperB_jhir/paperB.tex"
-line = 431
+line = 464
 occurrence = 1
 
 [[numbers.allow]]
 value = "12"
 reason = "an instruction given to the writer (Appendix A)"
 file = "papers/paperB_jhir/paperB.tex"
-line = 431
+line = 464
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "17"
-reason = "the number of example questions of this head, listed in the code"
+expr = "extra.head_examples.ask_suicidal_ideation"
 file = "papers/paperB_jhir/paperB.tex"
-line = 439
+line = 472
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "14"
-reason = "the number of example questions of this head, listed in the code"
+expr = "extra.head_examples.ask_suicide_plan"
 file = "papers/paperB_jhir/paperB.tex"
-line = 440
+line = 473
 occurrence = 1
 
-[[numbers.allow]]
+[[numbers.derive]]
 value = "12"
-reason = "the number of example questions of this head, listed in the code"
+expr = "extra.head_examples.ask_suicide_means"
 file = "papers/paperB_jhir/paperB.tex"
-line = 441
+line = 474
 occurrence = 1
 
 [[numbers.allow]]
 value = "2.0"
 reason = "the version of the Apache License"
 file = "papers/paperB_jhir/paperB.tex"
-line = 460
+line = 496
 occurrence = 1
 
 [[numbers.allow]]

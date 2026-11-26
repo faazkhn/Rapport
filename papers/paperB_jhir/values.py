@@ -54,6 +54,7 @@ def main():
         "benchmark": res["benchmark"],
         "keywords_test": {k: v for k, v in load(OV + "recall_test_lexical.json").items() if k in
                           ("fact_recall", "risk_recall", "risk_false_hit", "none_false_hit", "risk_n")},
+        "hybrid_ms_p50_timing_run": res["recall_ms"]["p50"],
         "hybrid_test": {"all": res["test_hybrid"]["all"], "per_case": res["test_hybrid"]["per_case"], "risk_ci": res["test_risk_recall_ci"],
                         "easy": frac(res["test_hybrid"]["hard_vs_easy"]["easy"]), "hard": frac(res["test_hybrid"]["hard_vs_easy"]["hard"]),
                         "keywords_easy": frac(res["test_lexical"]["hard_vs_easy"]["easy"]),
@@ -63,6 +64,7 @@ def main():
         "deployed": {"dev": sens["shipped"]["dev"], "test": sens["shipped"]["test"], "settings": sens["shipped"]["settings"]},
         "cutoff_sweep": [{"cutoff": float(k), **v} for k, v in sorted(sens["risk_cutoff_sweep"].items(), key=lambda kv: float(kv[0]))],
         "recall_only_tune": sens["overnight_recall_only_tune"],
+        "worked_example_top2": list(sens["worked_example"]["sims"].values())[:2],
         "ranks": load("papers/analysis/recall_extra.json"),
         "baselines": baselines(load(OV + "recall_baselines.json")),
         "filter": load(OV + "recall_baselines.json")["filter"],

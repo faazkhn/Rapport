@@ -32,6 +32,7 @@
   "none_false_hit": 0.227,
   "risk_false_hit": 0.061
  },
+ "hybrid_ms_p50_timing_run": 3.03,
  "hybrid_test": {
   "all": 0.733,
   "per_case": {
@@ -217,6 +218,10 @@
    "extra_per_line": 1.0
   }
  },
+ "worked_example_top2": [
+  0.8050247430801392,
+  0.7995114326477051
+ ],
  "ranks": {
   "pairs": 247,
   "top1": 0.733,
@@ -1658,8 +1663,8 @@
     "sha256": "175e668a7898e6e850098df8436a86f8413c97b949f9c560be6207f33eb8fe9c"
    }
   ],
-  "commit": "385cad1bac970a32ef564e28a53025e4af06c8be",
-  "now": "2026-11-26T05:01:21+00:00",
+  "commit": "df124490fe95ed71fd8db5f142f7cb9e6686d97e",
+  "now": "2026-11-26T05:22:48+00:00",
   "osaudit": "0.7.0"
  }
 }
