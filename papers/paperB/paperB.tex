@@ -13,18 +13,20 @@ Sets, Overfitted Cut-offs and a Cascade}
 \author[1]{\fnm{Sanket} \sur{Salvi}}\email{sanket.salvi@mitwpu.edu.in}
 \affil[1]{\orgdiv{Department of Computer Engineering and Technology}, \orgname{Dr.~Vishwanath~Karad MIT World Peace University}, \orgaddress{\city{Pune}, \state{Maharashtra}, \country{India}}}
 
-\abstract{In applications built around a language model, the safety guarantees often live in the deterministic code around the model. In
-Rapport, a spoken simulated psychiatric patient, a matching component decides which of the patient's memories a student's question is about; if
-it misses a question about suicidal thoughts, plans or means, the code can let the patient deny something it should disclose, and keyword
-matching caused every serious bug found during the simulator's evaluation. We treat this matcher as a component under test. Its blind test set
-has 512 doctor questions over four cases, written from what each memory means by a writer that never saw the matching rules, and split by
+\abstract{Components that decide what an application built around a language model may say are ordinary software and need tests, but
+their correct behaviour is defined by meaning, so no specification lists the inputs they must handle. We report a case study of testing one
+such component: the matcher in Rapport, a spoken simulated psychiatric patient, which decides which of the patient's memories a student's
+question is about. If it misses a question about suicidal thoughts, plans or means, the code can let the patient deny something it should
+disclose. Of the 8 bugs logged during the simulator's evaluation, 4 were matching faults, including all 3 rated major, and each was fixed
+by adding keywords and a regression test for one wording. We built the test oracle from the specification instead of the code: a blind test
+set of 512 doctor questions over four cases, written from what each memory means by a writer that never saw the matching rules, and split by
 checksum into a tuning half and a test half. On the test half, keyword tags found 35.1\% of risk questions; the deployed hybrid of tags and a
-33-million-parameter sentence encoder, run on the processor in a few milliseconds, found 72.7\% while wrongly matching 15.2\% of non-risk
+sentence encoder with 33 million parameters, run on the processor in a few milliseconds, found 72.7\% while wrongly matching 15.2\% of non-risk
 questions. Five small encoders and BM25 over the same example questions gave overlapping threshold-free results (area under the receiver
-operating characteristic curve 0.86--0.91 for risk), so the encoder choice was not the bottleneck; the cut-off was. The same 4-billion-parameter model that voices the patient, used as a zero-shot classifier, found \numLLMrisk{} of risk
+operating characteristic curve 0.86--0.91 for risk), so the encoder choice was not the bottleneck; the cut-off was. The same model that voices the patient (4 billion parameters), used as a zero-shot classifier, found \numLLMrisk{} of risk
 questions with \numLLMfalse{} wrong matches, at a median of \numLLMmsMed\,ms per question; screening with the hybrid first kept \numCasRisk{}
 recall while sending \numCasShare{} of questions to the model. Cut-offs tuned on a reused tuning half overfitted it, and a classifier
-trained on model-generated labels lost to simple rules. On two further test sets written by other local models, the deployed rules found
+trained on model-generated labels read a line's manner better than word patterns but its topic worse than the live tagger, and was not shipped. On two further test sets written by other local models, the deployed rules found
 \numWQwenDep{} and \numWGemmaDep{} of risk questions and the zero-shot model \numWQwenLLM{} and \numWGemmaLLM: the first writer's test set
 flattered the component. Inside conversations, missed matches became missed disclosures. The test sets, every method's output and a
 machine-checked trace of every reported number to the committed results are public.}
@@ -34,14 +36,32 @@ machine-checked trace of every reported number to the committed results are publ
 \maketitle
 
 \section{Introduction}\label{sec:intro}
-Rapport is a spoken standardised patient for psychiatry teaching, described in a companion manuscript by the same authors. Its replies come
+Rapport is an open-source spoken standardised patient for psychiatry teaching. Its replies come
 from a local language model, but the decisions that matter for safety are made in code before the model is called: which of the patient's
 memories a student's question is about, whether the patient trusts the student enough to share them, and whether a disclosure is due. This
-paper tests the first of these, the component that matches a question to a memory. Keyword matching caused every serious bug
-found during evaluation. ``Thoughts that life \emph{isn't} worth living'', ``wishing you \emph{wouldn't} wake up'' and ``tablets or anything at
+paper tests the first of these, the component that matches a question to a memory. It was also the main source of faults: of the 8 bugs
+logged during the simulator's evaluation, 4 were matching faults, including all 3 rated major (Table~\ref{tab:faults}). ``Thoughts that life \emph{isn't} worth living'', ``wishing you \emph{wouldn't} wake up'' and ``tablets or anything at
 home'' each missed the memory they asked about, and one of these misses let the patient deny a passive death wish it should have disclosed.
 Adding keywords fixed each case, and each fix came with a regression test for one wording, but there is no end to the ways people phrase a
 question.
+
+\begin{table}[t]
+\caption{Matching faults among the bugs logged during the simulator's evaluation (\texttt{docs/GATES.md}); each was fixed by adding
+keyword tags and a regression test for that wording}
+\label{tab:faults}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+Severity & Doctor's question & What the matcher did\\
+\midrule
+Major & ``Thoughts that life isn't worth living'' & Missed the passive death wish (the tag was broken by ``isn't'')\\
+Major & ``Wishing you wouldn't wake up'' & Missed the passive death wish\\
+Major & ``Have you made any plans, or do you have tablets or anything at home you might use?'' & Matched work and medical history, not the
+plan and means memories\\
+Minor & ``Who would you turn to?'' and ``What do you do to relax?'' (one logged fault) & Missed protective factors and anhedonia\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 The patient's memories are trust-locked: an item may be shared only once the patient trusts the student enough. Matching a student's question
 to these memories is unusual in three ways. It must be fast and local, because it runs on every spoken turn on the same laptop as a language
@@ -52,10 +72,13 @@ component: a latency budget, an information-flow constraint and an asymmetric co
 
 Testing such a component meets the familiar problems of testing machine-learning code \cite{zhang2022mltesting,amershi2019se4ml}. No
 specification lists every way to ask about a suicide plan, so the test oracle has to come from somewhere; every cut-off tuned on test data
-stops that data from measuring anything; and a test set from one source may not predict the next. We ask three questions. How well does the
-deployed matcher recognise reworded risk questions that it was never tuned on? Is its design (a hybrid of tags and a small encoder, with
-hand-set cut-offs) the limit, or would another encoder, BM25 or the application's own language model do better, and at what latency? And how
-far does a result on one writer's questions transfer to another's?
+stops that data from measuring anything; and a test set from one source may not predict the next. We ask three research questions:
+\begin{itemize}
+\item \textbf{RQ1 (effectiveness).} How well does the deployed matcher recognise reworded risk questions that it was never tuned on?
+\item \textbf{RQ2 (design alternatives).} Is its design (a hybrid of tags and a small encoder, with hand-set cut-offs) the limit, or would
+another encoder, BM25 or the application's own language model do better, and at what latency cost?
+\item \textbf{RQ3 (test-set transfer).} How far does a result on one writer's test set transfer to questions written by another?
+\end{itemize}
 
 \textbf{Contributions.}
 \begin{enumerate}
@@ -68,18 +91,29 @@ anything with consequences, and training-free hand-set heads (Section~\ref{sec:m
 zero-shot classifier, with threshold-free metrics, bootstrap intervals and latency, and a cascade of the hybrid and the model
 (Section~\ref{sec:results}).
 \item Lessons for engineering such components: cut-offs tuned on a reused tuning half overfitted it, a classifier trained on noisy generated
-labels lost to simple rules, a test set from one writer flattered the component, and missed matches became missed disclosures in conversations.
+labels did not beat the shipped rules, a test set from one writer flattered the component, and missed matches became missed disclosures in conversations.
 \end{enumerate}
 
 \section{Related Work}\label{sec:related}
-\textbf{Testing machine-learning components.} A survey of machine-learning testing names the test oracle as a central difficulty, since the
-expected behaviour of a learned component is rarely specified in full \cite{zhang2022mltesting}. A case study at Microsoft found that
+\textbf{Testing machine-learning components.} Deciding whether an output is correct, the oracle problem, is a long-standing problem in
+software testing \cite{barr2015oracle}. Metamorphic testing eases it by checking relations between the outputs of related inputs
+\cite{chen2018metamorphic}: that every rewording of a question should match the same memory is such a relation, but producing the rewordings
+needs a writer who understands the question, which is what our blind writers provide. A survey of machine-learning testing names the oracle as a central difficulty, since the expected
+behaviour of a learned component is rarely specified in full \cite{zhang2022mltesting}. A systematic mapping charts the techniques proposed for
+testing machine-learning-based systems \cite{riccio2020mlsystems}; we test one component inside a deployed application, and also measure what
+its failures cost end to end. A case study at Microsoft found that
 machine-learning components differ from other software in their dependence on data and in how hard they are to keep modular
 \cite{amershi2019se4ml}, and the ML Test Score turns held-out evaluation and monitoring into a checklist for production systems
 \cite{breck2017mltestscore}. CheckList tests language models with templated minimum-functionality, invariance and directional tests
 \cite{ribeiro2020checklist}; our test set instead comes from a writer that never saw the component, so its wording cannot mirror the rules.
 When new test sets were collected by the original procedure for two image benchmarks, accuracy fell \cite{recht2019imagenet}; our two further
 writers repeat that check on a small scale.
+
+\textbf{Engineering applications built on language models.} Developers of such applications report new challenges in design,
+implementation and deployment \cite{chen2025llmappchallenges}, and practitioners discuss design and architecture more than any other theme
+\cite{mailach2025themes}. STELLAR searches over stylistic, content and perturbation features of inputs to find those that make an LLM
+application respond inappropriately \cite{sorokin2026stellar}; our blind writers play a similar role for one component, varying the wording
+of a question while its meaning stays fixed.
 
 \textbf{Sentence embeddings and retrieval.} Sentence-BERT made it practical to compare sentences by meaning \cite{reimers2019sentencebert};
 MiniLM showed that small distilled models keep most of the quality \cite{wang2020minilm}; contrastive training (SimCSE, E5, the BGE family) is the
@@ -95,7 +129,7 @@ single facts \cite{lai2025patientzero}; generative agents retrieve memories by r
 systems report conversation quality, but none that we found reports how well the matching step survives rewording, or what it costs on a risk
 topic.
 
-\section{The Benchmark}\label{sec:bench}
+\section{The Test Oracle: A Blind Test Set}\label{sec:bench}
 
 \begin{figure}[t]
 \centering
@@ -146,8 +180,8 @@ Total & 512 & 38 & 249 & 152\\
 \textbf{Measures.} \emph{Recall} is the share of (question, expected memory) pairs where the memory is found. \emph{Risk recall} counts only risk
 memories (suicidal thoughts, plans, means, withdrawal fits, anger at home): 77 pairs in the test half. \emph{Risk false hits} is the share of
 questions that ask about no risk memory but are matched to one. For threshold-free comparison every method scores every (question, memory)
-pair of the question's case; we report the area under the ROC curve (AUROC) and the average precision (AUPRC) over the risk-memory pairs and over
-all pairs, with 95\% intervals from 1,000 bootstrap resamples of test-half questions.
+pair of the question's case; we report the area under the ROC curve (AUROC) and the average precision (AUPRC), which is more informative when positives are rare \cite{saito2015prc}, over the risk-memory pairs and over
+all pairs, with 95\% intervals from 1,000 bootstrap resamples of test-half questions \cite{efron1993bootstrap}.
 
 \textbf{Threats, and two more writers.} One AI writer produced both halves, and the dev half was used twice (to write example questions and to
 set cut-offs). The test half therefore measures new wording, not a new writer. To test a new writer without human participants, two local models
@@ -156,7 +190,7 @@ one line in four in code-mixed Hindi--English (Hinglish): Qwen3.5-4B and Gemma 4
 wrote the generated probes; a larger Gemma is the zero-shot classifier), so a result counts only if it holds on both. These sets are used once,
 with every cut-off still taken from the original dev half. Their labels come from the writer models and were not checked by a person.
 
-\section{Methods}\label{sec:method}
+\section{The Component Under Test and Its Alternatives}\label{sec:method}
 
 \begin{figure}[t]
 \centering
@@ -182,7 +216,7 @@ Fig.~\ref{fig:method} shows the matcher's layers.
 \textbf{Keyword layer.} Each memory has short keyword tags. The question's words are crudely stemmed and possessives fold together, so
 ``ending their life'' matches the tag ``ending your life''. A memory scores 2 for each matching phrase tag and 1 for each matching word tag.
 
-\textbf{Sentence-model layer.} bge-small-en-v1.5 \cite{xiao2023cpack}, 33 million parameters, runs on the processor. When a case loads, every
+\textbf{Sentence-model layer.} bge-small-en-v1.5, an English model of the BGE family released with C-Pack \cite{xiao2023cpack}, 33 million parameters, runs on the processor. When a case loads, every
 \emph{probe} of every memory is turned into a unit vector once; a question's similarity to a memory is its highest cosine to that memory's probes.
 A memory's probes are 4--12 doctor-style questions written for it by the first author and an AI assistant from its meaning
 (``hand-written'' below, to set them apart from bulk-generated ones); about 50 doctor questions per memory written offline
@@ -218,7 +252,7 @@ threshold was picked from the dev curve (dev risk recall 96.0\% at 15.9\% false 
 
 \subsection{Baselines}
 \textbf{BM25} \cite{robertson2009bm25} ($k_1=1.5$, $b=0.75$) indexes every probe as a document with the same stemming, and scores a memory by its best
-probe. \textbf{Five small encoders} replace bge-small with all-MiniLM-L6-v2 \cite{wang2020minilm}, e5-small-v2 (with its \texttt{query:} prefix)
+probe. \textbf{Five small encoders} replace bge-small with all-MiniLM-L6-v2 \cite{wang2020minilm,minilmcard}, e5-small-v2 (with its \texttt{query:} prefix)
 \cite{wang2022e5}, gte-small \cite{li2023gte}, bge-small-en-v1.5 and bge-base-en-v1.5 \cite{xiao2023cpack}, each scoring a memory by its best
 probe over the same probes. The \textbf{hybrid's score} for threshold-free metrics is its similarity plus 0.05 per tag point, with any tag hit ranked
 above any embedding-only score, which is the order its rules use. Because cut-offs belong to a model, each scored method also gets an
@@ -237,18 +271,25 @@ dying, kill, harm, hurt, plan, pills, rope, jump, overdose, better off, not be h
 related forms; \numFilterDropped{} of \numFilterTotal{} probes), and re-run every probe-based method.
 
 \subsection{Use of language models}
-All local models ran through llama.cpp (4-bit Q4\_K\_M) on one laptop between 13 and 19 November 2026. The original benchmark was written by
-an AI agent (Claude, Anthropic, through Claude Code) that saw only the memory descriptions. Qwen3.5-9B wrote the generated probes and the
+All local models ran through llama.cpp \cite{llamacpp} (4-bit Q4\_K\_M) on one laptop between 13 and 19 November 2026. The original benchmark was written by
+an AI agent (Claude, Anthropic, through Claude Code) that saw only the memory descriptions. Qwen3.5-9B \cite{qwen35card} wrote the generated probes and the
 classifier's training lines (temperature 0.95) and labelled the training lines (temperature 0); Qwen3.5-4B and Gemma 4 E2B wrote the two
-further test sets (temperature 0.9, fixed seeds); Gemma 4 E4B is the zero-shot classifier (temperature 0, JSON schema). All prompts are in
+further test sets (temperature 0.9, fixed seeds); Gemma 4 E4B \cite{gemma4card} is the zero-shot classifier (temperature 0, JSON schema). All prompts are in
 \texttt{tools/recall\_writer.py}, \texttt{tools/recall\_baselines.py} and \texttt{tools/brain/gen\_lines.py} in the code repository. The AI
 assistant (Claude Opus 5.5, Anthropic, through Claude Code, October--November 2026) also drafted the analysis scripts and much of the text of
-this manuscript under the authors' direction. The authors reviewed the text, checked every reported number against the saved results, and
+this manuscript under the authors' direction. Every reported number is checked mechanically against the committed results by osaudit; the authors reviewed the text and
 take responsibility for the content.
+
+\subsection{Replication package}
+The repository holds the test sets, the matcher, every baseline, each method's per-question output and the scripts that produced them.
+\texttt{papers/paperB/values.py} collects the reported values from the committed results, \texttt{extra.py} recomputes the rest
+from the committed code and data, and osaudit \cite{osaudit} checks that each number printed in this paper is one of those values or a
+stated derivation of them, and that each results file records the command, the inputs with their SHA-256 hashes and the commit that
+produced it (\texttt{osaudit.toml}). The zero-shot prompt is in Appendix~\ref{app:prompt}.
 
 \section{Results}\label{sec:results}
 
-\subsection{The deployed matcher on the test half}
+\subsection{RQ1: The deployed matcher on the test half}
 Table~\ref{tab:test} gives the deployed rules. The hybrid doubled risk recall compared with keywords, at about two and a half times the wrong
 risk matches; hand-set heads added 5.2 points of recall for 6.0 points of wrong matches. A bootstrap over the 77 risk pairs gives a 95\% interval
 of 62.3--81.8\% for the hybrid's risk recall: far from a 95\% target. Every wrong match on a ``none'' line came from a keyword (``tell me'',
@@ -269,11 +310,11 @@ Hybrid + hand-set heads & 74.9\% & 77.9\% & 21.2\% & 22.7\%\\
 \end{tabular*}
 \end{table}
 
-Recall was lowest for the alcohol case (61.2\%), whose memories are often asked about in slang and euphemism (``How many pegs would you have on a
-typical day?''), and for lines the writer marked hard (57.1\% against 92.1\% for easy lines; keywords 19.5\% and 66.7\%). Supplementary Section~S1
-gives the breakdown by case, difficulty, kind of memory and risk memory.
+The alcohol case was hardest (61.2\%). Its memories tend to be asked about in slang or euphemism: ``How many pegs would you have on a
+typical day?''. Lines the writer had marked hard fared worst of all, 57.1\% against 92.1\% for easy ones (keywords alone: 19.5\% and 66.7\%).
+Supplementary Section~S1 breaks recall down by case, difficulty, kind of memory and individual risk memory.
 
-\subsection{The encoder is not the bottleneck}
+\subsection{RQ2: The encoder is not the bottleneck}
 Table~\ref{tab:baselines} and Fig.~\ref{fig:pr} compare the methods. Every encoder ranked risk memories far better than keyword tags (risk AUROC
 0.88--0.91 against 0.66), and BM25 over the same probes came close (0.86). Their intervals overlap: bge-base, three times larger than bge-small,
 gained 0.007 AUROC. At the matched operating point the encoders found 66.2--77.9\% of test-half risk questions, and the method with the highest
@@ -289,7 +330,10 @@ memory, so no single cut-off separates them (Supplementary Section~S2).
 \input{gen/tab_baselines}
 \par\vspace{1mm}\raggedright\scriptsize AUROC and AUPRC over (question, risk memory) pairs of the question's case (prevalence 0.098); over all
 memories, AUROC ranged from 0.69 (tags) and 0.86 (BM25) to 0.91--0.94 (encoders and hybrid). Risk recall and false hits use the cut-off whose dev-half risk false-hit rate is at most the deployed hybrid's (12.7\%); the deployed
-rules themselves give 72.7\% and 15.2\% (Table~\ref{tab:test}). The language model gives one operating point, so no curve.
+rules themselves give 72.7\% and 15.2\% (Table~\ref{tab:test}). The ``Hybrid, matched cut-off'' row puts one cut-off on the hybrid's score,
+like every other row, so it differs from the deployed rules, which add the margin and risk-neighbour rules of Section~\ref{sec:method};
+the keyword row likewise cuts its tag points, so its false hits differ from the keyword-only rules in Table~\ref{tab:test}. The
+language model gives one operating point, so no curve.
 \end{table*}
 
 \begin{figure}[t]
@@ -299,7 +343,7 @@ rules themselves give 72.7\% and 15.2\% (Table~\ref{tab:test}). The language mod
 \label{fig:pr}
 \end{figure}
 
-\subsection{The patient's own model recognises far more}
+\subsection{RQ2: The application's own model recognises far more}
 Used as a zero-shot classifier, Gemma found \numLLMrisk{} of test-half risk questions and wrongly matched \numLLMfalse{} of non-risk ones, better on
 both counts than every method above. It needs one model call per question: a median of \numLLMmsMed\,ms (90th percentile \numLLMmsNinety\,ms) on
 the laptop's graphics processor, which the patient's own reply also needs, against 2.6--3.0\,ms on the processor for the hybrid. Table~\ref{tab:cascade}
@@ -314,7 +358,7 @@ low on every encoder.
 \input{gen/tab_cascade}
 \end{table}
 
-\subsection{Filtering the generated probes}
+\subsection{RQ2: Filtering the generated probes}
 Table~\ref{tab:filter} re-runs the probe-based methods without the generated risk probes that contain no risk word. Some of the dropped probes
 were plainly off-topic (``Before we continue, could you tell me a bit about how you have been sleeping lately?'' was listed as a probe for the death
 wish), which explains why sleep questions had matched suicide memories. The filter barely moved the threshold-free metrics; with the deployed rules
@@ -328,7 +372,7 @@ lost its meaning?'').
 \input{gen/tab_filter}
 \end{table*}
 
-\subsection{A new writer, and code-mixed questions}
+\subsection{RQ3: A new writer, and code-mixed questions}
 Table~\ref{tab:writers} repeats the comparison on the two further test sets. The gap between the deployed rules and the zero-shot model held, and
 widened: on the sets written by Qwen3.5-4B and Gemma 4 E2B the zero-shot model found \numWQwenLLM{} and \numWGemmaLLM{} of risk questions with
 7.9\% and 6.8\% false hits, while the deployed rules found \numWQwenDep{} and \numWGemmaDep, well below their 72.7\% on the original test
@@ -358,8 +402,8 @@ original dev half, as in Table~\ref{tab:baselines}.
 
 \subsection{Why questions were missed}
 Of the 21 risk pairs the deployed hybrid missed on the test half, 8 matched nothing, 8 matched only a non-risk memory, and 5 matched a different
-risk memory (which does little harm: a locked risk match still makes the patient evasive). Table~\ref{tab:misses} groups them by type. A real
-clinician would recognise all of them as risk questions.
+risk memory (which does little harm: a locked risk match still makes the patient evasive). Table~\ref{tab:misses} groups them by type. None needs
+clinical vocabulary to understand: each is plain English that a student could say.
 
 \begin{table}[t]
 \caption{Missed risk questions on the test half, by type}
@@ -380,14 +424,14 @@ Physical wording & ``Do things ever get physical at home?'' $\to$ consequences (
 \end{tabularx}
 \end{table}
 
-\subsection{Two negative results}
+\subsection{Two negative results for the engineering process}
 \textbf{Tuning for recall alone is unsafe.} The chosen setting scored 90.7\% risk recall on the dev half and 72.7\% on the test half. Lowering the
 risk cut-off to 0.74 raised dev recall to 98.7\% but test recall only to 83.1\%, at 25.5\% false hits: about 75 risk pairs, used twice
-(to write probes and to set cut-offs), are enough to fit the dev half without improving as much on new questions. An automatic re-tune that maximised dev risk recall reached 100\%
-but matched 36.9\% of non-risk dev questions to a risk memory (37.6\% on test; Table~\ref{tab:sweep}). In held-out conversations run during development
-with that setting (their transcripts were not kept), the patient treated ``How have you been sleeping, and how is your appetite?'' as a suicide
-question and mentioned the death wish unasked.
-Separating ``matched'' from ``clearly asked'' and capping wrong risk matches fixed it. Every step down in the risk cut-off buys a few points of
+(to write probes and to set cut-offs), are enough to fit the dev half without improving as much on new questions, the adaptive reuse that a reusable holdout is designed to
+control \cite{dwork2015reusable}. An automatic re-tune that maximised dev risk recall reached 100\%
+but matched 36.9\% of non-risk dev questions to a risk memory (37.6\% on test; Table~\ref{tab:sweep}): with a matcher like that, ordinary
+questions about sleep or appetite would reach the patient as suicide questions. The shipped design therefore separates ``matched'' from
+``clearly asked'' and caps wrong risk matches, so that only a clearly asked match can force a disclosure. Every step down in the risk cut-off buys a few points of
 recall for several points of wrong matches; reaching 95\% on new questions would need a cut-off below 0.72, where a third of ordinary questions
 already look like risk questions.
 
@@ -412,17 +456,19 @@ Recall-only tune & 100\% & 36.9\% & 84.4\% & 37.6\%\\
 \end{tabular*}
 \end{table}
 
-\textbf{A classifier trained on generated labels lost.} A language model wrote 3,301 doctor lines in the voices of an experienced psychiatrist, a
+\textbf{A classifier trained on generated labels did not beat the shipped rules.} A language model wrote 3,301 doctor lines in the voices of an experienced psychiatrist, a
 nervous student and a tester trying to break the simulator, plus 369 lines from the developer's own sessions; a judge from another model family
 (Qwen3.5-9B) labelled each with its topics and moves. The judge agreed with the topic each generated line was written for only 50.1\% of the time
 (38.8\% for the tester's lines). Logistic-regression heads on the frozen sentence vector read the \emph{manner} of a line better than word
 patterns overall (micro-F1 0.32 against 0.20) but read its \emph{topic} worse than the live language-model tagger (0.66 against 0.69). A patient
-version using them scored lower in held-out conversations and was not shipped. With labels this noisy, a learned model cannot beat simple rules,
-and a few hundred hand-checked labels are worth more than thousands of generated ones (Supplementary Section~S3).
+version using them scored lower on the held-out conversation suite (mean composite over three seeds 0.920 against 0.937 for the
+shipped version on the depression case, 0.896 against 0.906 on alcohol withdrawal) and was not shipped. Here, with labels this noisy, learning did not pay; we
+suspect a few hundred hand-checked labels would help more than thousands of generated ones, but we did not test that (Supplementary Section~S3).
 
-\subsection{What a missed match costs in conversation}
-Our companion manuscript asked every test-half risk question as the second turn of a short conversation that starts with enough
-trust for the memory to be open. The patient failed to disclose in \numRPmissVtwo{} of cases; \numRPmissNoRecVtwo{} of questions the hybrid did not
+\subsection{What a missed match costs at system level}
+We then ran the whole patient pipeline, language model included. Each test-half risk question became the second turn of a short
+conversation that started with enough trust for the memory to be open (three seeds; the runs are committed in
+\texttt{tests/overnight/riskprobe}). The patient failed to disclose in \numRPmissVtwo{} of cases; \numRPmissNoRecVtwo{} of questions the hybrid did not
 match went undisclosed, against \numRPmissRecVtwo{} of those it did. A missed match is therefore not only a benchmark error: it is a risk question
 the patient may answer as if it were small talk.
 
@@ -432,7 +478,7 @@ choice that matters most for small encoders; after that, the choice among five s
 Ranking is good; deciding where to cut is hard, and cut-offs tuned on a reused dev half do not transfer. A tuning half used twice behaves like
 an overfitted test set, so every reported number needs a fresh test half, and the second and third writers show that a fresh writer is better
 still. Keeping the safety decisions (trust locks, ``clearly asked'', forced disclosure) in code after matching meant that a matching error could
-make the patient evasive or forgetful but never leak a locked memory. A 4-billion-parameter language model, asked directly, recognises reworded risk
+make the patient evasive or forgetful but never leak a locked memory. A language model with 4 billion parameters, asked directly, recognises reworded risk
 questions far better than any cut-off on an encoder, at the cost of hundreds of milliseconds and a share of the graphics processor on every
 screened turn. For a spoken patient that has to start talking within about two seconds, a cascade is the practical architecture, and the
 \numCasShare{} of questions it sends to the model is the cost of near-model recall.
@@ -443,11 +489,26 @@ distinction applied in code afterwards. The model also sees every memory's text 
 and the call is separate from the reply, nothing locked reaches the patient's prompt, but the separation has to be kept by code. Our results argue
 that it is worth that cost on risk questions.
 
-\textbf{Limitations.} All test questions were written by language models, never by students or clinicians, so their phrasing may be more
-regular than a nervous student's. Labels came from the writers alone and were not checked by a person. About 75
-risk pairs per half make each recall figure uncertain by several points. The zero-shot prompt was written once and not tuned; a tuned prompt might
-do better, and a different model might do worse. Latency was measured on one high-end laptop. The cases are drafts that a psychiatrist must
-still review. Only one variety of English was tested.
+\section{Threats to Validity}\label{sec:threats}
+\textbf{Construct validity.} Risk recall counts (question, risk memory) pairs, so a question about two risk memories counts twice. Labels came
+from the writers alone and were not checked by a person, so a disputed label counts against the matcher. We report false hits and
+threshold-free metrics beside recall so that no single number decides a comparison.
+
+\textbf{Internal validity.} The dev half was used twice, to write probes and to set cut-offs; every reported number comes from the test half
+or from the two further sets, which were used once with cut-offs from the dev half. The zero-shot prompt was written once and not tuned; a
+tuned prompt might do better, and a different model might do worse. The original writer's blindness rests on its own report that it
+opened nothing but the memory descriptions; no log of its tool calls is in the repository. Claude wrote that benchmark, and an AI assistant
+helped write the hand-written probes; if both came from the same model family, their wordings may be closer than independent writers'
+would be. The two further writers, from other families, do not share this link, and on their questions the deployed rules found fewer
+risk questions and every encoder ranked them less well.
+
+\textbf{External validity.} All test questions were written by language models, never by students or clinicians, so their phrasing may be
+more regular than a nervous student's. The two further writers come from other model families and lowered the deployed rules' recall and every encoder's AUROC, which
+suggests that the original numbers are optimistic. The cases are drafts that a psychiatrist must still review, only one variety of English
+was tested, and latency was measured on one high-end laptop.
+
+\textbf{Conclusion validity.} About 75 risk pairs per half make each recall figure uncertain by several points; we give 95\% bootstrap
+intervals, and every comparison we draw either holds on all three test sets or is reported as an overlap.
 
 \section{Conclusion}
 Matching a reworded risk question to a patient's memory is easy to rank and hard to decide, and a test set from one writer overstates how
@@ -473,12 +534,22 @@ Each head is the normalised mean of its example questions' vectors, written from
 without you?''; \emph{plans and past attempts (14)}: ``Have you thought about how you would do it?'', ``Can you keep yourself safe if you go home
 today?''; \emph{means (12)}: ``Have you been saving up medicines?'', ``Is your home safe for you right now?''; \emph{harm to others}: ``Has anyone at
 home been afraid of you?'', ``Have arguments ever got physical?''.
+\section{Zero-shot classifier prompt}\label{app:prompt}
+The language model receives this system prompt, then a user message listing the case's memories as \texttt{- [id] text}, one per line,
+followed by \texttt{Doctor's line:} and the line. Its answer is constrained by a JSON schema to an object with one field, \texttt{ids}: an
+array of at most three strings, each one of the case's memory ids. Decoding is greedy with a fixed seed (\texttt{tools/recall\_baselines.py}).
+\begin{verbatim}
+A doctor says one line to a patient in a psychiatric interview. Below are the
+patient's memories, each with an id. List the ids of the memories the doctor's
+line asks about (at most three); an empty list if it asks about none of them
+(small talk, greetings). Answer with the JSON only.
+\end{verbatim}
 \end{appendices}
 
 \backmatter
 
 \bmhead{Supplementary information}
-Supplementary material (\texttt{supplementB.pdf}) gives recall by case, difficulty, kind of memory and risk memory (S1), rank and probe ablations,
+Supplementary material (\texttt{papers/paperB/supplementB.pdf} in the repository) gives recall by case, difficulty, kind of memory and risk memory (S1), rank and probe ablations,
 similarity distributions and the cut-offs (S2), and the classifier's data and results (S3).
 
 \section*{Statements and Declarations}
@@ -490,7 +561,7 @@ similarity distributions and the cut-offs (S2), and the classifier's data and re
 \item \textbf{Data availability:} The benchmark, its split, the two further test sets, the probes and every method's per-question output are
 in the public repository \url{https://github.com/faazkhn/Rapport} (\texttt{tests/recall}, \texttt{tests/overnight}) and archived on Zenodo
 (version 0.3.0, \url{https://doi.org/10.5281/zenodo.24367081}). Every number in this paper is traced to a committed results file by osaudit
-(\texttt{osaudit.toml}; \texttt{papers/paperB\_jhir/values.json} and \texttt{extra.json}).
+(\texttt{osaudit.toml}; \texttt{papers/paperB/values.json} and \texttt{extra.json}).
 \item \textbf{Code availability:} The code, including \texttt{tools/recall\_bench.py}, \texttt{tools/recall\_baselines.py} and
 \texttt{tools/recall\_writer.py}, is in the same public repository and archived in the same Zenodo record (\url{https://doi.org/10.5281/zenodo.24367081}) under the Apache
 License 2.0.

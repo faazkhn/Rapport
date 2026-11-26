@@ -2,8 +2,8 @@
 
 Only the values the paper reports are kept (no PR curves, no paper A results), so a printed number matches its own value and not one
 of thousands of neighbours. Regenerate with:
-  osaudit run $(for f in $(python papers/paperB_jhir/values.py --inputs); do echo --input $f; done) \
-      -o papers/paperB_jhir/values.json -- python papers/paperB_jhir/values.py
+  osaudit run $(for f in $(python papers/paperB/values.py --inputs); do echo --input $f; done) \
+      -o papers/paperB/values.json -- python papers/paperB/values.py
 """
 import json
 import re
@@ -15,7 +15,7 @@ OV = "tests/overnight/"
 INPUTS = [OV + "recall_baselines.json", OV + "recall_llm.json", OV + "recall_test_lexical.json", OV + "rerun/recall_test_hand.json",
           OV + "riskprobe/summary.json", OV + "moves_label.log", "papers/analysis/results.json", "papers/analysis/recall_extra.json",
           "papers/analysis/recall_sensitivity.json", "papers/analysis/new_results.json", "tests/brain/eval_moves-v1.json",
-          "tests/brain/gen_moves.log"] + [OV + f"recall_{k}_writer_{w}.json" for w in ("qwen4b", "gemma2b") for k in ("baselines", "llm")]
+          "tests/brain/gen_moves.log", "docs/GATES.md"] + [OV + f"heldout_{v}_{c}.log" for v in ("v2", "v3") for c in ("mdd_01", "alc_01")] + [OV + f"recall_{k}_writer_{w}.json" for w in ("qwen4b", "gemma2b") for k in ("baselines", "llm")]
 
 
 def load(p):
@@ -44,6 +44,28 @@ def llm(x):
             "cascade_test": x["cascade"]["test"], "cascade_sweep_test": x["cascade"]["sweep"]["test"]}
 
 
+# A matching fault: a doctor line recalled the wrong memory or none ("did not recall", "recalled ... not", "missed").
+MATCHING = re.compile(r"\brecall|\bmissed\b")
+
+
+def faults():
+    """The bugs logged in the evaluation gates (docs/GATES.md bug tables), by severity, and which were matching faults."""
+    rows = [[c.strip() for c in ln.strip().strip("|").split("|")] for ln in (REPO / "docs/GATES.md").read_text().splitlines()
+            if re.match(r"\| (Major|Minor|Cosmetic) \|", ln)]
+    out = {"bugs": len(rows), "major": sum(r[0] == "Major" for r in rows),
+           "matching": sum(bool(MATCHING.search(r[1])) for r in rows),
+           "matching_major": sum(r[0] == "Major" and bool(MATCHING.search(r[1])) for r in rows),
+           "matching_fixed_with_test": sum(bool(MATCHING.search(r[1])) and "test" in r[2] for r in rows)}
+    return out
+
+
+def heldout_composite(version, case):
+    """Mean composite of the held-out conversation suite over the seeds in tests/overnight/heldout_<version>_<case>.log."""
+    blocks = re.findall(r"^\d+ \{\n(.*?)\n\}", (REPO / OV / f"heldout_{version}_{case}.log").read_text(), re.M | re.S)
+    comps = [float(re.search(r'"composite": ([\d.]+)', b)[1]) for b in blocks]
+    return sum(comps) / len(comps)
+
+
 def main():
     res = load("papers/analysis/results.json")["recall"]
     new = load("papers/analysis/new_results.json")
@@ -51,6 +73,7 @@ def main():
     label = re.search(r"labelled (\d+)/\d+ lines \((\d+) from logs\); judge agrees with the generator's target on ([\d.]+)%",
                       (REPO / OV / "moves_label.log").read_text())
     out = {
+        "faults": faults(),
         "benchmark": res["benchmark"],
         "keywords_test": {k: v for k, v in load(OV + "recall_test_lexical.json").items() if k in
                           ("fact_recall", "risk_recall", "risk_false_hit", "none_false_hit", "risk_n")},
@@ -73,6 +96,7 @@ def main():
                         "llm": llm(load(OV + f"recall_llm_writer_{w}.json")),
                         "hinglish": new[f"B.writer.{w}"]["hinglish"]} for w in ("qwen4b", "gemma2b")},
         "riskprobe_v2": load(OV + "riskprobe/summary.json")["v2"]["pooled"],
+        "heldout_composite": {v: {c: heldout_composite(v, c) for c in ("mdd_01", "alc_01")} for v in ("v2", "v3")},
         "classifier": {"generated_lines": int(re.search(r"wrote (\d+) lines", (REPO / "tests/brain/gen_moves.log").read_text())[1]),
                        "labelled_lines": int(label[1]), "log_lines": int(label[2]), "judge_agrees": float(label[3]) / 100,
                        "micro_f1": {k: v["micro_f1"] for k, v in load("tests/brain/eval_moves-v1.json").items() if isinstance(v, dict)}},

@@ -1,4 +1,11 @@
 {
+ "faults": {
+  "bugs": 8,
+  "major": 3,
+  "matching": 4,
+  "matching_major": 3,
+  "matching_fixed_with_test": 4
+ },
  "benchmark": {
   "mdd_01": {
    "lines": 176,
@@ -1578,6 +1585,16 @@
   "n_when_not_recalled": 63,
   "fallbacks": 4
  },
+ "heldout_composite": {
+  "v2": {
+   "mdd_01": 0.937108843537415,
+   "alc_01": 0.9064327485380117
+  },
+  "v3": {
+   "mdd_01": 0.9204421768707483,
+   "alc_01": 0.895906432748538
+  }
+ },
  "classifier": {
   "generated_lines": 3301,
   "labelled_lines": 3670,
@@ -1594,7 +1611,7 @@
   "schema": "https://github.com/ASSERT-KTH/assert-research-agent/blob/main/schemas/provenance-v1.json",
   "command": [
    "python3",
-   "papers/paperB_jhir/values.py"
+   "papers/paperB/values.py"
   ],
   "cwd": ".",
   "inputs": [
@@ -1647,6 +1664,26 @@
     "sha256": "7f544fbd940cb5f4a8566a32c429c4fecf87b5aeb933c4933274962be3386fba"
    },
    {
+    "path": "docs/GATES.md",
+    "sha256": "8e9ba6b539c5cc91a2c70d201bde35b59b19429a96f5e82190ceec93dbc8c9bf"
+   },
+   {
+    "path": "tests/overnight/heldout_v2_mdd_01.log",
+    "sha256": "387fe96d2cdb095b07ab1a372444f42e32b00134cb1208ef9520379ceecd8b6d"
+   },
+   {
+    "path": "tests/overnight/heldout_v2_alc_01.log",
+    "sha256": "d0ca96debb894d62ccbcf19807d8a7b03d90b81be765c87fa8be33d33e34184e"
+   },
+   {
+    "path": "tests/overnight/heldout_v3_mdd_01.log",
+    "sha256": "45ffbefc1e5c86f033f85d672b77559819f721a8e22cd7f087c587558812437f"
+   },
+   {
+    "path": "tests/overnight/heldout_v3_alc_01.log",
+    "sha256": "584ea602b79afdabf48704a5eb703b2c00148584977d283bce97b169e37da561"
+   },
+   {
     "path": "tests/overnight/recall_baselines_writer_qwen4b.json",
     "sha256": "37b3c9407f4aa63fd623b7e02235c3930b337809b440b9d243220d3ea3cdc5c2"
    },
@@ -1663,8 +1700,8 @@
     "sha256": "175e668a7898e6e850098df8436a86f8413c97b949f9c560be6207f33eb8fe9c"
    }
   ],
-  "commit": "df124490fe95ed71fd8db5f142f7cb9e6686d97e",
-  "now": "2026-11-26T05:22:48+00:00",
+  "commit": "04ef065acb7d3b2be10985bca66172619f2a852e",
+  "now": "2026-11-26T06:01:13+00:00",
   "osaudit": "0.7.0"
  }
 }

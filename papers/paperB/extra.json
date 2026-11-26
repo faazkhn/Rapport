@@ -64,7 +64,7 @@
   "schema": "https://github.com/ASSERT-KTH/assert-research-agent/blob/main/schemas/provenance-v1.json",
   "command": [
    "server/patient-service/.venv/bin/python",
-   "papers/paperB_jhir/extra.py"
+   "papers/paperB/extra.py"
   ],
   "cwd": ".",
   "inputs": [
@@ -81,8 +81,8 @@
     "sha256": "a97821f716ea3485e12a931bf466131a197e68cfbf25d279f24009721b13296d"
    }
   ],
-  "commit": "df124490fe95ed71fd8db5f142f7cb9e6686d97e",
-  "now": "2026-11-26T05:22:48+00:00",
+  "commit": "04ef065acb7d3b2be10985bca66172619f2a852e",
+  "now": "2026-11-26T06:01:14+00:00",
   "osaudit": "0.7.0"
  }
 }

@@ -23,7 +23,7 @@ The repository holds two papers built on the same system. Sources, PDFs and supp
 | | Paper | Target journal | Source |
 |---|---|---|---|
 | A | *Decide in Code, Voice with the Model: A Code-Governed Patient Model for an On-Device Psychiatric Standardised Patient, Compared with a Prompt-Only Baseline* | Journal of Medical Systems | [`papers/paperA_jms/`](papers/paperA_jms/) |
-| B | *Recognising Reworded Risk Questions in a Simulated Psychiatric Patient: A Blind Benchmark, Small Encoders, BM25 and a Zero-Shot Language Model* | Journal of Healthcare Informatics Research | [`papers/paperB_jhir/`](papers/paperB_jhir/) |
+| B | *Recognising Reworded Risk Questions in a Simulated Psychiatric Patient: A Blind Benchmark, Small Encoders, BM25 and a Zero-Shot Language Model* | Journal of Healthcare Informatics Research | [`papers/paperB/`](papers/paperB/) |
 
 **Paper A** asks whether a patient whose decisions are made in code is safer than the same language model given the whole case file and
 told how to behave (a prompt-only baseline). On 14 held-out scripted conversations, each run with three seeds and judged by a model from a
@@ -108,7 +108,7 @@ tools/llm_eval/serve.sh models/Qwen3.5-9B-Q4_K_M.gguf 8081
 | Second-writer test sets (paper B) | `$PY tools/recall_writer.py tests/recall/writer_qwen4b.jsonl --url <writer server>`, then `RECALL_TEST_SET=<set> $PY tools/recall_baselines.py cpu` (and `llm`) | `tests/recall/`, `tests/overnight/*_writer_*.json` |
 | Tables and numbers for both papers | `$PY papers/analysis/new_results.py` (earlier analyses: `papers/analysis/analyses.py`) | `papers/paper*/gen/` |
 | Figures | `$PY papers/figures/make_figures.py` | `papers/figures/` |
-| Papers and supplements | `tectonic -X compile` on each `.tex` in `papers/paperA_jms/` and `papers/paperB_jhir/` | PDFs |
+| Papers and supplements | `tectonic -X compile` on each `.tex` in `papers/paperA_jms/` and `papers/paperB/` | PDFs |
 
 The whole overnight sequence used for the papers is `tools/overnight/queue5.sh` → `queue6.sh` → `queue7.sh` → `queue8.sh` (each step's log
 and exit code in `tests/overnight/papers/status.md`). Sampling seeds are fixed, but llama.cpp on a different machine or build can still give
@@ -149,7 +149,7 @@ Rapport's own code, data, case files and papers are licensed under the [Apache L
 
 **Third-party assets** keep their own licences and are not relicensed by this repository: the language, speech and voice models
 ([`models/README.md`](models/README.md)), vendored web libraries (`server/patient-service/twin/vendor/`), LaTeX journal templates
-(the Springer Nature class in `papers/paperA_jms/` and `papers/paperB_jhir/`), and the 3D characters (Reallusion Character Creator exports), animations and environment models under
+(the Springer Nature class in `papers/paperA_jms/` and `papers/paperB/`), and the 3D characters (Reallusion Character Creator exports), animations and environment models under
 `unity/PsychSim/Assets/Art/`. These are used under licences that permit this use; check each source's terms before reusing them
 elsewhere.
 
