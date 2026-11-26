@@ -2,8 +2,8 @@
 
 Prints one JSON object on stdout (no timings, so a rerun prints the same). Regenerate with:
   osaudit run --input tests/recall/paraphrase_set.jsonl --input tests/brain/train_labelled.jsonl \
-      --input unity/PsychSim/Assets/StreamingAssets/data -o papers/paperB_jhir/extra.json \
-      -- server/patient-service/.venv/bin/python papers/paperB_jhir/extra.py
+      --input unity/PsychSim/Assets/StreamingAssets/data -o papers/paperB/extra.json \
+      -- server/patient-service/.venv/bin/python papers/paperB/extra.py
 """
 import json
 import sys

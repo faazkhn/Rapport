@@ -2,14 +2,14 @@
 
 Table cells map to values.json paths by each table's structure; the text's numbers are listed in PROSE below, each keyed by a fragment
 of its line. Rerun after any edit to paperB.tex, then run osaudit. Needs osaudit (https://github.com/ASSERT-KTH/osaudit) installed:
-  python papers/paperB_jhir/osaudit_toml.py && osaudit
+  python papers/paperB/osaudit_toml.py && osaudit
 """
 from pathlib import Path
 
 from osaudit._tex import numbers as tex_numbers
 
 R = Path(__file__).resolve().parents[2]
-G = "papers/paperB_jhir/gen/"
+G = "papers/paperB/gen/"
 V = "values"  # the results file values.json
 M = lambda k: f'{V}.baselines.methods["{k}"]'
 W = lambda w, k: f'{V}.writers.{w}.baselines.methods["{k}"]'
@@ -39,9 +39,12 @@ SWEEP = [r"0.72 & 100", r"0.74 & 98.7", r"0.76 & 93.3", r"\textbf{0.78 (shipped)
 PROSE = {
  r"\expandafter\def\csname ver@breakurl": [A("the date in the LaTeX package version string that skips breakurl")],
  r"\author*[1]{\fnm{Faaz Kha": [AFF], r"\author[1]{\fnm{Sanket": [AFF], r"\affil[1]": [AFF],
- "has 512 doctor questions over four cases": [tot("lines")],
+ "disclose. Of the 8 bugs logged": [f"{V}.faults.bugs", f"{V}.faults.matching", f"{V}.faults.matching_major"],
+ "It was also the main source of faults": [f"{V}.faults.bugs"],
+ "rated major (Table~\\ref{tab:faults})": [f"{V}.faults.matching", f"{V}.faults.matching_major"],
+ "set of 512 doctor questions over four cases": [tot("lines")],
  "checksum into a tuning half and a test half. On the test half, keyword": [f"{V}.keywords_test.risk_recall"],
- "33-million-parameter sentence encoder, run on the processor": [SIZE_BGE, f"{V}.deployed.test.risk_recall", f"{V}.deployed.test.risk_false_hit"],
+ "sentence encoder with 33 million parameters, run on the processor": [SIZE_BGE, f"{V}.deployed.test.risk_recall", f"{V}.deployed.test.risk_false_hit"],
  "operating characteristic curve 0.86--0.91": [M("bm25") + ".risk_auroc[0]", M("bge-base") + ".risk_auroc[0]", SIZE_GEMMA],
  "code; a checksum split into tuning and test halves": [tot("lines")],
  "The result has 512 lines over four cases": [tot("lines"), tot("none"), tot("hard")],
@@ -85,8 +88,8 @@ PROSE = {
  "Keywords only & 41.3": [f"{V}.keywords_test.fact_recall", f"{V}.keywords_test.risk_recall", f"{V}.keywords_test.risk_false_hit", f"{V}.keywords_test.none_false_hit"],
  "Hybrid & 73.3": [f"{V}.hybrid_test.all", f"{V}.deployed.test.risk_recall", f"{V}.deployed.test.risk_false_hit", f"{V}.deployed.test.none_false_hit"],
  "Hybrid + hand-set heads & 74.9": [f"{V}.hands_test.fact_recall", f"{V}.hands_test.risk_recall", f"{V}.hands_test.risk_false_hit", f"{V}.hands_test.none_false_hit"],
- "Recall was lowest for the alcohol case": [f"{V}.hybrid_test.per_case.alc_01"],
- "lines the writer marked hard (57.1": [f"{V}.hybrid_test.hard", f"{V}.hybrid_test.easy", f"{V}.hybrid_test.keywords_hard", f"{V}.hybrid_test.keywords_easy"],
+ "The alcohol case was hardest (61.2": [f"{V}.hybrid_test.per_case.alc_01"],
+ "Lines the writer had marked hard fared worst": [f"{V}.hybrid_test.hard", f"{V}.hybrid_test.easy", f"{V}.hybrid_test.keywords_hard", f"{V}.hybrid_test.keywords_easy"],
  "0.88--0.91 against 0.66": [M("e5-small") + ".risk_auroc[0]", M("bge-base") + ".risk_auroc[0]", M("tags") + ".risk_auroc[0]", M("bm25") + ".risk_auroc[0]"],
  "gained 0.007 AUROC": [M("bge-base") + ".risk_auroc[0] - " + M("bge-small") + ".risk_auroc[0]",
                         "100 * " + M("bge-small") + ".test.risk_recall",
@@ -110,21 +113,24 @@ PROSE = {
  r"\textbf{Tuning for recall alone is unsafe.}": [f"{V}.deployed.dev.risk_recall", f"{V}.deployed.test.risk_recall"],
  "risk cut-off to 0.74 raised dev recall": [SW(1) + ".cutoff", SW(1) + ".dev.risk_recall", SW(1) + ".test.risk_recall", SW(1) + ".test.risk_false_hit",
                                             f"{V}.baselines.risk_pairs.dev"],
- "(to write probes and to set cut-offs), are enough": [f"{V}.recall_only_tune.dev.risk_recall"],
+ "An automatic re-tune that maximised dev risk recall": [f"{V}.recall_only_tune.dev.risk_recall"],
  "but matched 36.9": [f"{V}.recall_only_tune.dev.risk_false_hit", f"{V}.recall_only_tune.test.risk_false_hit"],
  "reaching 95\\% on new questions": [TARGET, SW(0) + ".cutoff"],
  **{SWEEP[i]: [SW(i) + ".cutoff", SW(i) + ".dev.risk_recall", SW(i) + ".dev.risk_false_hit", SW(i) + ".test.risk_recall", SW(i) + ".test.risk_false_hit"]
     for i in range(6)},
  "Recall-only tune & 100": [f"{V}.recall_only_tune.dev.risk_recall", f"{V}.recall_only_tune.dev.risk_false_hit", f"{V}.recall_only_tune.test.risk_recall",
                             f"{V}.recall_only_tune.test.risk_false_hit"],
- r"\textbf{A classifier trained on generated labels lost.}": [f"{V}.classifier.generated_lines"],
+ r"\textbf{A classifier trained on generated labels did not beat": [f"{V}.classifier.generated_lines"],
  "plus 369 lines": [f"{V}.classifier.log_lines"],
+ "scored lower on the held-out conversation suite": [f"{V}.heldout_composite.v3.mdd_01", f"{V}.heldout_composite.v2.mdd_01"],
+ "shipped version on the depression case, 0.896": [f"{V}.heldout_composite.v3.alc_01", f"{V}.heldout_composite.v2.alc_01"],
+ "the inputs with their SHA-256 hashes": [A("SHA-256, the name of the hash function")],
  "The judge agreed": [f"{V}.classifier.judge_agrees"],
  "for the tester's lines)": [f"{E}.tester_judge_agrees"],
  "(micro-F1 0.32 against 0.20)": [f"{V}.classifier.micro_f1.moves_classifier", f"{V}.classifier.micro_f1.moves_lexical",
                                   f"{V}.classifier.micro_f1.intents_classifier", f"{V}.classifier.micro_f1.intents_llm_tagger"],
- "A 4-billion-parameter language model, asked directly": [SIZE_GEMMA],
- "Labels came from the writers alone": [f"{V}.baselines.risk_pairs.dev"],
+ "A language model with 4 billion parameters, asked directly": [SIZE_GEMMA],
+ "About 75 risk pairs per half": [f"{V}.baselines.risk_pairs.dev", CI],
  "4 per memory and 12 per risk memory": [WRITER, WRITER],
  r"\emph{suicidal thoughts (17)}": [f"{HX}.ask_suicidal_ideation"],
  r"\emph{plans and past attempts (14)}": [f"{HX}.ask_suicide_plan"],
@@ -164,7 +170,7 @@ rules[(G + "tab_writers.tex", 12)] = [x for n in ("qwen4b", "gemma2b") for x in 
 rules[(G + "tab_writers.tex", 3)] = [NAME]
 rules[(G + "tab_writers.tex", 13)] = [NAME] + [x for n in ("qwen4b", "gemma2b") for x in (f"{w(n)}.llm.test.risk_recall", f"{w(n)}.llm.test.risk_false_hit")]
 
-P = "papers/paperB_jhir/paperB.tex"
+P = "papers/paperB/paperB.tex"
 TEXT = (R / P).read_text().splitlines()
 for key, exprs in PROSE.items():
     found = [i + 1 for i, line in enumerate(TEXT) if key in line]
@@ -174,15 +180,15 @@ for key, exprs in PROSE.items():
 out = ['schema = "https://github.com/ASSERT-KTH/assert-research-agent/blob/main/schemas/audit-v1.json"', "",
        "# Paper B (Testing a Safety-Critical Matcher). The text and its generated tables are audited; the \\newcommand values in",
        "# gen/numbers.tex are written by papers/analysis/new_results.py from the same saved runs and are not printed numbers of the source.",
-       "# papers/paperB_jhir/values.py collects the reported values from the committed results into values.json; extra.py recomputes the",
+       "# papers/paperB/values.py collects the reported values from the committed results into values.json; extra.py recomputes the",
        "# dev-half and classifier figures no earlier script saved into extra.json (regenerate either: see its docstring). Each number is",
-       "# named by file, line and occurrence; this file is written by papers/paperB_jhir/osaudit_toml.py.", "",
+       "# named by file, line and occurrence; this file is written by papers/paperB/osaudit_toml.py.", "",
        "[paper]", f'tex = ["{P}", "{G}tab_*.tex"]', "",
-       "[results]", 'files = ["papers/paperB_jhir/values.json", "papers/paperB_jhir/extra.json"]',
-       'instruments = ["papers/paperB_jhir/values.py", "papers/paperB_jhir/extra.py"]', "",
+       "[results]", 'files = ["papers/paperB/values.json", "papers/paperB/extra.json"]',
+       'instruments = ["papers/paperB/values.py", "papers/paperB/extra.py"]', "",
        "[[results.depends]]  # extra.py imports the matcher and the benchmark code it measures",
-       'file = "papers/paperB_jhir/extra.json"',
-       'instruments = ["papers/paperB_jhir/extra.py", "server/patient-service/twin.py", "server/patient-service/brain.py", "tools/recall_bench.py",',
+       'file = "papers/paperB/extra.json"',
+       'instruments = ["papers/paperB/extra.py", "server/patient-service/twin.py", "server/patient-service/brain.py", "tools/recall_bench.py",',
        '               "tools/recall_baselines.py", "tools/brain/hand_weights.py"]', ""]
 def q(s): return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 for f in [P] + sorted({k[0] for k in rules if k[0] != P}):

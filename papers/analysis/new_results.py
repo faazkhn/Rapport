@@ -1,6 +1,6 @@
 """Tables and numbers for papers A and B from the 2026-11-18 runs (tools/overnight/queue5.sh). Missing results print as a red [pending]
 in the papers, so both papers build before, during and after the queue.
-Writes papers/paperA_jms/gen/*.tex, papers/paperB_jhir/gen/*.tex, papers/analysis/new_results.json and fig_pr_curves.pdf.
+Writes papers/paperA_jms/gen/*.tex, papers/paperB/gen/*.tex, papers/analysis/new_results.json and fig_pr_curves.pdf.
 Usage: server/patient-service/.venv/bin/python papers/analysis/new_results.py
 """
 import json
@@ -12,7 +12,7 @@ sys.path.insert(0, str(HERE))
 from analyses import REPO, boot_ci, convs, per_conv_metrics  # noqa: E402
 import metrics  # noqa: E402  (tools/learning, on the path via analyses)
 
-A, B = REPO / "papers/paperA_jms/gen", REPO / "papers/paperB_jhir/gen"
+A, B = REPO / "papers/paperA_jms/gen", REPO / "papers/paperB/gen"
 OV = REPO / "tests/overnight"
 P = r"\pending"
 ARMS = [("v0", "Earlier Twin (v0)"), ("v2", "Twin (v2)"), ("p0", "Prompt-only")]
@@ -117,7 +117,7 @@ def riskprobe_table(res):
 
 # ---------- paper B ----------
 NAMES = {"tags": "Keyword tags (v0)", "bm25": "BM25, probes", "minilm": "MiniLM-L6 (22M)", "e5-small": "e5-small-v2 (33M)",
-         "gte-small": "gte-small (33M)", "bge-small": "bge-small (33M)", "bge-base": "bge-base (109M)", "hybrid": "Hybrid (deployed)"}
+         "gte-small": "gte-small (33M)", "bge-small": "bge-small (33M)", "bge-base": "bge-base (109M)", "hybrid": "Hybrid, matched cut-off"}
 
 
 def recall_tables(res):
@@ -180,7 +180,7 @@ def pr_figure(methods, llm):
         m = methods.get(k)
         if m and "pr_curve" in m:
             ax.plot(m["pr_curve"]["recall"], m["pr_curve"]["precision"], style, lw=2.2 if k == "hybrid" else 1.1,
-                    label=NAMES[k].split(" (")[0] + (" (deployed)" if k == "hybrid" else ""))
+                    label="Hybrid (deployed)" if k == "hybrid" else NAMES[k].split(" (")[0])
     if llm.get("test"):
         t = llm["test"]
         ax.plot([t["risk_recall"]], [precision_of(llm)], "k*", ms=11, label="Gemma zero-shot (one point)")

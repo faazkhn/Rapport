@@ -7,7 +7,7 @@ Peace University, Pune.
 | | Paper | Journal | Source | Supplement |
 |---|---|---|---|---|
 | A | Decide in Code, Voice with the Model: a code-governed patient model, compared with a prompt-only baseline | Journal of Medical Systems | `paperA_jms/paperA.tex` | `paperA_jms/supplementA.tex` |
-| B | Recognising Reworded Risk Questions: blind benchmark, small encoders, BM25 and a zero-shot language model | Journal of Healthcare Informatics Research | `paperB_jhir/paperB.tex` | `paperB_jhir/supplementB.tex` |
+| B | Recognising Reworded Risk Questions: blind benchmark, small encoders, BM25 and a zero-shot language model | Journal of Healthcare Informatics Research | `paperB/paperB.tex` | `paperB/supplementB.tex` |
 
 - **Build:** `tectonic -X compile <file>.tex` inside each paper's folder. The first line of each main paper skips `breakurl` and
   `shared/sn_preamble.tex` redefines `\doi`, because Tectonic runs XeTeX and the class expects pdfTeX/dvips.
