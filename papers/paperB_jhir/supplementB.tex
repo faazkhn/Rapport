@@ -8,7 +8,7 @@
 \renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\thefigure}{S\arabic{figure}}
 \begin{document}
-\begin{center}{\Large\bfseries Supplementary material for ``Recognising Reworded Risk Questions in a Simulated Psychiatric Patient''}\\[2mm]Faaz Khan Mohammad and Sanket Salvi\\Department of Computer Engineering and Technology, Dr. Vishwanath Karad MIT World Peace University, Pune, India\end{center}
+\begin{center}{\Large\bfseries Supplementary material for ``Testing a Safety-Critical Matching Component of an LLM-Based Simulated Patient''}\\[2mm]Faaz Khan Mohammad and Sanket Salvi\\Department of Computer Engineering and Technology, Dr. Vishwanath Karad MIT World Peace University, Pune, India\end{center}
 \section{Recall by case, difficulty and memory}\label{s:bycase}
 
 \begin{table}[htbp]
@@ -75,11 +75,11 @@ After going off alcohol, was there ever an episode where you didn't know where y
 Sentence model & Probes & Top-1 & Top-3\\
 \midrule
 MiniLM-L6 \cite{wang2020minilm} & memory text & 0.534 & 0.777\\
-MiniLM-L6 & text + label + tags & 0.580 & 0.857\\
-MiniLM-L6 & hand-written questions & 0.706 & 0.866\\
-MiniLM-L6 & questions + tags + text & 0.714 & 0.874\\
-bge-small & hand-written questions & 0.744 & 0.916\\
-bge-small & questions + tags + text & 0.739 & \textbf{0.933}\\
+MiniLM-L6 & text + label + tags & 0.576 & 0.857\\
+MiniLM-L6 & hand-written questions & 0.748 & 0.882\\
+MiniLM-L6 & questions + tags + text & 0.752 & 0.895\\
+bge-small & hand-written questions & 0.769 & 0.924\\
+bge-small & questions + tags + text & 0.777 & \textbf{0.941}\\
 \bottomrule
 \end{tabular}
 \end{table}

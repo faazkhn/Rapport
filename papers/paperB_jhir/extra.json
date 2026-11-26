@@ -1,0 +1,63 @@
+{
+ "dev_rank_ablation": {
+  "minilm": {
+   "memory_text": {
+    "top1": 0.5336134453781513,
+    "top3": 0.7773109243697479
+   },
+   "text_label_tags": {
+    "top1": 0.5756302521008403,
+    "top3": 0.8571428571428571
+   },
+   "hand_written_questions": {
+    "top1": 0.7478991596638656,
+    "top3": 0.8823529411764706
+   },
+   "questions_tags_text": {
+    "top1": 0.7521008403361344,
+    "top3": 0.8949579831932774
+   }
+  },
+  "bge_small": {
+   "hand_written_questions": {
+    "top1": 0.7689075630252101,
+    "top3": 0.9243697478991597
+   },
+   "questions_tags_text": {
+    "top1": 0.7773109243697479,
+    "top3": 0.9411764705882353
+   }
+  }
+ },
+ "heads_dev": {
+  "risk_recall": 0.96,
+  "risk_false_hit": 0.159
+ },
+ "heads_threshold": {
+  "ask_suicidal_ideation": 0.76,
+  "ask_suicide_plan": 0.76,
+  "ask_suicide_means": 0.76,
+  "ask_homicidal_ideation": 0.76,
+  "ask_withdrawal_history": 0.76
+ },
+ "head_examples": {
+  "ask_suicidal_ideation": 17,
+  "ask_suicide_plan": 14,
+  "ask_suicide_means": 12,
+  "ask_homicidal_ideation": 12,
+  "ask_withdrawal_history": 10
+ },
+ "probes_per_memory": {
+  "hand_written": {
+   "min": 4,
+   "max": 12
+  },
+  "generated": {
+   "min": 46,
+   "max": 52,
+   "median": 49
+  }
+ },
+ "tester_lines": 1099,
+ "tester_judge_agrees": 0.38762511373976344
+}
