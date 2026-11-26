@@ -282,7 +282,7 @@ take responsibility for the content.
 
 \subsection{Replication package}
 The repository holds the test sets, the matcher, every baseline, each method's per-question output and the scripts that produced them.
-\texttt{papers/paperB/values.py} collects the reported values from the committed results, \texttt{extra.py} recomputes the rest
+\texttt{papers/paper/values.py} collects the reported values from the committed results, \texttt{extra.py} recomputes the rest
 from the committed code and data, and osaudit \cite{osaudit} checks that each number printed in this paper is one of those values or a
 stated derivation of them, and that each results file records the command, the inputs with their SHA-256 hashes and the commit that
 produced it (\texttt{osaudit.toml}). The zero-shot prompt is in Appendix~\ref{app:prompt}.
@@ -549,7 +549,7 @@ line asks about (at most three); an empty list if it asks about none of them
 \backmatter
 
 \bmhead{Supplementary information}
-Supplementary material (\texttt{papers/paperB/supplementB.pdf} in the repository) gives recall by case, difficulty, kind of memory and risk memory (S1), rank and probe ablations,
+Supplementary material (\texttt{papers/paper/supplement.pdf} in the repository) gives recall by case, difficulty, kind of memory and risk memory (S1), rank and probe ablations,
 similarity distributions and the cut-offs (S2), and the classifier's data and results (S3).
 
 \section*{Statements and Declarations}
@@ -561,7 +561,7 @@ similarity distributions and the cut-offs (S2), and the classifier's data and re
 \item \textbf{Data availability:} The benchmark, its split, the two further test sets, the probes and every method's per-question output are
 in the public repository \url{https://github.com/faazkhn/Rapport} (\texttt{tests/recall}, \texttt{tests/overnight}) and archived on Zenodo
 (version 0.3.0, \url{https://doi.org/10.5281/zenodo.24367081}). Every number in this paper is traced to a committed results file by osaudit
-(\texttt{osaudit.toml}; \texttt{papers/paperB/values.json} and \texttt{extra.json}).
+(\texttt{osaudit.toml}; \texttt{papers/paper/values.json} and \texttt{extra.json}).
 \item \textbf{Code availability:} The code, including \texttt{tools/recall\_bench.py}, \texttt{tools/recall\_baselines.py} and
 \texttt{tools/recall\_writer.py}, is in the same public repository and archived in the same Zenodo record (\url{https://doi.org/10.5281/zenodo.24367081}) under the Apache
 License 2.0.

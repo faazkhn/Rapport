@@ -2,8 +2,8 @@
 
 Only the values the paper reports are kept (no PR curves, no paper A results), so a printed number matches its own value and not one
 of thousands of neighbours. Regenerate with:
-  osaudit run $(for f in $(python papers/paperB/values.py --inputs); do echo --input $f; done) \
-      -o papers/paperB/values.json -- python papers/paperB/values.py
+  osaudit run $(for f in $(python papers/paper/values.py --inputs); do echo --input $f; done) \
+      -o papers/paper/values.json -- python papers/paper/values.py
 """
 import json
 import re

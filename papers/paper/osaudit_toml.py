@@ -1,15 +1,15 @@
 """Writes the repository's osaudit.toml: every number paper B prints, named by file, line and occurrence.
 
 Table cells map to values.json paths by each table's structure; the text's numbers are listed in PROSE below, each keyed by a fragment
-of its line. Rerun after any edit to paperB.tex, then run osaudit. Needs osaudit (https://github.com/ASSERT-KTH/osaudit) installed:
-  python papers/paperB/osaudit_toml.py && osaudit
+of its line. Rerun after any edit to paper.tex, then run osaudit. Needs osaudit (https://github.com/ASSERT-KTH/osaudit) installed:
+  python papers/paper/osaudit_toml.py && osaudit
 """
 from pathlib import Path
 
 from osaudit._tex import numbers as tex_numbers
 
 R = Path(__file__).resolve().parents[2]
-G = "papers/paperB/gen/"
+G = "papers/paper/gen/"
 V = "values"  # the results file values.json
 M = lambda k: f'{V}.baselines.methods["{k}"]'
 W = lambda w, k: f'{V}.writers.{w}.baselines.methods["{k}"]'
@@ -34,7 +34,7 @@ TEMP0 = A("temperature 0, a run setting")
 Q4 = A("4-bit quantisation, a run setting")
 MS = [f"{V}.baselines.deployed.test.ms_p50", f"{V}.hybrid_ms_p50_timing_run"]  # the hybrid's median matching time in two runs
 WRITER = A("an instruction given to the writer (Appendix A)")
-# The text's numbers, keyed by a fragment that occurs on exactly one line of paperB.tex, so edits elsewhere do not shift them.
+# The text's numbers, keyed by a fragment that occurs on exactly one line of paper.tex, so edits elsewhere do not shift them.
 SWEEP = [r"0.72 & 100", r"0.74 & 98.7", r"0.76 & 93.3", r"\textbf{0.78 (shipped)}", r"0.80 & 81.3", r"0.82 & 81.3\% & 5.1"]
 PROSE = {
  r"\expandafter\def\csname ver@breakurl": [A("the date in the LaTeX package version string that skips breakurl")],
@@ -170,7 +170,7 @@ rules[(G + "tab_writers.tex", 12)] = [x for n in ("qwen4b", "gemma2b") for x in 
 rules[(G + "tab_writers.tex", 3)] = [NAME]
 rules[(G + "tab_writers.tex", 13)] = [NAME] + [x for n in ("qwen4b", "gemma2b") for x in (f"{w(n)}.llm.test.risk_recall", f"{w(n)}.llm.test.risk_false_hit")]
 
-P = "papers/paperB/paperB.tex"
+P = "papers/paper/paper.tex"
 TEXT = (R / P).read_text().splitlines()
 for key, exprs in PROSE.items():
     found = [i + 1 for i, line in enumerate(TEXT) if key in line]
@@ -180,15 +180,15 @@ for key, exprs in PROSE.items():
 out = ['schema = "https://github.com/ASSERT-KTH/assert-research-agent/blob/main/schemas/audit-v1.json"', "",
        "# Paper B (Testing a Safety-Critical Matcher). The text and its generated tables are audited; the \\newcommand values in",
        "# gen/numbers.tex are written by papers/analysis/new_results.py from the same saved runs and are not printed numbers of the source.",
-       "# papers/paperB/values.py collects the reported values from the committed results into values.json; extra.py recomputes the",
+       "# papers/paper/values.py collects the reported values from the committed results into values.json; extra.py recomputes the",
        "# dev-half and classifier figures no earlier script saved into extra.json (regenerate either: see its docstring). Each number is",
-       "# named by file, line and occurrence; this file is written by papers/paperB/osaudit_toml.py.", "",
+       "# named by file, line and occurrence; this file is written by papers/paper/osaudit_toml.py.", "",
        "[paper]", f'tex = ["{P}", "{G}tab_*.tex"]', "",
-       "[results]", 'files = ["papers/paperB/values.json", "papers/paperB/extra.json"]',
-       'instruments = ["papers/paperB/values.py", "papers/paperB/extra.py"]', "",
+       "[results]", 'files = ["papers/paper/values.json", "papers/paper/extra.json"]',
+       'instruments = ["papers/paper/values.py", "papers/paper/extra.py"]', "",
        "[[results.depends]]  # extra.py imports the matcher and the benchmark code it measures",
-       'file = "papers/paperB/extra.json"',
-       'instruments = ["papers/paperB/extra.py", "server/patient-service/twin.py", "server/patient-service/brain.py", "tools/recall_bench.py",',
+       'file = "papers/paper/extra.json"',
+       'instruments = ["papers/paper/extra.py", "server/patient-service/twin.py", "server/patient-service/brain.py", "tools/recall_bench.py",',
        '               "tools/recall_baselines.py", "tools/brain/hand_weights.py"]', ""]
 def q(s): return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 for f in [P] + sorted({k[0] for k in rules if k[0] != P}):
