@@ -38,11 +38,11 @@ references:
     year: 2026
     notes: "Manuscript in preparation for the Journal of Medical Systems. Source: papers/paperA_jms/paperA.tex"
   - type: unpublished
-    title: "Recognising Reworded Risk Questions in a Simulated Psychiatric Patient: A Blind Benchmark, Small Encoders, BM25 and a Zero-Shot Language Model"
+    title: "Testing a Safety-Critical Matching Component of an LLM-Based Simulated Patient: Blind Test Sets, Overfitted Cut-offs and a Cascade"
     authors:
       - family-names: Mohammad
         given-names: Faaz Khan
       - family-names: Salvi
         given-names: Sanket
     year: 2026
-    notes: "Manuscript in preparation for the Journal of Healthcare Informatics Research. Source: papers/paperB/paperB.tex"
+    notes: "Preprint for arXiv (cs.SE). Source: papers/paper/paper.tex"

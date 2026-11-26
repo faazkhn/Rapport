@@ -1,6 +1,6 @@
 """Tables and numbers for papers A and B from the 2026-11-18 runs (tools/overnight/queue5.sh). Missing results print as a red [pending]
 in the papers, so both papers build before, during and after the queue.
-Writes papers/paperA_jms/gen/*.tex, papers/paperB/gen/*.tex, papers/analysis/new_results.json and fig_pr_curves.pdf.
+Writes papers/paperA_jms/gen/*.tex, papers/paper/gen/*.tex, papers/analysis/new_results.json and fig_pr_curves.pdf.
 Usage: server/patient-service/.venv/bin/python papers/analysis/new_results.py
 """
 import json
@@ -12,7 +12,7 @@ sys.path.insert(0, str(HERE))
 from analyses import REPO, boot_ci, convs, per_conv_metrics  # noqa: E402
 import metrics  # noqa: E402  (tools/learning, on the path via analyses)
 
-A, B = REPO / "papers/paperA_jms/gen", REPO / "papers/paperB/gen"
+A, B = REPO / "papers/paperA_jms/gen", REPO / "papers/paper/gen"
 OV = REPO / "tests/overnight"
 P = r"\pending"
 ARMS = [("v0", "Earlier Twin (v0)"), ("v2", "Twin (v2)"), ("p0", "Prompt-only")]

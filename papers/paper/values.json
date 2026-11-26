@@ -1611,7 +1611,7 @@
   "schema": "https://github.com/ASSERT-KTH/assert-research-agent/blob/main/schemas/provenance-v1.json",
   "command": [
    "python3",
-   "papers/paperB/values.py"
+   "papers/paper/values.py"
   ],
   "cwd": ".",
   "inputs": [
@@ -1700,8 +1700,8 @@
     "sha256": "175e668a7898e6e850098df8436a86f8413c97b949f9c560be6207f33eb8fe9c"
    }
   ],
-  "commit": "04ef065acb7d3b2be10985bca66172619f2a852e",
-  "now": "2026-11-26T06:01:13+00:00",
+  "commit": "988953ff558124a7e051b4ba4ac62da486e104ac",
+  "now": "2026-11-26T06:11:27+00:00",
   "osaudit": "0.7.0"
  }
 }
